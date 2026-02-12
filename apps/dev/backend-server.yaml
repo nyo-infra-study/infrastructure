@@ -20,7 +20,7 @@ spec:
           tag: "1.0.0"
         ingress:
           enabled: true
-          className: cilium
+          className: nginx
           hosts:
             - host: backend.dev.local
               paths:

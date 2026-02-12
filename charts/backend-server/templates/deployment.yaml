@@ -1,18 +1,18 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}
+  name: {{ include "backend-server.fullname" . }}
   labels:
-    app: {{ .Release.Name }}
+    {{- include "backend-server.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app: {{ .Release.Name }}
+      {{- include "backend-server.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        app: {{ .Release.Name }}
+        {{- include "backend-server.selectorLabels" . | nindent 8 }}
     spec:
       containers:
         - name: {{ .Release.Name }}
