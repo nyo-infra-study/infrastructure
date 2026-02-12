@@ -1,0 +1,22 @@
+# Backend Server - Base Values (shared across all environments)
+
+replicaCount: 1
+
+image:
+  repository: skimpjr/backend-server
+  tag: latest
+  pullPolicy: Always
+
+service:
+  type: ClusterIP
+  port: 8080
+
+containerPort: 8080
+
+resources:
+  limits:
+    cpu: 200m
+    memory: 128Mi
+  requests:
+    cpu: 100m
+    memory: 64Mi

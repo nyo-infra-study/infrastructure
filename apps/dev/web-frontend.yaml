@@ -1,0 +1,29 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: dev-web-frontend
+  namespace: argocd
+  labels:
+    environment: dev
+    domain: frontend
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/nyo-infra-study/infrastructure.git
+    targetRevision: main
+    path: charts/web-frontend
+    helm:
+      releaseName: dev-web-frontend
+      valuesObject:
+        replicaCount: 1
+        image:
+          tag: "1.0.0"
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: dev
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

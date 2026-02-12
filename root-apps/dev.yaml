@@ -1,0 +1,28 @@
+# Root App of Apps — Dev Environment
+#
+# This is the ONLY manifest you need to `kubectl apply`.
+# ArgoCD will discover all Application manifests in apps/dev/
+# and create them automatically.
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: dev-root
+  namespace: argocd
+  labels:
+    environment: dev
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/nyo-infra-study/infrastructure.git
+    targetRevision: main
+    path: apps/dev
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

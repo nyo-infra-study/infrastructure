@@ -1,0 +1,29 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: dev-backend-server
+  namespace: argocd
+  labels:
+    environment: dev
+    domain: backend
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/nyo-infra-study/infrastructure.git
+    targetRevision: main
+    path: charts/backend-server
+    helm:
+      releaseName: dev-backend-server
+      valuesObject:
+        replicaCount: 1
+        image:
+          tag: "1.0.0"
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: dev
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

@@ -1,0 +1,22 @@
+# Web Frontend - Base Values (shared across all environments)
+
+replicaCount: 1
+
+image:
+  repository: skimpjr/web-frontend
+  tag: latest
+  pullPolicy: Always
+
+service:
+  type: ClusterIP
+  port: 80
+
+containerPort: 80
+
+resources:
+  limits:
+    cpu: 100m
+    memory: 64Mi
+  requests:
+    cpu: 50m
+    memory: 32Mi
