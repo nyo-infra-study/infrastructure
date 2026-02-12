@@ -84,6 +84,44 @@ Change apps/dev/web-frontend.yaml        → ArgoCD detects → re-syncs fronten
 Add    apps/dev/new-service.yaml         → ArgoCD detects → deploys new service
 ```
 
+## Accessing the Application
+
+The applications are exposed via Ingress. To access them locally, you need to map the hostnames to your cluster's Ingress IP.
+
+### 1. Get the Ingress IP
+
+If using Minikube with `minikube tunnel` (required for LoadBalancer services):
+
+```bash
+# In a separate terminal
+minikube tunnel
+```
+
+Then get the External IP of the Ingress Controller or use localhost if tunneling:
+
+```bash
+kubectl get svc -n ingress-nginx
+# OR if using Minikube ingress addon
+minikube ip
+```
+
+### 2. Update /etc/hosts
+
+Add the IP and hostnames to your `/etc/hosts` file.
+
+If running locally with `minikube tunnel`, the IP is usually `127.0.0.1`.
+If using `minikube ip`, use that IP.
+
+```
+# Example /etc/hosts
+127.0.0.1 backend.dev.local frontend.dev.local
+```
+
+### 3. Access in Browser
+
+- **Frontend**: [http://frontend.dev.local](http://frontend.dev.local)
+- **Backend API**: [http://backend.dev.local](http://backend.dev.local)
+
 ## Adding a New Environment
 
 1. Create `apps/<env>/` with Application manifests (copy from dev, update namespace/values)
