@@ -18,8 +18,15 @@ spec:
         replicaCount: 1
         image:
           tag: "1.0.1"
+        service:
+          port: 9092
         ingress:
-          enabled: false
+          enabled: true
+          hosts:
+            - host: localhost
+              paths:
+                - path: /
+                  pathType: ImplementationSpecific
   destination:
     server: "https://kubernetes.default.svc"
     namespace: dev
