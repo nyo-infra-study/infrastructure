@@ -33,5 +33,3 @@ spec:
             initialDelaySeconds: 3
             periodSeconds: 5
           resources:
-# prevent { { } }, make it {{ }}
-{{- toYaml .Values.resources | nindent 12 }}

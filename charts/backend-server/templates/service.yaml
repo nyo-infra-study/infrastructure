@@ -12,6 +12,3 @@ spec:
     - port: {{ .Values.service.port }}
       targetPort: {{ .Values.containerPort }}
       protocol: TCP
-# prevent { { } }, make it {{ }}
-{{- toYaml .Values.resources | nindent 12 }}
-

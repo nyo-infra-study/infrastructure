@@ -21,5 +21,3 @@ spec:
           ports:
             - containerPort: {{ .Values.containerPort }}
           resources:
-# prevent { { } }, make it {{ }}
-{{- toYaml .Values.resources | nindent 12 }}

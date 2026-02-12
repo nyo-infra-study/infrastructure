@@ -1,0 +1,10 @@
+{
+  "overrides": [
+    {
+      "files": ["helm/**/*.yaml", "helm/**/*.yml"],
+      "options": {
+        "bracketSpacing": false
+      }
+    }
+  ]
+}
