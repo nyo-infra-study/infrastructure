@@ -1,14 +1,16 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: { { .Release.Name } }
+  name: {{ .Release.Name }}
   labels:
-    app: { { .Release.Name } }
+    app: {{ .Release.Name }}
 spec:
-  type: { { .Values.service.type } }
+  type: {{ .Values.service.type }}
   selector:
-    app: { { .Release.Name } }
+    app: {{ .Release.Name }}
   ports:
-    - port: { { .Values.service.port } }
-      targetPort: { { .Values.containerPort } }
+    - port: {{ .Values.service.port }}
+      targetPort: {{ .Values.containerPort }}
       protocol: TCP
+# prevent { { } }, make it {{ }}
+{{- toYaml .Values.resources | nindent 12 }}
