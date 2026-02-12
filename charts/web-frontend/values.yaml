@@ -17,6 +17,7 @@ ingress:
   enabled: false
   className: ""
   annotations: {}
+  tls: []
   hosts:
     - host: chart-example.local
       paths:

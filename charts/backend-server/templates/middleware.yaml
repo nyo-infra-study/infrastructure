@@ -2,9 +2,9 @@
 apiVersion: traefik.io/v1alpha1
 kind: Middleware
 metadata:
-  name: {{ include "backend-server.fullname" . }}-strip-prefix
+  name: {{ .Release.Name }}-strip-prefix
   labels:
-    {{- include "backend-server.labels" . | nindent 4 }}
+    app: {{ .Release.Name }}
 spec:
   stripPrefix:
     prefixes:

@@ -1,27 +1,27 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "backend-server.fullname" . }}
+  name: {{ .Release.Name }}
   labels:
-    {{- include "backend-server.labels" . | nindent 4 }}
+    app: {{ .Release.Name }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      {{- include "backend-server.selectorLabels" . | nindent 6 }}
+      app: {{ .Release.Name }}
   template:
     metadata:
       labels:
-        {{- include "backend-server.selectorLabels" . | nindent 8 }}
+        app: {{ .Release.Name }}
     spec:
       containers:
         - name: {{ .Release.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- with .Values.env | default list }}
           env:
-            {{- if .Values.env }}
-            {{- toYaml .Values.env | nindent 12 }}
-            {{- end }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           ports:
             - containerPort: {{ .Values.containerPort }}
           livenessProbe:
@@ -37,3 +37,4 @@ spec:
             initialDelaySeconds: 3
             periodSeconds: 5
           resources:
+            {{- toYaml .Values.resources | nindent 12 }}

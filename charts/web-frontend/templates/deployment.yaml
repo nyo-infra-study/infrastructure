@@ -1,18 +1,18 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "web-frontend.fullname" . }}
+  name: {{ .Release.Name }}
   labels:
-    {{- include "web-frontend.labels" . | nindent 4 }}
+    app: {{ .Release.Name }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      {{- include "web-frontend.selectorLabels" . | nindent 6 }}
+      app: {{ .Release.Name }}
   template:
     metadata:
       labels:
-        {{- include "web-frontend.selectorLabels" . | nindent 8 }}
+        app: {{ .Release.Name }}
     spec:
       containers:
         - name: {{ .Release.Name }}
@@ -21,3 +21,4 @@ spec:
           ports:
             - containerPort: {{ .Values.containerPort }}
           resources:
+            {{- toYaml .Values.resources | nindent 12 }}

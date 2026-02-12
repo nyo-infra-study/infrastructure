@@ -13,11 +13,14 @@ service:
 
 containerPort: 8080
 
+env: []
+
 ingress:
   enabled: false
   className: ""
   annotations: {}
   stripPrefixes: []
+  tls: []
   hosts:
     - host: chart-example.local
       paths:
