@@ -18,6 +18,10 @@ spec:
         replicaCount: 1
         image:
           tag: "1.0.1"
+        containerPort: 9091
+        env:
+          - name: PORT
+            value: "9091"
         service:
           port: 9091
         ingress:
