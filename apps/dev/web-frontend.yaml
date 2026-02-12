@@ -22,7 +22,7 @@ spec:
           enabled: true
           className: nginx
           hosts:
-            - host: frontend.dev.local
+            - host: localhost
               paths:
                 - path: /
                   pathType: Prefix
