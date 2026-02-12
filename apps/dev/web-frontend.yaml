@@ -18,17 +18,8 @@ spec:
         replicaCount: 1
         image:
           tag: "1.0.1"
-        env:
-          - name: VITE_API_URL
-            value: "http://localhost:9091/api"
         ingress:
-          enabled: true
-          className: traefik
-          hosts:
-            - host: localhost
-              paths:
-                - path: /
-                  pathType: Prefix
+          enabled: false
   destination:
     server: "https://kubernetes.default.svc"
     namespace: dev

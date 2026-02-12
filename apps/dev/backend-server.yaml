@@ -19,15 +19,7 @@ spec:
         image:
           tag: "1.0.0"
         ingress:
-          enabled: true
-          className: traefik
-          stripPrefixes:
-            - /api
-          hosts:
-            - host: localhost
-              paths:
-                - path: /api
-                  pathType: Prefix
+          enabled: false
   destination:
     server: "https://kubernetes.default.svc"
     namespace: dev
