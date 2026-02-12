@@ -18,6 +18,14 @@ spec:
         replicaCount: 1
         image:
           tag: "1.0.0"
+        ingress:
+          enabled: true
+          className: cilium
+          hosts:
+            - host: backend.dev.local
+              paths:
+                - path: /
+                  pathType: Prefix
   destination:
     server: "https://kubernetes.default.svc"
     namespace: dev

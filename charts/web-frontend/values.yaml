@@ -13,6 +13,17 @@ service:
 
 containerPort: 80
 
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: chart-example.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls: []
+
 resources:
   limits:
     cpu: 100m
