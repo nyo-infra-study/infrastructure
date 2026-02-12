@@ -111,18 +111,23 @@ kubectl get svc -n dev
 
 ---
 
-## 6. Access the Apps
+## 6. Access the Apps (via Ingress)
 
-```bash
-# Backend (port 8080 → backend service on 8080)
-kubectl port-forward svc/dev-backend-server -n dev 8080:8080
+Because we created the cluster with `--port "8080:80@loadbalancer"`, k3d automatically routes traffic from your machine's port **8080** to the cluster's Ingress Controller.
 
-# Frontend (port 3000 → frontend service on 80)
-kubectl port-forward svc/dev-web-frontend -n dev 3000:80
-```
+You do **not** need to use `kubectl port-forward` anymore.
 
-- Backend: [http://localhost:8080/data](http://localhost:8080/data)
-- Frontend: [http://localhost:3000](http://localhost:3000)
+- **Frontend**: [http://localhost:8080/](http://localhost:8080/)
+- **Backend API**: [http://localhost:8080/api](http://localhost:8080/api)
+
+### ℹ️ Understanding Ports
+
+You might notice in the configuration that we set:
+
+- **Backend Service**: Port 9091
+- **Frontend Service**: Port 9092
+
+These are **internal** ports used only inside the cluster (e.g., Ingress talking to the Service). Externally, you always access both apps through the single entry point (Load Balancer) on port **8080**.
 
 ---
 
