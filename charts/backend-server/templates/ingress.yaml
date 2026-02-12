@@ -9,7 +9,7 @@ metadata:
     {{- include "backend-server.labels" . | nindent 4 }}
   annotations:
     {{- if .Values.ingress.stripPrefixes }}
-    traefik.ingress.kubernetes.io/router.middlewares: {{ .Release.Namespace }}-{{ $fullName }}-strip-prefix@kubernetescrd
+    traefik.ingress.kubernetes.io/router.middlewares: {{ $fullName }}-strip-prefix@kubernetescrd
     {{- end }}
     {{- with .Values.ingress.annotations }}
     {{- toYaml . | nindent 4 }}
