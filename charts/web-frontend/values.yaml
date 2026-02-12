@@ -1,4 +1,4 @@
-# Web Frontend - Base Values (shared across all environments)
+# Web Frontend - Base Values
 
 replicaCount: 1
 
@@ -22,7 +22,6 @@ ingress:
       paths:
         - path: /
           pathType: ImplementationSpecific
-  tls: []
 
 resources:
   limits:

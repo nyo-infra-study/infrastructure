@@ -1,4 +1,4 @@
-# Backend Server - Base Values (shared across all environments)
+# Backend Server - Base Values
 
 replicaCount: 1
 
@@ -17,12 +17,12 @@ ingress:
   enabled: false
   className: ""
   annotations: {}
+  stripPrefixes: []
   hosts:
     - host: chart-example.local
       paths:
         - path: /
           pathType: ImplementationSpecific
-  tls: []
 
 resources:
   limits:

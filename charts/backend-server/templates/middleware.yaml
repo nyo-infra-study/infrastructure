@@ -1,0 +1,12 @@
+{{- if and .Values.ingress.enabled .Values.ingress.stripPrefixes -}}
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: {{ include "backend-server.fullname" . }}-strip-prefix
+  labels:
+    {{- include "backend-server.labels" . | nindent 4 }}
+spec:
+  stripPrefix:
+    prefixes:
+      {{- toYaml .Values.ingress.stripPrefixes | nindent 6 }}
+{{- end }}
