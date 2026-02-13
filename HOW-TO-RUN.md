@@ -170,35 +170,6 @@ git push origin main
 
 ## 7. Deploy with ArgoCD
 
-```bash
-# Get admin password
-kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
-echo  # newline
-```
-
-Open [http://localhost:8080/argocd](http://localhost:8080/argocd) → Login with `admin` and the password above.
-
-ArgoCD is now accessible via Ingress at the `/argocd` path, no port-forwarding needed.
-
-### Password has a corrupt `%` at the end?
-
-Sometimes the decoded password ends with a `%` character that isn't actually part of the password. If login fails, reset the admin password:
-
-```bash
-#!/usr/bin/env bash
-
-kubectl patch secret argocd-secret -p '{"data": {"admin.password": null, "admin.passwordMtime": null}}' -n argocd && \
-kubectl delete secret argocd-initial-admin-secret -n argocd && \
-kubectl rollout restart deployment argocd-server -n argocd && \
-sleep 30 && \
-kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath="{.data.password}" | base64 --decode
-echo ""
-```
-
----
-
-## 7. Deploy with ArgoCD
-
 ### Access ArgoCD UI
 
 ```bash
@@ -227,7 +198,7 @@ echo ""
 This is the only `kubectl apply` you need for ArgoCD. It handles everything else via GitOps.
 
 ```bash
-kubectl apply -f root-apps/dev.yaml
+kubectl apply -f bootstrap/dev.yaml
 ```
 
 Thi9. Access the Apps (via Ingress)
