@@ -46,9 +46,9 @@ spec:
   {{- end }}
   
   # TLS/SSL Configuration (for HTTPS)
-  {{- if .Values.ingress.tls }}
+  {{- with .Values.ingress.tls }}
   tls:
-    {{- range .Values.ingress.tls | default list }}
+    {{- range . }}
     - hosts:
         {{- range .hosts | default list }}
         - {{ . | quote }}
