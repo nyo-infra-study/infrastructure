@@ -15,13 +15,6 @@ spec:
     - name: new-commit
       eventSourceName: github
       eventName: github-commits
-      filters:
-        data:
-          # Only trigger if commit SHA changed
-          - path: body.data.commit
-            type: string
-            comparator: "!="
-            value: [""]
 
   # Triggers - what to do when event happens
   triggers:
