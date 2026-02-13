@@ -90,7 +90,42 @@ kubectl get pods -n argo -w
 
 ---
 
-## 4. Set Up Docker Hub Credentials
+## 4. Install Argo Events
+
+For automated builds triggered by Git pushes:
+
+```bash
+kubectl create namespace argo-events
+kubectl apply -f https://raw.githubusercontent.com/argoproj/argo-events/stable/manifests/install.yaml
+
+# Install EventBus (NATS for event transport)
+kubectl apply -n argo -f https://raw.githubusercontent.com/argoproj/argo-events/stable/examples/eventbus/native.yaml
+```
+
+Wait for controllers:
+
+```bash
+kubectl get pods -n argo-events -w
+# Ctrl+C when controller-manager is Running
+```
+
+**(Optional) Create GitHub personal access token:**
+
+Only needed if you want automated builds on `git push`:
+
+1. Go to GitHub → Settings → Developer settings → Personal access tokens → Tokens (classic)
+2. Generate new token with `repo` and `admin:repo_hook` scopes
+3. Create secret:
+
+```bash
+kubectl create secret generic github-access \
+  -n argo \
+  --from-literal=token=YOUR_GITHUB_TOKEN
+```
+
+---
+
+## 5. Set Up Docker Hub Credentials
 
 Argo Workflows needs credentials to push images to Docker Hub:
 
@@ -114,7 +149,7 @@ kubectl create secret docker-registry docker-credentials \
 
 ---
 
-## 5. Set Up Automated Builds (Argo Workflows + Events)
+## 6. Set Up Automated Builds (Argo Workflows + Events)
 
 **All workflows are managed by ArgoCD and triggered automatically!**
 
@@ -138,7 +173,7 @@ docker push YOUR_DOCKERHUB_USERNAME/backend-server:latest
 
 ---
 
-## 6. Update Image Tags in ArgoCD Apps
+## 7. Update Image Tags in ArgoCD Apps
 
 After images are built, update the image tags in your ArgoCD application manifests:
 
@@ -168,7 +203,7 @@ git push origin main
 
 ---
 
-## 7. Deploy with ArgoCD
+## 8. Deploy with ArgoCD
 
 ### Access ArgoCD UI
 
@@ -234,10 +269,11 @@ These are **internal** ports used only inside the cluster (e.g., Ingress talking
 1. ✅ Create k3d cluster
 2. ✅ Install ArgoCD (Helm)
 3. ✅ Install Argo Workflows
-4. ✅ Set up Docker Hub credentials
-5. ✅ Build images with Argo Workflows
-6. ✅ Update image tags in Git
-7. ✅ Deploy with ArgoCD
+4. ✅ Install Argo Events
+5. ✅ Set up Docker Hub credentials
+6. ✅ Set up automated builds (workflows + events)
+7. ✅ Update image tags in Git
+8. ✅ Deploy with ArgoCD
 
 ### Making Changes
 

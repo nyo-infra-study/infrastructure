@@ -52,12 +52,10 @@ spec:
         ingress:
           enabled: true # Create an Ingress resource
           className: traefik # Use Traefik ingress controller (k3d default)
-          stripPrefixes: # Traefik middleware to remove path prefix
-            - /api # Strip /api before forwarding to backend
           hosts:
             - host: localhost # Domain name (localhost for local dev)
               paths:
-                - path: /api # Route /api requests to this service
+                - path: /api # Route /api requests to this service (keeps /api prefix)
                   pathType: ImplementationSpecific
 
   # DESTINATION: Where to deploy in the cluster
