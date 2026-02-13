@@ -1,4 +1,15 @@
+configs:
+  params:
+    server.insecure: true
+
 server:
   extraArgs:
-    - --insecure
     - --rootpath=/argocd
+  ingress:
+    enabled: true
+    ingressClassName: traefik
+    annotations: {}
+    hostname: localhost
+    path: /argocd
+    pathType: Prefix
+    tls: false
