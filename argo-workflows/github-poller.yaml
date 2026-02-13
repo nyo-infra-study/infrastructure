@@ -36,7 +36,7 @@ spec:
           source: |
             #!/bin/sh
             # Clone repo and get latest commit SHA
-            git ls-remote https://github.com/nyo-infra-study/infrastructure.git refs/heads/main | cut -f1
+            git ls-remote https://github.com/nyo-infra-study/web-frontend.git refs/heads/main | cut -f1
 
       # Update ConfigMap with latest commit
       - name: update-commit-configmap
@@ -55,6 +55,6 @@ spec:
                 app: github-poller
             data:
               commit: "{{inputs.parameters.commit-sha}}"
-              repository: "nyo-infra-study/infrastructure"
+              repository: "nyo-infra-study/web-frontend"
               branch: "main"
               lastChecked: "{{workflow.creationTimestamp}}"
