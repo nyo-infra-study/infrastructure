@@ -15,9 +15,9 @@
 #   (Request: /api/users → Backend sees: /users)
 #
 # HELM SYNTAX:
-# - {{- if }} - Conditional rendering (only if ingress.enabled)
-# - {{- range }} - Loop through lists (hosts, paths, tls)
-# - {{- with }} - Render block only if value exists
+# - Conditional rendering with if statements (only if ingress.enabled)
+# - Loop through lists with range (hosts, paths, tls)
+# - Render blocks only if value exists with 'with'
 # - $ - Access root values from inside nested range loops
 # ============================================================
 
