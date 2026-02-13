@@ -1,42 +1,73 @@
+# ArgoCD Application manifest for backend server in dev environment
+# This is an "Application" resource that tells ArgoCD:
+# - WHERE to find the Helm chart (source)
+# - HOW to deploy it (values overrides)
+# - WHERE to deploy it (destination)
+# - WHEN to sync it (syncPolicy)
+
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
+  # Name of this ArgoCD Application (shows up in ArgoCD UI)
   name: dev-backend-server
+  # ArgoCD Applications must live in the argocd namespace
   namespace: argocd
   labels:
-    environment: dev
-    domain: backend
+    environment: dev # Helps filter/organize apps by environment
+    domain: backend # Helps categorize apps by domain
 spec:
+  # ArgoCD project - 'default' is fine for simple setups
   project: default
+
+  # SOURCE: Where to find the Helm chart
   source:
     repoURL: https://github.com/nyo-infra-study/infrastructure.git
-    targetRevision: main
-    path: charts/backend-server
+    targetRevision: main # Git branch/tag to watch
+    path: charts/backend-server # Path to Helm chart in repo
+
+    # Helm-specific configuration
     helm:
-      releaseName: dev-backend-server
+      releaseName: dev-backend-server # Helm release name in cluster
+
+      # VALUES OVERRIDES: Environment-specific config
+      # These override the defaults in charts/backend-server/values.yaml
       valuesObject:
-        replicaCount: 1
+        replicaCount: 1 # Number of pod replicas (1 for dev, more for prod)
+
         image:
-          tag: "1.0.1"
-        containerPort: 9091
+          tag: "1.0.1" # Docker image tag to deploy
+
+        containerPort: 9091 # Port the Go app listens on inside the container
+
+        # Environment variables passed to the container
         env:
           - name: PORT
-            value: "9091"
+            value: "9091" # Tell Go app which port to use
+
+        # Kubernetes Service configuration
         service:
-          port: 9091
+          port: 9091 # Port that other services use to reach this app
+
+        # Ingress configuration (external access)
         ingress:
-          enabled: true
+          enabled: true # Create an Ingress resource
           hosts:
-            - host: localhost
+            - host: localhost # Domain name (localhost for local dev)
               paths:
-                - path: /api
+                - path: /api # Route /api requests to this service
                   pathType: ImplementationSpecific
+
+  # DESTINATION: Where to deploy in the cluster
   destination:
-    server: "https://kubernetes.default.svc"
-    namespace: dev
+    server: "https://kubernetes.default.svc" # Local cluster (in-cluster reference)
+    namespace: dev # Kubernetes namespace to deploy into
+
+  # SYNC POLICY: How ArgoCD keeps things in sync
   syncPolicy:
     automated:
-      prune: true
-      selfHeal: true
+      prune: true # Delete resources that are removed from Git
+      selfHeal: true # Auto-fix if someone manually changes resources
     syncOptions:
-      - CreateNamespace=true
+      # Auto-create the target namespace if it doesn't exist
+      # Without this, you'd need to manually: kubectl create namespace dev
+      - CreateNamespace=true # Auto-create 'dev' namespace if missing

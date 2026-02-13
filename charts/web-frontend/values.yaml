@@ -1,33 +1,60 @@
-# Web Frontend - Base Values
+# ============================================================
+# Web Frontend - Base Default Values
+# ============================================================
+# These are the DEFAULT values for the frontend Helm chart.
+# They can be OVERRIDDEN in apps/dev/web-frontend.yaml
+#
+# FRONTEND ARCHITECTURE:
+# - React app built with Vite
+# - Served by Nginx (listening on port 80)
+# - Makes API calls to /api (proxied by Ingress to backend)
+#
+# WHEN TO EDIT THIS FILE:
+# - Changing K8s resource defaults (CPU/memory)
+# - Adding new configurable options
+# - Updating base Nginx image
+#
+# WHEN TO EDIT apps/dev/web-frontend.yaml INSTEAD:
+# - Changing image tags (versions)
+# - Environment-specific config (dev vs prod)
+# - Scaling (replica count)
+# ============================================================
 
+# Number of pod replicas to run
 replicaCount: 1
 
+# Docker image configuration
 image:
-  repository: skimpjr/web-frontend
-  tag: latest
-  pullPolicy: Always
+  repository: skimpjr/web-frontend # Docker Hub repository
+  tag: latest # Default tag (override per environment)
+  pullPolicy: Always # Always pull latest image
 
+# Kubernetes Service configuration
 service:
-  type: ClusterIP
-  port: 80
+  type: ClusterIP # Internal service (not exposed outside cluster)
+  port: 80 # Default port (Nginx listens on 80)
 
+# Port the Nginx server listens on inside the container
 containerPort: 80
 
+# Ingress configuration for external access
 ingress:
-  enabled: false
-  className: ""
-  annotations: {}
-  tls: []
+  enabled: false # Disabled by default (enable in apps/dev/)
+  className: "" # Ingress controller class (e.g., "traefik")
+  annotations: {} # Custom annotations for ingress controller
+  tls: [] # TLS/SSL configuration (for HTTPS)
   hosts:
-    - host: chart-example.local
+    - host: chart-example.local # Placeholder hostname
       paths:
         - path: /
           pathType: ImplementationSpecific
 
+# Resource limits and requests (CPU/Memory)
+# Frontend typically needs less resources than backend (static files)
 resources:
   limits:
-    cpu: 100m
-    memory: 64Mi
+    cpu: 100m # 100 millicores = 0.1 CPU cores
+    memory: 64Mi # 64 megabytes
   requests:
-    cpu: 50m
-    memory: 32Mi
+    cpu: 50m # Guaranteed 0.05 CPU cores
+    memory: 32Mi # Guaranteed 32 megabytes

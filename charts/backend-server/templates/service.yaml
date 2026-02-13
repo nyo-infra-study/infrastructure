@@ -1,14 +1,46 @@
+# ============================================================
+# Kubernetes Service - Backend Server
+# ============================================================
+# This Helm template generates a Kubernetes Service.
+#
+# WHAT IS A SERVICE?
+# - Stable network endpoint for accessing pods
+# - Provides load balancing across multiple pod replicas
+# - Pods are ephemeral (IPs change), Services are stable
+#
+# SERVICE TYPES:
+# - ClusterIP (default): Only accessible inside cluster
+# - NodePort: Accessible on each node's IP:port
+# - LoadBalancer: Cloud provider external load balancer
+#
+# OUR SETUP:
+# - Type: ClusterIP (internal only)
+# - Port: 9091 (what other services connect to)
+# - TargetPort: 9091 (actual port in container)
+# - Selector: Routes traffic to pods with matching label
+#
+# HOW TRAFFIC FLOWS:
+# 1. Ingress receives: http://localhost:8080/api/users
+# 2. Ingress routes to: Service (dev-backend-server:9091)
+# 3. Service load balances to: Pod containers (port 9091)
+# 4. Backend handles request and responds
+# ============================================================
+
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Release.Name }}
+  name: {{ .Release.Name }}  # Service name (e.g., dev-backend-server)
   labels:
     app: {{ .Release.Name }}
 spec:
-  type: {{ .Values.service.type }}
+  type: {{ .Values.service.type }}  # ClusterIP, NodePort, or LoadBalancer
+  
+  # Selector: Which pods receive traffic
+  # Matches pods with label: app=dev-backend-server
   selector:
     app: {{ .Release.Name }}
+  
   ports:
-    - port: {{ .Values.service.port }}
-      targetPort: {{ .Values.containerPort }}
+    - port: {{ .Values.service.port }}        # Service port (what clients connect to)
+      targetPort: {{ .Values.containerPort }}  # Container port (where app listens)
       protocol: TCP

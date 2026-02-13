@@ -1,3 +1,31 @@
+# ============================================================
+# Kubernetes Ingress - Web Frontend
+# ============================================================
+# This Helm template generates a Kubernetes Ingress for external access.
+#
+# WHAT IS INGRESS?
+# - Routes HTTP(S) traffic from outside cluster to internal Services
+# - Like a reverse proxy (e.g., Nginx, Traefik, HAProxy)
+# - Handles path-based routing, SSL, load balancing
+#
+# OUR SETUP:
+# - Ingress Controller: Traefik (k3d default)
+# - Route: localhost:8080/ → web-frontend Service (port 9092)
+# - Path: Root path (/) catches all non-/api requests
+# - No middleware needed (unlike backend which strips /api prefix)
+#
+# ROUTING STRATEGY:
+# - / (root) → Frontend (this Ingress)
+# - /api → Backend (separate Ingress with stripPrefix middleware)
+# - This allows frontend to make relative API calls: fetch('/api/users')
+#
+# HELM SYNTAX:
+# - {{- if }} - Conditional rendering (only if ingress.enabled)
+# - {{- range }} - Loop through lists (hosts, paths, tls)
+# - {{- with }} - Render block only if value exists
+# - $ - Access root values from inside nested range loops
+# ============================================================
+
 {{- if .Values.ingress.enabled -}}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -6,13 +34,18 @@ metadata:
   labels:
     app: {{ .Release.Name }}
   annotations:
+    # Custom annotations from values (if any)
+    # Frontend typically doesn't need special annotations
     {{- with .Values.ingress.annotations }}
     {{- toYaml . | nindent 4 }}
     {{- end }}
 spec:
+  # Ingress Controller: Which controller handles this Ingress (traefik, nginx, etc.)
   {{- if .Values.ingress.className }}
   ingressClassName: {{ .Values.ingress.className }}
   {{- end }}
+  
+  # TLS/SSL Configuration (for HTTPS)
   {{- if .Values.ingress.tls }}
   tls:
     {{- range .Values.ingress.tls | default list }}
@@ -20,22 +53,24 @@ spec:
         {{- range .hosts | default list }}
         - {{ . | quote }}
         {{- end }}
-      secretName: {{ .secretName }}
+      secretName: {{ .secretName }}  # K8s Secret with TLS cert/key
     {{- end }}
   {{- end }}
+  
+  # Routing Rules: Map HTTP requests to Services
   rules:
     {{- range .Values.ingress.hosts | default list }}
-    - host: {{ .host | quote }}
+    - host: {{ .host | quote }}  # e.g., "localhost"
       http:
         paths:
           {{- range .paths | default list }}
-          - path: {{ .path }}
-            pathType: {{ .pathType }}
+          - path: {{ .path }}        # e.g., "/" (root path)
+            pathType: {{ .pathType }}  # ImplementationSpecific, Prefix, Exact
             backend:
               service:
-                name: {{ $.Release.Name }}
+                name: {{ $.Release.Name }}       # Target Service name
                 port:
-                  number: {{ $.Values.service.port }}
+                  number: {{ $.Values.service.port }}  # Target Service port
           {{- end }}
     {{- end }}
 {{- end }}

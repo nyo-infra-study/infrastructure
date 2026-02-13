@@ -1,40 +1,68 @@
+# ============================================================
+# Kubernetes Deployment - Backend Server
+# ============================================================
+# This Helm template generates a Kubernetes Deployment manifest.
+#
+# HOW IT WORKS:
+# 1. Helm reads charts/backend-server/values.yaml (base values)
+# 2. ArgoCD overrides with apps/dev/backend-server.yaml valuesObject
+# 3. This template combines them into final Kubernetes YAML
+# 4. Result is applied to cluster
+# ============================================================
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}
+  name: {{ .Release.Name }}  # e.g., "dev-backend-server"
   labels:
-    app: {{ .Release.Name }}
+    app: {{ .Release.Name }}  # Used for Service selector
 spec:
-  replicas: {{ .Values.replicaCount }}
+  replicas: {{ .Values.replicaCount }}  # Number of pods (from values)
+  
+  # Selector: Which pods this Deployment manages
   selector:
     matchLabels:
-      app: {{ .Release.Name }}
+      app: {{ .Release.Name }}  # Must match template.metadata.labels
+  
+  # Template: Blueprint for each pod
   template:
     metadata:
       labels:
-        app: {{ .Release.Name }}
+        app: {{ .Release.Name }}  # Pod label (must match selector)
     spec:
       containers:
         - name: {{ .Release.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          
+          # Environment variables (only rendered if .Values.env is set)
           {{- with .Values.env | default list }}
           env:
             {{- toYaml . | nindent 12 }}
           {{- end }}
+          
+          # Container port (Go server listens here)
           ports:
             - containerPort: {{ .Values.containerPort }}
+          
+          # Liveness Probe: Restarts pod if unhealthy
+          # Checks /api/healthz endpoint
           livenessProbe:
             httpGet:
               path: /api/healthz
               port: {{ .Values.containerPort }}
-            initialDelaySeconds: 5
-            periodSeconds: 10
+            initialDelaySeconds: 5  # Wait 5s before first check
+            periodSeconds: 10       # Check every 10s
+          
+          # Readiness Probe: Removes pod from Service if not ready
+          # Checks /api/readyz endpoint
           readinessProbe:
             httpGet:
               path: /api/readyz
               port: {{ .Values.containerPort }}
-            initialDelaySeconds: 3
-            periodSeconds: 5
+            initialDelaySeconds: 3  # Wait 3s before first check
+            periodSeconds: 5        # Check every 5s
+          
+          # Resource limits (CPU/Memory)
           resources:
             {{- toYaml .Values.resources | nindent 12 }}

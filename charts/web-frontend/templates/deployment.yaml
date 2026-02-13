@@ -1,24 +1,51 @@
+# ============================================================
+# Kubernetes Deployment - Web Frontend
+# ============================================================
+# This Helm template generates a Kubernetes Deployment manifest.
+#
+# FRONTEND ARCHITECTURE:
+# - React app built with Vite (static assets - might be a bit problematic because we cant pass env variables at runtime)
+# - Served by Nginx web server
+# - Container listens on port 80 (standard HTTP)
+# - Makes API calls to /api (routed to backend via Ingress)
+#
+# HOW IT WORKS:
+# 1. Helm reads charts/web-frontend/values.yaml (base values)
+# 2. ArgoCD overrides with apps/dev/web-frontend.yaml valuesObject
+# 3. This template combines them into final Kubernetes YAML
+# 4. Result is applied to cluster
+# ============================================================
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}
+  name: {{ .Release.Name }}  # e.g., "dev-web-frontend"
   labels:
-    app: {{ .Release.Name }}
+    app: {{ .Release.Name }}  # Used for Service selector
 spec:
-  replicas: {{ .Values.replicaCount }}
+  replicas: {{ .Values.replicaCount }}  # Number of pods (from values)
+  
+  # Selector: Which pods this Deployment manages
   selector:
     matchLabels:
-      app: {{ .Release.Name }}
+      app: {{ .Release.Name }}  # Must match template.metadata.labels
+  
+  # Template: Blueprint for each pod
   template:
     metadata:
       labels:
-        app: {{ .Release.Name }}
+        app: {{ .Release.Name }}  # Pod label (must match selector)
     spec:
       containers:
         - name: {{ .Release.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          
+          # Container port (Nginx web server listens here)
           ports:
-            - containerPort: {{ .Values.containerPort }}
+            - containerPort: {{ .Values.containerPort }}  # Port 80 for HTTP
+          
+          # Resource limits (CPU/Memory)
+          # Frontend typically needs less than backend (static files)
           resources:
             {{- toYaml .Values.resources | nindent 12 }}

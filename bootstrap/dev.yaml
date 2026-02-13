@@ -1,28 +1,49 @@
+# ============================================================
 # Bootstrap App of Apps — Dev Environment
+# ============================================================
+# This is the "ROOT" ArgoCD Application that manages all other apps.
 #
-# This is the ONLY manifest you need to `kubectl apply`.
-# ArgoCD will discover all Application manifests in apps/dev/
-# and create them automatically.
+# HOW IT WORKS:
+# 1. You apply this ONCE: kubectl apply -f bootstrap/dev.yaml
+# 2. ArgoCD reads all YAML files in apps/dev/ (because we set path: apps/dev on spec.source.path)
+# 3. For each file, it creates a child Application
+# 4. Those child Applications deploy the actual services
+#
+# BENEFITS:
+# - Only one manual kubectl apply needed (this file)
+# - Adding apps/dev/new-service.yaml auto-deploys it
+# - Removing files auto-deletes the resources
+# - All apps stay in sync with Git automatically
+# ============================================================
 
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: dev-root
+  name: dev-root # The "parent" app that manages all dev apps
   namespace: argocd
   labels:
     environment: dev
+
+  # Finalizer ensures proper cleanup when this app is deleted
   finalizers:
     - resources-finalizer.argocd.argoproj.io
+
 spec:
   project: default
+
+  # SOURCE: Points to the apps/dev/ directory (not a Helm chart)
   source:
     repoURL: https://github.com/nyo-infra-study/infrastructure.git
     targetRevision: main
-    path: apps/dev
+    path: apps/dev # Directory containing child Application manifests
+
+  # DESTINATION: Child Applications are created in argocd namespace
   destination:
     server: "https://kubernetes.default.svc"
-    namespace: argocd
+    namespace: argocd # Child apps live here, but deploy elsewhere
+
+  # SYNC POLICY: Auto-sync whenever apps/dev/ changes
   syncPolicy:
     automated:
-      prune: true
-      selfHeal: true
+      prune: true # Delete child apps if YAML files are removed
+      selfHeal: true # Re-create child apps if manually deleted

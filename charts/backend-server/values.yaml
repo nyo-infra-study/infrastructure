@@ -1,36 +1,61 @@
-# Backend Server - Base Values
+# ============================================================
+# Backend Server - Base Default Values
+# ============================================================
+# These are the DEFAULT values for the Helm chart.
+# They can be OVERRIDDEN in apps/dev/backend-server.yaml
+#
+# WHEN TO EDIT THIS FILE:
+# - Changing K8s resource defaults (CPU/memory)
+# - Adding new configurable options
+# - Updating base Docker image
+#
+# WHEN TO EDIT apps/dev/backend-server.yaml INSTEAD:
+# - Changing image tags (versions)
+# - Environment-specific config (dev vs prod)
+# - Scaling (replica count)
+# ============================================================
 
+# Number of pod replicas to run
 replicaCount: 1
 
+# Docker image configuration
 image:
-  repository: skimpjr/backend-server
-  tag: latest
-  pullPolicy: Always
+  repository: skimpjr/backend-server # Docker Hub repository
+  tag: latest # Default tag (override per environment)
+  pullPolicy: Always # Always pull latest image
 
+# Kubernetes Service configuration
 service:
-  type: ClusterIP
-  port: 8080
+  type: ClusterIP # Internal service (not exposed outside cluster)
+  port: 8080 # Default port (can be overridden)
 
+# Port the Go application listens on inside the container
 containerPort: 8080
 
+# Environment variables to pass to the container
+# Default is empty array, override in apps/dev/backend-server.yaml
 env: []
 
+# Ingress configuration for external access
 ingress:
-  enabled: false
-  className: ""
-  annotations: {}
-  stripPrefixes: []
-  tls: []
+  enabled: false # Disabled by default (enable in apps/dev/)
+  className: "" # Ingress controller class (e.g., "traefik")
+  annotations: {} # Custom annotations for ingress controller
+  stripPrefixes: [] # Traefik middleware: remove path prefixes
+  tls: [] # TLS/SSL configuration (for HTTPS)
   hosts:
-    - host: chart-example.local
+    - host: chart-example.local # Placeholder hostname
       paths:
         - path: /
           pathType: ImplementationSpecific
 
+# Resource limits and requests (CPU/Memory)
+# Limits: Maximum resources the pod can use
+# Requests: Resources guaranteed to the pod
 resources:
   limits:
-    cpu: 200m
-    memory: 128Mi
+    cpu: 200m # 200 millicores = 0.2 CPU cores
+    memory: 128Mi # 128 megabytes
   requests:
-    cpu: 100m
-    memory: 64Mi
+    cpu: 100m # Guaranteed 0.1 CPU cores
+    memory: 64Mi # Guaranteed 64 megabytes

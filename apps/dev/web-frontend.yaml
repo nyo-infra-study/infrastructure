@@ -1,39 +1,61 @@
+# ArgoCD Application manifest for web frontend in dev environment
+# This tells ArgoCD how to deploy the React frontend
+
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
+  # Name of this ArgoCD Application
   name: dev-web-frontend
+  # Must be in argocd namespace
   namespace: argocd
   labels:
     environment: dev
     domain: frontend
 spec:
   project: default
+
+  # SOURCE: Points to the Helm chart in Git
   source:
     repoURL: https://github.com/nyo-infra-study/infrastructure.git
-    targetRevision: main
-    path: charts/web-frontend
+    targetRevision: main # Watch the main branch
+    path: charts/web-frontend # Helm chart location
+
     helm:
       releaseName: dev-web-frontend
+
+      # VALUES OVERRIDES: Dev-specific configuration
       valuesObject:
-        replicaCount: 1
+        replicaCount: 1 # Single replica for dev (scale up in prod)
+
         image:
-          tag: "1.0.2"
-        containerPort: 80
+          tag: "1.0.2" # Version of the frontend Docker image
+
+        containerPort: 80 # Nginx listens on port 80 inside container
+
+        # Kubernetes Service configuration
         service:
-          port: 9092
+          port: 9092 # External port for accessing frontend service
+
+        # Ingress: Makes frontend accessible from outside cluster
         ingress:
           enabled: true
           hosts:
             - host: localhost
               paths:
-                - path: /
+                - path: / # Root path - all non-/api requests go here
                   pathType: ImplementationSpecific
+
+  # DESTINATION: Deploy to dev namespace in local cluster
   destination:
     server: "https://kubernetes.default.svc"
     namespace: dev
+
+  # SYNC POLICY: Auto-sync on Git changes
   syncPolicy:
     automated:
-      prune: true
-      selfHeal: true
+      prune: true # Remove deleted resources
+      selfHeal: true # Fix manual changes
     syncOptions:
+      # Auto-create the target namespace if it doesn't exist
+      # Without this, you'd need to manually: kubectl create namespace dev
       - CreateNamespace=true

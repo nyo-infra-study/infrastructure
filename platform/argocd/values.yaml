@@ -1,15 +1,44 @@
+# ============================================================
+# ArgoCD Platform Configuration
+# ============================================================
+# These values customize the ArgoCD Helm chart installation.
+#
+# INSTALLATION COMMAND:
+# helm install argocd argo/argo-cd -n argocd --create-namespace -f platform/argocd/values.yaml
+#
+# UPGRADES:
+# helm upgrade argocd argo/argo-cd -n argocd -f platform/argocd/values.yaml
+#
+# ACCESS:
+# - URL: http://localhost:8080/argocd
+# - Username: admin
+# - Password: kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath="{.data.password}" | base64 -d
+#
+# WHY THESE SETTINGS?
+# - server.insecure: Allows HTTP access (no TLS for local development)
+# - rootpath: Makes ArgoCD work under /argocd path (not root /)
+# - ingress: Enables external access via Traefik Ingress Controller
+# ============================================================
+
 configs:
   params:
+    # Disable TLS/HTTPS requirement for ArgoCD server
+    # This allows HTTP access (needed for local development)
+    # IMPORTANT: In production, set this to false and use TLS
     server.insecure: true
 
 server:
   extraArgs:
+    # Tell ArgoCD it's behind a reverse proxy at /argocd path
+    # Without this, ArgoCD would generate broken URLs (expecting /)
     - --rootpath=/argocd
+
+  # Ingress configuration for external access
   ingress:
-    enabled: true
-    ingressClassName: traefik
-    annotations: {}
-    hostname: localhost
-    path: /argocd
-    pathType: Prefix
-    tls: false
+    enabled: true # Enable Ingress (vs port-forward)
+    ingressClassName: traefik # Use Traefik controller (k3d default)
+    annotations: {} # Optional Ingress annotations
+    hostname: localhost # Domain name (use actual domain in production)
+    path: /argocd # URL path (http://localhost:8080/argocd)
+    pathType: Prefix # Match /argocd and /argocd/*
+    tls: false # Disable TLS (use HTTP not HTTPS)
