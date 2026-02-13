@@ -1,5 +1,5 @@
-# EventSource - Listens to GitHub webhooks
-# This receives webhook events from GitHub (push, release, etc.)
+# EventSource - Polls GitHub for new commits
+# This actively checks GitHub API every 2 minutes for new commits
 
 apiVersion: argoproj.io/v1alpha1
 kind: EventSource
@@ -7,50 +7,28 @@ metadata:
   name: github
   namespace: argo
 spec:
-  service:
-    ports:
-      - port: 12000
-        targetPort: 12000
+  # No service needed for polling (no webhook endpoint)
 
-  github:
-    frontend-repo:
-      # Repository info
-      owner: nyo-infra-study
-      repository: infrastructure
+  # Generic webhook to receive polling results
+  generic:
+    github-poll:
+      url: ""
+      config: |
+        # This will be triggered by the polling workflow
 
-      # Webhook endpoint
-      webhook:
-        endpoint: /push
-        port: "12000"
-        method: POST
-        url: "" # Leave empty for now - you'll expose this via Ingress
-
-      # Events to watch
-      events:
-        - push # On git push to any branch
-        - release # On GitHub release
-        - create # On tag creation
-
-      # GitHub webhook secret (optional but recommended)
-      # Create with: kubectl create secret generic github-access -n argo --from-literal=token=YOUR_GITHUB_TOKEN
-      webhookSecret:
-        name: github-access
-        key: token
-
-      # Insecure mode (for testing without webhook secret)
-      insecure: true
-
-      # Active mode - creates the webhook automatically in GitHub (requires token with repo access)
-      active: true
-
-      # GitHub API token for creating webhook
-      apiToken:
-        name: github-access
-        key: token
-
-      # Only trigger on specific branches (optional)
-      # branches:
-      #   - main
-
-      # Content type
-      contentType: json
+  # Use resource event source to watch for ConfigMap updates
+  # The polling workflow will update a ConfigMap with latest commit SHA
+  resource:
+    github-commits:
+      namespace: argo
+      group: ""
+      version: v1
+      resource: configmaps
+      eventTypes:
+        - ADD
+        - UPDATE
+      filter:
+        labels:
+          - key: app
+            operation: "=="
+            value: github-poller

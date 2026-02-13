@@ -1,5 +1,5 @@
-# Sensor - Triggers workflow when GitHub events happen
-# This listens to the EventSource and triggers the frontend build workflow
+# Sensor - Triggers workflow when new commits detected (polling)
+# This listens to ConfigMap updates from the polling workflow
 
 apiVersion: argoproj.io/v1alpha1
 kind: Sensor
@@ -12,9 +12,16 @@ spec:
 
   # Dependencies - what events to listen for
   dependencies:
-    - name: github-push
+    - name: new-commit
       eventSourceName: github
-      eventName: frontend-repo
+      eventName: github-commits
+      filters:
+        data:
+          # Only trigger if commit SHA changed
+          - path: body.data.commit
+            type: string
+            comparator: "!="
+            value: ""
 
   # Triggers - what to do when event happens
   triggers:
@@ -34,7 +41,7 @@ spec:
                 workflowTemplateRef:
                   name: build-frontend-template
 
-                # Override parameters from Git event
+                # Override parameters from ConfigMap
                 arguments:
                   parameters:
                     - name: environment
@@ -44,10 +51,10 @@ spec:
                     - name: image-tag
                       value: "latest"
 
-          # Extract data from GitHub webhook
+          # Extract commit SHA from ConfigMap
           parameters:
             - src:
-                dependencyName: github-push
-                dataKey: body.after
+                dependencyName: new-commit
+                dataKey: body.data.commit
               dest: spec.arguments.parameters.2.value
               # Use commit SHA as image tag

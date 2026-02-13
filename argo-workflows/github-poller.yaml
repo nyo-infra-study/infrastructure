@@ -1,0 +1,58 @@
+# CronWorkflow - Polls GitHub API every 2 minutes
+# Checks for new commits and updates ConfigMap to trigger builds
+
+apiVersion: argoproj.io/v1alpha1
+kind: CronWorkflow
+metadata:
+  name: github-poller
+  namespace: argo
+spec:
+  schedule: "*/2 * * * *" # Every 2 minutes
+  concurrencyPolicy: "Replace"
+  startingDeadlineSeconds: 0
+  workflowSpec:
+    entrypoint: poll-github
+    serviceAccountName: argo
+
+    templates:
+      - name: poll-github
+        steps:
+          - - name: check-commits
+              template: get-latest-commit
+          - - name: update-configmap
+              template: update-commit-configmap
+              arguments:
+                parameters:
+                  - name: commit-sha
+                    value: "{{steps.check-commits.outputs.result}}"
+
+      # Get latest commit SHA from GitHub
+      - name: get-latest-commit
+        script:
+          image: alpine/git:latest
+          command: [sh]
+          source: |
+            #!/bin/sh
+            # Clone repo and get latest commit SHA
+            git ls-remote https://github.com/nyo-infra-study/infrastructure.git refs/heads/main | cut -f1
+
+      # Update ConfigMap with latest commit
+      - name: update-commit-configmap
+        inputs:
+          parameters:
+            - name: commit-sha
+        resource:
+          action: apply
+          manifest: |
+            apiVersion: v1
+            kind: ConfigMap
+            metadata:
+              name: github-latest-commit
+              namespace: argo
+              labels:
+                app: github-poller
+            data:
+              commit: "{{inputs.parameters.commit-sha}}"
+              repository: "nyo-infra-study/infrastructure"
+              branch: "main"
+              lastChecked: "{{workflow.creationTimestamp}}"
