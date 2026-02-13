@@ -28,7 +28,8 @@ spec:
         replicaCount: 2 # Single replica for dev (scale up in prod)
 
         image:
-          tag: "1.0.2" # Version of the frontend Docker image
+          tag: "dev" # Always use latest dev build from main branch
+          pullPolicy: Always # Force pull latest image on every deployment
 
         containerPort: 80 # Nginx listens on port 80 inside container
 

@@ -41,7 +41,6 @@ spec:
           - "--dockerfile=Dockerfile"
           - "--context=git://github.com/nyo-infra-study/web-frontend#main"
           - "--build-arg=VITE_API_URL={{inputs.parameters.vite-api-url}}"
-          - "--destination=skimpjr/web-frontend:{{inputs.parameters.image-tag}}"
           - "--destination=skimpjr/web-frontend:{{inputs.parameters.environment}}"
 
         volumeMounts:
