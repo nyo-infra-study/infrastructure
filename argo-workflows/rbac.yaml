@@ -21,7 +21,8 @@ rules:
 
   # Workflow permissions
   - apiGroups: ["argoproj.io"]
-    resources: ["workflows", "workflowtemplates", "cronworkflows"]
+    resources:
+      ["workflows", "workflowtemplates", "cronworkflows", "workflowtaskresults"]
     verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
 
 ---
