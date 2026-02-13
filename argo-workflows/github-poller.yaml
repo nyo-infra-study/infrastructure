@@ -7,7 +7,9 @@ metadata:
   name: github-poller
   namespace: argo
 spec:
-  schedule: "*/2 * * * *" # Every 2 minutes
+  schedules:
+    - "*/2 * * * *" # Every 2 minutes
+  timezone: "UTC"
   concurrencyPolicy: "Replace"
   startingDeadlineSeconds: 0
   workflowSpec:
