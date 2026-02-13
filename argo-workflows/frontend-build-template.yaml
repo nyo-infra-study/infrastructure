@@ -37,7 +37,7 @@ spec:
       container:
         image: gcr.io/kaniko-project/executor:latest
         args:
-          - "--dockerfile=/workspace/Dockerfile"
+          - "--dockerfile=Dockerfile"
           - "--context=git://github.com/nyo-infra-study/web-frontend#main"
           - "--build-arg=VITE_API_URL={{inputs.parameters.vite-api-url}}"
           - "--destination=skimpjr/web-frontend:{{inputs.parameters.image-tag}}"
