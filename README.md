@@ -1,135 +1,237 @@
 # Infrastructure
 
-Helm charts and ArgoCD Application manifests for deploying services to Kubernetes, using the **App of Apps** pattern organized by environment.
+GitOps infrastructure repository for deploying applications to Kubernetes using ArgoCD and Helm, following the **App of Apps** pattern.
 
-## Structure
+## 📁 Folder Structure
 
 ```
 infrastructure/
-├── root-apps/                               # App of Apps (one per environment)
-│   ├── dev.yaml                             # Root app → watches apps/dev/
-│   ├── staging.yaml                         # (future)
-│   └── prod.yaml                            # (future)
-├── apps/                                    # Child ArgoCD Applications (per env)
-│   ├── dev/
-│   │   ├── backend-server.yaml              # Dev config for backend
-│   │   └── web-frontend.yaml                # Dev config for frontend
-│   ├── staging/                             # (future)
-│   └── prod/                                # (future)
-└── charts/                                  # Reusable Helm charts (shared across envs)
-    ├── backend-server/
-    │   ├── Chart.yaml
-    │   ├── values.yaml                      # Base defaults (env-agnostic)
-    │   └── templates/
-    │       ├── deployment.yaml
-    │       └── service.yaml
-    └── web-frontend/
-        ├── Chart.yaml
-        ├── values.yaml
-        └── templates/
-            ├── deployment.yaml
-            └── service.yaml
+├── bootstrap/           # Entry point - App of Apps (one per environment)
+│   └── dev.yaml        # Bootstraps all apps in apps/dev/
+│
+├── apps/               # ArgoCD Applications (environment-specific config)
+│   └── dev/
+│       ├── backend-server.yaml
+│       ├── web-frontend.yaml
+│       └── argocd-ingress.yaml
+│
+├── charts/             # Reusable Helm charts (environment-agnostic)
+│   ├── backend-server/
+│   │   ├── Chart.yaml
+│   │   ├── values.yaml     # Base defaults
+│   │   └── templates/      # K8s manifests
+│   └── web-frontend/
+│       ├── Chart.yaml
+│       ├── values.yaml
+│       └── templates/
+│
+└── platform/           # Platform services (shared across all environments)
+    └── argocd/
+        ├── values.yaml     # ArgoCD server configuration
+        └── ingress.yaml    # ArgoCD UI ingress
 ```
 
-## App of Apps Pattern
+### Folder Purposes
 
-Instead of manually applying each Application manifest, you apply **one root app per environment**, and ArgoCD manages everything else.
+| Folder       | Purpose                                                                     | When to Edit                                        |
+| ------------ | --------------------------------------------------------------------------- | --------------------------------------------------- |
+| `bootstrap/` | App-of-Apps entry point. Apply once to bootstrap entire environment         | Adding new environments (staging, prod)             |
+| `apps/`      | ArgoCD Application manifests with **environment-specific** config overrides | Changing env-specific values (replicas, image tags) |
+| `charts/`    | Reusable Helm charts with templates and **base defaults**                   | Adding new services or changing K8s resources       |
+| `platform/`  | Platform-level services that are **shared across all environments**         | Configuring ArgoCD, monitoring, logging             |
+
+## 🚀 How to Run
+
+### Prerequisites
+
+- Docker Desktop or similar (for local Kubernetes)
+- kubectl
+- Helm
+- k3d (for lightweight local cluster)
+- ArgoCD CLI (optional, for CLI management)
+
+Install tools (macOS):
+
+```bash
+brew install kubectl helm k3d argocd
+```
+
+### Step 1: Create Local Cluster
+
+```bash
+# Create k3d cluster with port mapping for Ingress
+k3d cluster create dev --port "8080:80@loadbalancer"
+
+# Verify
+kubectl cluster-info
+kubectl get nodes
+```
+
+### Step 2: Install ArgoCD
+
+```bash
+# Add Helm repo
+helm repo add argo https://argoproj.github.io/argo-helm
+helm repo update
+
+# Install ArgoCD with custom values for HTTP and subpath
+helm install argocd argo/argo-cd \
+  --namespace argocd \
+  --create-namespace \
+  -f platform/argocd/values.yaml
+
+# Wait for ArgoCD to be ready
+kubectl -n argocd rollout status deployment argocd-server
+```
+
+### Step 3: Get ArgoCD Admin Password
+
+```bash
+kubectl -n argocd get secret argocd-initial-admin-secret \
+  -o jsonpath="{.data.password}" | base64 -d
+echo  # newline
+```
+
+### Step 4: Bootstrap Applications
+
+This is the **only manual kubectl apply** you need. ArgoCD handles everything else.
+
+```bash
+kubectl apply -f bootstrap/dev.yaml
+```
+
+This creates the "App of Apps" which:
+
+1. Reads all manifests in `apps/dev/`
+2. Creates ArgoCD Applications for each service
+3. Deploys Helm charts to the `dev` namespace
+4. Auto-syncs on every Git push
+
+### Step 5: Verify Deployment
+
+```bash
+# Check ArgoCD Applications
+kubectl get applications -n argocd
+
+# Check pods in dev namespace
+kubectl get pods -n dev
+
+# Check services
+kubectl get svc -n dev
+
+# Check ingresses
+kubectl get ingress -n dev
+kubectl get ingress -n argocd
+```
+
+### Step 6: Access Applications
+
+All applications are accessible via Ingress on `localhost:8080`:
+
+- **Frontend**: http://localhost:8080/
+- **Backend API**: http://localhost:8080/api
+- **ArgoCD UI**: http://localhost:8080/argocd
+
+Login to ArgoCD with username `admin` and the password from Step 3.
+
+## 🔄 Development Workflow
+
+After initial setup, just push changes to Git:
+
+```bash
+# Example 1: Update application code
+# 1. Build and push new Docker image with tag 1.0.2
+# 2. Update image tag in apps/dev/backend-server.yaml
+# 3. Git commit and push
+# → ArgoCD auto-syncs within ~3 minutes
+
+# Example 2: Scale application
+# Edit apps/dev/web-frontend.yaml → change replicaCount: 2
+git add . && git commit -m "scale frontend to 2 replicas" && git push
+# → ArgoCD detects change and updates deployment
+
+# Example 3: Modify Kubernetes resources
+# Edit charts/backend-server/templates/deployment.yaml
+git add . && git commit -m "add resource limits" && git push
+# → ArgoCD redeploys with new template
+```
+
+## 📦 App of Apps Pattern
 
 ```
-                    kubectl apply -f root-apps/dev.yaml
+                    kubectl apply -f bootstrap/dev.yaml
                                    │
                                    ▼
-                          ┌── dev-root ──┐       (ArgoCD App of Apps)
+                          ┌── dev-root ──┐       (App of Apps)
                           │              │
                           ▼              ▼
-                 dev-backend-server   dev-web-frontend   (ArgoCD child Apps)
+                 dev-backend-server   dev-web-frontend   (Child Apps)
                           │              │
                           ▼              ▼
-                  charts/backend    charts/frontend      (Helm charts → K8s resources)
+                  charts/backend    charts/frontend      (Helm → K8s)
 ```
 
-### Why One Root App Per Environment?
+**Benefits:**
 
-| Concern                     | Benefit                                             |
-| --------------------------- | --------------------------------------------------- |
-| **Independent control**     | Pause/disable syncing in prod without affecting dev |
-| **Different sync policies** | Dev: auto-sync. Prod: manual approval               |
-| **Blast radius**            | A bad push to dev doesn't touch prod                |
-| **Clear ownership**         | Each env is a single point of entry                 |
+- **Single entry point**: Only `kubectl apply` once
+- **Automatic discovery**: Adding `apps/dev/new-service.yaml` auto-deploys
+- **Environment isolation**: Dev changes don't affect prod
+- **Declarative sync policies**: Dev auto-syncs, prod requires approval
 
-## Deploying
+## 🔧 Common Tasks
 
-### First Time (bootstrap)
+### Add a New Service
+
+1. Create Helm chart in `charts/my-service/`
+2. Create Application manifest in `apps/dev/my-service.yaml`
+3. Push to Git → ArgoCD deploys automatically
+
+### Add Staging/Production Environment
+
+1. Create `apps/staging/` with environment-specific configs
+2. Create `bootstrap/staging.yaml` (copy from dev, update sync policy)
+3. `kubectl apply -f bootstrap/staging.yaml`
+
+### Update Application Image
+
+Edit `apps/dev/backend-server.yaml`:
+
+```yaml
+valuesObject:
+  image:
+    tag: "1.0.2" # Change this
+```
+
+### Check ArgoCD Sync Status
 
 ```bash
-# 1. Make sure ArgoCD is running in the cluster
+# Using ArgoCD CLI
+argocd app list
+argocd app get dev-backend-server
 
-# 2. Apply the root app — this is the ONLY thing you apply manually
-kubectl apply -f root-apps/dev.yaml
-
-# 3. ArgoCD will:
-#    - Read apps/dev/ directory
-#    - Create backend-server and web-frontend Applications
-#    - Sync the Helm charts to the 'dev' namespace
-#    - Auto-sync on any future Git push
+# Using kubectl
+kubectl get applications -n argocd
+kubectl describe application dev-backend-server -n argocd
 ```
 
-### After Bootstrap
-
-Just push to Git. ArgoCD watches the repo and auto-syncs.
-
-```
-Change charts/backend-server/values.yaml → ArgoCD detects → re-syncs backend
-Change apps/dev/web-frontend.yaml        → ArgoCD detects → re-syncs frontend
-Add    apps/dev/new-service.yaml         → ArgoCD detects → deploys new service
-```
-
-## Accessing the Application
-
-The applications are exposed via Ingress. To access them locally, you need to map the hostnames to your cluster's Ingress IP.
-
-### 1. Get the Ingress IP
-
-If using Minikube with `minikube tunnel` (required for LoadBalancer services):
+### Force Sync (if needed)
 
 ```bash
-# In a separate terminal
-minikube tunnel
+argocd app sync dev-backend-server
+# or sync all
+argocd app sync -l environment=dev
 ```
 
-Then get the External IP of the Ingress Controller or use localhost if tunneling:
+## 🧹 Cleanup
 
 ```bash
-kubectl get svc -n ingress-nginx
-# OR if using Minikube ingress addon
-minikube ip
+# Delete everything
+k3d cluster delete dev
 ```
 
-### 2. Update /etc/hosts
+## 📚 Additional Resources
 
-Add the IP and hostnames to your `/etc/hosts` file.
-
-If running locally with `minikube tunnel`, the IP is usually `127.0.0.1`.
-If using `minikube ip`, use that IP.
-
-```
-# Example /etc/hosts
-127.0.0.1 backend.dev.local frontend.dev.local
-```
-
-### 3. Access in Browser
-
-- **Frontend**: [http://frontend.dev.local](http://frontend.dev.local)
-- **Backend API**: [http://backend.dev.local](http://backend.dev.local)
-
-## Adding a New Environment
-
-1. Create `apps/<env>/` with Application manifests (copy from dev, update namespace/values)
-2. Create `root-apps/<env>.yaml` (copy from dev, update path and sync policy)
-3. `kubectl apply -f root-apps/<env>.yaml`
-
-## Adding a New Service
-
-1. Create chart in `charts/<service-name>/`
-2. Add Application manifest in `apps/dev/<service-name>.yaml`
-3. Push to Git — ArgoCD picks it up automatically
+- [ArgoCD Documentation](https://argo-cd.readthedocs.io/)
+- [Helm Documentation](https://helm.sh/docs/)
+- [App of Apps Pattern](https://argo-cd.readthedocs.io/en/stable/operator-manual/cluster-bootstrapping/)
+- See [HOW-TO-RUN.md](./HOW-TO-RUN.md) for detailed step-by-step instructions

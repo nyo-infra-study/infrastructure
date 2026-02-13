@@ -54,12 +54,11 @@ kubectl -n argocd rollout status deployment argocd-server
 # Get admin password
 kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
 echo  # newline
-
-# Port-forward the UI
-kubectl port-forward svc/argocd-server -n argocd 9090:443
 ```
 
-Open [https://localhost:9090](https://localhost:9090) → Login with `admin` and the password above.
+Open [http://localhost:8080/argocd](http://localhost:8080/argocd) → Login with `admin` and the password above.
+
+ArgoCD is now accessible via Ingress at the `/argocd` path, no port-forwarding needed.
 
 ### Password has a corrupt `%` at the end?
 
@@ -83,7 +82,7 @@ echo ""
 This is the only `kubectl apply` you need. ArgoCD handles everything else.
 
 ```bash
-kubectl apply -f root-apps/dev.yaml
+kubectl apply -f bootstrap/dev.yaml
 ```
 
 This will:
@@ -99,7 +98,7 @@ This will:
 
 ```bash
 # Check ArgoCD Applications
-argocd login localhost:9090 --insecure
+argocd login localhost:8080 --insecure --grpc-web
 argocd app list
 
 # Check running pods

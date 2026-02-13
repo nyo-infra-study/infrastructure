@@ -1,4 +1,4 @@
-# Root App of Apps — Dev Environment
+# Bootstrap App of Apps — Dev Environment
 #
 # This is the ONLY manifest you need to `kubectl apply`.
 # ArgoCD will discover all Application manifests in apps/dev/
