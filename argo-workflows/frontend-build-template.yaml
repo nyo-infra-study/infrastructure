@@ -8,6 +8,7 @@ metadata:
   namespace: argo
 spec:
   entrypoint: build-and-push
+  serviceAccountName: argo
 
   arguments:
     parameters:
