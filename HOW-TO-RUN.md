@@ -420,7 +420,102 @@ kubectl apply -f apps/dev/argo-events.yaml
 
 ---
 
-## Teardown
+## 8. Monitor Automated Builds
+
+### Watch All Workflows
+
+```bash
+# Watch all workflows in real-time
+kubectl get workflows -n argo -w
+
+# List recent workflows
+kubectl get workflows -n argo --sort-by=.metadata.creationTimestamp
+```
+
+### Check Poller Status
+
+```bash
+# See poller runs (every 2 minutes)
+kubectl get workflows -n argo | grep github-poller
+
+# Check what commit was detected
+kubectl get configmap github-latest-commit -n argo -o yaml
+
+# Watch ConfigMap for updates
+kubectl get configmap github-latest-commit -n argo -w
+```
+
+### View Sensor Logs
+
+```bash
+# Check if sensor is running
+kubectl get pods -n argo | grep sensor
+
+# Watch sensor activity (shows when builds are triggered)
+kubectl logs -n argo -l sensor-name=frontend-build-trigger -f
+
+# Check sensor status
+kubectl describe sensor frontend-build-trigger -n argo
+```
+
+### View Build Logs
+
+```bash
+# List all frontend builds
+kubectl get workflows -n argo | grep frontend-build
+
+# Get logs from specific build (replace with actual name)
+kubectl logs -n argo -l workflows.argoproj.io/workflow=frontend-build-xxxxx
+
+# Watch latest build in real-time
+kubectl logs -n argo -l workflows.argoproj.io/workflow=frontend-build-xxxxx -f
+```
+
+### Check EventSource
+
+```bash
+# Check EventSource status
+kubectl get eventsources -n argo
+
+# View EventSource logs
+kubectl logs -n argo -l eventsource-name=github -f
+```
+
+### Test the Full Flow
+
+```bash
+# 1. Push a commit to web-frontend
+cd ../web-frontend
+git commit --allow-empty -m "test: trigger automated build"
+git push
+
+# 2. Watch for poller to detect it (within 2 minutes)
+kubectl get workflows -n argo -w
+
+# You should see:
+# - github-poller-xxxxx runs (every 2 min)
+# - frontend-build-xxxxx automatically triggered after poller succeeds!
+```
+
+### Useful Debugging Commands
+
+```bash
+# Check all pods in argo namespace
+kubectl get pods -n argo
+
+# Check ArgoCD application status
+kubectl get applications -n argocd
+
+# View argo-events controller logs
+kubectl logs -n argo-events -l app.kubernetes.io/name=controller-manager --tail=50
+
+# Check workflow controller logs
+kubectl logs -n argo -l app=workflow-controller --tail=50
+```
+
+---
+
+## 9. Teardown
 
 ```bash
 # Delete everything
