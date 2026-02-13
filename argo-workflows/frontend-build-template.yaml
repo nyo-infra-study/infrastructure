@@ -1,0 +1,49 @@
+# WorkflowTemplate - Reusable workflow definition
+# This is like a "function" that can be called by Sensors or CronWorkflows
+
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: build-frontend-template
+  namespace: argo
+spec:
+  entrypoint: build-and-push
+
+  arguments:
+    parameters:
+      - name: environment
+        value: "dev"
+      - name: vite-api-url
+        value: "http://localhost:8080/api"
+      - name: image-tag
+        value: "latest"
+
+  volumes:
+    - name: docker-config
+      secret:
+        secretName: docker-credentials
+        items:
+          - key: .dockerconfigjson
+            path: config.json
+
+  templates:
+    - name: build-and-push
+      inputs:
+        parameters:
+          - name: environment
+          - name: vite-api-url
+          - name: image-tag
+
+      container:
+        image: gcr.io/kaniko-project/executor:latest
+        args:
+          - "--dockerfile=/workspace/Dockerfile"
+          - "--context=git://github.com/nyo-infra-study/infrastructure#main"
+          - "--context-sub-path=web-frontend"
+          - "--build-arg=VITE_API_URL={{inputs.parameters.vite-api-url}}"
+          - "--destination=skimpjr/web-frontend:{{inputs.parameters.image-tag}}"
+          - "--destination=skimpjr/web-frontend:{{inputs.parameters.environment}}"
+
+        volumeMounts:
+          - name: docker-config
+            mountPath: /kaniko/.docker/

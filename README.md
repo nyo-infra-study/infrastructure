@@ -25,6 +25,13 @@ infrastructure/
 │       ├── values.yaml
 │       └── templates/
 │
+├── argo-workflows/     # CI/CD workflow definitions
+│   └── frontend-build-template.yaml
+│
+├── argo-events/        # Event-driven automation
+│   ├── github-event-source.yaml
+│   └── frontend-build-sensor.yaml
+│
 └── platform/           # Platform services (shared across all environments)
     └── argocd/
         ├── values.yaml     # ArgoCD server configuration
@@ -33,12 +40,14 @@ infrastructure/
 
 ### Folder Purposes
 
-| Folder       | Purpose                                                                     | When to Edit                                        |
-| ------------ | --------------------------------------------------------------------------- | --------------------------------------------------- |
-| `bootstrap/` | App-of-Apps entry point. Apply once to bootstrap entire environment         | Adding new environments (staging, prod)             |
-| `apps/`      | ArgoCD Application manifests with **environment-specific** config overrides | Changing env-specific values (replicas, image tags) |
-| `charts/`    | Reusable Helm charts with templates and **base defaults**                   | Adding new services or changing K8s resources       |
-| `platform/`  | Platform-level services that are **shared across all environments**         | Configuring ArgoCD, monitoring, logging             |
+| Folder            | Purpose                                                                     | When to Edit                                        |
+| ----------------- | --------------------------------------------------------------------------- | --------------------------------------------------- |
+| `bootstrap/`      | App-of-Apps entry point. Apply once to bootstrap entire environment         | Adding new environments (staging, prod)             |
+| `apps/`           | ArgoCD Application manifests with **environment-specific** config overrides | Changing env-specific values (replicas, image tags) |
+| `charts/`         | Reusable Helm charts with templates and **base defaults**                   | Adding new services or changing K8s resources       |
+| `argo-workflows/` | CI/CD workflow definitions for building Docker images                       | Creating new workflows or modifying build steps     |
+| `argo-events/`    | Event sources and sensors for automated workflow triggering                 | Setting up GitHub webhooks or event automation      |
+| `platform/`       | Platform-level services that are **shared across all environments**         | Configuring ArgoCD, monitoring, logging             |
 
 ## 🚀 How to Run
 
@@ -232,6 +241,8 @@ k3d cluster delete dev
 ## 📚 Additional Resources
 
 - [ArgoCD Documentation](https://argo-cd.readthedocs.io/)
+- [Argo Workflows Documentation](https://argo-workflows.readthedocs.io/)
+- [Argo Events Documentation](https://argoproj.github.io/argo-events/)
 - [Helm Documentation](https://helm.sh/docs/)
 - [App of Apps Pattern](https://argo-cd.readthedocs.io/en/stable/operator-manual/cluster-bootstrapping/)
 - See [HOW-TO-RUN.md](./HOW-TO-RUN.md) for detailed step-by-step instructions

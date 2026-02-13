@@ -1,0 +1,53 @@
+# Sensor - Triggers workflow when GitHub events happen
+# This listens to the EventSource and triggers the frontend build workflow
+
+apiVersion: argoproj.io/v1alpha1
+kind: Sensor
+metadata:
+  name: frontend-build-trigger
+  namespace: argo
+spec:
+  template:
+    serviceAccountName: argo
+
+  # Dependencies - what events to listen for
+  dependencies:
+    - name: github-push
+      eventSourceName: github
+      eventName: frontend-repo
+
+  # Triggers - what to do when event happens
+  triggers:
+    - template:
+        name: trigger-frontend-build
+        k8s:
+          operation: create
+          source:
+            resource:
+              apiVersion: argoproj.io/v1alpha1
+              kind: Workflow
+              metadata:
+                generateName: frontend-build-
+                namespace: argo
+              spec:
+                # Use the WorkflowTemplate instead of inline definition
+                workflowTemplateRef:
+                  name: build-frontend-template
+
+                # Override parameters from Git event
+                arguments:
+                  parameters:
+                    - name: environment
+                      value: "dev"
+                    - name: vite-api-url
+                      value: "http://localhost:8080/api"
+                    - name: image-tag
+                      value: "latest"
+
+          # Extract data from GitHub webhook
+          parameters:
+            - src:
+                dependencyName: github-push
+                dataKey: body.after
+              dest: spec.arguments.parameters.2.value
+              # Use commit SHA as image tag
