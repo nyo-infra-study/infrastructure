@@ -173,32 +173,84 @@ docker push YOUR_DOCKERHUB_USERNAME/backend-server:latest
 
 ---
 
-## 7. Update Image Tags in ArgoCD Apps
+## 7. Configure Automatic Deployments
 
-After images are built, update the image tags in your ArgoCD application manifests:
+**No manual image tag updates needed!** Our setup uses stable tags that automatically trigger deployments.
 
-**Edit `apps/dev/web-frontend.yaml`:**
+### How It Works
 
-```yaml
-image:
-  repository: YOUR_DOCKERHUB_USERNAME/web-frontend
-  tag: "dev-1234567890" # Use the tag from workflow output
+```
+git push (web-frontend)
+  ↓
+CronWorkflow polls GitHub (every 2 min)
+  ↓
+Updates ConfigMap with latest commit
+  ↓
+EventSource detects ConfigMap change
+  ↓
+Sensor triggers Workflow
+  ↓
+Kaniko builds & pushes to Docker Hub (tag: "dev")
+  ↓
+ArgoCD detects new image digest
+  ↓
+Deployment automatically restarts with new image ✅
 ```
 
-**Edit `apps/dev/backend-server.yaml`:**
+### Configuration
+
+**ArgoCD apps use stable tags:**
 
 ```yaml
-image:
-  repository: YOUR_DOCKERHUB_USERNAME/backend-server
-  tag: "latest"
+# apps/dev/web-frontend.yaml
+valuesObject:
+  image:
+    tag: "dev" # Static tag, always points to latest
+    pullPolicy: Always # Force pull on every deployment
 ```
 
-Commit and push:
+**Build template overwrites the same tag:**
+
+```yaml
+# argo-workflows/frontend-build-template.yaml
+args:
+  - "--destination=skimpjr/web-frontend:{{inputs.parameters.environment}}"
+  # Pushes to 'dev' tag, overwrites each time
+```
+
+### First-Time Setup Only
+
+**Deploy ArgoCD applications:**
 
 ```bash
-git add apps/dev/
-git commit -m "chore: update image tags"
-git push origin main
+cd infrastructure
+kubectl apply -f bootstrap/dev.yaml
+
+# Or manually apply each app
+kubectl apply -f apps/dev/backend-server.yaml
+kubectl apply -f apps/dev/web-frontend.yaml
+```
+
+### After First Deployment
+
+**That's it!** Now every time you push to `web-frontend` main branch:
+
+1. ⏱️ Within 2 minutes: CronWorkflow detects new commit
+2. 🔨 Build automatically triggers via Sensor
+3. 🐳 Kaniko builds and pushes image to `skimpjr/web-frontend:dev`
+4. 🔄 ArgoCD sees new image digest
+5. ✅ Deployment restarts with new image
+
+**No manual steps required!**
+
+### Build Backend Image (Manual)
+
+Backend doesn't change often and has no build-time env vars:
+
+```bash
+cd ../backend-server
+docker build -t YOUR_DOCKERHUB_USERNAME/backend-server:latest .
+docker push YOUR_DOCKERHUB_USERNAME/backend-server:latest
 ```
 
 ---
@@ -515,7 +567,7 @@ kubectl logs -n argo -l app=workflow-controller --tail=50
 
 ---
 
-## 9. Teardown
+## 10. Teardown
 
 ```bash
 # Delete everything
