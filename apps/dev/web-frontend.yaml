@@ -25,7 +25,7 @@ spec:
 
       # VALUES OVERRIDES: Dev-specific configuration
       valuesObject:
-        replicaCount: 1 # Single replica for dev (scale up in prod)
+        replicaCount: 2 # Single replica for dev (scale up in prod)
 
         image:
           tag: "1.0.2" # Version of the frontend Docker image
