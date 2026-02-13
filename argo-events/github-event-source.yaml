@@ -1,5 +1,5 @@
-# EventSource - Polls GitHub for new commits
-# This actively checks GitHub API every 2 minutes for new commits
+# EventSource - Watches ConfigMap for commit changes
+# The CronWorkflow updates the ConfigMap, this EventSource detects changes
 
 apiVersion: argoproj.io/v1alpha1
 kind: EventSource
@@ -7,17 +7,7 @@ metadata:
   name: github
   namespace: argo
 spec:
-  # No service needed for polling (no webhook endpoint)
-
-  # Generic webhook to receive polling results
-  generic:
-    github-poll:
-      url: ""
-      config: |
-        # This will be triggered by the polling workflow
-
-  # Use resource event source to watch for ConfigMap updates
-  # The polling workflow will update a ConfigMap with latest commit SHA
+  # Watch for ConfigMap updates from the polling workflow
   resource:
     github-commits:
       namespace: argo
