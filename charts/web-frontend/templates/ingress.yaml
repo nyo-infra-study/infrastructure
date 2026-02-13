@@ -1,31 +1,3 @@
-# ============================================================
-# Kubernetes Ingress - Web Frontend
-# ============================================================
-# This Helm template generates a Kubernetes Ingress for external access.
-#
-# WHAT IS INGRESS?
-# - Routes HTTP(S) traffic from outside cluster to internal Services
-# - Like a reverse proxy (e.g., Nginx, Traefik, HAProxy)
-# - Handles path-based routing, SSL, load balancing
-#
-# OUR SETUP:
-# - Ingress Controller: Traefik (k3d default)
-# - Route: localhost:8080/ → web-frontend Service (port 9092)
-# - Path: Root path (/) catches all non-/api requests
-# - No middleware needed (unlike backend which strips /api prefix)
-#
-# ROUTING STRATEGY:
-# - / (root) → Frontend (this Ingress)
-# - /api → Backend (separate Ingress with stripPrefix middleware)
-# - This allows frontend to make relative API calls: fetch('/api/users')
-#
-# HELM SYNTAX:
-# - Conditional rendering with if statements (only if ingress.enabled)
-# - Loop through lists with range (hosts, paths, tls)
-# - Render blocks only if value exists with 'with'
-# - $ - Access root values from inside nested range loops
-# ============================================================
-
 {{- if .Values.ingress.enabled -}}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -34,8 +6,6 @@ metadata:
   labels:
     app: {{ .Release.Name }}
   annotations:
-    # Custom annotations from values (if any)
-    # Frontend typically doesn't need special annotations
     {{- with .Values.ingress.annotations }}
     {{- toYaml . | nindent 4 }}
     {{- end }}

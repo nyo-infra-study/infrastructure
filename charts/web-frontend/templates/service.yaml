@@ -1,39 +1,11 @@
-# ============================================================
-# Kubernetes Service - Web Frontend
-# ============================================================
-# This Helm template generates a Kubernetes Service.
-#
-# WHAT IS A SERVICE?
-# - Stable network endpoint for accessing pods
-# - Provides load balancing across multiple pod replicas
-# - Pods are ephemeral (IPs change), Services are stable
-#
-# SERVICE TYPES:
-# - ClusterIP (default): Only accessible inside cluster
-# - NodePort: Accessible on each node's IP:port
-# - LoadBalancer: Cloud provider external load balancer
-#
-# OUR SETUP:
-# - Type: ClusterIP (internal only)
-# - Port: 9092 (what other services connect to)
-# - TargetPort: 80 (Nginx listens on 80 inside container)
-# - Selector: Routes traffic to pods with matching label
-#
-# HOW TRAFFIC FLOWS:
-# 1. User browses: http://localhost:8080/
-# 2. Ingress routes to: Service (dev-web-frontend:9092)
-# 3. Service load balances to: Pod containers (port 80)
-# 4. Nginx serves static React files (HTML/CSS/JS)
-# ============================================================
-
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Release.Name }}  # Service name (e.g., dev-web-frontend)
+  name: {{ .Release.Name }}
   labels:
     app: {{ .Release.Name }}
 spec:
-  type: {{ .Values.service.type }}  # ClusterIP, NodePort, or LoadBalancer
+  type: {{ .Values.service.type }}
   
   # Selector: Which pods receive traffic
   # Matches pods with label: app=dev-web-frontend

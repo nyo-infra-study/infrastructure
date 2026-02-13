@@ -1,30 +1,3 @@
-# ============================================================
-# Traefik Middleware - Strip Path Prefix
-# ============================================================
-# This is a Traefik-specific resource (not standard Kubernetes).
-#
-# WHAT DOES IT DO?
-# Removes a path prefix from the incoming request before forwarding.
-#
-# EXAMPLE (stripPrefixes: ["/api"]):
-# - Client requests: http://localhost:8080/api/users
-# - Traefik strips /api
-# - Backend receives: GET /users
-#
-# WHY?
-# - Backend code doesn't need to know it's behind /api path
-# - Backend can respond with absolute paths like /users, /products
-# - Frontend makes requests to /api/users (via Ingress)
-#
-# HOW IT'S LINKED:
-# - Ingress annotation references this middleware:
-#   traefik.ingress.kubernetes.io/router.middlewares: dev-backend-server-strip-prefix@kubernetescrd
-# - Format: <namespace>-<name>@kubernetescrd
-#
-# CONDITIONAL RENDERING:
-# - Only created if ingress.enabled AND stripPrefixes defined
-# ============================================================
-
 {{- if .Values.ingress.enabled }}
 {{- with .Values.ingress.stripPrefixes }}
 apiVersion: traefik.io/v1alpha1
@@ -36,7 +9,6 @@ metadata:
 spec:
   stripPrefix:
     prefixes:
-      # List of prefixes to strip (e.g., ["/api", "/v1"])
       {{- toYaml . | nindent 6 }}
 {{- end }}
 {{- end }}

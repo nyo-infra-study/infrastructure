@@ -1,27 +1,9 @@
-# ============================================================
-# Kubernetes Deployment - Web Frontend
-# ============================================================
-# This Helm template generates a Kubernetes Deployment manifest.
-#
-# FRONTEND ARCHITECTURE:
-# - React app built with Vite (static assets - might be a bit problematic because we cant pass env variables at runtime)
-# - Served by Nginx web server
-# - Container listens on port 80 (standard HTTP)
-# - Makes API calls to /api (routed to backend via Ingress)
-#
-# HOW IT WORKS:
-# 1. Helm reads charts/web-frontend/values.yaml (base values)
-# 2. ArgoCD overrides with apps/dev/web-frontend.yaml valuesObject
-# 3. This template combines them into final Kubernetes YAML
-# 4. Result is applied to cluster
-# ============================================================
-
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}  # e.g., "dev-web-frontend"
+  name: {{ .Release.Name }}
   labels:
-    app: {{ .Release.Name }}  # Used for Service selector
+    app: {{ .Release.Name }}
 spec:
   replicas: {{ .Values.replicaCount }}  # Number of pods (from values)
   

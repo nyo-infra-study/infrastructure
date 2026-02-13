@@ -1,23 +1,11 @@
-# ============================================================
-# Kubernetes Deployment - Backend Server
-# ============================================================
-# This Helm template generates a Kubernetes Deployment manifest.
-#
-# HOW IT WORKS:
-# 1. Helm reads charts/backend-server/values.yaml (base values)
-# 2. ArgoCD overrides with apps/dev/backend-server.yaml valuesObject
-# 3. This template combines them into final Kubernetes YAML
-# 4. Result is applied to cluster
-# ============================================================
-
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}  # e.g., "dev-backend-server"
+  name: {{ .Release.Name }}
   labels:
-    app: {{ .Release.Name }}  # Used for Service selector
+    app: {{ .Release.Name }}
 spec:
-  replicas: {{ .Values.replicaCount }}  # Number of pods (from values)
+  replicas: {{ .Values.replicaCount }}
   
   # Selector: Which pods this Deployment manages
   selector:
