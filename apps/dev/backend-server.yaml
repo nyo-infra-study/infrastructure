@@ -51,6 +51,9 @@ spec:
         # Ingress configuration (external access)
         ingress:
           enabled: true # Create an Ingress resource
+          className: traefik # Use Traefik ingress controller (k3d default)
+          stripPrefixes: # Traefik middleware to remove path prefix
+            - /api # Strip /api before forwarding to backend
           hosts:
             - host: localhost # Domain name (localhost for local dev)
               paths:
