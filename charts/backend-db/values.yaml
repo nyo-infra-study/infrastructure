@@ -6,10 +6,6 @@ postgresql:
   # Enable replication architecture
   architecture: replication
 
-  # Image configuration
-  image:
-    tag: 16-alpine
-
   # Authentication
   auth:
     database: "mydb"
