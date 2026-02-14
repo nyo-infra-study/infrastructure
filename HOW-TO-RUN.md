@@ -62,6 +62,9 @@ helm repo update
 helm install argocd argo/argo-cd \
   --namespace argocd \
   --create-namespace
+
+# Wait for ArgoCD to be ready
+kubectl wait --for=condition=available deployment/argocd-server -n argocd --timeout=300s
 ```
 
 Wait for pods to be ready:
@@ -224,7 +227,7 @@ args:
 
 ```bash
 cd infrastructure
-kubectl create namespace dev # (Optional, bootstrap creates it too, but we need it for the secret)
+kubectl create namespace dev # (but we need it for the secret, even though it can be created by the bootstrap/dev.yaml)
 
 # Initialize Database Secret (Required for backend-db)
 # By default, the chart expects a secret named 'backend-db-secret'
@@ -233,9 +236,6 @@ kubectl create namespace dev # (Optional, bootstrap creates it too, but we need 
 kubectl create secret generic backend-db-secret \
   --namespace dev \
   --from-literal=POSTGRES_PASSWORD=yoursecurepassword
-
-# Then bootstrap the environment
-kubectl apply -f bootstrap/dev.yaml
 ```
 
 ### After First Deployment
@@ -270,6 +270,12 @@ docker push YOUR_DOCKERHUB_USERNAME/backend-server:latest
 # Get admin password
 kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
 echo  # newline
+```
+
+Wait until the ArgoCD Server is ready:
+
+```bash
+kubectl wait --for=condition=available deployment/argocd-server -n argocd --timeout=300s
 ```
 
 Open [http://localhost:8080/argocd](http://localhost:8080/argocd) → Login with `admin` and the password above.
