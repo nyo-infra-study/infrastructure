@@ -246,3 +246,16 @@ k3d cluster delete dev
 - [Helm Documentation](https://helm.sh/docs/)
 - [App of Apps Pattern](https://argo-cd.readthedocs.io/en/stable/operator-manual/cluster-bootstrapping/)
 - See [HOW-TO-RUN.md](./HOW-TO-RUN.md) for detailed step-by-step instructions
+
+## 🏗️ Infrastructure Patterns
+
+### Bitnami PostgreSQL Chart
+
+We use the [Bitnami PostgreSQL Helm Chart](https://github.com/bitnami/charts/tree/main/bitnami/postgresql) for production-grade database features (Replication, HA).
+
+**Key Implementation Details:**
+
+- **Repository:** Uses `bitnamilegacy/postgresql` due to Docker Hub archiving.
+- **Service Discovery:** Read/Write split via `backend-db-primary` and `backend-db-read` services.
+- **Replication:** Configured with `architecture: replication` and 1+ read replicas.
+- **Secret Management:** Uses existing Kubernetes secrets (`backend-db-secret`) mapped to chart env vars.

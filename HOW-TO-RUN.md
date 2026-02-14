@@ -586,3 +586,32 @@ kubectl logs -n argo -l app=workflow-controller --tail=50
 # Delete everything
 k3d cluster delete dev
 ```
+
+## 11. Troubleshooting: Bitnami PostgreSQL
+
+### Image Pull Errors (ImagePullBackOff)
+
+If you see errors pulling `bitnami/postgresql` images (e.g., `manifest unknown` or `not found`), this is because Bitnami archived their main Docker Hub repository.
+
+**Solution:**
+We use the legacy repository `bitnamilegacy/postgresql` with tag `16-debian-12`. This requires allowing "insecure" images in the chart logic:
+
+```yaml
+global:
+  security:
+    allowInsecureImages: true
+
+postgresql:
+  image:
+    repository: bitnamilegacy/postgresql
+    tag: 16-debian-12
+```
+
+### Database Connection (DNS Error)
+
+If the backend server fails with `dial tcp: lookup backend-db ... no such host`, it's because the Bitnami chart creates specific services for Primary (write) and Read (read-only) nodes.
+
+**Correct Hostnames:**
+
+- **Writes:** `backend-db-primary` (Use this for `DB_HOST`)
+- **Reads:** `backend-db-read` (Use for read-only replicas)
