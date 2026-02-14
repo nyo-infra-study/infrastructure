@@ -46,7 +46,7 @@ spec:
           - name: PORT
             value: "9091" # Tell Go app which port to use
           - name: DB_HOST
-            value: "backend-db"
+            value: "backend-db-primary"
           - name: DB_PORT
             value: "5432"
           - name: DB_USER
