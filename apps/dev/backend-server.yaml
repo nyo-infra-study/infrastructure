@@ -12,6 +12,8 @@ metadata:
   name: dev-backend-server
   # ArgoCD Applications must live in the argocd namespace
   namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
   labels:
     environment: dev # Helps filter/organize apps by environment
     domain: backend # Helps categorize apps by domain
