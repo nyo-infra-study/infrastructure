@@ -1,21 +1,56 @@
-db:
-  name: "mydb"
-  user: "myuser"
-  # Note: in prod this should be a secret reference, not plaintext
-  password: "mypassword"
-  # If set, use this existing secret instead of creating one
-  existingSecret: ""
-  diskSize: "1Gi"
-  image: "postgres:16-alpine"
-  port: 5432
+# Default values for backend-db.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
 
-# Optional environment variables
-env: []
+postgresql:
+  # Enable replication architecture
+  architecture: replication
 
-resources:
-  requests:
-    cpu: "100m"
-    memory: "256Mi"
-  limits:
-    cpu: "500m"
-    memory: "512Mi"
+  # Image configuration
+  image:
+    tag: 16-alpine
+
+  # Authentication
+  auth:
+    database: "mydb"
+    username: "myuser"
+    password: "mypassword"
+    # For replication
+    replicationUsername: "repl_user"
+    replicationPassword: "repl_password"
+    # Use existing secret if available
+    # existingSecret: "my-existing-secret"
+
+  # Primary configuration
+  primary:
+    persistence:
+      enabled: true
+      size: 1Gi
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+
+  # Read Replicas configuration
+  readReplicas:
+    replicaCount: 1
+    persistence:
+      enabled: true
+      size: 1Gi
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+    service:
+      type: ClusterIP
+      ports:
+        postgresql: 5432
+
+  # Common configuration
+  fullnameOverride: "backend-db"

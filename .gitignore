@@ -1,0 +1,6 @@
+# Helm Chart Dependencies
+# Ignore .tgz and .lock files inside any 'charts'
+**/charts/*.tgz
+**/charts/*.tar.gz
+**/charts/*.lock
+**/tmpcharts/
