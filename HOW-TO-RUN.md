@@ -224,11 +224,18 @@ args:
 
 ```bash
 cd infrastructure
-kubectl apply -f bootstrap/dev.yaml
+kubectl create namespace dev # (Optional, bootstrap creates it too, but we need it for the secret)
 
-# Or manually apply each app
-kubectl apply -f apps/dev/backend-server.yaml
-kubectl apply -f apps/dev/web-frontend.yaml
+# Initialize Database Secret (Required for backend-db)
+# By default, the chart expects a secret named 'backend-db-secret'
+# If you don't create it, the chart will try to create one with default values (which is fine for dev)
+# But for security best practices, create it manually:
+kubectl create secret generic backend-db-secret \
+  --namespace dev \
+  --from-literal=POSTGRES_PASSWORD=yoursecurepassword
+
+# Then bootstrap the environment
+kubectl apply -f bootstrap/dev.yaml
 ```
 
 ### After First Deployment

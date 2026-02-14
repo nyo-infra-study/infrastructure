@@ -1,0 +1,54 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: backend-db
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    path: infrastructure/charts/backend-db
+    repoURL: https://github.com/nyo-infra-study/infrastructure
+    targetRevision: main
+    helm:
+      releaseName: backend-db
+      valuesObject:
+        db:
+          name: "mydb"
+          user: "myuser"
+          image: "postgres:16-alpine"
+          port: 5432
+          diskSize: "1Gi"
+          # Don't create secret, use existing env vars or secret refs
+          # But wait, this chart is DESIGNED to use envFrom.
+          # User wants to use secret like backend-server.
+          # So we use `env` to override POSTGRES_PASSWORD.
+        env:
+          - name: POSTGRES_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: backend-db-secret
+                key: POSTGRES_PASSWORD
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "500m"
+            memory: "256Mi"
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: dev
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+    retry:
+      limit: 2
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m

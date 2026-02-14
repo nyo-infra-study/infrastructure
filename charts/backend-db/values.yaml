@@ -1,0 +1,21 @@
+db:
+  name: "mydb"
+  user: "myuser"
+  # Note: in prod this should be a secret reference, not plaintext
+  password: "mypassword"
+  # If set, use this existing secret instead of creating one
+  existingSecret: ""
+  diskSize: "1Gi"
+  image: "postgres:16-alpine"
+  port: 5432
+
+# Optional environment variables
+env: []
+
+resources:
+  requests:
+    cpu: "100m"
+    memory: "256Mi"
+  limits:
+    cpu: "500m"
+    memory: "512Mi"

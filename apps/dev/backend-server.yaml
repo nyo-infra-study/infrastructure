@@ -35,7 +35,7 @@ spec:
         replicaCount: 1 # Number of pod replicas (1 for dev, more for prod)
 
         image:
-          tag: "1.0.1" # Docker image tag to deploy
+          tag: "2.0.0" # Docker image tag to deploy
 
         containerPort: 9091 # Port the Go app listens on inside the container
 
@@ -43,6 +43,19 @@ spec:
         env:
           - name: PORT
             value: "9091" # Tell Go app which port to use
+          - name: DB_HOST
+            value: "backend-db"
+          - name: DB_PORT
+            value: "5432"
+          - name: DB_USER
+            value: "myuser"
+          - name: DB_NAME
+            value: "mydb"
+          - name: DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: backend-db-secret
+                key: POSTGRES_PASSWORD
 
         # Kubernetes Service configuration
         service:
