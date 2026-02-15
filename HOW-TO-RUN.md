@@ -615,3 +615,38 @@ If the backend server fails with `dial tcp: lookup backend-db ... no such host`,
 
 - **Writes:** `backend-db-primary` (Use this for `DB_HOST`)
 - **Reads:** `backend-db-read` (Use for read-only replicas)
+
+## 12. Monitor Logs (PLG Stack)
+
+We use the **PLG Stack** (Promtail, Loki, Grafana) for centralized logging.
+
+### Access Grafana
+
+1.  **Get the admin password:**
+    It is set to `password` (default) or you can retrieve it if changed:
+
+    ```bash
+    kubectl get secret loki-stack-grafana -n monitoring -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
+    ```
+
+2.  **Port-forward Grafana:**
+
+    ```bash
+    kubectl port-forward svc/loki-stack-grafana 3000:80 -n monitoring
+    ```
+
+3.  **Open in Browser:**
+    - URL: [http://localhost:3000](http://localhost:3000)
+    - User: `admin`
+    - Password: (see above)
+
+### View Logs
+
+1.  Go to **Explore** (compass icon on the left).
+2.  Select **Loki** as the data source.
+3.  Use the **Label Browser** to find your app:
+    - `{app="web-frontend"}`
+    - `{app="backend-server"}`
+4.  Click **Run Query** (blue button).
+
+You will see live logs from all pods matching the label, even if they restart!
