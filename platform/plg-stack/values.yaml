@@ -15,8 +15,17 @@ grafana:
   image:
     tag: 10.3.3
 
-prometheus:
-  enabled: false
+  # Configure Grafana to run under /grafana path
+  grafana.ini:
+    server:
+      root_url: "%(protocol)s://%(domain)s:%(http_port)s/grafana"
+      serve_from_sub_path: true
 
-alertmanager:
-  enabled: false
+  # Expose Grafana via Ingress
+  ingress:
+    enabled: true
+    ingressClassName: traefik
+    hosts:
+      - localhost
+    path: /grafana
+    pathType: Prefix

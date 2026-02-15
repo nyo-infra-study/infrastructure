@@ -38,6 +38,16 @@ Step-by-step guide to deploy backend-server and web-frontend to a local Kubernet
 
 ---
 
+## 0. Start Colima (Mac Users)
+
+If you are using Colima instead of Docker Desktop, start it with enough resources (ArcgoCD + PLG stack is heavy):
+
+```bash
+colima start --cpu 4 --memory 8
+```
+
+---
+
 ## 1. Create a Local Cluster
 
 ```bash
@@ -112,7 +122,7 @@ kubectl get pods -n argo-events -w
 # Ctrl+C when controller-manager is Running
 ```
 
-**(Optional) Create GitHub personal access token:**
+**Create GitHub personal access token:**
 
 Only needed if you want automated builds on `git push`:
 
@@ -622,6 +632,8 @@ We use the **PLG Stack** (Promtail, Loki, Grafana) for centralized logging.
 
 ### Access Grafana
 
+**URL:** [http://localhost:8080/grafana](http://localhost:8080/grafana)
+
 1.  **Get the admin password:**
     It is set to `password` (default) or you can retrieve it if changed:
 
@@ -629,16 +641,16 @@ We use the **PLG Stack** (Promtail, Loki, Grafana) for centralized logging.
     kubectl get secret loki-stack-grafana -n monitoring -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
     ```
 
-2.  **Port-forward Grafana:**
-
-    ```bash
-    kubectl port-forward svc/loki-stack-grafana 3000:80 -n monitoring
-    ```
-
-3.  **Open in Browser:**
-    - URL: [http://localhost:3000](http://localhost:3000)
+2.  **Login:**
     - User: `admin`
     - Password: (see above)
+
+_(Backup) Port-forward if Ingress fails:_
+
+```bash
+kubectl port-forward svc/loki-stack-grafana 3000:80 -n monitoring
+# URL: http://localhost:3000
+```
 
 ### View Logs
 
