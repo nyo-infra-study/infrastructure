@@ -634,16 +634,17 @@ We use the **PLG Stack** (Promtail, Loki, Grafana) for centralized logging.
 
 **URL:** [http://localhost:8080/grafana](http://localhost:8080/grafana)
 
-1.  **Get the admin password:**
-    It is set to a random value by default. Retrieve it with:
+1.  **Create the admin secret (One-time setup):**
 
     ```bash
-    kubectl get secret dev-plg-stack-grafana -n monitoring -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
+    kubectl create secret generic grafana-auth -n monitoring \
+      --from-literal=admin-user=admin \
+      --from-literal=admin-password=P5F8lxHPhr58CLlCzFRTpr2iUoxjb2YieWnFBHLY
     ```
 
 2.  **Login:**
     - User: `admin`
-    - Password: (see above)
+    - Password: `P5F8lxHPhr58CLlCzFRTpr2iUoxjb2YieWnFBHLY`
 
 _(Backup) Port-forward if Ingress fails:_
 

@@ -11,7 +11,10 @@ promtail:
 
 grafana:
   enabled: true
-  adminPassword: "P5F8lxHPhr58CLlCzFRTpr2iUoxjb2YieWnFBHLY"
+  admin:
+    existingSecret: grafana-auth
+    userKey: admin-user
+    passwordKey: admin-password
   sidecar:
     datasources:
       enabled: true
