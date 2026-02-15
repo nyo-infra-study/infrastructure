@@ -11,7 +11,6 @@ promtail:
 
 grafana:
   enabled: true
-  adminPassword: "P5F8lxHPhr58CLlCzFRTpr2iUoxjb2YieWnFBHLY"
   sidecar:
     datasources:
       enabled: true
