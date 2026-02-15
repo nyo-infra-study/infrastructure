@@ -1,5 +1,7 @@
 loki:
   enabled: true
+  image:
+    tag: 2.9.3
   persistence:
     enabled: true
     size: 5Gi
@@ -20,7 +22,7 @@ grafana:
     datasources:
       enabled: true
   additionalDataSources:
-    - name: Loki-Corrected
+    - name: Loki
       type: loki
       uid: P8E80F9AEF21F6940
       url: http://dev-plg-stack-loki:3100
