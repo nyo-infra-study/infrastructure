@@ -6,36 +6,38 @@ GitOps infrastructure repository for deploying applications to Kubernetes using 
 
 ```
 infrastructure/
-├── bootstrap/           # Entry point - App of Apps (one per environment)
+├── bootstrap/           # Entry point - App of Apps
 │   └── dev.yaml        # Bootstraps all apps in apps/dev/
 │
-├── apps/               # ArgoCD Applications (environment-specific config)
+├── apps/               # ArgoCD Applications (environment-specific)
 │   └── dev/
+│       ├── argocd.yaml
+│       ├── argo-events.yaml
+│       ├── argo-workflows.yaml
+│       ├── backend-db.yaml
 │       ├── backend-server.yaml
 │       ├── web-frontend.yaml
-│       └── argocd-ingress.yaml
+│       └── plg-stack.yaml
 │
-├── charts/             # Reusable Helm charts (environment-agnostic)
+├── charts/             # Local Helm charts
+│   ├── backend-db/     # Wrapper for Bitnami PostgreSQL
 │   ├── backend-server/
-│   │   ├── Chart.yaml
-│   │   ├── values.yaml     # Base defaults
-│   │   └── templates/      # K8s manifests
 │   └── web-frontend/
-│       ├── Chart.yaml
-│       ├── values.yaml
-│       └── templates/
 │
-├── argo-workflows/     # CI/CD workflow definitions
-│   └── frontend-build-template.yaml
+├── argo-workflows/     # CI/CD templates & RBAC
+│   ├── frontend-build-template.yaml
+│   ├── github-poller.yaml
+│   └── rbac.yaml
 │
-├── argo-events/        # Event-driven automation
+├── argo-events/        # Event-driven triggers
 │   ├── github-event-source.yaml
 │   └── frontend-build-sensor.yaml
 │
-└── platform/           # Platform services (shared across all environments)
-    └── argocd/
-        ├── values.yaml     # ArgoCD server configuration
-        └── ingress.yaml    # ArgoCD UI ingress
+└── platform/           # Platform configs (Values files)
+    ├── argocd/
+    │   └── values.yaml
+    └── plg-stack/
+        └── values.yaml
 ```
 
 ### Folder Purposes

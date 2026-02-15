@@ -25,6 +25,41 @@ Step-by-step guide to deploy backend-server and web-frontend to a local Kubernet
 └─────────────────┘
 ```
 
+## 📁 Folder Structure
+
+```
+infrastructure/
+├── bootstrap/           # Entry point - App of Apps
+│   └── dev.yaml        # Bootstraps all apps in apps/dev/
+│
+├── apps/               # ArgoCD Applications (environment-specific)
+│   └── dev/
+│       ├── argocd.yaml
+│       ├── argo-events.yaml
+│       ├── argo-workflows.yaml
+│       ├── backend-db.yaml
+│       ├── backend-server.yaml
+│       ├── web-frontend.yaml
+│       └── plg-stack.yaml
+│
+├── charts/             # Local Helm charts
+│   ├── backend-db/     # Wrapper for Bitnami PostgreSQL
+│   ├── backend-server/
+│   └── web-frontend/
+│
+├── argo-workflows/     # CI/CD templates & RBAC
+│   └── frontend-build-template.yaml
+│
+├── argo-events/        # Event-driven triggers
+│   └── frontend-build-sensor.yaml
+│
+└── platform/           # Platform configs (Values files)
+    ├── argocd/
+    │   └── values.yaml
+    └── plg-stack/
+        └── values.yaml
+```
+
 ## Prerequisites
 
 | Tool       | Install                      | Purpose                     |
