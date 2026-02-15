@@ -638,7 +638,7 @@ We use the **PLG Stack** (Promtail, Loki, Grafana) for centralized logging.
     It is set to `password` (default) or you can retrieve it if changed:
 
     ```bash
-    kubectl get secret loki-stack-grafana -n monitoring -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
+    kubectl get secret dev-plg-stack-grafana -n monitoring -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
     ```
 
 2.  **Login:**
@@ -648,7 +648,7 @@ We use the **PLG Stack** (Promtail, Loki, Grafana) for centralized logging.
 _(Backup) Port-forward if Ingress fails:_
 
 ```bash
-kubectl port-forward svc/loki-stack-grafana 3000:80 -n monitoring
+kubectl port-forward svc/dev-plg-stack-grafana 3000:80 -n monitoring
 # URL: http://localhost:3000
 ```
 
