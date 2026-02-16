@@ -1,0 +1,49 @@
+# ArgoCD Application manifest for Cilium
+# Manages Cilium installation via GitOps
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cilium
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1" # Install before other apps
+  labels:
+    component: networking
+    environment: dev
+spec:
+  project: default
+
+  source:
+    chart: cilium
+    repoURL: https://helm.cilium.io/
+    targetRevision: 1.16.0
+    helm:
+      releaseName: cilium
+      valueFiles:
+        - $values/platform/cilium/values.yaml
+
+  # Additional source for values file from Git
+  sources:
+    - chart: cilium
+      repoURL: https://helm.cilium.io/
+      targetRevision: 1.16.0
+      helm:
+        releaseName: cilium
+        valueFiles:
+          - $values/platform/cilium/values.yaml
+    - repoURL: https://github.com/nyo-infra-study/infrastructure.git
+      targetRevision: main
+      ref: values
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: kube-system
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true

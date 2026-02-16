@@ -70,15 +70,32 @@ brew install kubectl helm k3d argocd
 ### Step 1: Create Local Cluster
 
 ```bash
-# Create k3d cluster with port mapping for Ingress
-k3d cluster create dev --port "8080:80@loadbalancer"
+# Create k3d cluster WITHOUT Flannel (required for Cilium) AND Traefik (using Cilium Ingress)
+k3d cluster create dev \
+  --port "8080:30080@server:0" \
+  --k3s-arg "--flannel-backend=none@server:0" \
+  --k3s-arg "--disable-network-policy@server:0" \
+  --k3s-arg "--disable=traefik@server:0" \
+  --k3s-arg "--disable=kube-proxy@server:0" \
+  --k3s-arg "--disable=servicelb@server:0"
 
-# Verify
-kubectl cluster-info
+# Verify (nodes will be NotReady until CNI is installed)
 kubectl get nodes
 ```
 
-### Step 2: Install ArgoCD
+### Step 2: Install Cilium CNI
+
+```bash
+# Install Cilium using OCI registry
+helm install cilium oci://quay.io/cilium/charts/cilium --version 1.19.0 \
+  --namespace kube-system \
+  -f platform/cilium/values.yaml
+
+# Wait for Cilium to be ready
+kubectl -n kube-system rollout status ds/cilium
+```
+
+### Step 3: Install ArgoCD
 
 ```bash
 # Add Helm repo
@@ -95,7 +112,7 @@ helm install argocd argo/argo-cd \
 kubectl -n argocd rollout status deployment argocd-server
 ```
 
-### Step 3: Get ArgoCD Admin Password
+### Step 4: Get ArgoCD Admin Password
 
 ```bash
 kubectl -n argocd get secret argocd-initial-admin-secret \
@@ -103,7 +120,7 @@ kubectl -n argocd get secret argocd-initial-admin-secret \
 echo  # newline
 ```
 
-### Step 4: Bootstrap Applications
+### Step 5: Bootstrap Applications
 
 This is the **only manual kubectl apply** you need. ArgoCD handles everything else.
 
@@ -118,7 +135,7 @@ This creates the "App of Apps" which:
 3. Deploys Helm charts to the `dev` namespace
 4. Auto-syncs on every Git push
 
-### Step 5: Verify Deployment
+### Step 6: Verify Deployment
 
 ```bash
 # Check ArgoCD Applications
@@ -135,15 +152,16 @@ kubectl get ingress -n dev
 kubectl get ingress -n argocd
 ```
 
-### Step 6: Access Applications
+### Step 7: Access Applications
 
 All applications are accessible via Ingress on `localhost:8080`:
 
 - **Frontend**: http://localhost:8080/
 - **Backend API**: http://localhost:8080/api
 - **ArgoCD UI**: http://localhost:8080/argocd
+- **Hubble UI**: http://localhost:8080/hubble
 
-Login to ArgoCD with username `admin` and the password from Step 3.
+Login to ArgoCD with username `admin` and the password from Step 4.
 
 ## 🔄 Development Workflow
 

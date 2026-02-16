@@ -40,7 +40,7 @@ spec:
         # Ingress: Makes frontend accessible from outside cluster
         ingress:
           enabled: true
-          className: traefik # Use Traefik ingress controller (k3d default)
+          # className: traefik # Removed: Use default (Cilium)
           hosts:
             - host: localhost
               paths:

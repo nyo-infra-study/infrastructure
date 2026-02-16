@@ -40,7 +40,7 @@ containerPort: 80
 # Ingress configuration for external access
 ingress:
   enabled: false # Disabled by default (enable in apps/dev/)
-  className: "" # Ingress controller class (e.g., "traefik")
+  className: "" # Ingress controller class
   annotations: {} # Custom annotations for ingress controller
   tls: [] # TLS/SSL configuration (for HTTPS)
   hosts:

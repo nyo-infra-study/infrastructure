@@ -1,0 +1,49 @@
+# ============================================================
+# Cilium CNI Configuration
+# ============================================================
+#
+# INSTALLATION COMMAND:
+# helm repo add cilium https://helm.cilium.io/
+# helm install cilium oci://quay.io/cilium/charts/cilium --version 1.19.0 \
+#   --namespace kube-system \
+#   -f platform/cilium/values.yaml
+#
+# ============================================================
+
+# Enable Hubble for network observability
+hubble:
+  enabled: true
+  relay:
+    enabled: true
+  ui:
+    enabled: true
+    # Ingress for Hubble UI
+    ingress:
+      enabled: true
+      # No className needed as Cilium will be default
+      hosts:
+        - localhost
+      path: /hubble
+      annotations: {}
+
+# Enable Cilium Ingress Controller
+ingressController:
+  enabled: true
+  default: true # Make Cilium the default Ingress Class
+  loadBalancerMode: shared
+  enforceHttps: false
+  service:
+    type: NodePort
+    insecureNodePort: 30080
+    secureNodePort: 30443
+  # HostPort removed in favor of NodePort strategy
+
+# K3s Specific IPAM Configuration
+ipam:
+  operator:
+    clusterPoolIPv4PodCIDRList: ["10.42.0.0/16"]
+
+# Enable KubeProxy Replacement
+kubeProxyReplacement: true
+k8sServiceHost: 127.0.0.1
+k8sServicePort: 6443

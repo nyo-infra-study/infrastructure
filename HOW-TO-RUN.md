@@ -83,13 +83,21 @@ colima start --cpu 4 --memory 8
 
 ---
 
-## 1. Create a Local Cluster
+## 1. Create a Local Cluster (with Cilium Support)
+
+We need to disable the default Flannel CNI to use Cilium.
 
 ```bash
-k3d cluster create dev --port "8080:80@loadbalancer"
+k3d cluster create dev \
+  --port "8080:30080@server:0" \
+  --k3s-arg "--flannel-backend=none@server:0" \
+  --k3s-arg "--disable-network-policy@server:0" \
+  --k3s-arg "--disable=traefik@server:0" \
+  --k3s-arg "--disable=kube-proxy@server:0" \
+  --k3s-arg "--disable=servicelb@server:0"
 ```
 
-Verify:
+Verify (nodes will be `NotReady` until CNI is installed):
 
 ```bash
 kubectl cluster-info
@@ -98,7 +106,21 @@ kubectl get nodes
 
 ---
 
-## 2. Install ArgoCD (via Helm)
+## 2. Install Cilium CNI
+
+```bash
+# Install Cilium using OCI registry
+helm install cilium oci://quay.io/cilium/charts/cilium --version 1.19.0 \
+  --namespace kube-system \
+  -f platform/cilium/values.yaml
+
+# Wait for Cilium to be ready
+kubectl -n kube-system rollout status ds/cilium
+```
+
+---
+
+## 3. Install ArgoCD (via Helm)
 
 ```bash
 helm repo add argo https://argoproj.github.io/argo-helm
@@ -106,7 +128,8 @@ helm repo update
 
 helm install argocd argo/argo-cd \
   --namespace argocd \
-  --create-namespace
+  --create-namespace \
+  -f platform/argocd/values.yaml
 
 # Wait for ArgoCD to be ready
 kubectl wait --for=condition=available deployment/argocd-server -n argocd --timeout=300s
@@ -120,7 +143,7 @@ kubectl -n argocd rollout status deployment argocd-server
 
 ---
 
-## 3. Install Argo Workflows
+## 4. Install Argo Workflows
 
 Following the [official quick-start guide](https://argo-workflows.readthedocs.io/en/latest/quick-start/):
 
@@ -138,7 +161,7 @@ kubectl get pods -n argo -w
 
 ---
 
-## 4. Install Argo Events
+## 5. Install Argo Events
 
 For automated builds triggered by Git pushes:
 
@@ -173,7 +196,7 @@ kubectl create secret generic github-access \
 
 ---
 
-## 5. Set Up Docker Hub Credentials
+## 6. Set Up Docker Hub Credentials
 
 Argo Workflows needs credentials to push images to Docker Hub:
 
@@ -197,7 +220,7 @@ kubectl create secret docker-registry docker-credentials \
 
 ---
 
-## 6. Set Up Automated Builds (Argo Workflows + Events)
+## 7. Set Up Automated Builds (Argo Workflows + Events)
 
 **All workflows are managed by ArgoCD and triggered automatically!**
 
