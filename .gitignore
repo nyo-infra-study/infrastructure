@@ -4,3 +4,7 @@
 **/charts/*.tar.gz
 **/charts/*.lock
 **/tmpcharts/
+
+
+*.local.sh
+*.local.log

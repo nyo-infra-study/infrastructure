@@ -118,25 +118,9 @@ helm install cilium oci://quay.io/cilium/charts/cilium --version 1.19.0 \
 kubectl -n kube-system rollout status ds/cilium
 kubectl -n kube-system rollout status ds/cilium-envoy
 
-# Verify Installation Values
-# 1. Check Service Target Ports (Must be 8080/8443)
-kubectl -n kube-system get svc cilium-ingress -o yaml | grep targetPort
-
-# Expected Output:
-#     targetPort: 8080
-#     targetPort: 8443
-
-# TROUBLESHOOTING: If 'ingress-default-lb-mode' is 'dedicated' or Service targetPorts are 80/443 (instead of 8080/8443)
-# Run these fixes:
-# 1. Fix Service Target Ports (Envoy listens on 8080/8443)
-kubectl patch svc cilium-ingress -n kube-system --type='json' -p='[{"op": "replace", "path": "/spec/ports/0/targetPort", "value": 8080}, {"op": "replace", "path": "/spec/ports/1/targetPort", "value": 8443}]'
-
-# 2. Ensure Service Selects Envoy
-kubectl patch svc cilium-ingress -n kube-system -p '{"spec":{"selector":{"k8s-app":"cilium-envoy"}}}'
-
-# 3. Restart Cilium Agent to apply ConfigMap changes
-kubectl rollout restart ds/cilium -n kube-system
-kubectl -n kube-system rollout status ds/cilium
+# Verify Installation
+# Ensure Envoy is listening on port 30080 (via hostNetwork)
+kubectl get pods -n kube-system -l k8s-app=cilium-envoy -o wide
 ```
 
 ---

@@ -32,11 +32,13 @@ ingressController:
   default: true # Make Cilium the default Ingress Class
   loadbalancerMode: shared
   enforceHttps: false
+  hostNetwork:
+    enabled: true
+    sharedListenerPort: 30080 # Must match the k3d port mapping (8080:30080)
   service:
-    type: NodePort
-    insecureNodePort: 30080
-    secureNodePort: 30443
-  # HostPort removed in favor of NodePort strategy
+    # With hostNetwork, we don't need NodePort on the Service.
+    # The Pod listens directly on the host port 30080.
+    type: ClusterIP
 
 # K3s Specific IPAM Configuration
 ipam:
