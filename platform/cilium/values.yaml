@@ -10,6 +10,11 @@
 #
 # ============================================================
 
+# Cluster Metadata
+cluster:
+  name: dev
+  id: 1
+
 # Enable Hubble for network observability
 hubble:
   enabled: true
