@@ -14,6 +14,7 @@
 # Enable Envoy to ensure socket creation
 envoy:
   enabled: true
+  hostNetwork: false
 
 # Cluster Metadata
 cluster:

@@ -94,7 +94,8 @@ k3d cluster create dev \
   --k3s-arg "--disable-network-policy@server:0" \
   --k3s-arg "--disable=traefik@server:0" \
   --k3s-arg "--disable=kube-proxy@server:0" \
-  --k3s-arg "--disable=servicelb@server:0"
+  --k3s-arg "--disable=servicelb@server:0" \
+  --k3s-arg "--cluster-init@server:0"
 ```
 
 Verify (nodes will be `NotReady` until CNI is installed):
