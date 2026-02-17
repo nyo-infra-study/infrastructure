@@ -9,6 +9,11 @@
 #   -f platform/cilium/values.yaml
 #
 # ============================================================
+# ============================================================
+#
+# Enable Envoy to ensure socket creation
+envoy:
+  enabled: true
 
 # Cluster Metadata
 cluster:
