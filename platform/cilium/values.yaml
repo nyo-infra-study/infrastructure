@@ -30,7 +30,7 @@ hubble:
 ingressController:
   enabled: true
   default: true # Make Cilium the default Ingress Class
-  loadBalancerMode: shared
+  loadbalancerMode: shared
   enforceHttps: false
   service:
     type: NodePort
