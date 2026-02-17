@@ -33,12 +33,11 @@ ingressController:
   loadbalancerMode: shared
   enforceHttps: false
   hostNetwork:
-    enabled: true
-    sharedListenerPort: 30080 # Must match the k3d port mapping (8080:30080)
+    enabled: false
   service:
-    # With hostNetwork, we don't need NodePort on the Service.
-    # The Pod listens directly on the host port 30080.
-    type: ClusterIP
+    type: NodePort
+    insecureNodePort: 30080
+    secureNodePort: 30443
 
 # K3s Specific IPAM Configuration
 ipam:
