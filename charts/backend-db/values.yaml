@@ -39,6 +39,17 @@ postgresql:
         cpu: 500m
         memory: 512Mi
 
+    # Initialize database with schema
+    initdb:
+      scripts:
+        init.sql: |
+          CREATE TABLE IF NOT EXISTS messages (
+            id SERIAL PRIMARY KEY,
+            name VARCHAR(255),
+            message TEXT
+          );
+          INSERT INTO messages (name, message) VALUES ('Infrastructure', 'Hello from Kubernetes!') ON CONFLICT DO NOTHING;
+
   # Read Replicas configuration
   readReplicas:
     replicaCount: 1
