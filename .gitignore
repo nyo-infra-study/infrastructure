@@ -7,3 +7,6 @@
 
 # local files
 *.local.*
+
+# config variables
+config.env
