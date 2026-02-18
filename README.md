@@ -55,28 +55,34 @@ infrastructure/
 
 ### Prerequisites
 
-- Docker Desktop or similar (for local Kubernetes)
-- kubectl
-- Helm
-- k3d (for lightweight local cluster)
-- ArgoCD CLI (optional, for CLI management)
+- [x] **Docker** + **Kind** (Kubernetes in Docker)
+- [x] **Helm** (Package Manager)
+- [x] **Kubectl** (CLI Tool)
 
-Install tools (macOS):
+### 🚀 Quick Start in 5 Minutes
 
 ```bash
-brew install kubectl helm k3d argocd
+# 1. Start Docker (or Colima)
+colima start --cpu 4 --memory 8
+
+# 2. Run the automated setup script
+./infrastructure/run.local.sh
 ```
 
-### Step 1: Create Local Cluster
+This script will:
 
-```bash
-# Create k3d cluster with port mapping for Ingress
-k3d cluster create dev --port "8080:80@loadbalancer"
+1. Create a local **Kind** cluster
+2. Install **Cilium** (CNI & Ingress)
+3. Install **ArgoCD**
+4. Deploy the **App of Apps** (bootstrapping everything else)s
+   k3d cluster create dev --port "8080:80@loadbalancer"
 
 # Verify
+
 kubectl cluster-info
 kubectl get nodes
-```
+
+````
 
 ### Step 2: Install ArgoCD
 
@@ -93,7 +99,7 @@ helm install argocd argo/argo-cd \
 
 # Wait for ArgoCD to be ready
 kubectl -n argocd rollout status deployment argocd-server
-```
+````
 
 ### Step 3: Get ArgoCD Admin Password
 

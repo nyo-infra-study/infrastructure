@@ -62,41 +62,12 @@ infrastructure/
 
 ## Prerequisites
 
-| Tool       | Install                      | Purpose                     |
-| ---------- | ---------------------------- | --------------------------- |
-| Docker     | `brew install --cask docker` | Required by k3d             |
-| kubectl    | `brew install kubectl`       | Talk to Kubernetes          |
-| Helm       | `brew install helm`          | Package manager for K8s     |
-| k3d        | `brew install k3d`           | Local K8s cluster (via k3s) |
-| ArgoCD CLI | `brew install argocd`        | Manage ArgoCD from terminal |
-| Argo CLI   | `brew install argo`          | Submit workflows (optional) |
-
----
-
-## 0. Start Colima (Mac Users)
-
-If you are using Colima instead of Docker Desktop, start it with enough resources (ArcgoCD + PLG stack is heavy):
-
-```bash
-colima start --cpu 4 --memory 8
-```
-
----
-
-## 1. Create a Local Cluster
-
-```bash
-k3d cluster create dev --port "8080:80@loadbalancer"
-```
-
-Verify:
-
-```bash
-kubectl cluster-info
-kubectl get nodes
-```
-
----
+| Tool    | Install                       | Purpose                 |
+| ------- | ----------------------------- | ----------------------- |
+| Docker  | Docker Desktop / Colima       | Container runtime       |
+| Kind    | `brew install kind`           | Local K8s cluster       |
+| Kubectl | `brew install kubernetes-cli` | K8s command-line tool   |
+| Helm    | `brew install helm`           | Package manager for K8s |
 
 ## 2. Install ArgoCD (via Helm)
 
