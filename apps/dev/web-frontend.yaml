@@ -44,7 +44,7 @@ spec:
           hosts:
             - host: localhost
               paths:
-                - path: / # Root path - all non-/api requests go here
+                - path: /web # Root path - all non-/api requests go here
                   pathType: ImplementationSpecific
 
   # DESTINATION: Deploy to dev namespace in local cluster
