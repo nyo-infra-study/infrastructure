@@ -7,6 +7,8 @@ metadata:
   name: github
   namespace: argo
 spec:
+  template:
+    serviceAccountName: github-event-source-sa
   # Watch for ConfigMap updates from the polling workflow
   resource:
     github-commits:
