@@ -69,6 +69,20 @@ infrastructure/
 | Kubectl | `brew install kubernetes-cli` | K8s command-line tool   |
 | Helm    | `brew install helm`           | Package manager for K8s |
 
+## 1. Run colima for the docker and start kind
+
+```bash
+# Start colima
+colima start --cpu 4 --memory 8
+
+# Create kind cluster
+kind create cluster --config kind-config.yaml
+
+# Verify
+kubectl cluster-info
+kubectl get nodes
+```
+
 ## 2. Install ArgoCD (via Helm)
 
 ```bash
