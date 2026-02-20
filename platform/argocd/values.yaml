@@ -10,7 +10,7 @@
 # helm upgrade argocd argo/argo-cd -n argocd -f platform/argocd/values.yaml
 #
 # ACCESS:
-# - URL: http://localhost:8080/argocd
+# - URL: http://localhost:9000/argocd
 # - Username: admin
 # - Password: kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath="{.data.password}" | base64 -d
 #
@@ -39,6 +39,6 @@ server:
     ingressClassName: traefik # Use Traefik controller (k3d default)
     annotations: {} # Optional Ingress annotations
     hostname: localhost # Domain name (use actual domain in production)
-    path: /argocd # URL path (http://localhost:8080/argocd)
+    path: /argocd # URL path (http://localhost:9000/argocd)
     pathType: Prefix # Match /argocd and /argocd/*
     tls: false # Disable TLS (use HTTP not HTTPS)

@@ -27,10 +27,10 @@ image:
 # Kubernetes Service configuration
 service:
   type: ClusterIP # Internal service (not exposed outside cluster)
-  port: 8080 # Default port (can be overridden)
+  port: 9000 # Default port (can be overridden)
 
 # Port the Go application listens on inside the container
-containerPort: 8080
+containerPort: 9000
 
 # Environment variables to pass to the container
 # Default is empty array, override in apps/dev/backend-server.yaml

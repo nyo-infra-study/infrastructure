@@ -88,7 +88,7 @@ colima start --cpu 4 --memory 8
 If you don't have the cluster yet, create it:
 
 ```bash
-k3d cluster create dev --port "8080:80@loadbalancer"
+k3d cluster create dev --port "9000:80@loadbalancer"
 ```
 
 If you already created the cluster and just need to start it again:
@@ -331,7 +331,7 @@ Wait until the ArgoCD Server is ready:
 kubectl wait --for=condition=available deployment/argocd-server -n argocd --timeout=300s
 ```
 
-Open [http://localhost:8080/argocd](http://localhost:8080/argocd) → Login with `admin` and the password above.
+Open [http://localhost:9000/argocd](http://localhost:9000/argocd) → Login with `admin` and the password above.
 
 **Password has a corrupt `%` at the end?**
 
@@ -356,13 +356,13 @@ kubectl apply -f bootstrap/dev.yaml
 
 Thi9. Access the Apps (via Ingress)
 
-Because we created the cluster with `--port "8080:80@loadbalancer"`, k3d automatically routes traffic from your machine's port **8080** to the cluster's Ingress Controller.
+Because we created the cluster with `--port "9000:80@loadbalancer"`, k3d automatically routes traffic from your machine's port **9000** to the cluster's Ingress Controller.
 
 You do **not** need to use `kubectl port-forward` anymore.
 
-- **Frontend**: [http://localhost:8080/](http://localhost:8080/)
-- **Backend API**: [http://localhost:8080/api](http://localhost:8080/api)
-- **ArgoCD UI**: [http://localhost:8080/argocd](http://localhost:8080/argocd)
+- **Frontend**: [http://localhost:9000/](http://localhost:9000/)
+- **Backend API**: [http://localhost:9000/api](http://localhost:9000/api)
+- **ArgoCD UI**: [http://localhost:9000/argocd](http://localhost:9000/argocd)
 - **Argo Workflows UI**: Access via port-forward:
   ```bash
   kubectl -n argo port-forward deployment/argo-server 2746:2746
@@ -376,7 +376,7 @@ You might notice in the configuration that we set:
 - **Backend Service**: Port 9091
 - **Frontend Service**: Port 9092
 
-These are **internal** ports used only inside the cluster (e.g., Ingress talking to the Service). Externally, you always access both apps through the single entry point (Load Balancer) on port **8080**.
+These are **internal** ports used only inside the cluster (e.g., Ingress talking to the Service). Externally, you always access both apps through the single entry point (Load Balancer) on port **9000**.
 
 ---
 
@@ -675,7 +675,7 @@ We use the **PLG Stack** (Promtail, Loki, Grafana) for centralized logging.
 
 ### Access Grafana
 
-**URL:** [http://localhost:8080/grafana](http://localhost:8080/grafana)
+**URL:** [http://localhost:9000/grafana](http://localhost:9000/grafana)
 
 1.  **Create the admin secret (One-time setup):**
 

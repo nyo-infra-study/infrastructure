@@ -30,7 +30,7 @@ Unlike standard K8s setups, we do **not** build locally or `kubectl apply` apps 
 
 | Component       | Tool           | Notes                                                     |
 | :-------------- | :------------- | :-------------------------------------------------------- |
-| **Cluster**     | k3d            | Exposed on `localhost:8080`.                              |
+| **Cluster**     | k3d            | Exposed on `localhost:9000`.                              |
 | **GitOps**      | ArgoCD         | Managed via "App of Apps" pattern (`bootstrap/dev.yaml`). |
 | **CI / Builds** | Argo Workflows | Templates in `argo-workflows/`.                           |
 | **Triggers**    | Argo Events    | Sensors/Sources in `argo-events/`.                        |
@@ -51,7 +51,7 @@ Unlike standard K8s setups, we do **not** build locally or `kubectl apply` apps 
 ## 5. Observability (PLG Stack)
 
 - **Logs**: Do NOT rely solely on `kubectl logs`. Use **Grafana**.
-- **URL**: `http://localhost:8080/grafana`
+- **URL**: `http://localhost:9000/grafana`
 - **Credentials**:
   - User: `admin`
   - Password: See `grafana-auth` secret (or `P5F8lxHPhr58CLlCzFRTpr2iUoxjb2YieWnFBHLY`).
@@ -59,12 +59,12 @@ Unlike standard K8s setups, we do **not** build locally or `kubectl apply` apps 
 
 ## 6. Access Points
 
-The cluster uses a single load balancer on **port 8080**:
+The cluster uses a single load balancer on **port 9000**:
 
-- **Frontend**: `http://localhost:8080/`
-- **Backend API**: `http://localhost:8080/api`
-- **ArgoCD UI**: `http://localhost:8080/argocd`
-- **Grafana**: `http://localhost:8080/grafana`
+- **Frontend**: `http://localhost:9000/`
+- **Backend API**: `http://localhost:9000/api`
+- **ArgoCD UI**: `http://localhost:9000/argocd`
+- **Grafana**: `http://localhost:9000/grafana`
 
 ## 7. Common Troubleshooting
 

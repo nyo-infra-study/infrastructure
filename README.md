@@ -71,7 +71,7 @@ brew install kubectl helm k3d argocd
 
 ```bash
 # Create k3d cluster with port mapping for Ingress
-k3d cluster create dev --port "8080:80@loadbalancer"
+k3d cluster create dev --port "9000:80@loadbalancer"
 
 # Verify
 kubectl cluster-info
@@ -137,11 +137,11 @@ kubectl get ingress -n argocd
 
 ### Step 6: Access Applications
 
-All applications are accessible via Ingress on `localhost:8080`:
+All applications are accessible via Ingress on `localhost:9000`:
 
-- **Frontend**: http://localhost:8080/
-- **Backend API**: http://localhost:8080/api
-- **ArgoCD UI**: http://localhost:8080/argocd
+- **Frontend**: http://localhost:9000/
+- **Backend API**: http://localhost:9000/api
+- **ArgoCD UI**: http://localhost:9000/argocd
 
 Login to ArgoCD with username `admin` and the password from Step 3.
 

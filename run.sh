@@ -102,7 +102,7 @@ fi
 log_step "Recreating k3d Cluster"
 run "k3d cluster delete dev || true"
 sleep 5
-run "k3d cluster create dev --port '8080:80@loadbalancer'"
+run "k3d cluster create dev --port '9000:80@loadbalancer'"
 
 log_step "Installing ArgoCD"
 run "helm repo add argo https://argoproj.github.io/argo-helm"
