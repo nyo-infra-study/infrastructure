@@ -101,6 +101,7 @@ fi
 
 log_step "Recreating k3d Cluster"
 run "k3d cluster delete dev || true"
+sleep 5
 run "k3d cluster create dev --port '8080:80@loadbalancer'"
 
 log_step "Installing ArgoCD"
