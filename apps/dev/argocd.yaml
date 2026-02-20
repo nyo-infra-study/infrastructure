@@ -8,15 +8,6 @@ metadata:
 spec:
   project: default
 
-  source:
-    chart: argo-cd
-    repoURL: https://argoproj.github.io/argo-helm
-    targetRevision: 9.4.1
-    helm:
-      valueFiles:
-        - $values/platform/argocd/values.yaml
-
-  # Additional source for values file from Git
   sources:
     - chart: argo-cd
       repoURL: https://argoproj.github.io/argo-helm

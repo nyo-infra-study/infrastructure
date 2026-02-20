@@ -114,7 +114,8 @@ helm repo update
 
 helm install argocd argo/argo-cd \
   --namespace argocd \
-  --create-namespace
+  --create-namespace \
+  -f platform/argocd/values.yaml
 
 # Wait for ArgoCD to be ready
 kubectl wait --for=condition=available deployment/argocd-server -n argocd --timeout=300s
@@ -140,8 +141,8 @@ kubectl apply -n argo -f https://github.com/argoproj/argo-workflows/releases/dow
 Wait for pods:
 
 ```bash
-kubectl get pods -n argo -w
-# Ctrl+C when both argo-server and workflow-controller are Running
+kubectl -n argo rollout status deployment/argo-server
+kubectl -n argo rollout status deployment/workflow-controller
 ```
 
 ---
@@ -161,8 +162,7 @@ kubectl apply -n argo -f https://raw.githubusercontent.com/argoproj/argo-events/
 Wait for controllers:
 
 ```bash
-kubectl get pods -n argo-events -w
-# Ctrl+C when controller-manager is Running
+kubectl -n argo-events rollout status deployment/controller-manager
 ```
 
 **Create GitHub personal access token:**
@@ -679,15 +679,17 @@ We use the **PLG Stack** (Promtail, Loki, Grafana) for centralized logging.
 
 1.  **Create the admin secret (One-time setup):**
 
+    Set `GRAFANA_ADMIN_USER` and `GRAFANA_ADMIN_PASSWORD` in `config.env` (see `config.example.env`), then run.sh creates it automatically. To create it manually:
+
     ```bash
     kubectl create secret generic grafana-auth -n monitoring \
-      --from-literal=admin-user=admin \
-      --from-literal=admin-password=P5F8lxHPhr58CLlCzFRTpr2iUoxjb2YieWnFBHLY
+      --from-literal=admin-user=$GRAFANA_ADMIN_USER \
+      --from-literal=admin-password=$GRAFANA_ADMIN_PASSWORD
     ```
 
 2.  **Login:**
-    - User: `admin`
-    - Password: `P5F8lxHPhr58CLlCzFRTpr2iUoxjb2YieWnFBHLY`
+    - User: value of `GRAFANA_ADMIN_USER` in `config.env` (default: `admin`)
+    - Password: value of `GRAFANA_ADMIN_PASSWORD` in `config.env`
 
 _(Backup) Port-forward if Ingress fails:_
 

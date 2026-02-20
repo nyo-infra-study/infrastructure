@@ -110,7 +110,8 @@ run "helm repo update"
 
 run "helm install argocd argo/argo-cd \
   --namespace argocd \
-  --create-namespace"
+  --create-namespace \
+  -f '$SCRIPT_DIR/platform/argocd/values.yaml'"
 
 log_step "Waiting for ArgoCD"
 run "kubectl wait --for=condition=available deployment/argocd-server -n argocd --timeout=300s"
