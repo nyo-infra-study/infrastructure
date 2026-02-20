@@ -75,7 +75,7 @@ infrastructure/
 
 ## 0. Start Colima (Mac Users)
 
-If you are using Colima instead of Docker Desktop, start it with enough resources (ArcgoCD + PLG stack is heavy):
+If you are using Colima instead of Docker Desktop on a Mac, start it with enough resources (ArgoCD + PLG stack is heavy):
 
 ```bash
 colima start --cpu 4 --memory 8
@@ -83,10 +83,18 @@ colima start --cpu 4 --memory 8
 
 ---
 
-## 1. Create a Local Cluster
+## 1. Create (or Start) a Local Cluster
+
+If you don't have the cluster yet, create it:
 
 ```bash
 k3d cluster create dev --port "8080:80@loadbalancer"
+```
+
+If you already created the cluster and just need to start it again:
+
+```bash
+k3d cluster start dev
 ```
 
 Verify:
