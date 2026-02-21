@@ -135,8 +135,8 @@ log_step "Bootstrapping Cilium CNI (before ArgoCD)"
 # This IP changes every cluster creation, so we detect it at runtime.
 # 10.43.0.1 (k3s service ClusterIP) does NOT work because kube-proxy is disabled
 # and Cilium hasn't set up eBPF routing yet at this point.
-K8S_HOST=$(kubectl get endpoints kubernetes -n default -o jsonpath='{.subsets[0].addresses[0].ip}')
-K8S_PORT=$(kubectl get endpoints kubernetes -n default -o jsonpath='{.subsets[0].ports[0].port}')
+K8S_HOST=$(kubectl get endpointslices -l kubernetes.io/service-name=kubernetes -n default -o jsonpath='{.items[0].endpoints[0].addresses[0]}')
+K8S_PORT=$(kubectl get endpointslices -l kubernetes.io/service-name=kubernetes -n default -o jsonpath='{.items[0].ports[0].port}')
 echo "  Detected API server: https://${K8S_HOST}:${K8S_PORT}"
 
 run "helm install cilium cilium/cilium \
