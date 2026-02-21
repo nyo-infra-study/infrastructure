@@ -105,11 +105,9 @@ sleep 5
 
 # Cilium replaces Traefik (ingress), kube-proxy (eBPF), Flannel (CNI) and network policies.
 # All four must be disabled in k3s so Cilium can take full ownership.
-# Port mapping: 9000 on Mac → NodePort 30080 on server node (Cilium's fixed HTTP NodePort).
-# Using @server:0 (not @loadbalancer) to bypass the k3d lb nginx which only knows port 80.
-# The fixed NodePort 30080 is set in platform/cilium/values.yaml ingressController.service.nodePort.
+# Port mapping: 9000 on Mac → 80 on the k3d loadbalancer → NodePort on server node.
 run "k3d cluster create dev \
-  --port '9000:30080@server:0' \
+  --port '9000:80@loadbalancer' \
   --k3s-arg '--disable=traefik@server:0' \
   --k3s-arg '--disable-kube-proxy@server:0' \
   --k3s-arg '--flannel-backend=none@server:0' \
@@ -153,18 +151,6 @@ log_step "Waiting for Cilium (bootstrap)"
 # much more reliable than kubectl rollout status for CNI readiness.
 run "cilium status --wait --wait-duration 5m0s"
 echo "✅ Cilium CNI is ready — cluster networking is up"
-
-log_step "Pinning Cilium Ingress NodePort"
-# The Cilium Helm chart assigns a random NodePort for cilium-ingress.
-# k3d was created with --port '9000:30080@server:0', so we must ensure
-# the cilium-ingress HTTP NodePort is exactly 30080.
-# Wait for cilium-ingress service to exist first.
-echo "  Waiting for cilium-ingress service..."
-kubectl wait --for=jsonpath='{.spec.ports[0].nodePort}' \
-  svc/cilium-ingress -n kube-system --timeout=120s 2>/dev/null || true
-run "kubectl patch svc cilium-ingress -n kube-system --type='json' \
-  -p='[{\"op\":\"replace\",\"path\":\"/spec/ports/0/nodePort\",\"value\":30080}]'"
-echo "  ✅ cilium-ingress NodePort pinned to 30080 → localhost:9000"
 
 log_step "Installing ArgoCD"
 # Cilium CNI is running — pods can now communicate, ArgoCD install will succeed.

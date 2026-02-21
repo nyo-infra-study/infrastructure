@@ -17,6 +17,19 @@
 # run.sh detects and injects them via 'helm install --set ...' at deploy time.
 kubeProxyReplacement: true
 
+# socketLB attaches a BPF program at socket level, so connections from
+# the host network namespace (where Cilium Envoy runs with hostNetwork:true)
+# get ClusterIP DNAT BEFORE they hit the network stack. This is required
+# in k3d where each node is a Docker container (not a real Linux host).
+socketLB:
+  enabled: true
+  # false = apply to all namespaces including host (needed for Envoy → ArgoCD)
+  hostNamespaceOnly: false
+
+# Allow external clients to reach ClusterIPs from the host network namespace
+bpf:
+  lbExternalClusterIP: true
+
 # --- IPAM ---
 # Use cluster-pool mode to match k3s default pod CIDR (10.42.0.0/16)
 ipam:
