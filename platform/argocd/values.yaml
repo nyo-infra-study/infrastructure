@@ -29,6 +29,8 @@ configs:
 
 server:
   extraArgs:
+    # Disable TLS/HTTPS requirement (needed since Cilium Envoy passes HTTP)
+    - --insecure
     # Tell ArgoCD it's behind a reverse proxy at /argocd path
     # Without this, ArgoCD would generate broken URLs (expecting /)
     - --rootpath=/argocd
