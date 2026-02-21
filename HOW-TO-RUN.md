@@ -39,6 +39,7 @@ infrastructure/
 │       ├── argo-workflows.yaml
 │       ├── backend-db.yaml
 │       ├── backend-server.yaml
+│       ├── cilium.yaml
 │       ├── web-frontend.yaml
 │       └── plg-stack.yaml
 │
@@ -56,6 +57,8 @@ infrastructure/
 └── platform/           # Platform configs (Values files)
     ├── argocd/
     │   └── values.yaml
+    ├── cilium/
+    │   └── values.yaml  # Cilium Helm values (used when --cilium flag is set)
     └── plg-stack/
         └── values.yaml
 ```
@@ -70,6 +73,30 @@ infrastructure/
 | k3d        | `brew install k3d`           | Local K8s cluster (via k3s) |
 | ArgoCD CLI | `brew install argocd`        | Manage ArgoCD from terminal |
 | Argo CLI   | `brew install argo`          | Submit workflows (optional) |
+
+---
+
+## 🚀 Quick Start — Just Run the Script
+
+The easiest way to get everything running is to use the automated `run.sh` script.
+
+```bash
+cd infrastructure
+./run.sh
+
+# Or with verbose output:
+./run.sh -vvv
+```
+
+This will:
+
+1. Create a k3d cluster with Cilium-compatible k3s flags (no Traefik, no kube-proxy, no Flannel)
+2. **Install Cilium via Helm** first (provides CNI so cluster networking is up)
+3. Install ArgoCD, Argo Workflows, Argo Events via Helm (now networking works)
+4. Bootstrap all apps via `bootstrap/dev.yaml` — ArgoCD adopts and manages Cilium from here
+
+> **Ingress class:** All Ingress resources use `ingressClassName: cilium`. Cilium acts as
+> the cluster's CNI, ingress controller, and kube-proxy replacement (eBPF mode).
 
 ---
 
@@ -88,7 +115,13 @@ colima start --cpu 4 --memory 8
 If you don't have the cluster yet, create it:
 
 ```bash
-k3d cluster create dev --port "9000:80@loadbalancer"
+# Cilium requires Traefik, kube-proxy, Flannel and network policies to be disabled
+k3d cluster create dev \
+  --port "9000:80@loadbalancer" \
+  --k3s-arg '--disable=traefik@server:0' \
+  --k3s-arg '--disable-kube-proxy@server:0' \
+  --k3s-arg '--flannel-backend=none@server:0' \
+  --k3s-arg '--disable-network-policy@server:0'
 ```
 
 If you already created the cluster and just need to start it again:

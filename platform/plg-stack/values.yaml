@@ -38,7 +38,7 @@ grafana:
   # Expose Grafana via Ingress
   ingress:
     enabled: true
-    ingressClassName: traefik
+    ingressClassName: cilium
     hosts:
       - localhost
     path: /grafana

@@ -1,0 +1,48 @@
+# ============================================================
+# Cilium Platform Configuration (k3d / k3s)
+# ============================================================
+# MANAGED BY: ArgoCD (apps/dev/cilium.yaml)
+#
+# CLUSTER SETUP (run.sh creates k3d with these k3s flags):
+#   --disable=traefik          → Cilium replaces Traefik as ingress controller
+#   --disable-kube-proxy       → Cilium fully replaces kube-proxy (eBPF)
+#   --flannel-backend=none     → Cilium replaces Flannel as CNI
+#   --disable-network-policy   → Cilium handles network policies
+# ============================================================
+
+# Kube-proxy replacement (eBPF mode)
+# k3d is created with --disable-kube-proxy, so Cilium takes full ownership.
+# k8sServiceHost and k8sServicePort are NOT set here — they are DYNAMIC
+# (k3d assigns a docker bridge IP to the server node that changes per run).
+# run.sh detects and injects them via 'helm install --set ...' at deploy time.
+kubeProxyReplacement: true
+
+# --- IPAM ---
+# Use cluster-pool mode to match k3s default pod CIDR (10.42.0.0/16)
+ipam:
+  mode: cluster-pool
+  operator:
+    clusterPoolIPv4PodCIDRList:
+      - "10.42.0.0/16"
+
+# --- Cilium Ingress Controller (replaces Traefik) ---
+ingressController:
+  enabled: true
+  # shared = one LoadBalancer service for all Ingresses
+  loadbalancerMode: shared
+  # Make cilium the default ingress class
+  default: true
+  # NOTE: The HTTP NodePort is pinned to 30080 by run.sh via kubectl patch
+  # after install, since the Helm chart does not expose a nodePort override.
+  # k3d maps: localhost:9000 → server:30080 (--port '9000:30080@server:0')
+
+# --- NodePort / HostPort (for k3d port mapping) ---
+hostPort:
+  enabled: true
+
+nodePort:
+  enabled: true
+
+# --- Operator ---
+operator:
+  replicas: 1

@@ -102,12 +102,72 @@ fi
 log_step "Recreating k3d Cluster"
 run "k3d cluster delete dev || true"
 sleep 5
-run "k3d cluster create dev --port '9000:80@loadbalancer'"
 
-log_step "Installing ArgoCD"
+# Cilium replaces Traefik (ingress), kube-proxy (eBPF), Flannel (CNI) and network policies.
+# All four must be disabled in k3s so Cilium can take full ownership.
+# Port mapping: 9000 on Mac → NodePort 30080 on server node (Cilium's fixed HTTP NodePort).
+# Using @server:0 (not @loadbalancer) to bypass the k3d lb nginx which only knows port 80.
+# The fixed NodePort 30080 is set in platform/cilium/values.yaml ingressController.service.nodePort.
+run "k3d cluster create dev \
+  --port '9000:30080@server:0' \
+  --k3s-arg '--disable=traefik@server:0' \
+  --k3s-arg '--disable-kube-proxy@server:0' \
+  --k3s-arg '--flannel-backend=none@server:0' \
+  --k3s-arg '--disable-network-policy@server:0'"
+
+log_step "Adding Helm Repositories"
 run "helm repo add argo https://argoproj.github.io/argo-helm"
+run "helm repo add cilium https://helm.cilium.io/"
 run "helm repo update"
 
+# ============================================================
+# BOOTSTRAP CILIUM FIRST (before ArgoCD)
+# ============================================================
+# Because Flannel is disabled (--flannel-backend=none), the cluster has
+# NO CNI at all after creation. Without a CNI, pods cannot communicate
+# and ArgoCD's pre-install Jobs (argocd-redis-secret-init) will time out.
+#
+# Fix: install Cilium via Helm directly to provide the CNI, THEN install
+# ArgoCD. After ArgoCD is up, apps/dev/cilium.yaml hands management of
+# the Cilium Helm release over to ArgoCD (it will upgrade in-place).
+# ============================================================
+
+log_step "Bootstrapping Cilium CNI (before ArgoCD)"
+# k3d assigns a dynamic docker bridge IP to the API server (e.g. 172.18.0.3:6443).
+# This IP changes every cluster creation, so we detect it at runtime.
+# 10.43.0.1 (k3s service ClusterIP) does NOT work because kube-proxy is disabled
+# and Cilium hasn't set up eBPF routing yet at this point.
+K8S_HOST=$(kubectl get endpoints kubernetes -n default -o jsonpath='{.subsets[0].addresses[0].ip}')
+K8S_PORT=$(kubectl get endpoints kubernetes -n default -o jsonpath='{.subsets[0].ports[0].port}')
+echo "  Detected API server: https://${K8S_HOST}:${K8S_PORT}"
+
+run "helm install cilium cilium/cilium \
+  --version 1.16.6 \
+  --namespace kube-system \
+  -f '$SCRIPT_DIR/platform/cilium/values.yaml' \
+  --set k8sServiceHost=${K8S_HOST} \
+  --set k8sServicePort=${K8S_PORT}"
+
+log_step "Waiting for Cilium (bootstrap)"
+# cilium status --wait understands Cilium's internal readiness (agents, controllers, etc.)
+# much more reliable than kubectl rollout status for CNI readiness.
+run "cilium status --wait --wait-duration 5m0s"
+echo "✅ Cilium CNI is ready — cluster networking is up"
+
+log_step "Pinning Cilium Ingress NodePort"
+# The Cilium Helm chart assigns a random NodePort for cilium-ingress.
+# k3d was created with --port '9000:30080@server:0', so we must ensure
+# the cilium-ingress HTTP NodePort is exactly 30080.
+# Wait for cilium-ingress service to exist first.
+echo "  Waiting for cilium-ingress service..."
+kubectl wait --for=jsonpath='{.spec.ports[0].nodePort}' \
+  svc/cilium-ingress -n kube-system --timeout=120s 2>/dev/null || true
+run "kubectl patch svc cilium-ingress -n kube-system --type='json' \
+  -p='[{\"op\":\"replace\",\"path\":\"/spec/ports/0/nodePort\",\"value\":30080}]'"
+echo "  ✅ cilium-ingress NodePort pinned to 30080 → localhost:9000"
+
+log_step "Installing ArgoCD"
+# Cilium CNI is running — pods can now communicate, ArgoCD install will succeed.
 run "helm install argocd argo/argo-cd \
   --namespace argocd \
   --create-namespace \
@@ -186,6 +246,10 @@ else
 fi
 
 log_step "Deploying App of Apps"
+# bootstrap/dev.yaml creates all child Applications including apps/dev/cilium.yaml.
+# ArgoCD will adopt the existing Cilium Helm release (same name+namespace)
+# and manage upgrades going forward. Sync wave -10 ensures Cilium is
+# reconciled first before other apps.
 run "kubectl apply -f '$SCRIPT_DIR/bootstrap/dev.yaml'"
 
 log_step "Done! Cluster is ready."

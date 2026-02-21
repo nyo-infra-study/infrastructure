@@ -36,7 +36,7 @@ server:
   # Ingress configuration for external access
   ingress:
     enabled: true # Enable Ingress (vs port-forward)
-    ingressClassName: traefik # Use Traefik controller (k3d default)
+    ingressClassName: cilium # Use Cilium ingress controller (Traefik is disabled)
     annotations: {} # Optional Ingress annotations
     hostname: localhost # Domain name (use actual domain in production)
     path: /argocd # URL path (http://localhost:9000/argocd)

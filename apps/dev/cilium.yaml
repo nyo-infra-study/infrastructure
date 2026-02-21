@@ -1,0 +1,62 @@
+# ============================================================
+# Cilium — ArgoCD Application (Helm)
+# ============================================================
+# HOW IT WORKS:
+# 1. run.sh bootstraps Cilium first via 'helm install' with the dynamic
+#    k3d docker-bridge API server IP (--set k8sServiceHost=...).
+# 2. This ArgoCD Application then adopts/upgrades that Helm release.
+#    For upgrades, Cilium is already running so eBPF routing is active
+#    and kubernetes.default.svc resolves correctly via ClusterIP.
+# 3. Sync wave -10 ensures Cilium is reconciled before other apps.
+# ============================================================
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cilium
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-10"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+
+spec:
+  project: default
+
+  # Multi-source: Helm chart from helm.cilium.io + values file from our Git repo
+  sources:
+    - repoURL: https://helm.cilium.io/
+      chart: cilium
+      targetRevision: "1.16.6"
+      helm:
+        releaseName: cilium
+        valueFiles:
+          - $values/infrastructure/platform/cilium/values.yaml
+        # For ArgoCD-managed upgrades: Cilium is already running so eBPF
+        # service routing works. kubernetes.default.svc resolves via ClusterIP.
+        # (Bootstrap uses docker bridge IP injected by run.sh --set at first install)
+        valuesObject:
+          k8sServiceHost: "kubernetes.default.svc"
+          k8sServicePort: 443
+
+    - repoURL: https://github.com/nyo-infra-study/infrastructure
+      targetRevision: main
+      ref: values
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: kube-system
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=false # kube-system already exists
+      - ServerSideApply=true # Required for large CRDs
+    retry:
+      limit: 3
+      backoff:
+        duration: 10s
+        factor: 2
+        maxDuration: 5m
