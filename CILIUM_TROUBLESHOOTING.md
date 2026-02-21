@@ -22,19 +22,24 @@ After deploying an application and exposing it via the Cilium Ingress controller
 Looking at the Cilium Envoy Proxy logs (`kubectl logs -l name=cilium-envoy -n kube-system`), we see connection timeouts when Envoy tries to reach the backend pods' `ClusterIP`.
 
 **The Investigation:**
-Because k3d runs Kubernetes nodes inside standard Docker containers, the networking stack behaves differently than a raw Linux host. By default, Cilium Ingress runs in `shared` mode, meaning the Envoy daemon runs in the root network namespace of the k3d node (`hostNetwork: true`) alongside the `cilium-agent`. When a request comes in, Envoy attempts to route it _directly to the Pod IP_ (bypassing the ClusterIP). However, Docker's default bridge network has no route into the pod CIDR (`10.42.0.0/16`) from the host namespace, causing the `connect()` call to hang and eventually return a `503 Service Unavailable`.
+Because k3d runs Kubernetes nodes inside standard Docker containers, the networking stack behaves differently than a raw Linux host. By default, Cilium Ingress runs in `shared` mode, meaning the Envoy proxy daemon runs directly on the root network namespace of the k3d node (`hostNetwork: true`) alongside the `cilium-agent`.
+
+The connection timeout happens because of a recognized eBPF datapath bug/limitation in Cilium: when an Envoy proxy (running with `hostNetwork: true`) and a destination pod reside on the **same Kubernetes node**—which is _always_ true in a single-node k3d cluster—and `HostRouting` is utilizing BPF, the eBPF programs silently drop the packets routed from Envoy to the Pod IP, resulting in an upstream timeout (`503 Service Unavailable`).
 
 **The Fix (Helm Values):**
-We switched the Cilium Ingress controller to run in `dedicated` mode in `platform/cilium/values.yaml`:
+Since `dedicated` mode (which puts Envoy in the pod network) creates severe port 80 conflicts across multiple Ingress objects when using k3d's built-in servicelb, the solution is to remain in `shared` mode but instruct Cilium to bypass eBPF-based host routing in favor of legacy network stack routing:
 
 ```yaml
+bpf:
+  hostLegacyRouting: true
+
 ingressController:
   enabled: true
-  loadbalancerMode: dedicated
+  loadbalancerMode: shared
   default: true
 ```
 
-In `dedicated` mode, Cilium deploys Envoy as a standard Kubernetes Deployment operating within the standard pod network (`10.42.0.0/16`). Because Envoy now has its own Pod IP, it can use standard pod-to-pod eBPF routing to reach backend applications, entirely bypassing the Docker host network boundary issues. We then map Mac's `localhost:9000` to the k3d loadbalancer (`80@loadbalancer`), which forwards to the dedicated Envoy pods.
+By enabling `bpf.hostLegacyRouting: true`, traffic originating from Envoy simply travels through standard Linux veth routing to reach the co-located backend pods on the same node, bypassing the eBPF drop bug completely.
 
 ## 3. The Colima UDP/DNS Masquerading Bug
 

@@ -25,11 +25,16 @@ ipam:
     clusterPoolIPv4PodCIDRList:
       - "10.42.0.0/16"
 
+# Fixes 503 Service Unavailable by bypassing the eBPF host routing bug
+# when Envoy and backend pods are on the same node (always true in k3d single-node).
+bpf:
+  hostLegacyRouting: true
+
 # --- Cilium Ingress Controller (replaces Traefik) ---
 ingressController:
   enabled: true
-  # dedicated = creates a standard Envoy Deployment (solves 503 host-routing errors in k3d)
-  loadbalancerMode: dedicated
+  # shared = one LoadBalancer service for all Ingresses (prevents svclb port 80 conflicts)
+  loadbalancerMode: shared
   # Make cilium the default ingress class
   default: true
   # k3d maps: localhost:9000 -> k3d loadbalancer -> Envoy Pods on port 80

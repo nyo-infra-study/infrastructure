@@ -389,7 +389,7 @@ kubectl apply -f bootstrap/dev.yaml
 
 ## 9. Access the Apps (via Ingress)
 
-Because we created the cluster with `--port "9000:80@loadbalancer"`, k3d automatically routes traffic from your machine's port **9000** to the cluster's Ingress Controller (Cilium in dedicated mode).
+Because we created the cluster with `--port "9000:80@loadbalancer"`, k3d automatically routes traffic from your machine's port **9000** to the cluster's Ingress Controller (Cilium in shared mode).
 
 You do **not** need to use `kubectl port-forward` anymore.
 

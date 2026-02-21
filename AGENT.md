@@ -35,7 +35,7 @@ Unlike standard K8s setups, we do **not** build locally or `kubectl apply` apps 
 | **GitOps**      | ArgoCD         | Managed via "App of Apps" pattern (`bootstrap/dev.yaml`). |
 | **CI / Builds** | Argo Workflows | Templates in `argo-workflows/`.                           |
 | **Triggers**    | Argo Events    | Sensors/Sources in `argo-events/`.                        |
-| **Ingress**     | Cilium         | Replaces Traefik. Exposed on port 9000 (dedicated mode).  |
+| **Ingress**     | Cilium         | Replaces Traefik. Exposed on port 9000 (shared mode).     |
 | **Database**    | PostgreSQL     | Bitnami chart (`bitnamilegacy` repo).                     |
 | **Logging**     | PLG Stack      | Promtail -> Loki -> Grafana.                              |
 
