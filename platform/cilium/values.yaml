@@ -28,13 +28,11 @@ ipam:
 # --- Cilium Ingress Controller (replaces Traefik) ---
 ingressController:
   enabled: true
-  # shared = one LoadBalancer service for all Ingresses
-  loadbalancerMode: shared
+  # dedicated = creates a standard Envoy Deployment (solves 503 host-routing errors in k3d)
+  loadbalancerMode: dedicated
   # Make cilium the default ingress class
   default: true
-  # NOTE: The HTTP NodePort is pinned to 30080 by run.sh via kubectl patch
-  # after install, since the Helm chart does not expose a nodePort override.
-  # k3d maps: localhost:9000 → server:30080 (--port '9000:30080@server:0')
+  # k3d maps: localhost:9000 -> k3d loadbalancer -> Envoy Pods on port 80
 
 # --- NodePort / HostPort (for k3d port mapping) ---
 hostPort:

@@ -22,20 +22,19 @@ After deploying an application and exposing it via the Cilium Ingress controller
 Looking at the Cilium Envoy Proxy logs (`kubectl logs -l name=cilium-envoy -n kube-system`), we see connection timeouts when Envoy tries to reach the backend pods' `ClusterIP`.
 
 **The Investigation:**
-Because k3d runs Kubernetes nodes inside standard Docker containers, the networking stack behaves differently than a raw Linux host. The Cilium Envoy daemon runs in the root network namespace of the k3d node (`hostNetwork: true`). By default, Cilium's eBPF Traffic Control (TC) programs attach to the virtual ethernet devices, but they **miss** traffic originating directly from local sockets in the host namespace. Consequently, Envoy's requests to a `10.43.x.x` ClusterIP never get DNAT'd to the actual Pod IP, routing them into the void.
+Because k3d runs Kubernetes nodes inside standard Docker containers, the networking stack behaves differently than a raw Linux host. By default, Cilium Ingress runs in `shared` mode, meaning the Envoy daemon runs in the root network namespace of the k3d node (`hostNetwork: true`) alongside the `cilium-agent`. When a request comes in, Envoy attempts to route it _directly to the Pod IP_ (bypassing the ClusterIP). However, Docker's default bridge network has no route into the pod CIDR (`10.42.0.0/16`) from the host namespace, causing the `connect()` call to hang and eventually return a `503 Service Unavailable`.
 
 **The Fix (Helm Values):**
-We enabled socket-level load balancing in `platform/cilium/values.yaml`:
+We switched the Cilium Ingress controller to run in `dedicated` mode in `platform/cilium/values.yaml`:
 
 ```yaml
-socketLB:
+ingressController:
   enabled: true
-  hostNamespaceOnly: false
-bpf:
-  lbExternalClusterIP: true
+  loadbalancerMode: dedicated
+  default: true
 ```
 
-This forces Cilium to attach BPF programs directly at the `connect()` socket system call level. The translation from ClusterIP to Pod IP happens _before_ the packet even enters the networking stack, bridging the gap between the Envoy process and the cluster pods.
+In `dedicated` mode, Cilium deploys Envoy as a standard Kubernetes Deployment operating within the standard pod network (`10.42.0.0/16`). Because Envoy now has its own Pod IP, it can use standard pod-to-pod eBPF routing to reach backend applications, entirely bypassing the Docker host network boundary issues. We then map Mac's `localhost:9000` to the k3d loadbalancer (`80@loadbalancer`), which forwards to the dedicated Envoy pods.
 
 ## 3. The Colima UDP/DNS Masquerading Bug
 

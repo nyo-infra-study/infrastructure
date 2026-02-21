@@ -35,12 +35,15 @@ server:
     # Without this, ArgoCD would generate broken URLs (expecting /)
     - --rootpath=/argocd
 
-  # Expose ArgoCD via NodePort instead of Ingress to bypass Cilium Envoy
-  # host-namespace ClusterIP routing issues in k3d.
+  # Expose ArgoCD via ClusterIP for the Cilium Ingress to route to
   service:
-    type: NodePort
-    nodePortHttp: 30080
+    type: ClusterIP
 
-  # Ingress disabled (using NodePort directly)
+  # Ingress configuration for external access
   ingress:
-    enabled: false
+    enabled: true
+    ingressClassName: cilium
+    hostname: localhost
+    path: /argocd
+    pathType: Prefix
+    tls: false

@@ -387,9 +387,9 @@ This is the only `kubectl apply` you need for ArgoCD. It handles everything else
 kubectl apply -f bootstrap/dev.yaml
 ```
 
-Thi9. Access the Apps (via Ingress)
+## 9. Access the Apps (via Ingress)
 
-Because we created the cluster with `--port "9000:80@loadbalancer"`, k3d automatically routes traffic from your machine's port **9000** to the cluster's Ingress Controller.
+Because we created the cluster with `--port "9000:80@loadbalancer"`, k3d automatically routes traffic from your machine's port **9000** to the cluster's Ingress Controller (Cilium in dedicated mode).
 
 You do **not** need to use `kubectl port-forward` anymore.
 
