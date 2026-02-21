@@ -105,9 +105,9 @@ sleep 5
 
 # Cilium replaces Traefik (ingress), kube-proxy (eBPF), Flannel (CNI) and network policies.
 # All four must be disabled in k3s so Cilium can take full ownership.
-# Port mapping: 9000 on Mac → 80 on the k3d loadbalancer → NodePort on server node.
+# Port mapping: 9000 on Mac → NodePort 30080 on server node (ArgoCD Server).
 run "k3d cluster create dev \
-  --port '9000:80@loadbalancer' \
+  --port '9000:30080@server:0' \
   --k3s-arg '--disable=traefik@server:0' \
   --k3s-arg '--disable-kube-proxy@server:0' \
   --k3s-arg '--flannel-backend=none@server:0' \

@@ -22,6 +22,7 @@ Unlike standard K8s setups, we do **not** build locally or `kubectl apply` apps 
 
 **Implication for Agents**:
 
+- **CRITICAL RULE**: You MUST ALWAYS `git commit` and `git push` any changes to manifests, Helm values, or code **BEFORE** running `./run.sh` or expecting ArgoCD to sync them. ArgoCD pulls from the remote Git repository, so uncommitted local changes will be ignored and overwritten!
 - Do **NOT** suggest `docker build` commands for the user (unless debugging).
 - Do **NOT** suggest `kubectl apply -f apps/...` manually (ArgoCD will revert it).
 - **DO** suggest editing files, committing, and pushing.
