@@ -149,7 +149,7 @@ K8S_PORT=$(kubectl get endpointslices -l kubernetes.io/service-name=kubernetes -
 echo "  Detected API server: https://${K8S_HOST}:${K8S_PORT}"
 
 run "helm install cilium cilium/cilium \
-  --version 1.16.6 \
+  --version 1.19.1 \
   --namespace kube-system \
   -f '$SCRIPT_DIR/platform/cilium/values.yaml' \
   --set k8sServiceHost=${K8S_HOST} \
