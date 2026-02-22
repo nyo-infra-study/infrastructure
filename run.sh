@@ -157,7 +157,7 @@ log_step "Patching CoreDNS (Bypass Colima DNS)"
 # We patch CoreDNS to forward directly to 8.8.8.8 to ensure cluster egress DNS works.
 run "kubectl get cm coredns -n kube-system -o yaml | sed 's/forward . \/etc\/resolv.conf/forward . 8.8.8.8/' | kubectl apply -f -"
 run "kubectl rollout restart deployment coredns -n kube-system"
-run "kubectl rollout status deployment/coredns -n kube-system --timeout=60s"
+run "kubectl rollout status deployment/coredns -n kube-system --timeout=15m"
 
 log_step "Installing ArgoCD"
 # Cilium CNI is running — pods can now communicate, ArgoCD install will succeed.
