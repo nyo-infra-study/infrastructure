@@ -149,7 +149,7 @@ run "helm install cilium cilium/cilium \
 log_step "Waiting for Cilium (bootstrap)"
 # cilium status --wait understands Cilium's internal readiness (agents, controllers, etc.)
 # much more reliable than kubectl rollout status for CNI readiness.
-run "cilium status --wait --wait-duration 5m0s"
+run "cilium status --wait --wait-duration 15m0s"
 echo "✅ Cilium CNI is ready — cluster networking is up"
 
 log_step "Patching CoreDNS (Bypass Colima DNS)"
