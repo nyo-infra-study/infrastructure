@@ -71,7 +71,7 @@ spec:
             - host: localhost # Domain name (localhost for local dev)
               paths:
                 - path: /api # Route /api requests to this service (keeps /api prefix)
-                  pathType: ImplementationSpecific
+                  pathType: Prefix
 
   # DESTINATION: Where to deploy in the cluster
   destination:
