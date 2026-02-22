@@ -78,3 +78,67 @@ kubectl rollout restart deployment coredns -n kube-system
 ```
 
 This restores reliable cluster-wide internet DNS resolution required by ArgoCD without breaking the internal cluster mesh.
+
+## 4. localhost:9000 Timeout — svclb netns Isolation
+
+**The Symptom:**
+After a fresh `run.sh`, `curl http://localhost:9000/argocd` times out immediately. The TCP connection is accepted (port 9000 on Mac is bound by Docker) but hangs with no response. From inside the cluster, hitting the `cilium-ingress` ClusterIP works and returns `404 from envoy` — so Envoy itself is healthy.
+
+**The Investigation:**
+
+1. **k3d port mapping is correct.** `docker ps` shows `0.0.0.0:9000->80/tcp` on `k3d-dev-serverlb`. Inside that container, nginx proxies `port 80 → k3d-dev-server-0:80`.
+
+2. **Nothing listens on port 80 of the server node.**
+
+   ```bash
+   docker exec k3d-dev-serverlb sh -c \
+     "(echo > /dev/tcp/172.18.0.3/80) 2>&1 && echo open || echo closed"
+   # Result: closed/refused
+   ```
+
+3. **Why? Cilium eBPF NodePort ≠ a socket.**
+   Cilium replaces kube-proxy via eBPF programs attached to the node's network interfaces at XDP/tc-bpf level. It does **not** open a real TCP socket on the port. You can confirm this:
+
+   ```bash
+   kubectl exec -n kube-system cilium-<pod> -- cilium bpf lb list | grep ':80'
+   # Shows:   0.0.0.0:80 [HostPort, non-routable]
+   ```
+
+   The `non-routable` label and the absence of a real socket mean that Docker bridge traffic from k3d nginx to `server-node:80` finds nothing to connect to — Cilium's XDP hook is simply not triggered for this traffic path.
+
+4. **Why doesn't svclb fix it?**
+   The `svclb-cilium-ingress` pod (klipper-lb) sets up iptables DNAT rules to redirect port 80 → ClusterIP. But these rules live inside the **svclb container's own network namespace**, not the node's host network namespace. Traffic from k3d nginx arrives at the k3d server node's host netns, where those DNAT rules don't exist.
+
+   ```bash
+   kubectl get pod svclb-cilium-ingress-... -o jsonpath='{.spec.hostNetwork}'
+   # Returns empty = false → isolated netns → DNAT rules are invisible to nginx
+   ```
+
+5. **Why does it work inside the cluster?**
+   Pod-to-ClusterIP traffic flows through cilium's eBPF programs that _are_ attached to the virtual ethernet interfaces (veth pairs) in the pod's netns. That path works even with the svclb isolated. External access (k3d nginx bridging to node) bypasses that path entirely.
+
+**The Fix:**
+
+Change the k3d cluster creation to map port 9000 directly onto the **server node** (`@server:0`) with a **fixed NodePort** that Cilium's eBPF will honor on the node interface, rather than relying on k3d's nginx LB (`@loadbalancer`) to proxy to port 80 which has no socket listener.
+
+Set a fixed NodePort in the Cilium Helm values:
+
+```yaml
+# platform/cilium/values.yaml
+ingressController:
+  service:
+    insecureNodePort: 30080 # fixed HTTP NodePort
+    secureNodePort: 30443 # fixed HTTPS NodePort
+```
+
+Change the k3d cluster creation port mapping in `run.sh`:
+
+```bash
+# Before (broken — nginx proxies to server-node:80 which has no listener):
+--port '9000:80@loadbalancer'
+
+# After (correct — Docker maps directly to the server node's NodePort):
+--port '9000:30080@server:0'
+```
+
+With `@server:0`, Docker itself performs the host port binding (`0.0.0.0:9000 → server-container:30080`), so traffic arrives at the server node's **eth0** interface on port 30080. Cilium's tc-bpf hook on `eth0` intercepts it as a NodePort packet and routes it to Envoy correctly.

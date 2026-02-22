@@ -103,15 +103,24 @@ log_step "Recreating k3d Cluster"
 run "k3d cluster delete dev || true"
 sleep 5
 
-# Cilium replaces Traefik (ingress), kube-proxy (eBPF), Flannel (CNI) and network policies.
-# All four must be disabled in k3s so Cilium can take full ownership.
-# Port mapping: 9000 on Mac → 80 on the k3d loadbalancer → Cilium Ingress (Envoy)
+# Port mapping: 9000 on Mac → 30080 on the k3d server node → Cilium tc-bpf NodePort → Envoy
+# WHY @server:0 instead of @loadbalancer:
+#   - k3d's nginx LB proxies to server-node:80, but Cilium eBPF does NOT open a real socket
+#     on port 80 (it hooks XDP/tc-bpf). So the nginx proxy hits "connection refused".
+#   - svclb (klipper-lb) DNAT rules for port 80 → ClusterIP are in the svclb container's
+#     own network namespace, NOT the server node's host netns. k3d nginx traffic never
+#     passes through that netns, so DNAT doesn't apply.
+#   - @server:0 makes Docker bind host:9000 directly on the server container, so traffic
+#     arrives at server-node's eth0. Cilium's tc-bpf hook on eth0 intercepts it as a
+#     NodePort packet (30080) and routes it correctly to Envoy.
+#   - insecureNodePort: 30080 is fixed in platform/cilium/values.yaml so it's always known.
 run "k3d cluster create dev \
-  --port '9000:80@loadbalancer' \
+  --port '9000:30080@server:0' \
   --k3s-arg '--disable=traefik@server:0' \
   --k3s-arg '--disable-kube-proxy@server:0' \
   --k3s-arg '--flannel-backend=none@server:0' \
   --k3s-arg '--disable-network-policy@server:0'"
+
 
 log_step "Adding Helm Repositories"
 run "helm repo add argo https://argoproj.github.io/argo-helm"

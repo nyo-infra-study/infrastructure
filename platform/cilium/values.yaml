@@ -8,6 +8,16 @@
 #   --disable-kube-proxy       → Cilium fully replaces kube-proxy (eBPF)
 #   --flannel-backend=none     → Cilium replaces Flannel as CNI
 #   --disable-network-policy   → Cilium handles network policies
+#
+# PORT MAPPING RATIONALE:
+#   k3d uses @server:0 (not @loadbalancer) so Docker binds host:9000 directly
+#   to the k3d server node container's port 30080. This is required because:
+#   - Cilium eBPF NodePort does NOT open a real TCP socket (no kernel listener)
+#   - k3d's nginx @loadbalancer proxies to server-node:80 which has no listener
+#   - svclb (klipper-lb) DNAT rules live in the svclb container's own netns,
+#     not the server node's host netns, so they don't affect nginx's path
+#   - @server:0 makes Docker bind the port at container level so traffic arrives
+#     on the server node's eth0, where Cilium's tc-bpf NodePort hook IS active
 # ============================================================
 
 # Kube-proxy replacement (eBPF mode)
@@ -37,7 +47,12 @@ ingressController:
   loadbalancerMode: shared
   # Make cilium the default ingress class
   default: true
-  # k3d maps: localhost:9000 -> k3d loadbalancer -> Envoy Pods on port 80
+  # Fixed NodePorts so k3d can map them predictably at cluster creation time.
+  # Without fixed ports the dynamic NodePort can't be known before the cluster exists.
+  # k3d maps: localhost:9000 → server-container:30080 → Cilium tc-bpf NodePort → Envoy
+  service:
+    insecureNodePort: 30080 # HTTP
+    secureNodePort: 30443 # HTTPS
 
 # --- NodePort / HostPort (for k3d port mapping) ---
 hostPort:
