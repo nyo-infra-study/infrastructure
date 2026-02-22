@@ -43,8 +43,8 @@ bpf:
 # --- Cilium Ingress Controller (replaces Traefik) ---
 ingressController:
   enabled: true
-  # shared = one LoadBalancer service for all Ingresses (prevents svclb port 80 conflicts)
-  loadbalancerMode: shared
+  # dedicated mode puts Envoy in the pod network, avoiding k3d host-routing timeouts
+  loadbalancerMode: dedicated
   # Make cilium the default ingress class
   default: true
   # Fixed NodePorts so k3d can map them predictably at cluster creation time.
