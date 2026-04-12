@@ -1,9 +1,9 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: {{ include "backend-server.fullname" . }}-wait-for-monitoring
+  name: {{ .Release.Name }}-wait-for-monitoring
   labels:
-    {{- include "backend-server.labels" . | nindent 4 }}
+    app: {{ .Release.Name }}-wait-job
   annotations:
     argocd.argoproj.io/hook: PreSync
     argocd.argoproj.io/hook-delete-policy: HookSucceeded
