@@ -47,6 +47,5 @@ spec:
   ignoreDifferences:
     - group: apps
       kind: StatefulSet
-      name: dev-monitoring-loki-loki
       jsonPointers:
         - /spec/volumeClaimTemplates
