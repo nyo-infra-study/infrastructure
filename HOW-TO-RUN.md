@@ -40,7 +40,12 @@ infrastructure/
 │       ├── backend-db.yaml
 │       ├── backend-server.yaml
 │       ├── web-frontend.yaml
-│       └── plg-stack.yaml
+│       ├── monitoring-grafana.yaml
+│       ├── monitoring-loki.yaml
+│       ├── monitoring-mimir.yaml
+│       ├── monitoring-otel.yaml
+│       ├── monitoring-pyroscope.yaml
+│       └── monitoring-tempo.yaml
 │
 ├── charts/             # Local Helm charts
 │   ├── backend-db/     # Wrapper for Bitnami PostgreSQL
@@ -56,8 +61,13 @@ infrastructure/
 └── platform/           # Platform configs (Values files)
     ├── argocd/
     │   └── values.yaml
-    └── plg-stack/
-        └── values.yaml
+    └── monitoring/
+        ├── logs-loki/
+        ├── metrics-mimir/
+        ├── profiling-pyroscope/
+        ├── traces-otel/
+        ├── traces-tempo/
+        └── ui-grafana/
 ```
 
 ## Prerequisites
@@ -669,9 +679,9 @@ If the backend server fails with `dial tcp: lookup backend-db ... no such host`,
 - **Writes:** `backend-db-primary` (Use this for `DB_HOST`)
 - **Reads:** `backend-db-read` (Use for read-only replicas)
 
-## 12. Monitor Logs (PLG Stack)
+## 12. Monitor Observability Stack (Logs, Metrics, Traces)
 
-We use the **PLG Stack** (Promtail, Loki, Grafana) for centralized logging.
+We use a comprehensive observability stack (Grafana, Loki, Mimir, Tempo, Pyroscope) for centralized logging, metrics, distributed tracing, and profiling.
 
 ### Access Grafana
 

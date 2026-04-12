@@ -17,7 +17,12 @@ infrastructure/
 │       ├── backend-db.yaml
 │       ├── backend-server.yaml
 │       ├── web-frontend.yaml
-│       └── plg-stack.yaml
+│       ├── monitoring-grafana.yaml
+│       ├── monitoring-loki.yaml
+│       ├── monitoring-mimir.yaml
+│       ├── monitoring-otel.yaml
+│       ├── monitoring-pyroscope.yaml
+│       └── monitoring-tempo.yaml
 │
 ├── charts/             # Local Helm charts
 │   ├── backend-db/     # Wrapper for Bitnami PostgreSQL
@@ -36,9 +41,13 @@ infrastructure/
 └── platform/           # Platform configs (Values files)
     ├── argocd/
     │   └── values.yaml
-    └── plg-stack/
-        └── values.yaml
-```
+    └── monitoring/
+        ├── logs-loki/
+        ├── metrics-mimir/
+        ├── profiling-pyroscope/
+        ├── traces-otel/
+        ├── traces-tempo/
+        └── ui-grafana/
 
 ### Folder Purposes
 

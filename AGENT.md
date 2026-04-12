@@ -4,7 +4,7 @@
 
 ## 1. Project Identity
 
-- **Goal**: Infrastructure for a 3-tier app (Frontend, Backend, DB) + Monitoring (PLG).
+- **Goal**: Infrastructure for a 3-tier app (Frontend, Backend, DB) + Monitoring (Grafana, Loki, Mimir, Tempo, Pyroscope).
 - **Methodology**: Pure GitOps (ArgoCD) + In-Cluster CI (Argo Workflows).
 - **Environment**: Local `k3d` cluster named `dev`.
 
@@ -36,7 +36,7 @@ Unlike standard K8s setups, we do **not** build locally or `kubectl apply` apps 
 | **Triggers**    | Argo Events    | Sensors/Sources in `argo-events/`.                        |
 | **Ingress**     | Traefik        | Default k3d ingress.                                      |
 | **Database**    | PostgreSQL     | Bitnami chart (`bitnamilegacy` repo).                     |
-| **Logging**     | PLG Stack      | Promtail -> Loki -> Grafana.                              |
+| **Observability** | Grafana Hub | Loki (logs), Mimir (metrics), Tempo (traces), Pyroscope.  |
 
 ## 4. Where to Edit
 
@@ -46,11 +46,11 @@ Unlike standard K8s setups, we do **not** build locally or `kubectl apply` apps 
 | **Modify Helm Templates**         | `charts/<service>/templates/`                                     |
 | **Change Build Logic**            | `argo-workflows/frontend-build-template.yaml`                     |
 | **Add New Microservice**          | 1. Create Chart (`charts/new`), 2. Add App (`apps/dev/new.yaml`). |
-| **Platform Config (ArgoCD/Loki)** | `platform/<service>/values.yaml`                                  |
+| **Platform Config (ArgoCD/Grafana)** | `platform/<service>/values.yaml`                                  |
 
-## 5. Observability (PLG Stack)
+## 5. Observability (O11y Stack)
 
-- **Logs**: Do NOT rely solely on `kubectl logs`. Use **Grafana**.
+- **Logs/Metrics/Traces**: Do NOT rely solely on `kubectl`. Use **Grafana**.
 - **URL**: `http://localhost:9000/grafana`
 - **Credentials**:
   - User: `admin`
