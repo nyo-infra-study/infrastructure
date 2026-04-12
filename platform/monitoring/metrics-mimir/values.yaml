@@ -7,9 +7,7 @@ mimir:
       enabled: false
     # Enable 24h retention policy for metrics (Mimir 2.x/5.5.x schema)
     limits:
-      compactor_retention_period: 24h
-    compactor:
-      retention_enabled: true
+      compactor_blocks_retention_period: 24h
 
 # Deploy MinIO (object storage)
 minio:
