@@ -1,7 +1,11 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
   name: dev-monitoring-otel
+
+
   namespace: argocd
   finalizers:
     - resources-finalizer.argocd.argoproj.io
@@ -17,6 +21,7 @@ spec:
       helm:
         releaseName: dev-monitoring-otel
         valueFiles:
+          - $values/platform/monitoring/common-values.yaml
           - $values/platform/monitoring/traces-otel/values.yaml
 
     - repoURL: https://github.com/nyo-infra-study/infrastructure.git

@@ -4,8 +4,11 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
   # Name of this ArgoCD Application
   name: dev-web-frontend
+
   # Must be in argocd namespace
   namespace: argocd
   labels:

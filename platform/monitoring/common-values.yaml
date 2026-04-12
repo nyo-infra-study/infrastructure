@@ -1,0 +1,27 @@
+# ============================================================
+# Global Monitoring Configuration
+# ============================================================
+# Use these values across all monitoring components to ensure 
+# consistency and prevent DNS mismatches.
+
+global:
+  monitoring:
+    # Mimir (Prometheus-compatible)
+    mimir:
+      url: "http://dev-monitoring-mimir-gateway.monitoring.svc.cluster.local/prometheus"
+      otlp: "http://dev-monitoring-mimir-gateway.monitoring.svc.cluster.local/otlp"
+    
+    # Loki (Logs)
+    loki:
+      url: "http://dev-monitoring-loki-loki:3100/loki/api/v1/push"
+      otlp: "http://dev-monitoring-loki-loki:3100/otlp"
+
+    # Tempo (Traces)
+    tempo:
+      url: "dev-monitoring-tempo:4317"
+      otlp: "dev-monitoring-tempo:4317"
+
+    # OTel Collector (Gateway)
+    otel:
+      endpoint: "http://dev-monitoring-otel-opentelemetry-collector.monitoring.svc.cluster.local:4317"
+      http_endpoint: "http://dev-monitoring-otel-opentelemetry-collector.monitoring.svc.cluster.local:4318"

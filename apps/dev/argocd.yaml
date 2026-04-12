@@ -3,7 +3,11 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
   name: argocd
+
+
   namespace: argocd
 spec:
   project: default
@@ -34,5 +38,7 @@ spec:
   ignoreDifferences:
     - kind: Secret
       name: argocd-secret
+
+
       jsonPointers:
         - /data

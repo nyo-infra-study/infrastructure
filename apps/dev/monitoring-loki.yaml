@@ -1,6 +1,8 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
   name: dev-monitoring-loki
   namespace: argocd
   finalizers:
@@ -10,16 +12,6 @@ metadata:
     domain: monitoring
 spec:
   project: default
-  source:
-    chart: loki-stack
-    repoURL: https://grafana.github.io/helm-charts
-    targetRevision: 2.10.3
-    helm:
-      releaseName: dev-monitoring-loki
-      valueFiles:
-        - $values/platform/monitoring/logs-loki/values.yaml
-
-  # Additional source to get the values file from our git repo
   sources:
     - chart: loki-stack
       repoURL: https://grafana.github.io/helm-charts
@@ -27,15 +19,14 @@ spec:
       helm:
         releaseName: dev-monitoring-loki
         valueFiles:
+          - $values/platform/monitoring/common-values.yaml
           - $values/platform/monitoring/logs-loki/values.yaml
     - repoURL: https://github.com/nyo-infra-study/infrastructure.git
       targetRevision: main
       ref: values
-
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring
-
   syncPolicy:
     automated:
       prune: true
@@ -43,7 +34,6 @@ spec:
     syncOptions:
       - CreateNamespace=true
       - ServerSideApply=true
-
   ignoreDifferences:
     - group: apps
       kind: StatefulSet
