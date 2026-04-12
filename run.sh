@@ -170,8 +170,26 @@ run "kubectl create secret generic grafana-auth -n monitoring \
   --from-literal=admin-user='$GRAFANA_ADMIN_USER' \
   --from-literal=admin-password='$GRAFANA_ADMIN_PASSWORD'"
 
-log_step "ArgoCD Configuration"
-echo "ArgoCD admin password is hard-set in platform/argocd/values.yaml"
+
+log_step "Patcing ArgoCD Admin Password (Resetting)"
+# Resetting ArgoCD password removes the initial secret and restarts the server
+if [ "$VERBOSE" = true ]; then
+    kubectl patch secret argocd-secret -p '{"data": {"admin.password": null, "admin.passwordMtime": null}}' -n argocd && \
+    kubectl delete secret argocd-initial-admin-secret -n argocd && \
+    kubectl rollout restart deployment argocd-server -n argocd && \
+    echo "Waiting for restart..." && \
+    sleep 30 && \
+    kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath="{.data.password}" | base64 --decode
+    echo ""
+else
+    echo "Resetting ArgoCD admin password..."
+    OUTPUT=$(kubectl patch secret argocd-secret -p '{"data": {"admin.password": null, "admin.passwordMtime": null}}' -n argocd 2>&1 && \
+    kubectl delete secret argocd-initial-admin-secret -n argocd 2>&1 && \
+    kubectl rollout restart deployment argocd-server -n argocd 2>&1 && \
+    sleep 30 && \
+    kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath="{.data.password}" | base64 --decode)
+    echo "ArgoCD Password: $OUTPUT"
+fi
 
 log_step "Deploying App of Apps"
 run "kubectl apply -f '$SCRIPT_DIR/bootstrap/dev.yaml'"
