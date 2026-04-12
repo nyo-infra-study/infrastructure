@@ -5,12 +5,11 @@ mimir:
   structuredConfig:
     usage_stats:
       enabled: false
-    # Enable 24h retention policy for metrics
+    # Enable 24h retention policy for metrics (Mimir 2.x/5.5.x schema)
     limits:
-      retention_period: 24h
+      compactor_retention_period: 24h
     compactor:
       retention_enabled: true
-      retention_concurrency: 5
 
 # Deploy MinIO (object storage)
 minio:
