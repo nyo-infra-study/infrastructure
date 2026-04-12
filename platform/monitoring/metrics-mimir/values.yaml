@@ -22,20 +22,26 @@ mimir:
       storage:
         backend: filesystem
 
+    compactor:
+      data_dir: /data/compactor-data
+
+    alertmanager:
+      data_dir: /data/alertmanager-data
+
     blocks_storage:
       backend: filesystem
       filesystem:
-        dir: /data/mimir/blocks
+        dir: /data/blocks-storage
 
     alertmanager_storage:
       backend: filesystem
       filesystem:
-        dir: /data/mimir/alertmanager
+        dir: /data/alertmanager-storage
 
     ruler_storage:
       backend: filesystem
       filesystem:
-        dir: /data/mimir/ruler
+        dir: /data/ruler-storage
 
     # Single-binary: run all components in one process
     target: all
