@@ -1,14 +1,13 @@
 # ============================================================
-# Mimir — Single-Binary Mode (Local Dev)
+# Mimir — Distributed Mode (Local Dev)
 # ============================================================
-# Uses the grafana/mimir chart in single-binary (monolithic) mode.
-# NOT suitable for production — use mimir-distributed for that.
+# Uses the grafana/mimir-distributed chart.
 #
 # Prometheus-compatible remote_write endpoint:
-#   http://dev-mimir.monitoring.svc.cluster.local:9009/api/v1/push
+#   http://dev-monitoring-mimir-nginx.monitoring.svc.cluster.local:80/api/v1/push
 #
 # Grafana data source (Prometheus type):
-#   http://dev-mimir.monitoring.svc.cluster.local:9009/prometheus
+#   http://dev-monitoring-mimir-nginx.monitoring.svc.cluster.local:80/prometheus
 # ============================================================
 
 mimir:
@@ -17,48 +16,43 @@ mimir:
     usage_stats:
       enabled: false
 
-    # Use filesystem storage (no object store needed for local dev)
-    common:
-      storage:
-        backend: filesystem
-
-    compactor:
-      data_dir: /data/compactor-data
-
-    alertmanager:
-      data_dir: /data/alertmanager-data
-
-    blocks_storage:
-      backend: filesystem
-      filesystem:
-        dir: /data/blocks-storage
-
-    alertmanager_storage:
-      backend: filesystem
-      filesystem:
-        dir: /data/alertmanager-storage
-
-    ruler_storage:
-      backend: filesystem
-      filesystem:
-        dir: /data/ruler-storage
-
-    # Single-binary: run all components in one process
-    target: all
-
-# Run as a single replica (monolithic) for dev
+# Deploy MinIO (object storage) because distributed mode requires shared storage
 minio:
-  enabled: false
+  enabled: true
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
 
-# Use an initContainer-less, simple single-binary deployment
-rollout_operator:
-  enabled: false
+# Scale down components to 1 replica since we are running locally
+alertmanager:
+  replicas: 1
+compactor:
+  replicas: 1
+distributor:
+  replicas: 1
+ingester:
+  replicas: 1
+querier:
+  replicas: 1
+query_frontend:
+  replicas: 1
+ruler:
+  replicas: 1
+store_gateway:
+  replicas: 1
+nginx:
+  replicas: 1
 
-# Reduce resource requests for local dev
-resources:
-  requests:
-    cpu: 100m
-    memory: 256Mi
-  limits:
-    cpu: 500m
-    memory: 512Mi
+# Reduce default resource requests to save local k3d memory
+global:
+  resources:
+    requests:
+      cpu: 10m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
