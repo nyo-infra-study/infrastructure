@@ -1,0 +1,37 @@
+# ============================================================
+# Pyroscope — Continuous Profiling (Local Dev)
+# ============================================================
+# Uses the grafana/pyroscope chart.
+#
+# Push profiles to (from within cluster):
+#   http://dev-pyroscope.monitoring.svc.cluster.local:4040
+#
+# Grafana data source:
+#   http://dev-pyroscope.monitoring.svc.cluster.local:4040
+# ============================================================
+
+pyroscope:
+  # Single replica for local dev
+  replicaCount: 1
+
+  # Disable object storage, use local filesystem
+  storage:
+    backend: filesystem
+    filesystem:
+      dir: /data/pyroscope
+
+  # Reduce resource requests for local dev
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+# Disable components not needed in local dev
+minio:
+  enabled: false
+
+agent:
+  enabled: false

@@ -58,6 +58,8 @@ spec:
               secretKeyRef:
                 name: backend-db-secret
                 key: POSTGRES_PASSWORD
+          - name: PYROSCOPE_URL
+            value: "http://dev-pyroscope.monitoring.svc.cluster.local:4040"
 
         # Kubernetes Service configuration
         service:

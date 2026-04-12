@@ -1,0 +1,60 @@
+# ============================================================
+# OpenTelemetry Collector (Local Dev)
+# ============================================================
+# Uses the open-telemetry/opentelemetry-collector chart.
+# Receives all telemetry and forwards to backends:
+#  - Logs -> Loki
+#  - Metrics -> Mimir
+#  - Traces -> Tempo
+# ============================================================
+mode: deployment
+replicaCount: 1
+
+config:
+  receivers:
+    otlp:
+      protocols:
+        grpc:
+          endpoint: 0.0.0.0:4317
+        http:
+          endpoint: 0.0.0.0:4318
+
+  processors:
+    batch: {}
+
+  exporters:
+    otlphttp/loki:
+      endpoint: "http://dev-monitoring-loki-loki:3100/otlp"
+      tls:
+        insecure: true
+    otlphttp/mimir:
+      endpoint: "http://dev-monitoring-mimir-nginx.monitoring.svc.cluster.local/otlp"
+      tls:
+        insecure: true
+    otlp/tempo:
+      endpoint: "dev-monitoring-tempo:4317"
+      tls:
+        insecure: true
+
+  service:
+    pipelines:
+      logs:
+        receivers: [otlp]
+        processors: [batch]
+        exporters: [otlphttp/loki]
+      metrics:
+        receivers: [otlp]
+        processors: [batch]
+        exporters: [otlphttp/mimir]
+      traces:
+        receivers: [otlp]
+        processors: [batch]
+        exporters: [otlp/tempo]
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 250m
+    memory: 256Mi

@@ -1,0 +1,58 @@
+# ============================================================
+# Mimir — Single-Binary Mode (Local Dev)
+# ============================================================
+# Uses the grafana/mimir chart in single-binary (monolithic) mode.
+# NOT suitable for production — use mimir-distributed for that.
+#
+# Prometheus-compatible remote_write endpoint:
+#   http://dev-mimir.monitoring.svc.cluster.local:9009/api/v1/push
+#
+# Grafana data source (Prometheus type):
+#   http://dev-mimir.monitoring.svc.cluster.local:9009/prometheus
+# ============================================================
+
+mimir:
+  structuredConfig:
+    # Disable usage reporting to Grafana Cloud
+    usage_stats:
+      enabled: false
+
+    # Use filesystem storage (no object store needed for local dev)
+    common:
+      storage:
+        backend: filesystem
+
+    blocks_storage:
+      backend: filesystem
+      filesystem:
+        dir: /data/mimir/blocks
+
+    alertmanager_storage:
+      backend: filesystem
+      filesystem:
+        dir: /data/mimir/alertmanager
+
+    ruler_storage:
+      backend: filesystem
+      filesystem:
+        dir: /data/mimir/ruler
+
+    # Single-binary: run all components in one process
+    target: all
+
+# Run as a single replica (monolithic) for dev
+minio:
+  enabled: false
+
+# Use an initContainer-less, simple single-binary deployment
+rollout_operator:
+  enabled: false
+
+# Reduce resource requests for local dev
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi

@@ -1,0 +1,26 @@
+# ============================================================
+# Tempo — Distributed Tracing (Local Dev)
+# ============================================================
+# Uses the grafana/tempo chart.
+# Push traces to (from within cluster via OTel Collector or directly):
+#   http://dev-monitoring-tempo:4317  (OTLP gRPC)
+#   http://dev-monitoring-tempo:4318  (OTLP HTTP)
+# ============================================================
+tempo:
+  repository: grafana/tempo
+  tag: 2.3.1
+  
+storage:
+  trace:
+    backend: local
+    local:
+      path: /var/tempo/traces
+
+# Small resource limits for local dev
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi

@@ -1,28 +1,25 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: dev-plg-stack
+  name: dev-monitoring-mimir
   namespace: argocd
   finalizers:
     - resources-finalizer.argocd.argoproj.io
+  labels:
+    environment: dev
+    domain: monitoring
 spec:
   project: default
-  source:
-    chart: loki-stack
-    repoURL: https://grafana.github.io/helm-charts
-    targetRevision: 2.10.2
-    helm:
-      valueFiles:
-        - $values/platform/plg-stack/values.yaml
 
-  # Additional source to get the values file from our git repo
   sources:
-    - chart: loki-stack
+    - chart: mimir-distributed
       repoURL: https://grafana.github.io/helm-charts
-      targetRevision: 2.10.2
+      targetRevision: 5.5.1
       helm:
+        releaseName: dev-monitoring-mimir
         valueFiles:
-          - $values/platform/plg-stack/values.yaml
+          - $values/platform/monitoring/metrics-mimir/values.yaml
+
     - repoURL: https://github.com/nyo-infra-study/infrastructure.git
       targetRevision: main
       ref: values
@@ -38,10 +35,3 @@ spec:
     syncOptions:
       - CreateNamespace=true
       - ServerSideApply=true
-
-  ignoreDifferences:
-    - group: apps
-      kind: StatefulSet
-      name: dev-plg-stack-loki
-      jsonPointers:
-        - /spec/volumeClaimTemplates
