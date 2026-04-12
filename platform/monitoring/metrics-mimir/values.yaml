@@ -16,7 +16,7 @@ mimir:
 minio:
   enabled: true
   persistence:
-    size: 512Mi  # Limited MinIO storage to save laptop disk
+    size: 512Mi # Limited MinIO storage to save laptop disk
   resources:
     requests:
       cpu: 50m

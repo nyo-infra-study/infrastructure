@@ -5,11 +5,11 @@ loki:
   enabled: true
   image:
     tag: 2.9.3
-  
+
   persistence:
     enabled: true
-    size: 512Mi  # Reduced from 5Gi to save laptop space
-  
+    size: 512Mi # Reduced from 5Gi to save laptop space
+
   config:
     limits_config:
       retention_period: 24h
