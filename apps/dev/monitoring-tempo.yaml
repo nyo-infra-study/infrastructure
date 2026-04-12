@@ -13,7 +13,7 @@ spec:
   sources:
     - chart: tempo
       repoURL: https://grafana.github.io/helm-charts
-      targetRevision: 1.61.3
+      targetRevision: 1.24.4
       helm:
         releaseName: dev-monitoring-tempo
         valueFiles:
