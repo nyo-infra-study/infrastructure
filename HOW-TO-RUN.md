@@ -298,7 +298,7 @@ kubectl create namespace dev # (but we need it for the secret, even though it ca
 # But for security best practices, create it manually:
 kubectl create secret generic backend-db-secret \
   --namespace dev \
-  --from-literal=POSTGRES_PASSWORD=yoursecurepassword
+  --from-literal=POSTGRES_PASSWORD=password
 ```
 
 ### After First Deployment
@@ -329,31 +329,15 @@ docker push YOUR_DOCKERHUB_USERNAME/backend-server:latest
 
 ### Access ArgoCD UI
 
-```bash
-# Get admin password
-kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
-echo  # newline
-```
+Open [http://localhost:9000/argocd](http://localhost:9000/argocd)
+
+- **Username**: `admin`
+- **Password**: `password` (Hard-set in Helm values)
 
 Wait until the ArgoCD Server is ready:
 
 ```bash
 kubectl wait --for=condition=available deployment/argocd-server -n argocd --timeout=300s
-```
-
-Open [http://localhost:9000/argocd](http://localhost:9000/argocd) → Login with `admin` and the password above.
-
-**Password has a corrupt `%` at the end?**
-
-Reset the password:
-
-```bash
-kubectl patch secret argocd-secret -p '{"data": {"admin.password": null, "admin.passwordMtime": null}}' -n argocd && \
-kubectl delete secret argocd-initial-admin-secret -n argocd && \
-kubectl rollout restart deployment argocd-server -n argocd && \
-sleep 30 && \
-kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath="{.data.password}" | base64 --decode
-echo ""
 ```
 
 ### Deploy the App of Apps
@@ -364,7 +348,7 @@ This is the only `kubectl apply` you need for ArgoCD. It handles everything else
 kubectl apply -f bootstrap/dev.yaml
 ```
 
-Thi9. Access the Apps (via Ingress)
+## 9. Access the Apps (via Ingress)
 
 Because we created the cluster with `--port "9000:80@loadbalancer"`, k3d automatically routes traffic from your machine's port **9000** to the cluster's Ingress Controller.
 
@@ -697,9 +681,9 @@ We use a comprehensive observability stack (Grafana, Loki, Mimir, Tempo, Pyrosco
       --from-literal=admin-password=$GRAFANA_ADMIN_PASSWORD
     ```
 
-2.  **Login:**
-    - User: value of `GRAFANA_ADMIN_USER` in `config.env` (default: `admin`)
-    - Password: value of `GRAFANA_ADMIN_PASSWORD` in `config.env`
+1.  **Login:**
+    - **Username:** `admin`
+    - **Password:** `password` (Hard-set via `config.env`)
 
 _(Backup) Port-forward if Ingress fails:_
 

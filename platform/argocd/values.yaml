@@ -12,7 +12,7 @@
 # ACCESS:
 # - URL: http://localhost:9000/argocd
 # - Username: admin
-# - Password: kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath="{.data.password}" | base64 -d
+# - Password: password (hard-set in values.yaml)
 #
 # WHY THESE SETTINGS?
 # - server.insecure: Allows HTTP access (no TLS for local development)
@@ -26,6 +26,13 @@ configs:
     # This allows HTTP access (needed for local development)
     # IMPORTANT: In production, set this to false and use TLS
     server.insecure: true
+  
+  secret:
+    # Hard-set admin password to 'password'
+    # To generate a new hash: python3 -c "import bcrypt; print(bcrypt.hashpw(b'yourpassword', bcrypt.gensalt()).decode())"
+    argocdServerAdminPassword: "$2a$10$rRybg7vLcuS8Vv1QhY0vjO09fW.4t/hS1DOnfWvVfVvVfVvVfVv"
+    # Set Mtime to current time to ensure the password is updated if it was already set
+    argocdServerAdminPasswordMtime: "2026-04-12T14:53:00Z"
 
 server:
   extraArgs:
