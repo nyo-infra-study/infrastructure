@@ -38,6 +38,7 @@ spec:
 
         image:
           tag: "latest" # Docker image tag to deploy
+          pullPolicy: IfNotPresent
 
         containerPort: 9091 # Port the Go app listens on inside the container
 
