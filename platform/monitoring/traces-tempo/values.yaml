@@ -6,7 +6,9 @@
 #   http://dev-monitoring-tempo:4317  (OTLP gRPC)
 #   http://dev-monitoring-tempo:4318  (OTLP HTTP)
 # ============================================================
-tempo:
+
+# Single-binary mode image config
+image:
   repository: grafana/tempo
   tag: 2.3.1
   
