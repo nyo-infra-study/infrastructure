@@ -8,33 +8,36 @@ admin:
 sidecar:
   datasources:
     enabled: true
-additionalDataSources:
-  - name: Loki
-    type: loki
-    uid: P8E80F9AEF21F6940
-    url: http://dev-monitoring-loki-loki:3100
-    access: proxy
-    isDefault: true
+datasources:
+  datasources.yaml:
+    apiVersion: 1
+    datasources:
+      - name: Loki
+        type: loki
+        uid: P8E80F9AEF21F6940
+        url: http://dev-monitoring-loki-loki:3100
+        access: proxy
+        isDefault: true
 
-  - name: Mimir
-    type: prometheus
-    uid: P1809F7CD0C75ACF3
-    url: http://dev-monitoring-mimir-nginx.monitoring.svc.cluster.local/prometheus
-    access: proxy
-    jsonData:
-      httpMethod: POST
+      - name: Mimir
+        type: prometheus
+        uid: P1809F7CD0C75ACF3
+        url: http://dev-monitoring-mimir-nginx.monitoring.svc.cluster.local/prometheus
+        access: proxy
+        jsonData:
+          httpMethod: POST
 
-  - name: Pyroscope
-    type: grafana-pyroscope-datasource
-    uid: P5DCCE374119EC439
-    url: http://dev-monitoring-pyroscope.monitoring.svc.cluster.local:4040
-    access: proxy
+      - name: Pyroscope
+        type: grafana-pyroscope-datasource
+        uid: P5DCCE374119EC439
+        url: http://dev-monitoring-pyroscope.monitoring.svc.cluster.local:4040
+        access: proxy
 
-  - name: Tempo
-    type: tempo
-    uid: tempo
-    url: http://dev-monitoring-tempo:3100
-    access: proxy
+      - name: Tempo
+        type: tempo
+        uid: tempo
+        url: http://dev-monitoring-tempo:3100
+        access: proxy
 
 grafana.ini:
   server:
