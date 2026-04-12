@@ -17,7 +17,6 @@ datasources:
         uid: P8E80F9AEF21F6940
         url: http://dev-monitoring-loki-loki:3100
         access: proxy
-        isDefault: true
 
       - name: Mimir
         type: prometheus
