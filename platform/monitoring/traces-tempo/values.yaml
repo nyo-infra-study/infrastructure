@@ -12,12 +12,11 @@ image:
   repository: grafana/tempo
   tag: 2.3.1
 
-tempo:
-  storage:
-    trace:
-      backend: local
-      local:
-        path: /var/tempo/traces
+storage:
+  trace:
+    backend: local
+    local:
+      path: /var/tempo/traces
 
 # Persistence for local dev
 persistence:

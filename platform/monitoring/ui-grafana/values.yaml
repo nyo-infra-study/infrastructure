@@ -1,6 +1,9 @@
 # ============================================================
 # standalone ui-grafana configuration
 # ============================================================
+image:
+  repository: grafana/grafana
+  tag: 11.5.0
 admin:
   existingSecret: grafana-auth
   userKey: admin-user
