@@ -63,18 +63,18 @@ config:
 
           - job_name: 'kube-state-metrics'
             static_configs:
-              - targets: ['dev-monitoring-ksm.monitoring.svc.cluster.local:8080']
+              - targets: ['dev-monitoring-ksm-kube-state-metrics.monitoring.svc.cluster.local:8080']
 
           - job_name: 'node-exporter'
             static_configs:
-              - targets: ['dev-monitoring-node-exporter.monitoring.svc.cluster.local:9100']
+              - targets: ['dev-monitoring-node-exporter-prometheus-node-exporter.monitoring.svc.cluster.local:9100']
 
   processors:
     batch: {}
 
   exporters:
     otlphttp/loki:
-      endpoint: "http://dev-monitoring-loki-loki:3100/otlp"
+      endpoint: "http://dev-monitoring-loki:3100/otlp"
       tls:
         insecure: true
     otlphttp/mimir:
