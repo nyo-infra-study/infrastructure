@@ -18,6 +18,11 @@ storage:
     local:
       path: /var/tempo/traces
 
+# Persistence for local dev
+persistence:
+  enabled: true
+  size: 512Mi
+
 # Small resource limits for local dev
 resources:
   requests:

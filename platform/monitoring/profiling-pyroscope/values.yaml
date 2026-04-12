@@ -29,6 +29,10 @@ pyroscope:
       cpu: 500m
       memory: 512Mi
 
+  persistence:
+    enabled: true
+    size: 512Mi
+
 # Disable components not needed in local dev
 minio:
   enabled: false

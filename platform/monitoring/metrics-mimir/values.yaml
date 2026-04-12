@@ -1,24 +1,22 @@
 # ============================================================
-# Mimir — Distributed Mode (Local Dev)
+# Mimir — Distributed Mode (Thin Local Dev)
 # ============================================================
-# Uses the grafana/mimir-distributed chart.
-#
-# Prometheus-compatible remote_write endpoint:
-#   http://dev-monitoring-mimir-nginx.monitoring.svc.cluster.local:80/api/v1/push
-#
-# Grafana data source (Prometheus type):
-#   http://dev-monitoring-mimir-nginx.monitoring.svc.cluster.local:80/prometheus
-# ============================================================
-
 mimir:
   structuredConfig:
-    # Disable usage reporting to Grafana Cloud
     usage_stats:
       enabled: false
+    # Enable 24h retention policy for metrics
+    limits:
+      retention_period: 24h
+    compactor:
+      retention_enabled: true
+      retention_concurrency: 5
 
-# Deploy MinIO (object storage) because distributed mode requires shared storage
+# Deploy MinIO (object storage)
 minio:
   enabled: true
+  persistence:
+    size: 512Mi  # Limited MinIO storage to save laptop disk
   resources:
     requests:
       cpu: 50m
@@ -27,7 +25,7 @@ minio:
       cpu: 200m
       memory: 256Mi
 
-# Scale down components to 1 replica since we are running locally
+# Component Scaling (Small Footprint)
 alertmanager:
   replicas: 1
 compactor:
@@ -47,7 +45,6 @@ store_gateway:
 nginx:
   replicas: 1
 
-# Reduce default resource requests to save local k3d memory
 global:
   resources:
     requests:

@@ -1,10 +1,25 @@
+# ============================================================
+# Loki — Log Aggregation (Thin Config)
+# ============================================================
 loki:
   enabled: true
   image:
     tag: 2.9.3
+  
   persistence:
     enabled: true
-    size: 5Gi
+    size: 512Mi  # Reduced from 5Gi to save laptop space
+  
+  config:
+    limits_config:
+      retention_period: 24h
+    compactor:
+      working_directory: /data/retention
+      shared_store: filesystem
+      compaction_interval: 10m
+      retention_enabled: true
+      retention_delete_delay: 2h
+      retention_delete_worker_count: 150
 
 promtail:
   enabled: true
