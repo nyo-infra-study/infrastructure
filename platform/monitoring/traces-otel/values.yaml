@@ -7,6 +7,10 @@
 #  - Metrics -> Mimir
 #  - Traces -> Tempo
 # ============================================================
+image:
+  repository: otel/opentelemetry-collector-contrib
+  tag: 0.119.0
+
 mode: deployment
 replicaCount: 1
 
