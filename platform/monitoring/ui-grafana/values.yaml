@@ -15,7 +15,7 @@ datasources:
       - name: Loki
         type: loki
         uid: P8E80F9AEF21F6940
-        url: http://dev-monitoring-loki-loki:3100
+        url: http://dev-monitoring-loki:3100
         access: proxy
 
       - name: Mimir
