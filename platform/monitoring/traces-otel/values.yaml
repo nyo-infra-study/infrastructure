@@ -28,7 +28,7 @@ config:
       tls:
         insecure: true
     otlphttp/mimir:
-      endpoint: "http://dev-monitoring-mimir-nginx.monitoring.svc.cluster.local/otlp"
+      endpoint: "http://dev-monitoring-mimir-gateway.monitoring.svc.cluster.local/otlp"
       tls:
         insecure: true
     otlp/tempo:
