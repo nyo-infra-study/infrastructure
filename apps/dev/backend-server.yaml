@@ -59,7 +59,13 @@ spec:
                 name: backend-db-secret
                 key: POSTGRES_PASSWORD
           - name: PYROSCOPE_URL
-            value: "http://dev-pyroscope.monitoring.svc.cluster.local:4040"
+            value: "http://dev-monitoring-pyroscope.monitoring.svc.cluster.local:4040"
+          - name: OTEL_EXPORTER_OTLP_ENDPOINT
+            value: "http://dev-monitoring-otel-opentelemetry-collector.monitoring.svc.cluster.local:4317"
+          - name: OTEL_SERVICE_NAME
+            value: "backend-server"
+          - name: OTEL_EXPORTER_OTLP_INSECURE
+            value: "true"
 
         # Kubernetes Service configuration
         service:
