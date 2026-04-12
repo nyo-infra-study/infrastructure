@@ -17,9 +17,9 @@ spec:
         - sh
         - -c
         - |
-          echo "Checking OTel Collector..."
-          until curl -sf -o /dev/null http://dev-monitoring-otel-opentelemetry-collector.monitoring.svc.cluster.local:4318/v1/traces; do 
-            echo "Waiting for OTel Collector..."
+          echo "Checking Mimir Gateway..."
+          until curl -sf http://dev-monitoring-mimir-gateway.monitoring.svc.cluster.local/ready; do 
+            echo "Waiting for Mimir Gateway..."
             sleep 2
           done
           echo "Observability stack is READY!"
