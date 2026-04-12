@@ -101,8 +101,13 @@ fi
 
 log_step "Recreating k3d Cluster"
 run "k3d cluster delete dev || true"
-sleep 5
+sleep 10
 run "k3d cluster create dev --port '9000:80@loadbalancer'"
+echo "Waiting for API server to stabilize..."
+sleep 20
+run "kubectl wait --for=condition=Ready nodes --all --timeout=60s"
+# Wait for default service account to ensure namespace controller is up
+run "kubectl wait --for=jsonpath='{.metadata.name}'=default serviceaccount/default --timeout=60s"
 
 log_step "Installing ArgoCD"
 run "helm repo add argo https://argoproj.github.io/argo-helm"
@@ -118,9 +123,9 @@ run "kubectl wait --for=condition=available deployment/argocd-server -n argocd -
 run "kubectl -n argocd rollout status deployment argocd-server"
 
 log_step "Installing Argo Workflows"
-run "kubectl create namespace argo"
-# Using --server-side to handle large CRDs
-run "kubectl apply -n argo -f https://github.com/argoproj/argo-workflows/releases/download/v4.0.0/install.yaml --server-side"
+run "kubectl create namespace argo || true"
+# Using --server-side to handle large CRDs and --force-conflicts for recovery
+run "kubectl apply -n argo -f https://github.com/argoproj/argo-workflows/releases/download/v4.0.0/install.yaml --server-side --force-conflicts"
 
 log_step "Waiting for Argo Workflows"
 run "kubectl -n argo rollout status deployment/argo-server"
