@@ -17,8 +17,8 @@ spec:
         - sh
         - -c
         - |
-          echo "Checking OTel Collector at {{ .Values.env_raw.OTEL_EXPORTER_OTLP_ENDPOINT | default "http://dev-monitoring-otel:4318" }}..."
-          until curl -sf -o /dev/null {{ .Values.env_raw.OTEL_EXPORTER_OTLP_ENDPOINT | replace ":4317" ":4318" }}/v1/traces; do 
+          echo "Checking OTel Collector..."
+          until curl -sf -o /dev/null http://dev-monitoring-otel-opentelemetry-collector.monitoring.svc.cluster.local:4318/v1/traces; do 
             echo "Waiting for OTel Collector..."
             sleep 2
           done
