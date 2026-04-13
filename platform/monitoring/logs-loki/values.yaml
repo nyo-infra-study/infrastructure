@@ -23,10 +23,6 @@ loki:
 
 promtail:
   enabled: true
-  containerSecurityContext:
-    allowPrivilegeEscalation: false
-    capabilities:
-      drop: [ALL]
   resources:
     limits:
       cpu: 200m
@@ -34,17 +30,10 @@ promtail:
     requests:
       cpu: 50m
       memory: 64Mi
-  extraArgs:
-    - -config.expand-env=true
-  extraEnv:
-    - name: GOMAXPROCS
-      value: "1"
-  initContainer:
-    - name: increase-fd-ulimit
-      image: busybox
-      command: ['sh', '-c', 'ulimit -n 65536']
-      securityContext:
-        privileged: true
+  # Raise the file descriptor limit on the Promtail container itself
+  extraContainers: []
+  podAnnotations:
+    promtail.io/max-fd: "65536"
   config:
     clients:
       - url: http://dev-monitoring-loki-loki:3100/loki/api/v1/push
@@ -54,18 +43,33 @@ promtail:
       readline_burst: 200
     positions:
       filename: /run/promtail/positions.yaml
+    # Override default scrape_configs to only watch specific namespaces
+    # This drastically reduces the number of open file handles
     scrape_configs:
       - job_name: kubernetes-pods
         kubernetes_sd_configs:
           - role: pod
+        pipeline_stages:
+          - cri: {}
         relabel_configs:
           - source_labels: [__meta_kubernetes_namespace]
-            regex: (dev|default|monitoring)
+            regex: (dev|default)
             action: keep
-          - source_labels: [__meta_kubernetes_pod_label_app]
-            target_label: app
+          - source_labels: [__meta_kubernetes_pod_node_name]
+            target_label: __host__
+          - action: replace
+            replacement: /var/log/pods/*$1/*.log
+            separator: /
+            source_labels:
+              - __meta_kubernetes_pod_uid
+              - __meta_kubernetes_pod_container_name
+            target_label: __path__
           - source_labels: [__meta_kubernetes_namespace]
             target_label: namespace
+          - source_labels: [__meta_kubernetes_pod_name]
+            target_label: pod
+          - source_labels: [__meta_kubernetes_pod_container_name]
+            target_label: container
 
 grafana:
   enabled: false
