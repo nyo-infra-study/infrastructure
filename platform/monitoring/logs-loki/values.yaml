@@ -23,9 +23,49 @@ loki:
 
 promtail:
   enabled: true
+  containerSecurityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop: [ALL]
+  resources:
+    limits:
+      cpu: 200m
+      memory: 128Mi
+    requests:
+      cpu: 50m
+      memory: 64Mi
+  extraArgs:
+    - -config.expand-env=true
+  extraEnv:
+    - name: GOMAXPROCS
+      value: "1"
+  initContainer:
+    - name: increase-fd-ulimit
+      image: busybox
+      command: ['sh', '-c', 'ulimit -n 65536']
+      securityContext:
+        privileged: true
   config:
     clients:
       - url: http://dev-monitoring-loki-loki:3100/loki/api/v1/push
+    limits_config:
+      readline_rate_enabled: true
+      readline_rate: 100
+      readline_burst: 200
+    positions:
+      filename: /run/promtail/positions.yaml
+    scrape_configs:
+      - job_name: kubernetes-pods
+        kubernetes_sd_configs:
+          - role: pod
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_namespace]
+            regex: (dev|default|monitoring)
+            action: keep
+          - source_labels: [__meta_kubernetes_pod_label_app]
+            target_label: app
+          - source_labels: [__meta_kubernetes_namespace]
+            target_label: namespace
 
 grafana:
   enabled: false
