@@ -9,8 +9,7 @@
 #
 # UI accessible at: http://oneuptime.localhost:9000
 # OTLP endpoint (from within cluster):
-#   gRPC: oneuptime-otel.monitoring.svc.cluster.local:4317
-#   HTTP: oneuptime-otel.monitoring.svc.cluster.local:4318
+#   gRPC: dev-monitoring-oneuptime.monitoring.svc.cluster.local:4317
 # ============================================================
 
 # --- Host & Protocol ---
@@ -30,7 +29,6 @@ deployment:
   replicaCount: 1
 
 # --- Nginx / Ingress Gateway ---
-# OneUptime ships its own ingress gateway (nginx container)
 nginx:
   service:
     type: ClusterIP
@@ -38,23 +36,23 @@ nginx:
 # --- PostgreSQL (built-in) ---
 postgresql:
   enabled: true
-  auth:
-    username: oneuptime
-    database: oneuptimedb
-    password: oneuptime-dev-password
   image:
     repository: postgres
     tag: "16"
     pullPolicy: IfNotPresent
-  architecture: standalone
+  auth:
+    database: oneuptimedb
+    postgresPassword: oneuptime-dev-password
   primary:
     service:
       type: ClusterIP
       ports:
         postgresql: "5432"
+    terminationGracePeriodSeconds: 0
     persistence:
       enabled: true
       size: 2Gi
+      storageClass: "local-path"
     resources:
       requests:
         cpu: 100m
@@ -108,6 +106,7 @@ clickhouse:
   persistence:
     enabled: true
     size: 2Gi
+    storageClass: "local-path"
   resources:
     requests:
       cpu: 100m
