@@ -324,8 +324,9 @@ config:
             - delete_key(attributes, "prometheus_replica")
 
   exporters:
-    otlp/signoz:
-      endpoint: "dev-monitoring-signoz-otel-collector.monitoring.svc.cluster.local:4317"
+    # Send to OneUptime OTLP endpoint
+    otlp/oneuptime:
+      endpoint: "dev-monitoring-oneuptime-otel.monitoring.svc.cluster.local:4317"
       tls:
         insecure: true
 
@@ -334,15 +335,15 @@ config:
       metrics:
         receivers: [otlp, prometheus]
         processors: [filter/metrics, transform/drop_labels, batch]
-        exporters: [otlp/signoz]
+        exporters: [otlp/oneuptime]
       traces:
         receivers: [otlp]
         processors: [batch]
-        exporters: [otlp/signoz]
+        exporters: [otlp/oneuptime]
       logs:
         receivers: [otlp, filelog]
         processors: [k8sattributes, filter/logs, batch]
-        exporters: [otlp/signoz]
+        exporters: [otlp/oneuptime]
 
 resources:
   requests:

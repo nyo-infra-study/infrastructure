@@ -17,11 +17,20 @@ spec:
         - sh
         - -c
         - |
-          echo "Checking SigNoz..."
-          until curl -sf http://dev-monitoring-signoz.monitoring.svc.cluster.local:8080/api/v1/health; do 
-            echo "Waiting for SigNoz..."
+          # --- SigNoz ---
+          # echo "Checking SigNoz..."
+          # until curl -sf http://dev-monitoring-signoz.monitoring.svc.cluster.local:8080/api/v1/health; do 
+          #   echo "Waiting for SigNoz..."
+          #   sleep 2
+          # done
+
+          # --- OneUptime ---
+          echo "Checking OneUptime..."
+          until curl -sf http://dev-monitoring-oneuptime.monitoring.svc.cluster.local:80/status; do 
+            echo "Waiting for OneUptime..."
             sleep 2
           done
+
           echo "Observability stack is READY!"
       restartPolicy: OnFailure
   backoffLimit: 10

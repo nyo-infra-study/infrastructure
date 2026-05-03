@@ -6,13 +6,13 @@
 
 global:
   monitoring:
-    # SigNoz (Unified Observability — Metrics, Logs, Traces)
-    signoz:
-      ui: "http://dev-monitoring-signoz-signoz.monitoring.svc.cluster.local:8080"
-      otel_grpc: "dev-monitoring-signoz-otel-collector.monitoring.svc.cluster.local:4317"
-      otel_http: "dev-monitoring-signoz-otel-collector.monitoring.svc.cluster.local:4318"
+    # OneUptime (Unified Observability — Metrics, Logs, Traces, Incidents)
+    oneuptime:
+      ui: "http://oneuptime.localhost:9000"
+      otel_grpc: "dev-monitoring-oneuptime-otel.monitoring.svc.cluster.local:4317"
+      otel_http: "dev-monitoring-oneuptime-otel.monitoring.svc.cluster.local:4318"
 
-    # OTel Collector (External Gateway — scrapes infra metrics, forwards to SigNoz)
+    # OTel Collector (External — scrapes infra metrics/logs, forwards to OneUptime)
     otel:
       endpoint: "http://dev-monitoring-otel-opentelemetry-collector.monitoring.svc.cluster.local:4317"
       http_endpoint: "http://dev-monitoring-otel-opentelemetry-collector.monitoring.svc.cluster.local:4318"

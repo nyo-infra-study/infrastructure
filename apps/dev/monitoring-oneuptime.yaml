@@ -1,0 +1,58 @@
+# ============================================================
+# OneUptime — Complete Observability Platform
+# ============================================================
+# Chart: https://helm-chart.oneuptime.com (oneuptime/oneuptime)
+# Docs:  https://oneuptime.com/blog/post/2026-02-26-deploy-oneuptime-argocd/view
+#
+# Values: platform/monitoring/oneuptime/values.yaml
+# ============================================================
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+  name: dev-monitoring-oneuptime
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+  labels:
+    environment: dev
+    domain: monitoring
+spec:
+  project: default
+  sources:
+    - chart: oneuptime
+      repoURL: https://helm-chart.oneuptime.com
+      targetRevision: 10.0.88
+      helm:
+        releaseName: dev-monitoring-oneuptime
+        valueFiles:
+          - $values/platform/monitoring/oneuptime/values.yaml
+
+    - repoURL: https://github.com/nyo-infra-study/infrastructure.git
+      targetRevision: main
+      ref: values
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+      - RespectIgnoreDifferences=true
+
+  ignoreDifferences:
+    - group: apps
+      kind: StatefulSet
+      jqPathExpressions:
+        - ".spec.volumeClaimTemplates[]?.apiVersion"
+        - ".spec.volumeClaimTemplates[]?.kind"
+    - group: apps
+      kind: Deployment
+      jqPathExpressions:
+        - ".spec.template.spec.containers[]?.env[]?.valueFrom.resourceFieldRef.divisor"

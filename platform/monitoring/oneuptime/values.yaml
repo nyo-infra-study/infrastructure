@@ -1,0 +1,128 @@
+# ============================================================
+# OneUptime — Complete Observability Platform (Local Dev)
+# ============================================================
+# Chart: https://helm-chart.oneuptime.com (oneuptime/oneuptime)
+# Docs:  https://oneuptime.com/docs
+#
+# Provides: Monitoring, Incident Management, Status Pages,
+#           On-Call, Logs, Traces, Metrics, Dashboards
+#
+# UI accessible at: http://oneuptime.localhost:9000
+# OTLP endpoint (from within cluster):
+#   gRPC: oneuptime-otel.monitoring.svc.cluster.local:4317
+#   HTTP: oneuptime-otel.monitoring.svc.cluster.local:4318
+# ============================================================
+
+# --- Host & Protocol ---
+host: oneuptime.localhost
+httpProtocol: http
+
+# --- Image ---
+image:
+  registry: docker.io
+  repository: oneuptime
+  tag: "10.0.88"
+  pullPolicy: IfNotPresent
+  type: community-edition
+
+# --- Deployment ---
+deployment:
+  replicaCount: 1
+
+# --- Nginx / Ingress Gateway ---
+# OneUptime ships its own ingress gateway (nginx container)
+nginx:
+  service:
+    type: ClusterIP
+
+# --- PostgreSQL (built-in) ---
+postgresql:
+  enabled: true
+  auth:
+    username: oneuptime
+    database: oneuptimedb
+    password: oneuptime-dev-password
+  image:
+    repository: postgres
+    tag: "16"
+    pullPolicy: IfNotPresent
+  architecture: standalone
+  primary:
+    service:
+      type: ClusterIP
+      ports:
+        postgresql: "5432"
+    persistence:
+      enabled: true
+      size: 2Gi
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+
+# --- Redis (built-in) ---
+redis:
+  enabled: true
+  auth:
+    password: oneuptime-redis-dev
+  image:
+    repository: redis
+    tag: "7"
+    pullPolicy: IfNotPresent
+  master:
+    service:
+      type: ClusterIP
+      ports:
+        redis: "6379"
+    persistence:
+      enabled: false
+    resources:
+      requests:
+        cpu: 50m
+        memory: 64Mi
+      limits:
+        cpu: 200m
+        memory: 128Mi
+  commonConfiguration: |-
+    appendonly no
+    save ""
+
+# --- ClickHouse (for logs, traces, metrics) ---
+clickhouse:
+  enabled: true
+  auth:
+    username: oneuptime
+    password: oneuptime-ch-dev
+  image:
+    repository: clickhouse/clickhouse-server
+    tag: "24.8"
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    ports:
+      http: "8123"
+      tcp: "9000"
+  persistence:
+    enabled: true
+    size: 2Gi
+  resources:
+    requests:
+      cpu: 100m
+      memory: 512Mi
+    limits:
+      cpu: 1000m
+      memory: 1536Mi
+
+# --- Global ---
+global:
+  storageClass: "local-path"
+
+# --- Logging ---
+logLevel: INFO
+
+# --- Disable autoscaling for local dev ---
+autoscaling:
+  enabled: false
