@@ -24,6 +24,12 @@ global:
 clickhouse:
   enabled: true
   installCustomStorageClass: false
+  # Pin ClickHouse server image to match what SigNoz v0.121.0 expects
+  image:
+    registry: docker.io
+    repository: clickhouse/clickhouse-server
+    tag: "25.5.6"
+    pullPolicy: IfNotPresent
   layout:
     shardsCount: 1
     replicasCount: 1
@@ -37,8 +43,13 @@ clickhouse:
   persistence:
     enabled: true
     size: 2Gi
+  # Zookeeper — must use signoz/zookeeper image (bitnami/zookeeper:3.7.1 is gone from Docker Hub)
   zookeeper:
     replicaCount: 1
+    image:
+      registry: docker.io
+      repository: signoz/zookeeper
+      tag: "3.7.1"
     resources:
       requests:
         cpu: 50m
