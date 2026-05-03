@@ -55,6 +55,7 @@ spec:
     syncOptions:
       - CreateNamespace=true
       - ServerSideApply=true
+      - RespectIgnoreDifferences=true
 
   ignoreDifferences:
     - group: apps
@@ -66,4 +67,4 @@ spec:
       kind: Deployment
       name: dev-monitoring-signoz-clickhouse-operator
       jqPathExpressions:
-        - ".. | .divisor? // empty"
+        - ".spec.template.spec.containers[]?.env[]?.valueFrom.resourceFieldRef.divisor"
