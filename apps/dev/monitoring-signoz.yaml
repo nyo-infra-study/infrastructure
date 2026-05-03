@@ -52,13 +52,13 @@ spec:
           persistence:
             enabled: true
             size: 2Gi
-          # Fix: signoz/zookeeper:3.7.1 does not exist, use 3.7.2
+          # Fix: bitnami/zookeeper removed from Docker Hub, use bitnamilegacy
           zookeeper:
             replicaCount: 1
             image:
               registry: docker.io
-              repository: signoz/zookeeper
-              tag: "3.7.2"
+              repository: bitnamilegacy/zookeeper
+              tag: "3.7.1"
             resources:
               requests:
                 cpu: 50m
