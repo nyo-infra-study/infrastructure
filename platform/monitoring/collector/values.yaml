@@ -18,6 +18,10 @@ image:
 
 mode: daemonset
 
+# Expose the collector as a service so apps can send OTLP to it
+service:
+  enabled: true
+
 # Mount host log directories for filelog receiver
 extraVolumes:
   - name: varlogpods
