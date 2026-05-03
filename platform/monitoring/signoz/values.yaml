@@ -43,13 +43,14 @@ clickhouse:
   persistence:
     enabled: true
     size: 2Gi
-  # Zookeeper — must use signoz/zookeeper image (bitnami/zookeeper:3.7.1 is gone from Docker Hub)
+  # Zookeeper — must use signoz/zookeeper image (bitnami/zookeeper was removed from Docker Hub)
+  # Available tags at https://hub.docker.com/r/signoz/zookeeper/tags
   zookeeper:
     replicaCount: 1
     image:
       registry: docker.io
       repository: signoz/zookeeper
-      tag: "3.7.1"
+      tag: "3.7.2"
     resources:
       requests:
         cpu: 50m
