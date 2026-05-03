@@ -3,6 +3,10 @@
 # ============================================================
 # Based on: https://signoz.io/docs/install/argocd/
 # Chart: https://github.com/SigNoz/charts (signoz/signoz)
+#
+# Values: platform/monitoring/signoz/values.yaml
+# Subchart image overrides via parameters (valueFiles don't
+# reliably propagate into subcharts through ArgoCD multi-source).
 # ============================================================
 apiVersion: argoproj.io/v1alpha1
 kind: Application
@@ -18,118 +22,27 @@ metadata:
     domain: monitoring
 spec:
   project: default
-  source:
-    repoURL: https://charts.signoz.io
-    targetRevision: 0.121.0
-    chart: signoz
-    helm:
-      releaseName: dev-monitoring-signoz
-      parameters:
-        # --- Global ---
-        - name: global.storageClass
-          value: "local-path"
-        - name: global.clusterName
-          value: "dev"
-        - name: global.cloud
-          value: "other"
+  sources:
+    - chart: signoz
+      repoURL: https://charts.signoz.io
+      targetRevision: 0.121.0
+      helm:
+        releaseName: dev-monitoring-signoz
+        valueFiles:
+          - $values/platform/monitoring/signoz/values.yaml
+        # Subchart image overrides — parameters are passed as --set
+        # which reliably reaches subcharts unlike valueFiles
+        parameters:
+          - name: clickhouse.zookeeper.image.registry
+            value: "docker.io"
+          - name: clickhouse.zookeeper.image.repository
+            value: "bitnamilegacy/zookeeper"
+          - name: clickhouse.zookeeper.image.tag
+            value: "3.7.1"
 
-        # --- ClickHouse ---
-        - name: clickhouse.enabled
-          value: "true"
-        - name: clickhouse.installCustomStorageClass
-          value: "false"
-        - name: clickhouse.image.registry
-          value: "docker.io"
-        - name: clickhouse.image.repository
-          value: "clickhouse/clickhouse-server"
-        - name: clickhouse.image.tag
-          value: "25.5.6"
-        - name: clickhouse.layout.shardsCount
-          value: "1"
-        - name: clickhouse.layout.replicasCount
-          value: "1"
-        - name: clickhouse.resources.requests.cpu
-          value: "100m"
-        - name: clickhouse.resources.requests.memory
-          value: "512Mi"
-        - name: clickhouse.resources.limits.cpu
-          value: "1000m"
-        - name: clickhouse.resources.limits.memory
-          value: "1536Mi"
-        - name: clickhouse.persistence.enabled
-          value: "true"
-        - name: clickhouse.persistence.size
-          value: "2Gi"
-
-        # --- Zookeeper (fix: bitnami/ removed from Docker Hub) ---
-        - name: clickhouse.zookeeper.replicaCount
-          value: "1"
-        - name: clickhouse.zookeeper.image.registry
-          value: "docker.io"
-        - name: clickhouse.zookeeper.image.repository
-          value: "bitnamilegacy/zookeeper"
-        - name: clickhouse.zookeeper.image.tag
-          value: "3.7.1"
-        - name: clickhouse.zookeeper.resources.requests.cpu
-          value: "50m"
-        - name: clickhouse.zookeeper.resources.requests.memory
-          value: "128Mi"
-        - name: clickhouse.zookeeper.resources.limits.cpu
-          value: "200m"
-        - name: clickhouse.zookeeper.resources.limits.memory
-          value: "256Mi"
-
-        # --- SigNoz ---
-        - name: signoz.replicaCount
-          value: "1"
-        - name: signoz.resources.requests.cpu
-          value: "100m"
-        - name: signoz.resources.requests.memory
-          value: "256Mi"
-        - name: signoz.resources.limits.cpu
-          value: "500m"
-        - name: signoz.resources.limits.memory
-          value: "512Mi"
-        - name: signoz.persistence.enabled
-          value: "true"
-        - name: signoz.persistence.size
-          value: "1Gi"
-        - name: signoz.ingress.enabled
-          value: "true"
-        - name: signoz.ingress.className
-          value: "traefik"
-        - name: signoz.ingress.hosts[0].host
-          value: "localhost"
-        - name: signoz.ingress.hosts[0].paths[0].path
-          value: "/signoz"
-        - name: signoz.ingress.hosts[0].paths[0].pathType
-          value: "Prefix"
-        - name: signoz.ingress.hosts[0].paths[0].port
-          value: "8080"
-
-        # --- SigNoz OTel Collector ---
-        - name: otelCollector.replicaCount
-          value: "1"
-        - name: otelCollector.resources.requests.cpu
-          value: "100m"
-        - name: otelCollector.resources.requests.memory
-          value: "256Mi"
-        - name: otelCollector.resources.limits.cpu
-          value: "500m"
-        - name: otelCollector.resources.limits.memory
-          value: "512Mi"
-
-        # --- Telemetry Store Migrator ---
-        - name: telemetryStoreMigrator.enabled
-          value: "true"
-
-        # --- Disabled ---
-        - name: signoz-otel-gateway.enabled
-          value: "false"
-        - name: postgresql.enabled
-          value: "false"
-        - name: redpanda.enabled
-          value: "false"
+    - repoURL: https://github.com/nyo-infra-study/infrastructure.git
+      targetRevision: main
+      ref: values
 
   destination:
     server: https://kubernetes.default.svc
