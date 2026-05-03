@@ -51,7 +51,7 @@ postgresql:
     terminationGracePeriodSeconds: 0
     persistence:
       enabled: true
-      size: 2Gi
+      size: 1Gi
       storageClass: "local-path"
     resources:
       requests:
@@ -105,7 +105,7 @@ clickhouse:
       tcp: "9000"
   persistence:
     enabled: true
-    size: 2Gi
+    size: 1Gi
     storageClass: "local-path"
   resources:
     requests:
