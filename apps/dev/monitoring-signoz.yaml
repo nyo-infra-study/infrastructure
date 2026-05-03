@@ -64,6 +64,6 @@ spec:
         - ".spec.volumeClaimTemplates[]?.kind"
     - group: apps
       kind: Deployment
+      name: dev-monitoring-signoz-clickhouse-operator
       jqPathExpressions:
-        - ".spec.template.spec.containers[].env[]?.valueFrom.resourceFieldRef.divisor"
-        - ".spec.template.spec.initContainers[]?.env[]?.valueFrom.resourceFieldRef.divisor"
+        - ".. | .divisor? // empty"
