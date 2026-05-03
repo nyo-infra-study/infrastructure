@@ -17,9 +17,9 @@ spec:
         - sh
         - -c
         - |
-          echo "Checking Mimir Gateway..."
-          until curl -sf http://dev-monitoring-mimir-gateway.monitoring.svc.cluster.local/ready; do 
-            echo "Waiting for Mimir Gateway..."
+          echo "Checking SigNoz OTel Collector..."
+          until curl -sf http://dev-monitoring-signoz-otel-collector.monitoring.svc.cluster.local:13133/; do 
+            echo "Waiting for SigNoz OTel Collector..."
             sleep 2
           done
           echo "Observability stack is READY!"
