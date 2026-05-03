@@ -2,10 +2,12 @@
 # OpenTelemetry Collector (Local Dev)
 # ============================================================
 # Uses the open-telemetry/opentelemetry-collector chart.
-# Receives all telemetry and forwards to SigNoz:
-#  - Metrics -> SigNoz OTel Collector
-#  - Logs -> SigNoz OTel Collector
-#  - Traces -> SigNoz OTel Collector
+# Receives all telemetry and forwards to SigNoz.
+#
+# This collector handles:
+#  - Scraping infra metrics (kubelet, cAdvisor, KSM, node-exporter)
+#  - Filtering out noisy/useless metrics to reduce storage
+#  - Forwarding cleaned data to SigNoz OTel Collector
 # ============================================================
 image:
   repository: otel/opentelemetry-collector-contrib
@@ -41,7 +43,7 @@ config:
               - source_labels: [__meta_kubernetes_node_name]
                 regex: (.+)
                 target_label: __metrics_path__
-                replacement: /api/v1/nodes/$${1}/proxy/metrics
+                replacement: /api/v1/nodes/${1}/proxy/metrics
 
           - job_name: 'kubernetes-cadvisor'
             scheme: https
@@ -59,7 +61,7 @@ config:
               - source_labels: [__meta_kubernetes_node_name]
                 regex: (.+)
                 target_label: __metrics_path__
-                replacement: /api/v1/nodes/$${1}/proxy/metrics/cadvisor
+                replacement: /api/v1/nodes/${1}/proxy/metrics/cadvisor
 
           - job_name: 'kube-state-metrics'
             static_configs:
@@ -74,8 +76,126 @@ config:
       send_batch_size: 10000
       timeout: 2s
 
+    # ── Drop noisy / low-value metrics ──────────────────────
+    filter/metrics:
+      error_mode: ignore
+      metrics:
+        metric:
+          # --- kubelet / apiserver noise ---
+          - 'name == "apiserver_request_duration_seconds"'
+          - 'name == "apiserver_request_total"'
+          - 'name == "apiserver_storage_objects"'
+          - 'name == "etcd_request_duration_seconds"'
+          - 'name == "rest_client_request_duration_seconds"'
+          - 'name == "rest_client_requests_total"'
+          - 'name == "workqueue_depth"'
+          - 'name == "workqueue_adds_total"'
+          - 'name == "workqueue_queue_duration_seconds"'
+          - 'name == "workqueue_work_duration_seconds"'
+          - 'IsMatch(name, "apiserver_admission_.*")'
+          - 'IsMatch(name, "apiserver_audit_.*")'
+          - 'IsMatch(name, "apiserver_cel_.*")'
+          - 'IsMatch(name, "apiserver_watch_.*")'
+          - 'IsMatch(name, "etcd_.*")'
+          - 'IsMatch(name, "field_validation_.*")'
+          - 'IsMatch(name, "authentication_.*")'
+          - 'IsMatch(name, "authorization_.*")'
+          # --- Go runtime noise (from all components) ---
+          - 'IsMatch(name, "go_gc_.*")'
+          - 'IsMatch(name, "go_sched_.*")'
+          - 'IsMatch(name, "go_cpu_.*")'
+          - 'name == "go_threads"'
+          - 'name == "go_info"'
+          # --- process metrics (low value for infra monitoring) ---
+          - 'IsMatch(name, "process_.*")'
+          # --- cAdvisor noise: per-device / per-interface breakdown ---
+          - 'IsMatch(name, "container_blkio_.*")'
+          - 'IsMatch(name, "container_tasks_.*")'
+          - 'name == "container_sockets"'
+          - 'name == "container_threads"'
+          - 'name == "container_threads_max"'
+          - 'name == "container_ulimits_soft"'
+          - 'name == "container_file_descriptors"'
+          - 'name == "container_last_seen"'
+          - 'name == "container_start_time_seconds"'
+          - 'IsMatch(name, "machine_.*")'
+          # --- KSM noise: labels, annotations, owner refs ---
+          - 'IsMatch(name, "kube_pod_labels")'
+          - 'IsMatch(name, "kube_pod_annotations")'
+          - 'IsMatch(name, "kube_pod_owner")'
+          - 'IsMatch(name, "kube_.*_annotations")'
+          - 'IsMatch(name, "kube_.*_labels")'
+          - 'IsMatch(name, "kube_.*_created")'
+          - 'IsMatch(name, "kube_lease_.*")'
+          - 'IsMatch(name, "kube_certificatesigningrequest_.*")'
+          - 'IsMatch(name, "kube_configmap_.*")'
+          - 'IsMatch(name, "kube_secret_.*")'
+          - 'IsMatch(name, "kube_endpoint_.*")'
+          - 'IsMatch(name, "kube_service_.*")'
+          - 'IsMatch(name, "kube_networkpolicy_.*")'
+          - 'IsMatch(name, "kube_poddisruptionbudget_.*")'
+          - 'IsMatch(name, "kube_replicaset_.*")'
+          - 'IsMatch(name, "kube_horizontalpodautoscaler_.*")'
+          - 'IsMatch(name, "kube_clusterrole.*")'
+          - 'IsMatch(name, "kube_role_.*")'
+          - 'IsMatch(name, "kube_limitrange_.*")'
+          - 'IsMatch(name, "kube_resourcequota_.*")'
+          - 'IsMatch(name, "kube_storageclass_.*")'
+          - 'IsMatch(name, "kube_mutatingwebhookconfiguration_.*")'
+          - 'IsMatch(name, "kube_validatingwebhookconfiguration_.*")'
+          # --- node-exporter noise ---
+          - 'IsMatch(name, "node_arp_.*")'
+          - 'IsMatch(name, "node_bonding_.*")'
+          - 'IsMatch(name, "node_boot_time_seconds")'
+          - 'IsMatch(name, "node_context_switches_total")'
+          - 'IsMatch(name, "node_cooling_.*")'
+          - 'IsMatch(name, "node_dmi_.*")'
+          - 'IsMatch(name, "node_entropy_.*")'
+          - 'IsMatch(name, "node_filefd_.*")'
+          - 'IsMatch(name, "node_forks_total")'
+          - 'IsMatch(name, "node_hwmon_.*")'
+          - 'IsMatch(name, "node_intr_total")'
+          - 'IsMatch(name, "node_ipvs_.*")'
+          - 'IsMatch(name, "node_nf_.*")'
+          - 'IsMatch(name, "node_netstat_.*")'
+          - 'IsMatch(name, "node_nfs.*")'
+          - 'IsMatch(name, "node_os_.*")'
+          - 'IsMatch(name, "node_power_.*")'
+          - 'IsMatch(name, "node_pressure_.*")'
+          - 'IsMatch(name, "node_procs_.*")'
+          - 'IsMatch(name, "node_schedstat_.*")'
+          - 'IsMatch(name, "node_scrape_.*")'
+          - 'IsMatch(name, "node_sockstat_.*")'
+          - 'IsMatch(name, "node_softnet_.*")'
+          - 'IsMatch(name, "node_textfile_.*")'
+          - 'IsMatch(name, "node_thermal_.*")'
+          - 'IsMatch(name, "node_time_.*")'
+          - 'IsMatch(name, "node_timex_.*")'
+          - 'IsMatch(name, "node_udp_.*")'
+          - 'IsMatch(name, "node_uname_info")'
+          - 'IsMatch(name, "node_vmstat_.*")'
+          - 'IsMatch(name, "node_xfs_.*")'
+          - 'IsMatch(name, "node_zfs_.*")'
+          # --- scrape meta ---
+          - 'name == "scrape_duration_seconds"'
+          - 'name == "scrape_samples_scraped"'
+          - 'name == "scrape_samples_post_metric_relabeling"'
+          - 'name == "scrape_series_added"'
+          - 'name == "up"'
+
+    # ── Remove high-cardinality labels ──────────────────────
+    transform/drop_labels:
+      metric_statements:
+        - context: datapoint
+          statements:
+            - delete_key(attributes, "id")
+            - delete_key(attributes, "image")
+            - delete_key(attributes, "name")
+            - delete_key(attributes, "uid")
+            - delete_key(attributes, "instance")
+            - delete_key(attributes, "prometheus_replica")
+
   exporters:
-    # All telemetry goes to SigNoz OTel Collector via OTLP
     otlp/signoz:
       endpoint: "dev-monitoring-signoz-otel-collector.monitoring.svc.cluster.local:4317"
       tls:
@@ -83,10 +203,10 @@ config:
 
   service:
     pipelines:
-      # Metrics pipeline — primary focus
+      # Metrics: scrape → filter → clean labels → batch → export
       metrics:
         receivers: [otlp, prometheus]
-        processors: [batch]
+        processors: [filter/metrics, transform/drop_labels, batch]
         exporters: [otlp/signoz]
       traces:
         receivers: [otlp]
