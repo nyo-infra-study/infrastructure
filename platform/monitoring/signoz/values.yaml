@@ -4,7 +4,7 @@
 # Chart: https://github.com/SigNoz/charts (signoz/signoz v0.121.0)
 # Docs:  https://signoz.io/docs/install/argocd/
 #
-# UI accessible at: http://localhost:9000/signoz
+# UI accessible at: http://signoz.localhost:9000
 # SigNoz OTel Collector (from within cluster):
 #   gRPC: dev-monitoring-signoz-otel-collector.monitoring.svc.cluster.local:4317
 #   HTTP: dev-monitoring-signoz-otel-collector.monitoring.svc.cluster.local:4318
@@ -68,17 +68,14 @@ signoz:
   persistence:
     enabled: true
     size: 1Gi
-  # SigNoz does not support subpath natively. Use Traefik stripPrefix.
-  # Access at http://localhost:9000/signoz
+  # SigNoz UI at http://signoz.localhost:9000
   ingress:
     enabled: true
     className: traefik
-    annotations:
-      traefik.ingress.kubernetes.io/router.middlewares: monitoring-signoz-strip-prefix@kubernetescrd
     hosts:
-      - host: localhost
+      - host: signoz.localhost
         paths:
-          - path: /signoz
+          - path: /
             pathType: Prefix
             port: 8080
 
