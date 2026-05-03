@@ -55,4 +55,6 @@ spec:
     - group: apps
       kind: Deployment
       jqPathExpressions:
+        - ".metadata.labels.date"
+        - ".spec.template.metadata.labels.date"
         - ".spec.template.spec.containers[]?.env[]?.valueFrom.resourceFieldRef.divisor"
