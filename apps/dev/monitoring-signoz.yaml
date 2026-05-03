@@ -15,7 +15,7 @@ spec:
   sources:
     - chart: signoz
       repoURL: https://charts.signoz.io
-      targetRevision: 0.79.0
+      targetRevision: 0.121.0
       helm:
         releaseName: dev-monitoring-signoz
         valueFiles:

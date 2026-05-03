@@ -4,8 +4,11 @@
 # Replaces Grafana + Mimir + Loki + Tempo + Pyroscope
 # SigNoz provides metrics, logs, traces, and exceptions in one UI.
 #
+# Chart: https://github.com/SigNoz/charts (signoz/signoz)
+# Chart version: 0.121.0
+#
 # UI accessible at: http://localhost:9000/signoz
-# OTel Collector endpoint (from within cluster):
+# SigNoz OTel Collector (from within cluster):
 #   gRPC: dev-monitoring-signoz-otel-collector.monitoring.svc.cluster.local:4317
 #   HTTP: dev-monitoring-signoz-otel-collector.monitoring.svc.cluster.local:4318
 # ============================================================
@@ -14,8 +17,10 @@
 global:
   storageClass: "local-path"
   clusterName: "dev"
+  cloud: other
 
 # --- ClickHouse (Storage Backend) ---
+# Ref: https://github.com/SigNoz/charts/tree/main/charts/clickhouse
 clickhouse:
   enabled: true
   installCustomStorageClass: false
@@ -42,20 +47,9 @@ clickhouse:
         cpu: 200m
         memory: 256Mi
 
-# --- SigNoz Frontend + Query Service ---
+# --- SigNoz Query Service + Frontend ---
 signoz:
-  name: "signoz"
   replicaCount: 1
-  image:
-    registry: docker.io
-    repository: signoz/signoz
-    tag: v0.121.0
-    pullPolicy: IfNotPresent
-  service:
-    type: ClusterIP
-    port: 8080
-    internalPort: 8085
-    opampPort: 4320
   additionalArgs:
     - --use-logs-new-schema=true
     - --use-trace-new-schema=true
@@ -83,13 +77,7 @@ signoz:
 # This is SigNoz's internal collector that writes to ClickHouse.
 # The external OTel collector (monitoring-otel) forwards data here.
 otelCollector:
-  name: "otel-collector"
   replicaCount: 1
-  image:
-    registry: docker.io
-    repository: signoz/signoz-otel-collector
-    tag: v0.144.3
-    pullPolicy: IfNotPresent
   resources:
     requests:
       cpu: 100m
@@ -98,8 +86,11 @@ otelCollector:
       cpu: 500m
       memory: 512Mi
 
-# --- Disable components not needed ---
-# We use our own external OTel collector for scraping
+# --- Telemetry Store Migrator ---
+telemetryStoreMigrator:
+  enabled: true
+
+# --- Disable components not needed for local dev ---
 signoz-otel-gateway:
   enabled: false
 
