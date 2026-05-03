@@ -1,113 +1,24 @@
 # ============================================================
-# SigNoz — Unified Observability Platform (Local Dev)
+# SigNoz — Reference Values (Local Dev)
 # ============================================================
-# Replaces Grafana + Mimir + Loki + Tempo + Pyroscope
-# SigNoz provides metrics, logs, traces, and exceptions in one UI.
+# NOTE: These values are inlined in the ArgoCD Application at
+#   apps/dev/monitoring-signoz.yaml (using helm.valuesObject)
+#   to ensure proper subchart dependency resolution.
 #
-# Chart: https://github.com/SigNoz/charts (signoz/signoz)
-# Chart version: 0.121.0
+# This file is kept as documentation / reference only.
+#
+# Chart: https://github.com/SigNoz/charts (signoz/signoz v0.121.0)
+# Docs:  https://signoz.io/docs/install/argocd/
 #
 # UI accessible at: http://localhost:9000/signoz
 # SigNoz OTel Collector (from within cluster):
 #   gRPC: dev-monitoring-signoz-otel-collector.monitoring.svc.cluster.local:4317
 #   HTTP: dev-monitoring-signoz-otel-collector.monitoring.svc.cluster.local:4318
 # ============================================================
-
-# --- Global Settings ---
-global:
-  storageClass: "local-path"
-  clusterName: "dev"
-  cloud: other
-
-# --- ClickHouse (Storage Backend) ---
-# Ref: https://github.com/SigNoz/charts/tree/main/charts/clickhouse
-clickhouse:
-  enabled: true
-  installCustomStorageClass: false
-  # Pin ClickHouse server image to match what SigNoz v0.121.0 expects
-  image:
-    registry: docker.io
-    repository: clickhouse/clickhouse-server
-    tag: "25.5.6"
-    pullPolicy: IfNotPresent
-  layout:
-    shardsCount: 1
-    replicasCount: 1
-  resources:
-    requests:
-      cpu: 100m
-      memory: 512Mi
-    limits:
-      cpu: 1000m
-      memory: 1536Mi
-  persistence:
-    enabled: true
-    size: 2Gi
-  # Zookeeper — must use signoz/zookeeper image (bitnami/zookeeper was removed from Docker Hub)
-  # Available tags at https://hub.docker.com/r/signoz/zookeeper/tags
-  zookeeper:
-    replicaCount: 1
-    image:
-      registry: docker.io
-      repository: signoz/zookeeper
-      tag: "3.7.2"
-    resources:
-      requests:
-        cpu: 50m
-        memory: 128Mi
-      limits:
-        cpu: 200m
-        memory: 256Mi
-
-# --- SigNoz Query Service + Frontend ---
-signoz:
-  replicaCount: 1
-  additionalArgs:
-    - --use-logs-new-schema=true
-    - --use-trace-new-schema=true
-  resources:
-    requests:
-      cpu: 100m
-      memory: 256Mi
-    limits:
-      cpu: 500m
-      memory: 512Mi
-  persistence:
-    enabled: true
-    size: 1Gi
-  ingress:
-    enabled: true
-    className: traefik
-    hosts:
-      - host: localhost
-        paths:
-          - path: /signoz
-            pathType: Prefix
-            port: 8080
-
-# --- SigNoz OTel Collector ---
-# This is SigNoz's internal collector that writes to ClickHouse.
-# The external OTel collector (monitoring-otel) forwards data here.
-otelCollector:
-  replicaCount: 1
-  resources:
-    requests:
-      cpu: 100m
-      memory: 256Mi
-    limits:
-      cpu: 500m
-      memory: 512Mi
-
-# --- Telemetry Store Migrator ---
-telemetryStoreMigrator:
-  enabled: true
-
-# --- Disable components not needed for local dev ---
-signoz-otel-gateway:
-  enabled: false
-
-postgresql:
-  enabled: false
-
-redpanda:
-  enabled: false
+#
+# Known issues with chart 0.121.0:
+#   - clickhouse.zookeeper.image defaults to signoz/zookeeper:3.7.1
+#     but that tag does not exist on Docker Hub. Use 3.7.2 instead.
+#   - Multi-source ArgoCD ($values ref) can fail to pass parent chart
+#     values into subcharts. Use single-source with valuesObject instead.
+# ============================================================

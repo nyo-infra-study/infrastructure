@@ -1,3 +1,9 @@
+# ============================================================
+# SigNoz — Unified Observability Platform
+# ============================================================
+# Based on: https://signoz.io/docs/install/argocd/
+# Chart: https://github.com/SigNoz/charts (signoz/signoz)
+# ============================================================
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -12,18 +18,103 @@ metadata:
     domain: monitoring
 spec:
   project: default
-  sources:
-    - chart: signoz
-      repoURL: https://charts.signoz.io
-      targetRevision: 0.121.0
-      helm:
-        releaseName: dev-monitoring-signoz
-        valueFiles:
-          - $values/platform/monitoring/signoz/values.yaml
+  source:
+    repoURL: https://charts.signoz.io
+    targetRevision: 0.121.0
+    chart: signoz
+    helm:
+      releaseName: dev-monitoring-signoz
+      valuesObject:
+        # --- Global ---
+        global:
+          storageClass: "local-path"
+          clusterName: "dev"
+          cloud: other
 
-    - repoURL: https://github.com/nyo-infra-study/infrastructure.git
-      targetRevision: main
-      ref: values
+        # --- ClickHouse ---
+        clickhouse:
+          enabled: true
+          installCustomStorageClass: false
+          image:
+            registry: docker.io
+            repository: clickhouse/clickhouse-server
+            tag: "25.5.6"
+          layout:
+            shardsCount: 1
+            replicasCount: 1
+          resources:
+            requests:
+              cpu: 100m
+              memory: 512Mi
+            limits:
+              cpu: 1000m
+              memory: 1536Mi
+          persistence:
+            enabled: true
+            size: 2Gi
+          # Fix: signoz/zookeeper:3.7.1 does not exist, use 3.7.2
+          zookeeper:
+            replicaCount: 1
+            image:
+              registry: docker.io
+              repository: signoz/zookeeper
+              tag: "3.7.2"
+            resources:
+              requests:
+                cpu: 50m
+                memory: 128Mi
+              limits:
+                cpu: 200m
+                memory: 256Mi
+
+        # --- SigNoz Query Service + Frontend ---
+        signoz:
+          replicaCount: 1
+          additionalArgs:
+            - --use-logs-new-schema=true
+            - --use-trace-new-schema=true
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          persistence:
+            enabled: true
+            size: 1Gi
+          ingress:
+            enabled: true
+            className: traefik
+            hosts:
+              - host: localhost
+                paths:
+                  - path: /signoz
+                    pathType: Prefix
+                    port: 8080
+
+        # --- SigNoz OTel Collector ---
+        otelCollector:
+          replicaCount: 1
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+
+        # --- Telemetry Store Migrator ---
+        telemetryStoreMigrator:
+          enabled: true
+
+        # --- Disabled ---
+        signoz-otel-gateway:
+          enabled: false
+        postgresql:
+          enabled: false
+        redpanda:
+          enabled: false
 
   destination:
     server: https://kubernetes.default.svc
