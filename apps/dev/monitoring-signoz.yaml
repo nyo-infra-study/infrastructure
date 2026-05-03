@@ -24,97 +24,112 @@ spec:
     chart: signoz
     helm:
       releaseName: dev-monitoring-signoz
-      valuesObject:
+      parameters:
         # --- Global ---
-        global:
-          storageClass: "local-path"
-          clusterName: "dev"
-          cloud: other
+        - name: global.storageClass
+          value: "local-path"
+        - name: global.clusterName
+          value: "dev"
+        - name: global.cloud
+          value: "other"
 
         # --- ClickHouse ---
-        clickhouse:
-          enabled: true
-          installCustomStorageClass: false
-          image:
-            registry: docker.io
-            repository: clickhouse/clickhouse-server
-            tag: "25.5.6"
-          layout:
-            shardsCount: 1
-            replicasCount: 1
-          resources:
-            requests:
-              cpu: 100m
-              memory: 512Mi
-            limits:
-              cpu: 1000m
-              memory: 1536Mi
-          persistence:
-            enabled: true
-            size: 2Gi
-          # Fix: bitnami/zookeeper removed from Docker Hub, use bitnamilegacy
-          zookeeper:
-            replicaCount: 1
-            image:
-              registry: docker.io
-              repository: bitnamilegacy/zookeeper
-              tag: "3.7.1"
-            resources:
-              requests:
-                cpu: 50m
-                memory: 128Mi
-              limits:
-                cpu: 200m
-                memory: 256Mi
+        - name: clickhouse.enabled
+          value: "true"
+        - name: clickhouse.installCustomStorageClass
+          value: "false"
+        - name: clickhouse.image.registry
+          value: "docker.io"
+        - name: clickhouse.image.repository
+          value: "clickhouse/clickhouse-server"
+        - name: clickhouse.image.tag
+          value: "25.5.6"
+        - name: clickhouse.layout.shardsCount
+          value: "1"
+        - name: clickhouse.layout.replicasCount
+          value: "1"
+        - name: clickhouse.resources.requests.cpu
+          value: "100m"
+        - name: clickhouse.resources.requests.memory
+          value: "512Mi"
+        - name: clickhouse.resources.limits.cpu
+          value: "1000m"
+        - name: clickhouse.resources.limits.memory
+          value: "1536Mi"
+        - name: clickhouse.persistence.enabled
+          value: "true"
+        - name: clickhouse.persistence.size
+          value: "2Gi"
 
-        # --- SigNoz Query Service + Frontend ---
-        signoz:
-          replicaCount: 1
-          additionalArgs:
-            - --use-logs-new-schema=true
-            - --use-trace-new-schema=true
-          resources:
-            requests:
-              cpu: 100m
-              memory: 256Mi
-            limits:
-              cpu: 500m
-              memory: 512Mi
-          persistence:
-            enabled: true
-            size: 1Gi
-          ingress:
-            enabled: true
-            className: traefik
-            hosts:
-              - host: localhost
-                paths:
-                  - path: /signoz
-                    pathType: Prefix
-                    port: 8080
+        # --- Zookeeper (fix: bitnami/ removed from Docker Hub) ---
+        - name: clickhouse.zookeeper.replicaCount
+          value: "1"
+        - name: clickhouse.zookeeper.image.registry
+          value: "docker.io"
+        - name: clickhouse.zookeeper.image.repository
+          value: "bitnamilegacy/zookeeper"
+        - name: clickhouse.zookeeper.image.tag
+          value: "3.7.1"
+        - name: clickhouse.zookeeper.resources.requests.cpu
+          value: "50m"
+        - name: clickhouse.zookeeper.resources.requests.memory
+          value: "128Mi"
+        - name: clickhouse.zookeeper.resources.limits.cpu
+          value: "200m"
+        - name: clickhouse.zookeeper.resources.limits.memory
+          value: "256Mi"
+
+        # --- SigNoz ---
+        - name: signoz.replicaCount
+          value: "1"
+        - name: signoz.resources.requests.cpu
+          value: "100m"
+        - name: signoz.resources.requests.memory
+          value: "256Mi"
+        - name: signoz.resources.limits.cpu
+          value: "500m"
+        - name: signoz.resources.limits.memory
+          value: "512Mi"
+        - name: signoz.persistence.enabled
+          value: "true"
+        - name: signoz.persistence.size
+          value: "1Gi"
+        - name: signoz.ingress.enabled
+          value: "true"
+        - name: signoz.ingress.className
+          value: "traefik"
+        - name: signoz.ingress.hosts[0].host
+          value: "localhost"
+        - name: signoz.ingress.hosts[0].paths[0].path
+          value: "/signoz"
+        - name: signoz.ingress.hosts[0].paths[0].pathType
+          value: "Prefix"
+        - name: signoz.ingress.hosts[0].paths[0].port
+          value: "8080"
 
         # --- SigNoz OTel Collector ---
-        otelCollector:
-          replicaCount: 1
-          resources:
-            requests:
-              cpu: 100m
-              memory: 256Mi
-            limits:
-              cpu: 500m
-              memory: 512Mi
+        - name: otelCollector.replicaCount
+          value: "1"
+        - name: otelCollector.resources.requests.cpu
+          value: "100m"
+        - name: otelCollector.resources.requests.memory
+          value: "256Mi"
+        - name: otelCollector.resources.limits.cpu
+          value: "500m"
+        - name: otelCollector.resources.limits.memory
+          value: "512Mi"
 
         # --- Telemetry Store Migrator ---
-        telemetryStoreMigrator:
-          enabled: true
+        - name: telemetryStoreMigrator.enabled
+          value: "true"
 
         # --- Disabled ---
-        signoz-otel-gateway:
-          enabled: false
-        postgresql:
-          enabled: false
-        redpanda:
-          enabled: false
+        - name: signoz-otel-gateway.enabled
+          value: "false"
+        - name: postgresql.enabled
+          value: "false"
+        - name: redpanda.enabled
+          value: "false"
 
   destination:
     server: https://kubernetes.default.svc
