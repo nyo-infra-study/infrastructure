@@ -17,12 +17,10 @@ infrastructure/
 │       ├── backend-db.yaml
 │       ├── backend-server.yaml
 │       ├── web-frontend.yaml
-│       ├── monitoring-grafana.yaml
-│       ├── monitoring-loki.yaml
-│       ├── monitoring-mimir.yaml
+│       ├── monitoring-signoz.yaml
 │       ├── monitoring-otel.yaml
-│       ├── monitoring-pyroscope.yaml
-│       └── monitoring-tempo.yaml
+│       ├── monitoring-ksm.yaml
+│       └── monitoring-node-exporter.yaml
 │
 ├── charts/             # Local Helm charts
 │   ├── backend-db/     # Wrapper for Bitnami PostgreSQL
@@ -42,12 +40,9 @@ infrastructure/
     ├── argocd/
     │   └── values.yaml
     └── monitoring/
-        ├── logs-loki/
-        ├── metrics-mimir/
-        ├── profiling-pyroscope/
-        ├── traces-otel/
-        ├── traces-tempo/
-        └── ui-grafana/
+        ├── common-values.yaml
+        ├── signoz/
+        └── traces-otel/
 
 ### Folder Purposes
 
@@ -151,6 +146,7 @@ All applications are accessible via Ingress on `localhost:9000`:
 - **Frontend**: http://localhost:9000/
 - **Backend API**: http://localhost:9000/api
 - **ArgoCD UI**: http://localhost:9000/argocd
+- **SigNoz UI**: http://localhost:9000/signoz
 
 Login to ArgoCD with username `admin` and the password from Step 3.
 

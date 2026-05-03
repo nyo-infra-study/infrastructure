@@ -166,9 +166,6 @@ run "kubectl create secret generic backend-db-secret \
 
 log_step "Initializing Monitoring Environment"
 run "kubectl create namespace monitoring || true"
-run "kubectl create secret generic grafana-auth -n monitoring \
-  --from-literal=admin-user='$GRAFANA_ADMIN_USER' \
-  --from-literal=admin-password='$GRAFANA_ADMIN_PASSWORD'"
 
 
 log_step "Patcing ArgoCD Admin Password (Resetting)"

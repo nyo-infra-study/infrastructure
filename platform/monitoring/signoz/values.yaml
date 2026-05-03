@@ -1,0 +1,110 @@
+# ============================================================
+# SigNoz — Unified Observability Platform (Local Dev)
+# ============================================================
+# Replaces Grafana + Mimir + Loki + Tempo + Pyroscope
+# SigNoz provides metrics, logs, traces, and exceptions in one UI.
+#
+# UI accessible at: http://localhost:9000/signoz
+# OTel Collector endpoint (from within cluster):
+#   gRPC: dev-monitoring-signoz-otel-collector.monitoring.svc.cluster.local:4317
+#   HTTP: dev-monitoring-signoz-otel-collector.monitoring.svc.cluster.local:4318
+# ============================================================
+
+# --- Global Settings ---
+global:
+  storageClass: "local-path"
+  clusterName: "dev"
+
+# --- ClickHouse (Storage Backend) ---
+clickhouse:
+  enabled: true
+  installCustomStorageClass: false
+  layout:
+    shardsCount: 1
+    replicasCount: 1
+  resources:
+    requests:
+      cpu: 100m
+      memory: 512Mi
+    limits:
+      cpu: 1000m
+      memory: 1536Mi
+  persistence:
+    enabled: true
+    size: 2Gi
+  zookeeper:
+    replicaCount: 1
+    resources:
+      requests:
+        cpu: 50m
+        memory: 128Mi
+      limits:
+        cpu: 200m
+        memory: 256Mi
+
+# --- SigNoz Frontend + Query Service ---
+signoz:
+  name: "signoz"
+  replicaCount: 1
+  image:
+    registry: docker.io
+    repository: signoz/signoz
+    tag: v0.121.0
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 8080
+    internalPort: 8085
+    opampPort: 4320
+  additionalArgs:
+    - --use-logs-new-schema=true
+    - --use-trace-new-schema=true
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  persistence:
+    enabled: true
+    size: 1Gi
+  ingress:
+    enabled: true
+    className: traefik
+    hosts:
+      - host: localhost
+        paths:
+          - path: /signoz
+            pathType: Prefix
+            port: 8080
+
+# --- SigNoz OTel Collector ---
+# This is SigNoz's internal collector that writes to ClickHouse.
+# The external OTel collector (monitoring-otel) forwards data here.
+otelCollector:
+  name: "otel-collector"
+  replicaCount: 1
+  image:
+    registry: docker.io
+    repository: signoz/signoz-otel-collector
+    tag: v0.144.3
+    pullPolicy: IfNotPresent
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+# --- Disable components not needed ---
+# We use our own external OTel collector for scraping
+signoz-otel-gateway:
+  enabled: false
+
+postgresql:
+  enabled: false
+
+redpanda:
+  enabled: false

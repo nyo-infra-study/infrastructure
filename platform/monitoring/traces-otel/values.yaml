@@ -2,10 +2,10 @@
 # OpenTelemetry Collector (Local Dev)
 # ============================================================
 # Uses the open-telemetry/opentelemetry-collector chart.
-# Receives all telemetry and forwards to backends:
-#  - Logs -> Loki
-#  - Metrics -> Mimir
-#  - Traces -> Tempo
+# Receives all telemetry and forwards to SigNoz:
+#  - Metrics -> SigNoz OTel Collector
+#  - Logs -> SigNoz OTel Collector
+#  - Traces -> SigNoz OTel Collector
 # ============================================================
 image:
   repository: otel/opentelemetry-collector-contrib
@@ -70,36 +70,32 @@ config:
               - targets: ['dev-monitoring-node-exporter-prometheus-node-exporter.monitoring.svc.cluster.local:9100']
 
   processors:
-    batch: {}
+    batch:
+      send_batch_size: 10000
+      timeout: 2s
 
   exporters:
-    otlphttp/loki:
-      endpoint: "http://dev-monitoring-loki:3100/otlp"
-      tls:
-        insecure: true
-    otlphttp/mimir:
-      endpoint: "http://dev-monitoring-mimir-gateway.monitoring.svc.cluster.local/otlp"
-      tls:
-        insecure: true
-    otlp/tempo:
-      endpoint: "dev-monitoring-tempo:4317"
+    # All telemetry goes to SigNoz OTel Collector via OTLP
+    otlp/signoz:
+      endpoint: "dev-monitoring-signoz-otel-collector.monitoring.svc.cluster.local:4317"
       tls:
         insecure: true
 
   service:
     pipelines:
-      logs:
-        receivers: [otlp]
-        processors: [batch]
-        exporters: [otlphttp/loki]
+      # Metrics pipeline — primary focus
       metrics:
         receivers: [otlp, prometheus]
         processors: [batch]
-        exporters: [otlphttp/mimir]
+        exporters: [otlp/signoz]
       traces:
         receivers: [otlp]
         processors: [batch]
-        exporters: [otlp/tempo]
+        exporters: [otlp/signoz]
+      logs:
+        receivers: [otlp]
+        processors: [batch]
+        exporters: [otlp/signoz]
 
 resources:
   requests:

@@ -3,9 +3,7 @@ kind: Application
 metadata:
   annotations:
     argocd.argoproj.io/sync-wave: "1"
-  name: dev-monitoring-mimir
-
-
+  name: dev-monitoring-signoz
   namespace: argocd
   finalizers:
     - resources-finalizer.argocd.argoproj.io
@@ -14,16 +12,14 @@ metadata:
     domain: monitoring
 spec:
   project: default
-
   sources:
-    - chart: mimir-distributed
-      repoURL: https://grafana.github.io/helm-charts
-      targetRevision: 6.0.6
+    - chart: signoz
+      repoURL: https://charts.signoz.io
+      targetRevision: 0.79.0
       helm:
-        releaseName: dev-monitoring-mimir
+        releaseName: dev-monitoring-signoz
         valueFiles:
-          - $values/platform/monitoring/common-values.yaml
-          - $values/platform/monitoring/metrics-mimir/values.yaml
+          - $values/platform/monitoring/signoz/values.yaml
 
     - repoURL: https://github.com/nyo-infra-study/infrastructure.git
       targetRevision: main
@@ -44,5 +40,6 @@ spec:
   ignoreDifferences:
     - group: apps
       kind: StatefulSet
-      jsonPointers:
-        - /spec/volumeClaimTemplates
+      jqPathExpressions:
+        - ".spec.volumeClaimTemplates[]?.apiVersion"
+        - ".spec.volumeClaimTemplates[]?.kind"
