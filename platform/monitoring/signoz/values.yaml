@@ -68,9 +68,13 @@ signoz:
   persistence:
     enabled: true
     size: 1Gi
+  # SigNoz does not support subpath natively. Use Traefik stripPrefix.
+  # Access at http://localhost:9000/signoz
   ingress:
     enabled: true
     className: traefik
+    annotations:
+      traefik.ingress.kubernetes.io/router.middlewares: monitoring-signoz-strip-prefix@kubernetescrd
     hosts:
       - host: localhost
         paths:

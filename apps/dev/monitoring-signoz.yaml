@@ -44,6 +44,13 @@ spec:
       targetRevision: main
       ref: values
 
+    # Traefik middleware for stripPrefix (SigNoz doesn't support subpath natively)
+    - repoURL: https://github.com/nyo-infra-study/infrastructure.git
+      targetRevision: main
+      path: platform/monitoring/signoz
+      directory:
+        include: "traefik-middleware.yaml"
+
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring

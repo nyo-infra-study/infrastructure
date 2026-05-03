@@ -17,9 +17,9 @@ spec:
         - sh
         - -c
         - |
-          echo "Checking SigNoz OTel Collector..."
-          until curl -sf http://dev-monitoring-signoz-otel-collector.monitoring.svc.cluster.local:13133/; do 
-            echo "Waiting for SigNoz OTel Collector..."
+          echo "Checking SigNoz..."
+          until curl -sf http://dev-monitoring-signoz.monitoring.svc.cluster.local:8080/api/v1/health; do 
+            echo "Waiting for SigNoz..."
             sleep 2
           done
           echo "Observability stack is READY!"
