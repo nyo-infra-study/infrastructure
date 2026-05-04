@@ -1,0 +1,25 @@
+# ============================================================
+# OneUptime Ingress — Routes oneuptime.localhost to nginx gateway
+# ============================================================
+# OneUptime has its own nginx gateway (not a K8s Ingress controller),
+# so we need this Ingress to route external traffic from Traefik
+# to OneUptime's nginx service.
+# ============================================================
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: dev-monitoring-oneuptime-ingress
+  namespace: monitoring
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: oneuptime.localhost
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: dev-monitoring-oneuptime-nginx
+                port:
+                  number: 80
