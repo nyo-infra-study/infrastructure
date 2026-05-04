@@ -7,8 +7,8 @@ global:
     allowInsecureImages: true
 
 postgresql:
-  # Enable replication architecture
-  architecture: replication
+  # Standalone for local dev (override to 'replication' for prod)
+  architecture: standalone
 
   # Image configuration
   image:
@@ -30,14 +30,14 @@ postgresql:
   primary:
     persistence:
       enabled: true
-      size: 1Gi
+      size: 512Mi
     resources:
       requests:
-        cpu: 100m
-        memory: 256Mi
+        cpu: 50m
+        memory: 128Mi
       limits:
-        cpu: 500m
-        memory: 512Mi
+        cpu: 300m
+        memory: 256Mi
 
     # Initialize database with schema
     initdb:
@@ -52,17 +52,17 @@ postgresql:
 
   # Read Replicas configuration
   readReplicas:
-    replicaCount: 1
+    replicaCount: 0
     persistence:
       enabled: true
-      size: 1Gi
+      size: 512Mi
     resources:
       requests:
-        cpu: 100m
-        memory: 256Mi
+        cpu: 50m
+        memory: 128Mi
       limits:
-        cpu: 500m
-        memory: 512Mi
+        cpu: 300m
+        memory: 256Mi
     service:
       type: ClusterIP
       ports:

@@ -18,6 +18,14 @@ spec:
     targetRevision: 4.41.0
     helm:
       releaseName: dev-monitoring-node-exporter
+      valuesObject:
+        resources:
+          requests:
+            cpu: 10m
+            memory: 16Mi
+          limits:
+            cpu: 100m
+            memory: 64Mi
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring

@@ -18,6 +18,14 @@ spec:
     targetRevision: 5.27.0
     helm:
       releaseName: dev-monitoring-ksm
+      valuesObject:
+        resources:
+          requests:
+            cpu: 10m
+            memory: 32Mi
+          limits:
+            cpu: 100m
+            memory: 128Mi
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring

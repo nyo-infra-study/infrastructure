@@ -36,7 +36,7 @@ spec:
       # VALUES OVERRIDES: Environment-specific config
       # These override the defaults in charts/backend-server/values.yaml
       valuesObject:
-        replicaCount: 2 # Number of pod replicas (1 for dev, more for prod)
+        replicaCount: 1 # Single replica for local playground
 
         image:
           tag: "latest" # Docker image tag to deploy

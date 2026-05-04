@@ -28,7 +28,7 @@ spec:
 
       # VALUES OVERRIDES: Dev-specific configuration
       valuesObject:
-        replicaCount: 2 # Single replica for dev (scale up in prod)
+        replicaCount: 1 # Single replica for local playground
 
         image:
           tag: "dev" # Always use latest dev build from main branch

@@ -20,6 +20,8 @@ spec:
       releaseName: backend-db
       valuesObject:
         postgresql:
+          # Local playground: standalone mode, no replication overhead
+          architecture: standalone
           auth:
             existingSecret: "backend-db-secret"
             secretKeys:
@@ -27,22 +29,17 @@ spec:
               userPasswordKey: "POSTGRES_PASSWORD"
               replicationPasswordKey: "POSTGRES_PASSWORD"
           primary:
+            persistence:
+              size: 512Mi
             resources:
               requests:
-                cpu: "100m"
+                cpu: "50m"
                 memory: "128Mi"
               limits:
-                cpu: "500m"
+                cpu: "300m"
                 memory: "256Mi"
           readReplicas:
-            replicaCount: 2
-            resources:
-              requests:
-                cpu: "100m"
-                memory: "128Mi"
-              limits:
-                cpu: "500m"
-                memory: "256Mi"
+            replicaCount: 0
   destination:
     server: https://kubernetes.default.svc
     namespace: dev
