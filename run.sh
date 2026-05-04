@@ -214,9 +214,14 @@ log_step "Installing ArgoCD"
 run "helm repo add argo https://argoproj.github.io/argo-helm"
 run "helm repo update"
 
+# Read ArgoCD chart version from the app manifest (single source of truth)
+ARGOCD_CHART_VERSION=$(grep 'targetRevision:' "$SCRIPT_DIR/apps/dev/0-platform/argocd.yaml" | head -1 | awk '{print $2}')
+echo "Installing ArgoCD chart version: $ARGOCD_CHART_VERSION"
+
 run "helm install argocd argo/argo-cd \
   --namespace argocd \
   --create-namespace \
+  --version '$ARGOCD_CHART_VERSION' \
   -f '$SCRIPT_DIR/platform/argocd/values.yaml'"
 
 log_step "Waiting for ArgoCD"
