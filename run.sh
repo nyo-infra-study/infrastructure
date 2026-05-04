@@ -109,6 +109,35 @@ run "kubectl wait --for=condition=Ready nodes --all --timeout=60s"
 # Wait for default service account to ensure namespace controller is up
 run "kubectl wait --for=jsonpath='{.metadata.name}'=default serviceaccount/default --timeout=60s"
 
+log_step "Tuning local-path provisioner for local dev"
+# Pre-import busybox so the provisioner helper pods start instantly
+# instead of waiting behind all the app image pulls on a cold cluster.
+run "docker pull busybox:latest"
+run "k3d image import busybox:latest -c dev"
+
+# Increase helper pod timeout from 120s (default) to 300s.
+# On a loaded node, image pulls saturate the runtime and the helper pod
+# can't start within the default window.
+PATCH_FILE=$(mktemp)
+cat > "$PATCH_FILE" <<'PATCH'
+data:
+  config.json: |
+    {
+      "nodePathMap": [
+        {
+          "node": "DEFAULT_PATH_FOR_NON_LISTED_NODES",
+          "paths": ["/var/lib/rancher/k3s/storage"]
+        }
+      ],
+      "cmdTimeoutSeconds": 300
+    }
+PATCH
+run "kubectl patch configmap local-path-config -n kube-system --type merge --patch-file '$PATCH_FILE'"
+rm -f "$PATCH_FILE"
+
+run "kubectl rollout restart deployment/local-path-provisioner -n kube-system"
+run "kubectl rollout status deployment/local-path-provisioner -n kube-system --timeout=60s"
+
 log_step "Installing ArgoCD"
 run "helm repo add argo https://argoproj.github.io/argo-helm"
 run "helm repo update"
