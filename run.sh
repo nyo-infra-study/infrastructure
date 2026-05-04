@@ -102,7 +102,9 @@ fi
 log_step "Recreating k3d Cluster"
 run "k3d cluster delete dev || true"
 sleep 10
-run "k3d cluster create dev --port '9000:80@loadbalancer'"
+# OneUptime needs port 80 because its frontend generates URLs without a port.
+# Other apps (ArgoCD, backend, frontend) continue using localhost:9000.
+run "k3d cluster create dev --port '9000:80@loadbalancer' --port '80:80@loadbalancer'"
 echo "Waiting for API server to stabilize..."
 sleep 20
 run "kubectl wait --for=condition=Ready nodes --all --timeout=60s"

@@ -7,13 +7,13 @@
 # Provides: Monitoring, Incident Management, Status Pages,
 #           On-Call, Logs, Traces, Metrics, Dashboards
 #
-# UI accessible at: http://oneuptime.localhost:9000
+# UI accessible at: http://oneuptime.localhost
 # OTLP endpoint (from within cluster):
 #   gRPC: dev-monitoring-oneuptime.monitoring.svc.cluster.local:4317
 # ============================================================
 
 # --- Host & Protocol ---
-host: oneuptime.localhost:9000
+host: oneuptime.localhost
 httpProtocol: http
 
 # --- Image ---
