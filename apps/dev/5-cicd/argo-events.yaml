@@ -1,10 +1,10 @@
-# ArgoCD Application for Argo Workflows
+# ArgoCD Application for Argo Events
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   annotations:
-    argocd.argoproj.io/sync-wave: "3"
-  name: argo-workflows
+    argocd.argoproj.io/sync-wave: "5" # CI/CD layer — last
+  name: argo-events
 
 
   namespace: argocd
@@ -14,7 +14,7 @@ spec:
   source:
     repoURL: https://github.com/nyo-infra-study/infrastructure
     targetRevision: main
-    path: argo-workflows
+    path: argo-events
 
   destination:
     server: https://kubernetes.default.svc

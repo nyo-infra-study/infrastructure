@@ -32,10 +32,13 @@ spec:
   project: default
 
   # SOURCE: Points to the apps/dev/ directory (not a Helm chart)
+  # directory.recurse scans subdirectories (wave-based folders)
   source:
     repoURL: https://github.com/nyo-infra-study/infrastructure.git
     targetRevision: main
     path: apps/dev # Directory containing child Application manifests
+    directory:
+      recurse: true
 
   # DESTINATION: Child Applications are created in argocd namespace
   destination:
