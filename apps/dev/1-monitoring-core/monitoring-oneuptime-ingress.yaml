@@ -1,0 +1,34 @@
+# ============================================================
+# OneUptime Ingress — Managed by ArgoCD
+# ============================================================
+# OneUptime's chart doesn't support K8s Ingress natively.
+# This app syncs a standalone Ingress manifest that routes
+# oneuptime.localhost → OneUptime's nginx gateway service.
+# ============================================================
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+  name: dev-monitoring-oneuptime-ingress
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+  labels:
+    environment: dev
+    domain: monitoring
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/nyo-infra-study/infrastructure.git
+    targetRevision: main
+    path: platform/monitoring/oneuptime
+    directory:
+      include: 'ingress.yaml'
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
