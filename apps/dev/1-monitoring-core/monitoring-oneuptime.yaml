@@ -47,6 +47,11 @@ spec:
       - RespectIgnoreDifferences=true
 
   ignoreDifferences:
+    - group: ""
+      kind: Secret
+      name: dev-monitoring-oneuptime-secrets
+      jsonPointers:
+        - /data
     - group: apps
       kind: StatefulSet
       jqPathExpressions:
