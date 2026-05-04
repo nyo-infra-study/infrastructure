@@ -327,6 +327,8 @@ config:
     # Send to OneUptime OTLP endpoint
     otlp/oneuptime:
       endpoint: "dev-monitoring-oneuptime-otel.monitoring.svc.cluster.local:4317"
+      headers:
+        x-oneuptime-token: "ff3ff504-6938-4172-8df8-8167a9c0b651"
       tls:
         insecure: true
 
