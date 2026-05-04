@@ -13,7 +13,7 @@
 # ============================================================
 
 # --- Host & Protocol ---
-host: oneuptime.localhost:9000/api
+host: oneuptime.localhost
 httpProtocol: http
 
 # --- Image ---
