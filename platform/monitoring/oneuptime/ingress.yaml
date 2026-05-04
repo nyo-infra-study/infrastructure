@@ -10,8 +10,6 @@ kind: Ingress
 metadata:
   name: dev-monitoring-oneuptime-ingress
   namespace: monitoring
-  annotations:
-    traefik.ingress.kubernetes.io/router.middlewares: monitoring-oneuptime-host-rewrite@kubernetescrd
 spec:
   ingressClassName: traefik
   rules:

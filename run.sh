@@ -299,4 +299,19 @@ fi
 log_step "Deploying App of Apps"
 run "kubectl apply -f '$SCRIPT_DIR/bootstrap/dev.yaml'"
 
+log_step "Waiting for ArgoCD to be fully ready"
+# After password reset, ArgoCD restarts. Wait for it to stabilize
+# before declaring the cluster ready, so users don't see errors.
+run "kubectl wait --for=condition=available deployment/argocd-server -n argocd --timeout=120s"
+run "kubectl wait --for=condition=available deployment/argocd-repo-server -n argocd --timeout=120s"
+run "kubectl wait --for=condition=ready pod -l app.kubernetes.io/component=application-controller -n argocd --timeout=120s"
+
 log_step "Done! Cluster is ready."
+echo ""
+echo "  ArgoCD UI:    http://localhost:9000/argocd"
+echo "  Frontend:     http://localhost:9000/web"
+echo "  Backend API:  http://localhost:9000/api"
+echo "  OneUptime:    http://oneuptime.localhost"
+echo ""
+echo "  ArgoCD Password: $(kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath='{.data.password}' 2>/dev/null | base64 --decode 2>/dev/null || echo 'see previous output')"
+echo ""
