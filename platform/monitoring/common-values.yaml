@@ -8,9 +8,9 @@ global:
   monitoring:
     # OneUptime (Unified Observability — Metrics, Logs, Traces, Incidents)
     oneuptime:
-      ui: "http://oneuptime.localhost:9000"
-      otel_grpc: "dev-monitoring-oneuptime-otel.monitoring.svc.cluster.local:4317"
-      otel_http: "dev-monitoring-oneuptime-otel.monitoring.svc.cluster.local:4318"
+      ui: "http://oneuptime.localhost"
+      otel_grpc: "dev-monitoring-oneuptime-app.monitoring.svc.cluster.local:4317"
+      otel_http: "dev-monitoring-oneuptime-app.monitoring.svc.cluster.local:4318"
 
     # OTel Collector (External — scrapes infra metrics/logs, forwards to OneUptime)
     otel:
