@@ -112,7 +112,8 @@ run "kubectl wait --for=jsonpath='{.metadata.name}'=default serviceaccount/defau
 log_step "Pre-caching container images"
 # Read image list from image-list.txt (skip comments and blank lines),
 # pull via Docker (cached in Colima VM across cluster recreations),
-# then import into k3d so pods don't need to pull over the network.
+# then pipe directly into containerd inside the k3d node.
+# This bypasses k3d's built-in import which has digest bugs on ARM64/M1.
 IMAGE_LIST="$SCRIPT_DIR/image-list.txt"
 if [ -f "$IMAGE_LIST" ]; then
     IMAGES=()
@@ -124,16 +125,63 @@ if [ -f "$IMAGE_LIST" ]; then
     done < "$IMAGE_LIST"
 
     echo "Pulling ${#IMAGES[@]} images (cached locally, skips already-pulled)..."
+    PULLED=()
     for img in "${IMAGES[@]}"; do
         if [ "$VERBOSE" = true ]; then
             echo "  Pulling: $img"
         fi
-        run "docker pull '$img'"
+        if eval "docker pull '$img'" 2>/dev/null; then
+            PULLED+=("$img")
+        else
+            echo "  ⚠️  Skipped (not found): $img"
+        fi
     done
 
-    echo "Importing images into k3d cluster..."
-    run "k3d image import ${IMAGES[*]} -c dev"
-    echo "✅ ${#IMAGES[@]} images pre-cached."
+    if [ ${#PULLED[@]} -gt 0 ]; then
+        echo "Importing ${#PULLED[@]} images into k3d node via ctr..."
+        IMPORTED=0
+        FAILED_IMPORTS=()
+        for img in "${PULLED[@]}"; do
+            if [ "$VERBOSE" = true ]; then
+                echo "  Importing: $img"
+            fi
+            if docker save "$img" | docker exec -i k3d-dev-server-0 ctr --namespace k8s.io images import - >/dev/null 2>&1; then
+                IMPORTED=$((IMPORTED + 1))
+            else
+                echo "  ❌ Failed to import: $img"
+                FAILED_IMPORTS+=("$img")
+            fi
+        done
+
+        # Verify images are available inside the cluster
+        echo "Verifying images in k3d cluster..."
+        AVAILABLE=$(docker exec k3d-dev-server-0 crictl images -o json 2>/dev/null \
+            | python3 -c "import sys,json; imgs=json.load(sys.stdin).get('images',[]); [print(t) for i in imgs for t in i.get('repoTags',[])]" 2>/dev/null)
+
+        VERIFIED=0
+        MISSING=()
+        for img in "${PULLED[@]}"; do
+            # crictl normalizes names (e.g. redis:7 → docker.io/library/redis:7)
+            # so check if the image name appears anywhere in the tag list
+            IMG_NAME=$(echo "$img" | sed 's|^docker.io/||')
+            if echo "$AVAILABLE" | grep -q "$IMG_NAME"; then
+                VERIFIED=$((VERIFIED + 1))
+            else
+                MISSING+=("$img")
+            fi
+        done
+
+        if [ ${#MISSING[@]} -gt 0 ]; then
+            echo "  ⚠️  ${#MISSING[@]} image(s) not verified in cluster: ${MISSING[*]}"
+            echo "  These will be pulled from the network during deployment."
+        fi
+        echo "✅ ${VERIFIED}/${#PULLED[@]} images verified in k3d cluster."
+
+        if [ ${#FAILED_IMPORTS[@]} -gt 0 ]; then
+            echo "⚠️  ${#FAILED_IMPORTS[@]} image(s) failed to import (possible disk space issue)."
+            echo "  Run 'docker system prune -a --volumes -f' to free space and retry."
+        fi
+    fi
 else
     echo "⚠️  No image-list.txt found, skipping pre-cache."
 fi
