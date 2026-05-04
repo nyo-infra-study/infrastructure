@@ -109,12 +109,36 @@ run "kubectl wait --for=condition=Ready nodes --all --timeout=60s"
 # Wait for default service account to ensure namespace controller is up
 run "kubectl wait --for=jsonpath='{.metadata.name}'=default serviceaccount/default --timeout=60s"
 
-log_step "Tuning local-path provisioner for local dev"
-# Pre-import busybox so the provisioner helper pods start instantly
-# instead of waiting behind all the app image pulls on a cold cluster.
-run "docker pull busybox:latest"
-run "k3d image import busybox:latest -c dev"
+log_step "Pre-caching container images"
+# Read image list from image-list.txt (skip comments and blank lines),
+# pull via Docker (cached in Colima VM across cluster recreations),
+# then import into k3d so pods don't need to pull over the network.
+IMAGE_LIST="$SCRIPT_DIR/image-list.txt"
+if [ -f "$IMAGE_LIST" ]; then
+    IMAGES=()
+    while IFS= read -r line; do
+        # Skip comments and blank lines
+        line=$(echo "$line" | sed 's/#.*//' | xargs)
+        [ -z "$line" ] && continue
+        IMAGES+=("$line")
+    done < "$IMAGE_LIST"
 
+    echo "Pulling ${#IMAGES[@]} images (cached locally, skips already-pulled)..."
+    for img in "${IMAGES[@]}"; do
+        if [ "$VERBOSE" = true ]; then
+            echo "  Pulling: $img"
+        fi
+        run "docker pull '$img'"
+    done
+
+    echo "Importing images into k3d cluster..."
+    run "k3d image import ${IMAGES[*]} -c dev"
+    echo "✅ ${#IMAGES[@]} images pre-cached."
+else
+    echo "⚠️  No image-list.txt found, skipping pre-cache."
+fi
+
+log_step "Tuning local-path provisioner"
 # Increase helper pod timeout from 120s (default) to 300s.
 # On a loaded node, image pulls saturate the runtime and the helper pod
 # can't start within the default window.

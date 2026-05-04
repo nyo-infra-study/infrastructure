@@ -1,0 +1,63 @@
+# ============================================================
+# Pre-cache Image List for Local Dev
+# ============================================================
+# These images are pulled by Docker (cached in Colima VM) and
+# imported into k3d before ArgoCD deploys, avoiding slow pulls
+# inside the cluster on a cold start.
+#
+# FORMAT: <image>:<tag>
+# Lines starting with # are ignored.
+#
+# HOW TO MAINTAIN:
+# When you update an image tag in a values.yaml or app manifest,
+# update the corresponding line here too. Group by component.
+# ============================================================
+
+# --- k3d / local-path provisioner ---
+busybox:latest
+
+# --- Backend DB (charts/backend-db/values.yaml) ---
+docker.io/bitnamilegacy/postgresql:16-debian-12
+
+# --- Backend Server (charts/backend-server/values.yaml + apps/dev) ---
+skimpjr/backend-server:latest
+
+# --- Web Frontend (charts/web-frontend/values.yaml + apps/dev) ---
+skimpjr/web-frontend:dev
+
+# --- Backend Server wait-job (charts/backend-server/templates/wait-job.yaml) ---
+alpine/curl:latest
+
+# --- OneUptime core (platform/monitoring/oneuptime/values.yaml) ---
+# The chart deploys multiple microservices using the same registry/repo pattern
+docker.io/oneuptime/app:10.0.88
+docker.io/oneuptime/nginx:10.0.88
+docker.io/oneuptime/probe:10.0.88
+docker.io/oneuptime/otel:10.0.88
+
+# --- OneUptime PostgreSQL ---
+postgres:16
+
+# --- OneUptime Redis ---
+redis:7
+
+# --- OneUptime ClickHouse ---
+clickhouse/clickhouse-server:24.8
+
+# --- OTel Collector (platform/monitoring/collector/values.yaml) ---
+otel/opentelemetry-collector-contrib:0.119.0
+
+# --- KSM (apps/dev/monitoring-ksm.yaml — chart default image) ---
+registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.14.0
+
+# --- Node Exporter (apps/dev/monitoring-node-exporter.yaml — chart default image) ---
+quay.io/prometheus/node-exporter:v1.8.2
+
+# --- Argo Workflows (used by github-poller, frontend-build) ---
+alpine/git:latest
+gcr.io/kaniko-project/executor:latest
+
+# --- KEDA (deployed by OneUptime chart as dependency) ---
+ghcr.io/kedacore/keda:2.17.2
+ghcr.io/kedacore/keda-admission-webhooks:2.17.2
+ghcr.io/kedacore/keda-metrics-apiserver:2.17.2

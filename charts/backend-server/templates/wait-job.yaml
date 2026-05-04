@@ -26,7 +26,7 @@ spec:
 
           # --- OneUptime ---
           echo "Checking OneUptime..."
-          until curl -sf http://dev-monitoring-oneuptime.monitoring.svc.cluster.local:80/status; do 
+          until curl -sf http://dev-monitoring-oneuptime-nginx.monitoring.svc.cluster.local:80/status; do 
             echo "Waiting for OneUptime..."
             sleep 2
           done
