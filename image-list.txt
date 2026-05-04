@@ -25,9 +25,6 @@ skimpjr/backend-server:latest
 # --- Web Frontend (charts/web-frontend/values.yaml + apps/dev) ---
 skimpjr/web-frontend:dev
 
-# --- Backend Server wait-job (charts/backend-server/templates/wait-job.yaml) ---
-alpine/curl:latest
-
 # --- OneUptime core (platform/monitoring/oneuptime/values.yaml) ---
 # The chart deploys multiple microservices using the same registry/repo pattern
 docker.io/oneuptime/app:10.0.88
