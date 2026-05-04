@@ -175,6 +175,18 @@ config:
       send_batch_size: 10000
       timeout: 2s
 
+    # ── Set service.name for scraped infra metrics ──────────
+    # Without this, Prometheus metrics inherit pod names as service.name,
+    # creating duplicate entries in OneUptime alongside app-sent telemetry.
+    resource/infra-metrics:
+      attributes:
+        - key: service.name
+          value: "infra-metrics"
+          action: upsert
+        - key: service.namespace
+          value: "monitoring"
+          action: upsert
+
     # ── Enrich logs with k8s metadata ───────────────────────
     k8sattributes:
       auth_type: "serviceAccount"
@@ -334,8 +346,14 @@ config:
 
   service:
     pipelines:
-      metrics:
-        receivers: [otlp, prometheus]
+      # Infra metrics from Prometheus scrapes (kubelet, cAdvisor, KSM, node-exporter)
+      metrics/infra:
+        receivers: [prometheus]
+        processors: [resource/infra-metrics, filter/metrics, transform/drop_labels, batch]
+        exporters: [otlp/oneuptime]
+      # App metrics from OTLP (backend-server, etc.) — keep original service.name
+      metrics/app:
+        receivers: [otlp]
         processors: [filter/metrics, transform/drop_labels, batch]
         exporters: [otlp/oneuptime]
       traces:
