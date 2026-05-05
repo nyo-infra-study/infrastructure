@@ -51,15 +51,15 @@ postgresql:
     terminationGracePeriodSeconds: 0
     persistence:
       enabled: true
-      size: 256Mi
+      size: 512Mi
       storageClass: "local-path"
     resources:
       requests:
-        cpu: 50m
-        memory: 128Mi
+        cpu: 100m
+        memory: 256Mi
       limits:
-        cpu: 300m
-        memory: 384Mi
+        cpu: 500m
+        memory: 512Mi
 
 # --- Redis (built-in) ---
 redis:
@@ -105,15 +105,15 @@ clickhouse:
       tcp: "9000"
   persistence:
     enabled: true
-    size: 256Mi
+    size: 512Mi
     storageClass: "local-path"
   resources:
     requests:
-      cpu: 50m
-      memory: 256Mi
+      cpu: 100m
+      memory: 512Mi
     limits:
-      cpu: 500m
-      memory: 768Mi
+      cpu: 1000m
+      memory: 1024Mi
 
 # --- Global ---
 global:

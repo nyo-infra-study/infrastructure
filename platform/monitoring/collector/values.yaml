@@ -330,7 +330,6 @@ config:
           statements:
             - delete_key(attributes, "id")
             - delete_key(attributes, "image")
-            - delete_key(attributes, "name")
             - delete_key(attributes, "uid")
             - delete_key(attributes, "instance")
             - delete_key(attributes, "prometheus_replica")
