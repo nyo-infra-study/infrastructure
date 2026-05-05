@@ -300,7 +300,7 @@ config:
     otlp/oneuptime:
       endpoint: "dev-monitoring-oneuptime-app.monitoring.svc.cluster.local:4317"
       headers:
-        x-oneuptime-token: "5adfffe8-f0f6-440a-bf4e-55d304a20ba5"
+        x-oneuptime-token: "cb509911-6f88-4bfc-89b6-159849077f38"
       tls:
         insecure: true
 
