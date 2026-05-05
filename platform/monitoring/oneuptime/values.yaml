@@ -20,7 +20,7 @@ httpProtocol: http
 image:
   registry: docker.io
   repository: oneuptime
-  tag: "10.0.89"
+  tag: "10.0.94"
   pullPolicy: IfNotPresent
   type: community-edition
 

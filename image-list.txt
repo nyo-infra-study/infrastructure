@@ -27,9 +27,9 @@ skimpjr/web-frontend:dev
 
 # --- OneUptime core (platform/monitoring/oneuptime/values.yaml) ---
 # The chart deploys multiple microservices using the same registry/repo pattern
-docker.io/oneuptime/app:10.0.89
-docker.io/oneuptime/nginx:10.0.89
-docker.io/oneuptime/probe:10.0.89
+docker.io/oneuptime/app:10.0.94
+docker.io/oneuptime/nginx:10.0.94
+docker.io/oneuptime/probe:10.0.94
 
 # --- OneUptime PostgreSQL ---
 postgres:16

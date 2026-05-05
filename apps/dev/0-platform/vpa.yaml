@@ -44,3 +44,18 @@ spec:
     syncOptions:
       - CreateNamespace=true
       - ServerSideApply=true
+      - RespectIgnoreDifferences=true
+
+  ignoreDifferences:
+    # VPA admission controller generates its own TLS certs
+    - group: ""
+      kind: Secret
+      name: dev-platform-vpa-vertical-pod-autoscaler-admission-controller-t
+      jsonPointers:
+        - /data
+    # Checksum annotation changes when certs rotate
+    - group: apps
+      kind: Deployment
+      name: dev-platform-vpa-vertical-pod-autoscaler-admission-controller
+      jqPathExpressions:
+        - ".spec.template.metadata.annotations.\"checksum/tls-secret\""
