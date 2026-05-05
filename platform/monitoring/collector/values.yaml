@@ -51,6 +51,17 @@ config:
         http:
           endpoint: 0.0.0.0:4318
 
+    # ── Collector self-metrics (lightweight — scrapes its own /metrics) ──
+    # Gives you otelcol_* metrics to monitor collector health and resource usage
+    # before turning on heavier sources.
+    prometheus/self:
+      config:
+        scrape_configs:
+          - job_name: 'otel-collector-self'
+            scrape_interval: 30s
+            static_configs:
+              - targets: ['localhost:8888']
+
     # ── Prometheus scrape jobs (disabled — too heavy for local dev) ──
     # prometheus:
     #   config:
@@ -347,6 +358,11 @@ config:
       #   processors: [resource/infra-metrics, filter/metrics, transform/drop_labels, batch]
       #   exporters: [otlp/oneuptime]
 
+      # Collector self-metrics (otelcol_* — monitor the collector's own resource usage)
+      metrics/self:
+        receivers: [prometheus/self]
+        processors: [batch]
+        exporters: [otlp/oneuptime]
       # App metrics from OTLP (backend-server, oneuptime components, etc.)
       metrics:
         receivers: [otlp]
