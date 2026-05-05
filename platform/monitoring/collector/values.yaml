@@ -199,15 +199,26 @@ config:
       send_batch_size: 10000
       timeout: 2s
 
-    # ── Set service.name for scraped infra metrics (disabled with prometheus receiver) ──
-    # resource/infra-metrics:
-    #   attributes:
-    #     - key: service.name
-    #       value: "infra-metrics"
-    #       action: upsert
-    #     - key: service.namespace
-    #       value: "monitoring"
-    #       action: upsert
+    # ── Set service.name for scraped metrics ──────────────────
+    # OneUptime requires service.name to query metrics in chart widgets.
+    # Without this, metrics appear in explorer but not in dashboards.
+    resource/self:
+      attributes:
+        - key: service.name
+          value: "otel-collector"
+          action: upsert
+
+    resource/cadvisor:
+      attributes:
+        - key: service.name
+          value: "kubernetes-cadvisor"
+          action: upsert
+
+    resource/ksm:
+      attributes:
+        - key: service.name
+          value: "kube-state-metrics"
+          action: upsert
 
     # ── Enrich logs with k8s metadata (disabled — not needed without filelog) ──
     # k8sattributes:
@@ -310,12 +321,17 @@ config:
       # Collector self-metrics (otelcol_* — monitor the collector's own resource usage)
       metrics/self:
         receivers: [prometheus/self]
-        processors: [batch]
+        processors: [resource/self, batch]
         exporters: [otlp/oneuptime]
-      # cAdvisor + KSM metrics (OOM, CPU throttle, usage vs requests/limits)
-      metrics/infra:
-        receivers: [prometheus/cadvisor, prometheus/ksm]
-        processors: [filter/infra-allow, batch]
+      # cAdvisor metrics (OOM, CPU throttle, memory/cpu usage)
+      metrics/cadvisor:
+        receivers: [prometheus/cadvisor]
+        processors: [resource/cadvisor, filter/infra-allow, batch]
+        exporters: [otlp/oneuptime]
+      # KSM metrics (resource requests/limits, pod status)
+      metrics/ksm:
+        receivers: [prometheus/ksm]
+        processors: [resource/ksm, filter/infra-allow, batch]
         exporters: [otlp/oneuptime]
       # App metrics from OTLP (backend-server, oneuptime components, etc.)
       metrics:
