@@ -1,0 +1,110 @@
+# ============================================================
+# Post-Boot Resource Resize Job
+# ============================================================
+# Waits for OneUptime pods to be Ready, then patches their
+# resource requests down to normal running levels using
+# in-place pod vertical scaling (k8s 1.33+ beta, enabled by default).
+#
+# This lets pods boot with high requests (Guaranteed QoS for startup)
+# then release resources back to the node once stable.
+#
+# To re-run after a deployment: kubectl delete job -n monitoring post-boot-resize && kubectl apply -f this-file
+# ============================================================
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: post-boot-resize
+  namespace: monitoring
+spec:
+  ttlSecondsAfterFinished: 300
+  backoffLimit: 3
+  template:
+    spec:
+      serviceAccountName: post-boot-resize
+      restartPolicy: OnFailure
+      containers:
+        - name: resize
+          image: bitnami/kubectl:1.33
+          command:
+            - /bin/bash
+            - -c
+            - |
+              set -e
+              echo "=== Post-Boot Resource Resize (In-Place) ==="
+              echo "Waiting for OneUptime pods to be Ready..."
+
+              # Wait for all deployments to be available
+              kubectl rollout status deployment/dev-monitoring-oneuptime-app -n monitoring --timeout=600s
+              kubectl rollout status deployment/dev-monitoring-oneuptime-nginx -n monitoring --timeout=600s
+              kubectl rollout status deployment/dev-monitoring-oneuptime-probe-one -n monitoring --timeout=300s
+
+              # Give pods 30s to stabilize after Ready
+              echo "Pods ready. Waiting 30s for stabilization..."
+              sleep 30
+
+              # In-place resize: patch the running POD (not deployment) so no restart occurs.
+              # k8s 1.33+ with InPlacePodVerticalScaling allows this.
+
+              echo "Resizing app pod: requests 1500m/3072Mi → 200m/900Mi"
+              APP_POD=$(kubectl get pod -n monitoring -l app.kubernetes.io/name=oneuptime-app -o jsonpath='{.items[0].metadata.name}')
+              kubectl patch pod "$APP_POD" -n monitoring --subresource resize --type='json' -p='[
+                {"op": "replace", "path": "/spec/containers/0/resources/requests/cpu", "value": "200m"},
+                {"op": "replace", "path": "/spec/containers/0/resources/requests/memory", "value": "900Mi"}
+              ]'
+
+              echo "Resizing nginx pod: requests 500m/1024Mi → 50m/512Mi"
+              NGINX_POD=$(kubectl get pod -n monitoring -l app.kubernetes.io/name=oneuptime-nginx -o jsonpath='{.items[0].metadata.name}')
+              kubectl patch pod "$NGINX_POD" -n monitoring --subresource resize --type='json' -p='[
+                {"op": "replace", "path": "/spec/containers/0/resources/requests/cpu", "value": "50m"},
+                {"op": "replace", "path": "/spec/containers/0/resources/requests/memory", "value": "512Mi"}
+              ]'
+
+              echo "Resizing probe pod: requests 500m/768Mi → 100m/384Mi"
+              PROBE_POD=$(kubectl get pod -n monitoring -l app.kubernetes.io/name=oneuptime-probe-one -o jsonpath='{.items[0].metadata.name}')
+              kubectl patch pod "$PROBE_POD" -n monitoring --subresource resize --type='json' -p='[
+                {"op": "replace", "path": "/spec/containers/0/resources/requests/cpu", "value": "100m"},
+                {"op": "replace", "path": "/spec/containers/0/resources/requests/memory", "value": "384Mi"}
+              ]'
+
+              echo "=== In-place resize complete ==="
+              echo "Freed ~2150m CPU and ~1562Mi memory back to the node without restarting pods."
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              cpu: 100m
+              memory: 64Mi
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: post-boot-resize
+  namespace: monitoring
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: post-boot-resize
+  namespace: monitoring
+rules:
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    verbs: ["get", "list"]
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: post-boot-resize
+  namespace: monitoring
+subjects:
+  - kind: ServiceAccount
+    name: post-boot-resize
+    namespace: monitoring
+roleRef:
+  kind: Role
+  name: post-boot-resize
+  apiGroup: rbac.authorization.k8s.io

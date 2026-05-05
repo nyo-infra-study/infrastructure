@@ -31,26 +31,27 @@ deployment:
 # --- App (main OneUptime server — Node.js) ---
 # Reduced concurrency to lower memory footprint for local dev.
 # Default is 100 each — way too much for a single-node setup.
-# Observed usage: ~1000m CPU, ~900Mi memory
+# Running usage: ~1000m CPU, ~900Mi mem. Boot spike: higher.
+# Using Guaranteed QoS (requests=limits) to avoid boot OOM/throttle.
 app:
   workerConcurrency: 10
   telemetryConcurrency: 10
   resources:
     requests:
-      cpu: 1000m
-      memory: 900Mi
+      cpu: 1500m
+      memory: 3072Mi
     limits:
       cpu: 1500m
-      memory: 1536Mi
+      memory: 3072Mi
 
 # --- Nginx / Ingress Gateway ---
-# OneUptime's nginx image is actually a Node.js process, not vanilla nginx.
-# Observed usage: OOM at 512Mi — needs more headroom.
+# OneUptime's "nginx" is a Node.js process. OOM'd at 512Mi.
+# Running usage: ~50m CPU, ~500Mi mem. Boot spike: ~800Mi+.
 nginx:
   resources:
     requests:
-      cpu: 50m
-      memory: 512Mi
+      cpu: 500m
+      memory: 1024Mi
     limits:
       cpu: 500m
       memory: 1024Mi
@@ -58,7 +59,7 @@ nginx:
     type: ClusterIP
 
 # --- Probes ---
-# Observed usage: ~298m CPU, ~383Mi memory (hitting limit)
+# Running usage: ~300m CPU, ~383Mi mem. Boot spike: ~500Mi+.
 probes:
   one:
     name: "Probe"
@@ -67,8 +68,8 @@ probes:
     monitorFetchLimit: 5
     resources:
       requests:
-        cpu: 300m
-        memory: 384Mi
+        cpu: 500m
+        memory: 768Mi
       limits:
         cpu: 500m
         memory: 768Mi
