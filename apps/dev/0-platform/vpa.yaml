@@ -1,0 +1,46 @@
+# ============================================================
+# Vertical Pod Autoscaler
+# ============================================================
+# Chart: cowboysysop/vertical-pod-autoscaler
+# Installs VPA CRDs + controller components.
+# Must be in platform layer (before monitoring) so CRDs exist
+# when VPA objects are created.
+# ============================================================
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+  name: dev-platform-vpa
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+  labels:
+    environment: dev
+    domain: platform
+spec:
+  project: default
+  sources:
+    - chart: vertical-pod-autoscaler
+      repoURL: https://cowboysysop.github.io/charts
+      targetRevision: 11.1.1
+      helm:
+        releaseName: dev-platform-vpa
+        valueFiles:
+          - $values/platform/monitoring/vpa/values.yaml
+
+    - repoURL: https://github.com/nyo-infra-study/infrastructure.git
+      targetRevision: main
+      ref: values
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true

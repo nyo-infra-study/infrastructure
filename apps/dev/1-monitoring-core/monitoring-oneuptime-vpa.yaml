@@ -1,9 +1,15 @@
+# ============================================================
+# OneUptime VPA Policies
+# ============================================================
+# Deploys VPA objects for OneUptime workloads.
+# Co-located with OneUptime values at platform/monitoring/oneuptime/
+# ============================================================
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   annotations:
-    argocd.argoproj.io/sync-wave: "2" # Run after OneUptime is deployed
-  name: dev-monitoring-post-boot-resize
+    argocd.argoproj.io/sync-wave: "2"
+  name: dev-monitoring-oneuptime-vpa
   namespace: argocd
   finalizers:
     - resources-finalizer.argocd.argoproj.io
@@ -15,7 +21,9 @@ spec:
   source:
     repoURL: https://github.com/nyo-infra-study/infrastructure.git
     targetRevision: main
-    path: platform/monitoring/post-boot-resize
+    path: platform/monitoring/oneuptime
+    directory:
+      include: "vpa.yaml"
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring
@@ -23,5 +31,3 @@ spec:
     automated:
       prune: true
       selfHeal: true
-    syncOptions:
-      - CreateNamespace=true

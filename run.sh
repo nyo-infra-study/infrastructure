@@ -214,6 +214,7 @@ run "kubectl rollout status deployment/local-path-provisioner -n kube-system --t
 
 log_step "Installing ArgoCD"
 run "helm repo add argo https://argoproj.github.io/argo-helm"
+run "helm repo add cowboysysop https://cowboysysop.github.io/charts"
 run "helm repo update"
 
 # Read ArgoCD chart version from the app manifest (single source of truth)

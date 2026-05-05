@@ -1,0 +1,41 @@
+# ============================================================
+# Vertical Pod Autoscaler Controller (Local Dev)
+# ============================================================
+# Chart: cowboysysop/vertical-pod-autoscaler
+# Installs VPA CRDs + controller components only.
+#
+# VPA policies for each app live next to that app's values:
+#   - OneUptime: platform/monitoring/oneuptime/vpa.yaml
+# ============================================================
+
+admissionController:
+  enabled: true
+  replicaCount: 1
+  resources:
+    requests:
+      cpu: 25m
+      memory: 64Mi
+    limits:
+      cpu: 100m
+      memory: 128Mi
+
+recommender:
+  replicaCount: 1
+  resources:
+    requests:
+      cpu: 25m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+
+updater:
+  enabled: true
+  replicaCount: 1
+  resources:
+    requests:
+      cpu: 25m
+      memory: 64Mi
+    limits:
+      cpu: 100m
+      memory: 128Mi

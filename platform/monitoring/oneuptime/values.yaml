@@ -31,35 +31,35 @@ deployment:
 # --- App (main OneUptime server — Node.js) ---
 # Reduced concurrency to lower memory footprint for local dev.
 # Default is 100 each — way too much for a single-node setup.
-# Running usage: ~1000m CPU, ~900Mi mem. Boot spike: higher.
-# Using Guaranteed QoS (requests=limits) to avoid boot OOM/throttle.
+# VPA will auto-adjust requests based on actual usage.
+# Limits set to ~3x steady usage for boot spikes.
 app:
   workerConcurrency: 10
   telemetryConcurrency: 10
   resources:
     requests:
-      cpu: 1500m
-      memory: 3072Mi
+      cpu: 500m
+      memory: 1024Mi
     limits:
-      cpu: 1500m
+      cpu: 3000m
       memory: 3072Mi
 
 # --- Nginx / Ingress Gateway ---
-# OneUptime's "nginx" is a Node.js process. OOM'd at 512Mi.
-# Running usage: ~50m CPU, ~500Mi mem. Boot spike: ~800Mi+.
+# OneUptime's "nginx" is a Node.js process.
+# VPA will right-size requests after observing usage.
 nginx:
   resources:
     requests:
-      cpu: 500m
-      memory: 1024Mi
+      cpu: 100m
+      memory: 512Mi
     limits:
-      cpu: 500m
-      memory: 1024Mi
+      cpu: 1500m
+      memory: 1536Mi
   service:
     type: ClusterIP
 
 # --- Probes ---
-# Running usage: ~300m CPU, ~383Mi mem. Boot spike: ~500Mi+.
+# VPA will right-size requests after observing usage.
 probes:
   one:
     name: "Probe"
@@ -68,11 +68,11 @@ probes:
     monitorFetchLimit: 5
     resources:
       requests:
-        cpu: 500m
-        memory: 768Mi
+        cpu: 150m
+        memory: 384Mi
       limits:
-        cpu: 500m
-        memory: 768Mi
+        cpu: 1000m
+        memory: 1280Mi
 
 # --- PostgreSQL (built-in) ---
 postgresql:
