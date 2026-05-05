@@ -87,7 +87,7 @@ if [ "$DOCKER_RUNTIME" == "colima" ]; then
     fi
     # Check if colima is running
     log_step "Starting Colima (if needed)"
-    colima status >/dev/null 2>&1 || run "colima start --cpu 4 --memory 10"
+    colima status >/dev/null 2>&1 || run "colima start --cpu 6 --memory 10"
 elif [ "$DOCKER_RUNTIME" == "docker" ]; then
     if ! docker info >/dev/null 2>&1; then
         echo "❌ Error: Docker daemon is not running. Please start Docker."
