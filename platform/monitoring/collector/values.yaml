@@ -331,13 +331,14 @@ config:
         processors: [batch]
         exporters: [otlp/oneuptime]
 
+# Observed usage: ~22m CPU, ~157Mi memory (with cadvisor + ksm scraping)
 resources:
   requests:
-    cpu: 75m
-    memory: 96Mi
+    cpu: 22m
+    memory: 157Mi
   limits:
     cpu: 300m
-    memory: 192Mi
+    memory: 256Mi
 
 clusterRole:
   create: true

@@ -31,30 +31,34 @@ deployment:
 # --- App (main OneUptime server — Node.js) ---
 # Reduced concurrency to lower memory footprint for local dev.
 # Default is 100 each — way too much for a single-node setup.
+# Observed usage: ~1000m CPU, ~900Mi memory
 app:
   workerConcurrency: 10
   telemetryConcurrency: 10
   resources:
     requests:
-      cpu: 100m
-      memory: 512Mi
-    limits:
       cpu: 1000m
-      memory: 1024Mi
+      memory: 900Mi
+    limits:
+      cpu: 1500m
+      memory: 1536Mi
 
 # --- Nginx / Ingress Gateway ---
+# OneUptime's nginx image is actually a Node.js process, not vanilla nginx.
+# Observed usage: OOM at 512Mi — needs more headroom.
 nginx:
   resources:
     requests:
-      cpu: 25m
-      memory: 64Mi
+      cpu: 50m
+      memory: 512Mi
     limits:
-      cpu: 200m
-      memory: 256Mi
+      cpu: 500m
+      memory: 1024Mi
   service:
     type: ClusterIP
 
 # --- Probes ---
+# Observed usage: ~298m CPU, ~383Mi memory (hitting limit)
 probes:
   one:
     name: "Probe"
@@ -63,11 +67,11 @@ probes:
     monitorFetchLimit: 5
     resources:
       requests:
-        cpu: 50m
-        memory: 128Mi
-      limits:
         cpu: 300m
         memory: 384Mi
+      limits:
+        cpu: 500m
+        memory: 768Mi
 
 # --- PostgreSQL (built-in) ---
 postgresql:
@@ -91,8 +95,8 @@ postgresql:
       storageClass: "local-path"
     resources:
       requests:
-        cpu: 100m
-        memory: 256Mi
+        cpu: 50m
+        memory: 64Mi
       limits:
         cpu: 500m
         memory: 512Mi
@@ -115,8 +119,8 @@ redis:
       enabled: false
     resources:
       requests:
-        cpu: 50m
-        memory: 64Mi
+        cpu: 11m
+        memory: 31Mi
       limits:
         cpu: 200m
         memory: 128Mi
@@ -125,6 +129,7 @@ redis:
     save ""
 
 # --- ClickHouse (for logs, traces, metrics) ---
+# Observed usage: ~39m CPU, ~676Mi memory
 clickhouse:
   enabled: true
   auth:
@@ -146,10 +151,10 @@ clickhouse:
   resources:
     requests:
       cpu: 100m
-      memory: 512Mi
+      memory: 676Mi
     limits:
       cpu: 1000m
-      memory: 1024Mi
+      memory: 1280Mi
 
 # --- Global ---
 global:
