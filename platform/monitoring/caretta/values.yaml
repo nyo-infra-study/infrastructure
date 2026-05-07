@@ -55,6 +55,9 @@ victoria-metrics-single:
   server:
     image:
       repository: quay.io/groundcover/victoria-metrics
+    # Disable PodSecurityPolicy (removed in K8s 1.25+)
+    podSecurityPolicy:
+      enabled: false
     resources:
       requests:
         cpu: 5m
