@@ -33,9 +33,14 @@ skimpjr/web-frontend:dev
 # redis:7
 # clickhouse/clickhouse-server:24.8
 
-# --- SigNoz (platform/monitoring/signoz/values.yaml) ---
-docker.io/clickhouse/clickhouse-server:25.5.6
-docker.io/bitnamilegacy/zookeeper:3.7.1
+# --- SigNoz (DISABLED — replaced by ClickStack) ---
+# docker.io/clickhouse/clickhouse-server:25.5.6
+# docker.io/bitnamilegacy/zookeeper:3.7.1
+
+# --- ClickStack (platform/monitoring/clickstack/values.yaml) ---
+docker.io/clickhouse/clickhouse-server:25.7-alpine
+docker.hyperdx.io/hyperdx/hyperdx:latest
+docker.clickhouse.com/clickhouse/clickstack-otel-collector:2.19.0
 
 # --- OTel Collector (platform/monitoring/collector/values.yaml) ---
 otel/opentelemetry-collector-contrib:0.119.0

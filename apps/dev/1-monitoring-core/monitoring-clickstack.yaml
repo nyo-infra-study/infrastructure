@@ -1,0 +1,52 @@
+# ============================================================
+# ClickStack (HyperDX) — Full-stack Observability Platform
+# ============================================================
+# Chart: clickstack/clickstack v2.1.1
+# Requires: clickstack-operators to be deployed first (sync-wave 0)
+# ============================================================
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: "1" # After operators are ready
+  name: dev-monitoring-clickstack
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+  labels:
+    environment: dev
+    domain: monitoring
+spec:
+  project: default
+  sources:
+    - chart: clickstack
+      repoURL: https://clickhouse.github.io/ClickStack-helm-charts
+      targetRevision: 2.1.1
+      helm:
+        releaseName: dev-monitoring-clickstack
+        valueFiles:
+          - $values/platform/monitoring/clickstack/values.yaml
+
+    - repoURL: https://github.com/nyo-infra-study/infrastructure.git
+      targetRevision: main
+      ref: values
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+      - RespectIgnoreDifferences=true
+
+  ignoreDifferences:
+    - group: apps
+      kind: StatefulSet
+      jqPathExpressions:
+        - ".spec.volumeClaimTemplates[]?.apiVersion"
+        - ".spec.volumeClaimTemplates[]?.kind"

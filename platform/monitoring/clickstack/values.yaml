@@ -1,0 +1,88 @@
+# ============================================================
+# ClickStack (HyperDX) — Full-stack Observability (Local Dev)
+# ============================================================
+# Chart: clickstack/clickstack v2.1.1 (app v2.22.0)
+# Docs:  https://clickhouse.com/docs/use-cases/observability/clickstack
+#
+# UI accessible at: http://clickstack.localhost
+#
+# Components: ClickHouse + HyperDX UI + OTel Collector + MongoDB
+# Signals: Logs, Traces, Metrics, Session Replay
+# ============================================================
+
+hyperdx:
+  ports:
+    api: 8000
+    app: 3000
+
+  config:
+    FRONTEND_URL: "http://clickstack.localhost"
+    HYPERDX_LOG_LEVEL: "info"
+
+  secrets:
+    HYPERDX_API_KEY: "dev-local-clickstack-api-key-00000"
+    CLICKHOUSE_PASSWORD: "otelcollectorpass"
+    CLICKHOUSE_APP_PASSWORD: "hyperdx"
+    MONGODB_PASSWORD: "hyperdx"
+
+  deployment:
+    replicas: 1
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+
+  ingress:
+    enabled: true
+    ingressClassName: traefik
+    annotations: {}
+    host: "clickstack.localhost"
+    path: "/"
+    pathType: "Prefix"
+    tls:
+      enabled: false
+
+# --- ClickHouse (managed by ClickHouse Operator) ---
+clickhouse:
+  enabled: true
+  keeper:
+    spec:
+      replicas: 1
+      dataVolumeClaimSpec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 1Gi
+  cluster:
+    spec:
+      containerTemplate:
+        image:
+          repository: clickhouse/clickhouse-server
+          tag: "25.7-alpine"
+      replicas: 1
+      shards: 1
+
+# --- MongoDB (for HyperDX state: dashboards, alerts, users) ---
+mongodb:
+  enabled: true
+  spec:
+    members: 1
+    type: ReplicaSet
+    version: "5.0.32"
+
+# --- OTel Collector (bundled — receives OTLP and writes to ClickHouse) ---
+# Disable the bundled collector since we use our own external one
+otel-collector:
+  enabled: true
+  mode: deployment
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 300m
+      memory: 256Mi

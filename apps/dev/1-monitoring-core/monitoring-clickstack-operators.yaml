@@ -1,0 +1,37 @@
+# ============================================================
+# ClickStack Operators — CRDs + Operators (must deploy first)
+# ============================================================
+# Installs ClickHouse Operator, MongoDB Operator, and their CRDs.
+# Required before the main clickstack chart can be deployed.
+# ============================================================
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: "0" # Deploy operators first
+  name: dev-monitoring-clickstack-operators
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+  labels:
+    environment: dev
+    domain: monitoring
+spec:
+  project: default
+  source:
+    chart: clickstack-operators
+    repoURL: https://clickhouse.github.io/ClickStack-helm-charts
+    targetRevision: 1.0.0
+    helm:
+      releaseName: clickstack-operators
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+      - Replace=true

@@ -314,9 +314,9 @@ config:
     #         - delete_key(attributes, "prometheus_replica")
 
   exporters:
-    # Send to SigNoz OTel Collector (gRPC on 4317)
-    otlp/signoz:
-      endpoint: "dev-monitoring-signoz-otel-collector.monitoring.svc.cluster.local:4317"
+    # Send to ClickStack's OTel Collector (gRPC on 4317)
+    otlp/clickstack:
+      endpoint: "dev-monitoring-clickstack-otel-collector.monitoring.svc.cluster.local:4317"
       tls:
         insecure: true
 
@@ -332,36 +332,36 @@ config:
       # metrics/kubelet:
       #   receivers: [prometheus/kubelet]
       #   processors: [filter/infra-allow, batch]
-      #   exporters: [otlp/signoz]
+      #   exporters: [otlp/clickstack]
 
       # Collector self-metrics (otelcol_* — monitor the collector's own resource usage)
       metrics/self:
         receivers: [prometheus/self]
         processors: [resource/self, batch]
-        exporters: [otlp/signoz]
+        exporters: [otlp/clickstack]
       # cAdvisor metrics (OOM, CPU throttle, memory/cpu usage)
       metrics/cadvisor:
         receivers: [prometheus/cadvisor]
         processors: [resource/cadvisor, filter/infra-allow, batch]
-        exporters: [otlp/signoz]
+        exporters: [otlp/clickstack]
       # KSM metrics (resource requests/limits, pod status)
       metrics/ksm:
         receivers: [prometheus/ksm]
         processors: [resource/ksm, filter/infra-allow, batch]
-        exporters: [otlp/signoz]
+        exporters: [otlp/clickstack]
       # App metrics from OTLP (backend-server, etc.)
       metrics:
         receivers: [otlp]
         processors: [filter/metrics, batch]
-        exporters: [otlp/signoz]
+        exporters: [otlp/clickstack]
       traces:
         receivers: [otlp]
         processors: [batch]
-        exporters: [otlp/signoz]
+        exporters: [otlp/clickstack]
       logs:
         receivers: [otlp]
         processors: [batch]
-        exporters: [otlp/signoz]
+        exporters: [otlp/clickstack]
 
 # Observed usage: ~22m CPU, ~157Mi memory (with cadvisor + ksm scraping)
 resources:
