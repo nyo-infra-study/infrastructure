@@ -25,6 +25,24 @@ mode: deployment
 service:
   enabled: true
 
+# ── Security hardening ──
+# Fixes Radar audit findings: privilege escalation, runAsNonRoot, read-only fs
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 10001
+  runAsGroup: 10001
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop:
+      - ALL
+
+# Disable auto-mounting service account token (not needed for OTLP receivers)
+# NOTE: Keep enabled because prometheus scraping (cadvisor, ksm) needs the token
+serviceAccount:
+  create: true
+  automountServiceAccountToken: true
+
 # ── Host log mounts (disabled — not needed without filelog receiver) ──
 # extraVolumes:
 #   - name: varlogpods
