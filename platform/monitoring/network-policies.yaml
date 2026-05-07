@@ -75,10 +75,12 @@ spec:
       ports:
         - protocol: TCP
           port: 9100
-    # ClickStack OTel Collector (forward telemetry)
+    # SkyWalking OAP (forward telemetry via OTLP gRPC)
     - to:
         - podSelector: {}
       ports:
+        - protocol: TCP
+          port: 11800
         - protocol: TCP
           port: 4317
         - protocol: TCP
