@@ -26,11 +26,15 @@ spec:
           image: apache/skywalking-banyandb:0.8.0
           args:
             - standalone
+            - --data-path=/data
           ports:
             - containerPort: 17912
               name: grpc
             - containerPort: 17913
               name: http
+          volumeMounts:
+            - name: data
+              mountPath: /data
           resources:
             requests:
               cpu: 100m
@@ -38,6 +42,25 @@ spec:
             limits:
               cpu: "1"
               memory: 1Gi
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: banyandb-data
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: banyandb-data
+  namespace: monitoring
+  labels:
+    app: skywalking-banyandb
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: 1Gi
 ---
 apiVersion: v1
 kind: Service

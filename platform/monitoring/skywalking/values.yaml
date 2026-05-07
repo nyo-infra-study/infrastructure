@@ -23,8 +23,9 @@ oap:
   image:
     repository: skywalking.docker.scarf.sh/apache/skywalking-oap-server
     tag: "10.2.0"
-  # BanyanDB schema is initialized. Run in normal mode.
-  javaOpts: -Xmx768m -Xms768m
+  # BanyanDB schema needs to be re-initialized after BanyanDB restart.
+  # Using -Dmode=init to create schemas, then switch back to no flag.
+  javaOpts: -Dmode=init -Xmx768m -Xms768m
   initEs: false
   ports:
     grpc: 11800
