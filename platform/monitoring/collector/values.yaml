@@ -314,10 +314,12 @@ config:
     #         - delete_key(attributes, "prometheus_replica")
 
   exporters:
-    # Send to SkyWalking OAP Server (OTLP via HTTP on port 12800)
-    # SkyWalking's gRPC port 11800 uses native protocol, NOT standard OTLP
-    otlphttp/skywalking:
-      endpoint: "http://dev-monitoring-skywalking-oap.monitoring.svc.cluster.local:12800"
+    # Send to SkyWalking OAP Server (standard OTLP gRPC on port 11800)
+    # Requires SW_OTEL_RECEIVER_ENABLED_HANDLERS: otlp-metrics,otlp-logs,otlp-traces
+    otlp/skywalking:
+      endpoint: "dev-monitoring-skywalking-oap.monitoring.svc.cluster.local:11800"
+      tls:
+        insecure: true
 
   service:
     # Enable internal telemetry so the collector emits otelcol_* metrics on :8888
@@ -331,36 +333,36 @@ config:
       # metrics/kubelet:
       #   receivers: [prometheus/kubelet]
       #   processors: [filter/infra-allow, batch]
-      #   exporters: [otlphttp/skywalking]
+      #   exporters: [otlp/skywalking]
 
       # Collector self-metrics (otelcol_* — monitor the collector's own resource usage)
       metrics/self:
         receivers: [prometheus/self]
         processors: [resource/self, batch]
-        exporters: [otlphttp/skywalking]
+        exporters: [otlp/skywalking]
       # cAdvisor metrics (OOM, CPU throttle, memory/cpu usage)
       metrics/cadvisor:
         receivers: [prometheus/cadvisor]
         processors: [resource/cadvisor, filter/infra-allow, batch]
-        exporters: [otlphttp/skywalking]
+        exporters: [otlp/skywalking]
       # KSM metrics (resource requests/limits, pod status)
       metrics/ksm:
         receivers: [prometheus/ksm]
         processors: [resource/ksm, filter/infra-allow, batch]
-        exporters: [otlphttp/skywalking]
+        exporters: [otlp/skywalking]
       # App metrics from OTLP (backend-server, etc.)
       metrics:
         receivers: [otlp]
         processors: [filter/metrics, batch]
-        exporters: [otlphttp/skywalking]
+        exporters: [otlp/skywalking]
       traces:
         receivers: [otlp]
         processors: [batch]
-        exporters: [otlphttp/skywalking]
+        exporters: [otlp/skywalking]
       logs:
         receivers: [otlp]
         processors: [batch]
-        exporters: [otlphttp/skywalking]
+        exporters: [otlp/skywalking]
 
 # Observed usage: ~22m CPU, ~157Mi memory (with cadvisor + ksm scraping)
 resources:

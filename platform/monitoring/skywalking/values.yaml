@@ -30,8 +30,9 @@ oap:
     grpc: 11800
     rest: 12800
   env:
-    # Enable OTel receiver for OTLP ingestion
+    # Enable OTel receiver with all OTLP handlers (traces, logs, metrics)
     SW_OTEL_RECEIVER: default
+    SW_OTEL_RECEIVER_ENABLED_HANDLERS: otlp-metrics,otlp-logs,otlp-traces
     # BanyanDB connection
     SW_STORAGE_BANYANDB_TARGETS: dev-monitoring-skywalking-banyandb:17912
   service:
