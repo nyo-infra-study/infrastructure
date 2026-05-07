@@ -20,7 +20,7 @@ hyperdx:
     HYPERDX_LOG_LEVEL: "info"
 
   secrets:
-    HYPERDX_API_KEY: "dev-local-clickstack-api-key-00000"
+    HYPERDX_API_KEY: "6bb81818-3694-4c32-924a-a187c1191773"
     CLICKHOUSE_PASSWORD: "otelcollectorpass"
     CLICKHOUSE_APP_PASSWORD: "hyperdx"
     MONGODB_PASSWORD: "hyperdx"

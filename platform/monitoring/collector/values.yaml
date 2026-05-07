@@ -317,6 +317,8 @@ config:
     # Send to ClickStack's OTel Collector (gRPC on 4317)
     otlp/clickstack:
       endpoint: "dev-monitoring-clickstack-otel-collector.monitoring.svc.cluster.local:4317"
+      headers:
+        authorization: "Bearer 6bb81818-3694-4c32-924a-a187c1191773"
       tls:
         insecure: true
 
