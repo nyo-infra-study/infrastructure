@@ -1,0 +1,60 @@
+# ============================================================
+# BanyanDB — Lightweight storage for Apache SkyWalking
+# ============================================================
+# Standalone mode for local dev. Single instance, no persistence.
+# ============================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dev-monitoring-skywalking-banyandb
+  namespace: monitoring
+  labels:
+    app: skywalking-banyandb
+    release: dev-monitoring-skywalking
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: skywalking-banyandb
+  template:
+    metadata:
+      labels:
+        app: skywalking-banyandb
+    spec:
+      containers:
+        - name: banyandb
+          image: apache/skywalking-banyandb:0.8.0
+          args:
+            - standalone
+          ports:
+            - containerPort: 17912
+              name: grpc
+            - containerPort: 17913
+              name: http
+          resources:
+            requests:
+              cpu: 50m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dev-monitoring-skywalking-banyandb
+  namespace: monitoring
+  labels:
+    app: skywalking-banyandb
+    release: dev-monitoring-skywalking
+spec:
+  type: ClusterIP
+  ports:
+    - port: 17912
+      targetPort: 17912
+      name: grpc
+    - port: 17913
+      targetPort: 17913
+      name: http
+  selector:
+    app: skywalking-banyandb

@@ -1,0 +1,34 @@
+# ============================================================
+# BanyanDB — Storage backend for SkyWalking
+# ============================================================
+# Must deploy before SkyWalking OAP (sync-wave 0)
+# ============================================================
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+  name: dev-monitoring-skywalking-banyandb
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+  labels:
+    environment: dev
+    domain: monitoring
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/nyo-infra-study/infrastructure.git
+    targetRevision: main
+    path: platform/monitoring/skywalking
+    directory:
+      include: 'banyandb.yaml'
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

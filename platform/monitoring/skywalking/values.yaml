@@ -12,14 +12,14 @@
 # OTel integration: OAP server accepts OTLP on gRPC port 11800
 # ============================================================
 
-# --- Disable Elasticsearch (use H2 embedded storage instead) ---
+# --- Disable Elasticsearch (use BanyanDB instead) ---
 elasticsearch:
   enabled: false
 
 # --- OAP Server (Analysis Platform) ---
 oap:
   replicas: 1
-  storageType: h2
+  storageType: banyandb
   image:
     repository: skywalking.docker.scarf.sh/apache/skywalking-oap-server
     tag: "10.2.0"
@@ -33,6 +33,8 @@ oap:
     SW_OTEL_RECEIVER: default
     # Accept metrics from OTel
     SW_OTEL_RECEIVER_ENABLED_OTEL_METRICS_RULES: otel
+    # BanyanDB connection
+    SW_STORAGE_BANYANDB_TARGETS: dev-monitoring-skywalking-banyandb:17912
   service:
     type: ClusterIP
 

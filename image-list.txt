@@ -48,6 +48,7 @@ skimpjr/web-frontend:dev
 # --- SkyWalking (platform/monitoring/skywalking/values.yaml) ---
 skywalking.docker.scarf.sh/apache/skywalking-oap-server:10.2.0
 skywalking.docker.scarf.sh/apache/skywalking-ui:10.2.0
+apache/skywalking-banyandb:0.8.0
 
 # --- OTel Collector (platform/monitoring/collector/values.yaml) ---
 otel/opentelemetry-collector-contrib:0.119.0
