@@ -59,3 +59,9 @@ resources:
   requests:
     cpu: 100m # Guaranteed 0.1 CPU cores
     memory: 64Mi # Guaranteed 64 megabytes
+
+# Pod security context
+podSecurityContext:
+  runAsUser: 10001
+  runAsGroup: 10001
+  fsGroup: 10001

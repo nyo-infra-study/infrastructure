@@ -58,3 +58,10 @@ resources:
   requests:
     cpu: 50m # Guaranteed 0.05 CPU cores
     memory: 32Mi # Guaranteed 32 megabytes
+
+# Pod security context
+# Nginx default user is 101 (nginx)
+podSecurityContext:
+  runAsUser: 101
+  runAsGroup: 101
+  fsGroup: 101

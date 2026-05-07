@@ -18,10 +18,22 @@ spec:
       labels:
         app: {{ .Release.Name }}  # Pod label (must match selector)
     spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: {{ .Values.podSecurityContext.runAsUser | default 10001 }}
+        runAsGroup: {{ .Values.podSecurityContext.runAsGroup | default 10001 }}
+        fsGroup: {{ .Values.podSecurityContext.fsGroup | default 10001 }}
       containers:
         - name: {{ .Release.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
           
           # Environment variables (only rendered if .Values.env is set)
           {{- with .Values.env | default list }}
@@ -54,3 +66,11 @@ spec:
           # Resource limits (CPU/Memory)
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+          
+          # Writable volume for temp files (needed with readOnlyRootFilesystem)
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}
