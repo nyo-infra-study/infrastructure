@@ -2,7 +2,7 @@
 # Apache SkyWalking — APM & Observability Platform
 # ============================================================
 # Chart: skywalking/skywalking v4.3.0
-# Storage: H2 embedded (lightweight for local dev)
+# Storage: BanyanDB (deployed separately via monitoring-skywalking-banyandb)
 # UI: http://skywalking.localhost
 # ============================================================
 apiVersion: argoproj.io/v1alpha1
@@ -43,12 +43,3 @@ spec:
     syncOptions:
       - CreateNamespace=true
       - ServerSideApply=true
-
-  # OAP needs longer probe delays for BanyanDB schema init (patched manually)
-  ignoreDifferences:
-    - group: apps
-      kind: Deployment
-      name: dev-monitoring-skywalking-oap
-      jqPathExpressions:
-        - .spec.template.spec.containers[].livenessProbe
-        - .spec.template.spec.containers[].readinessProbe
