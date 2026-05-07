@@ -24,7 +24,9 @@ oap:
     repository: skywalking.docker.scarf.sh/apache/skywalking-oap-server
     tag: "10.2.0"
   # Reduce JVM heap for local dev (default is 2g)
-  javaOpts: -Xmx512m -Xms512m
+  # -Dmode=init overrides the chart's default no-init to create BanyanDB schema
+  javaOpts: -Dmode=init -Xmx512m -Xms512m
+  initEs: false
   ports:
     grpc: 11800
     rest: 12800
