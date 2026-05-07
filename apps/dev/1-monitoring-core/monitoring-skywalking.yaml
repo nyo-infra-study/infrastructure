@@ -43,3 +43,12 @@ spec:
     syncOptions:
       - CreateNamespace=true
       - ServerSideApply=true
+
+  # OAP needs longer probe delays for BanyanDB schema init (patched manually)
+  ignoreDifferences:
+    - group: apps
+      kind: Deployment
+      name: dev-monitoring-skywalking-oap
+      jqPathExpressions:
+        - .spec.template.spec.containers[].livenessProbe
+        - .spec.template.spec.containers[].readinessProbe
