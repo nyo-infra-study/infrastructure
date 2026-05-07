@@ -75,10 +75,12 @@ spec:
       ports:
         - protocol: TCP
           port: 9100
-    # SkyWalking OAP (forward telemetry via OTLP gRPC)
+    # SkyWalking OAP (forward telemetry via OTLP HTTP)
     - to:
         - podSelector: {}
       ports:
+        - protocol: TCP
+          port: 12800
         - protocol: TCP
           port: 11800
         - protocol: TCP
