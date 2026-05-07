@@ -1,0 +1,63 @@
+# ============================================================
+# Apache SkyWalking — APM & Observability (Local Dev)
+# ============================================================
+# Chart: skywalking/skywalking v4.3.0
+# Docs:  https://skywalking.apache.org/docs/
+#
+# UI accessible at: http://skywalking.localhost
+#
+# Using H2 embedded storage for local dev (no Elasticsearch needed).
+# For production, switch to BanyanDB or Elasticsearch.
+#
+# OTel integration: OAP server accepts OTLP on gRPC port 11800
+# ============================================================
+
+# --- Disable Elasticsearch (use H2 embedded storage instead) ---
+elasticsearch:
+  enabled: false
+
+# --- OAP Server (Analysis Platform) ---
+oap:
+  replicas: 1
+  storageType: h2
+  image:
+    repository: skywalking.docker.scarf.sh/apache/skywalking-oap-server
+    tag: "10.2.0"
+  # Reduce JVM heap for local dev (default is 2g)
+  javaOpts: -Xmx512m -Xms512m
+  ports:
+    grpc: 11800
+    rest: 12800
+  env:
+    # Enable OTel receiver for OTLP ingestion
+    - name: SW_OTEL_RECEIVER
+      value: default
+    # Accept metrics from OTel
+    - name: SW_OTEL_RECEIVER_ENABLED_OTEL_METRICS_RULES
+      value: "otel"
+  service:
+    type: ClusterIP
+
+# --- UI (Booster UI) ---
+ui:
+  replicas: 1
+  image:
+    repository: skywalking.docker.scarf.sh/apache/skywalking-ui
+    tag: "10.2.0"
+  service:
+    type: ClusterIP
+    externalPort: 80
+    internalPort: 8080
+  ingress:
+    enabled: true
+    annotations:
+      traefik.ingress.kubernetes.io/router.entrypoints: web
+    hosts:
+      - host: skywalking.localhost
+        paths:
+          - /
+    path: /
+
+# --- Satellite (disabled — not needed for local dev) ---
+satellite:
+  enabled: false

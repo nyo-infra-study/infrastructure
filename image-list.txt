@@ -33,17 +33,21 @@ skimpjr/web-frontend:dev
 # redis:7
 # clickhouse/clickhouse-server:24.8
 
-# --- SigNoz (DISABLED — replaced by ClickStack) ---
+# --- SigNoz (DISABLED — replaced by SkyWalking) ---
 # docker.io/clickhouse/clickhouse-server:25.5.6
 # docker.io/bitnamilegacy/zookeeper:3.7.1
 
-# --- ClickStack (platform/monitoring/clickstack/values.yaml) ---
-docker.io/clickhouse/clickhouse-server:25.7-alpine
-docker.hyperdx.io/hyperdx/hyperdx:latest
-docker.clickhouse.com/clickhouse/clickstack-otel-collector:2.19.0
-quay.io/mongodb/mongodb-community-server:5.0.32-ubi8
-quay.io/mongodb/mongodb-kubernetes-readinessprobe:1.0.23
-quay.io/mongodb/mongodb-kubernetes-operator-version-upgrade-post-start-hook:1.0.10
+# --- ClickStack (DISABLED — replaced by SkyWalking) ---
+# docker.io/clickhouse/clickhouse-server:25.7-alpine
+# docker.hyperdx.io/hyperdx/hyperdx:latest
+# docker.clickhouse.com/clickhouse/clickstack-otel-collector:2.19.0
+# quay.io/mongodb/mongodb-community-server:5.0.32-ubi8
+# quay.io/mongodb/mongodb-kubernetes-readinessprobe:1.0.23
+# quay.io/mongodb/mongodb-kubernetes-operator-version-upgrade-post-start-hook:1.0.10
+
+# --- SkyWalking (platform/monitoring/skywalking/values.yaml) ---
+skywalking.docker.scarf.sh/apache/skywalking-oap-server:10.2.0
+skywalking.docker.scarf.sh/apache/skywalking-ui:10.2.0
 
 # --- OTel Collector (platform/monitoring/collector/values.yaml) ---
 otel/opentelemetry-collector-contrib:0.119.0
