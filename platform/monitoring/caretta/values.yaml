@@ -25,6 +25,11 @@ resources:
     cpu: 150m
     memory: 300Mi
 
+# Disable PodSecurityPolicy (removed in K8s 1.25+)
+rbac:
+  pspEnabled: false
+  sccEnabled: false
+
 # Polling interval for eBPF metrics (seconds)
 pollIntervalSeconds: 5
 
