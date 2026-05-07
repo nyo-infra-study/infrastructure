@@ -41,6 +41,9 @@ skimpjr/web-frontend:dev
 docker.io/clickhouse/clickhouse-server:25.7-alpine
 docker.hyperdx.io/hyperdx/hyperdx:latest
 docker.clickhouse.com/clickhouse/clickstack-otel-collector:2.19.0
+quay.io/mongodb/mongodb-community-server:5.0.32-ubi8
+quay.io/mongodb/mongodb-kubernetes-readinessprobe:1.0.23
+quay.io/mongodb/mongodb-kubernetes-operator-version-upgrade-post-start-hook:1.0.10
 
 # --- OTel Collector (platform/monitoring/collector/values.yaml) ---
 otel/opentelemetry-collector-contrib:0.119.0
