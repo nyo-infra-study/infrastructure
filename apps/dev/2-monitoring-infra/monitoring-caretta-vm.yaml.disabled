@@ -1,3 +1,7 @@
+# ============================================================
+# DISABLED: Victoria Metrics for Caretta — not needed without Caretta.
+# Re-enable alongside monitoring-caretta.yaml.disabled on a real cluster.
+# ============================================================
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:

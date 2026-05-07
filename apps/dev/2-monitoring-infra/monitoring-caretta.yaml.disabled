@@ -1,3 +1,13 @@
+# ============================================================
+# DISABLED: Caretta requires kernel tracepoints (inet_sock_set_state)
+# that are NOT available in k3d/containerized environments.
+# The eBPF probes fail because k3d nodes don't expose
+# /sys/kernel/debug/tracing/events/sock/ — this is a kernel limitation.
+#
+# Re-enable this (remove .disabled suffix) when deploying to a real
+# cluster (EKS, GKE, AKS, bare-metal) with full kernel access.
+# Also re-enable monitoring-caretta-vm.yaml.disabled alongside this.
+# ============================================================
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:

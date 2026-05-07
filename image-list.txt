@@ -51,11 +51,12 @@ quay.io/prometheus/node-exporter:v1.8.2
 # ghcr.io/kedacore/keda-admission-webhooks:2.17.2
 # ghcr.io/kedacore/keda-metrics-apiserver:2.17.2
 
-# --- Caretta (platform/monitoring/caretta/values.yaml) ---
-quay.io/groundcover/caretta:v0.0.16
+# --- Caretta (DISABLED — eBPF tracepoints not available in k3d) ---
+# Re-enable on a real cluster (EKS/GKE/AKS/bare-metal).
+# quay.io/groundcover/caretta:v0.0.16
 
-# --- Caretta VM (platform/monitoring/caretta/vm-values.yaml) ---
-victoriametrics/victoria-metrics:v1.142.0
+# --- Caretta VM (DISABLED — not needed without Caretta) ---
+# victoriametrics/victoria-metrics:v1.142.0
 
 # --- Radar (platform/monitoring/radar/values.yaml) ---
 ghcr.io/skyhook-io/radar:1.5.10

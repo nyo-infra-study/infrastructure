@@ -79,9 +79,10 @@ mcp:
   enabled: true
 
 # --- Traffic source ---
-# Point Radar at Caretta's Victoria Metrics for traffic data
-traffic:
-  prometheusUrl: "http://caretta-vm-victoria-metrics-single-server.monitoring.svc.cluster.local:8428"
+# Caretta is disabled in k3d (eBPF tracepoints unavailable).
+# On a real cluster, re-enable Caretta and uncomment:
+# traffic:
+#   prometheusUrl: "http://caretta-vm-victoria-metrics-single-server.monitoring.svc.cluster.local:8428"
 
 # --- Persistence (not needed for memory timeline) ---
 persistence:
