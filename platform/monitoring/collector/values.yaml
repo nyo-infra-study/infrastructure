@@ -314,11 +314,9 @@ config:
     #         - delete_key(attributes, "prometheus_replica")
 
   exporters:
-    # Send to OneUptime OTLP endpoint (app service exposes gRPC on 4317)
-    otlp/oneuptime:
-      endpoint: "dev-monitoring-oneuptime-app.monitoring.svc.cluster.local:4317"
-      headers:
-        x-oneuptime-token: "cb509911-6f88-4bfc-89b6-159849077f38"
+    # Send to SigNoz OTel Collector (gRPC on 4317)
+    otlp/signoz:
+      endpoint: "dev-monitoring-signoz-otel-collector.monitoring.svc.cluster.local:4317"
       tls:
         insecure: true
 
@@ -334,36 +332,36 @@ config:
       # metrics/kubelet:
       #   receivers: [prometheus/kubelet]
       #   processors: [filter/infra-allow, batch]
-      #   exporters: [otlp/oneuptime]
+      #   exporters: [otlp/signoz]
 
       # Collector self-metrics (otelcol_* — monitor the collector's own resource usage)
       metrics/self:
         receivers: [prometheus/self]
         processors: [resource/self, batch]
-        exporters: [otlp/oneuptime]
+        exporters: [otlp/signoz]
       # cAdvisor metrics (OOM, CPU throttle, memory/cpu usage)
       metrics/cadvisor:
         receivers: [prometheus/cadvisor]
         processors: [resource/cadvisor, filter/infra-allow, batch]
-        exporters: [otlp/oneuptime]
+        exporters: [otlp/signoz]
       # KSM metrics (resource requests/limits, pod status)
       metrics/ksm:
         receivers: [prometheus/ksm]
         processors: [resource/ksm, filter/infra-allow, batch]
-        exporters: [otlp/oneuptime]
-      # App metrics from OTLP (backend-server, oneuptime components, etc.)
+        exporters: [otlp/signoz]
+      # App metrics from OTLP (backend-server, etc.)
       metrics:
         receivers: [otlp]
         processors: [filter/metrics, batch]
-        exporters: [otlp/oneuptime]
+        exporters: [otlp/signoz]
       traces:
         receivers: [otlp]
         processors: [batch]
-        exporters: [otlp/oneuptime]
+        exporters: [otlp/signoz]
       logs:
         receivers: [otlp]
         processors: [batch]
-        exporters: [otlp/oneuptime]
+        exporters: [otlp/signoz]
 
 # Observed usage: ~22m CPU, ~157Mi memory (with cadvisor + ksm scraping)
 resources:
