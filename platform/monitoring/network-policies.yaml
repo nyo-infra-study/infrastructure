@@ -3,11 +3,15 @@
 # ============================================================
 # Restricts traffic to/from monitoring workloads.
 # Applied via ArgoCD app (monitoring-network-policies).
+#
+# NOTE: DNS egress uses open port rules (no `to:` restriction)
+# because ClusterIP-based DNS (10.43.0.10) doesn't match pod
+# selectors in k3d/k3s network policy implementations.
 # ============================================================
 
 # --- OTel Collector ---
 # Ingress: OTLP from app namespaces, Prometheus scrape from itself
-# Egress: to K8s API (scraping), DNS
+# Egress: to K8s API (scraping), ClickStack collector, DNS
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -41,11 +45,7 @@ spec:
           port: 8888
   egress:
     # DNS
-    - to:
-        - namespaceSelector:
-            matchLabels:
-              kubernetes.io/metadata.name: kube-system
-      ports:
+    - ports:
         - protocol: UDP
           port: 53
         - protocol: TCP
@@ -75,6 +75,14 @@ spec:
       ports:
         - protocol: TCP
           port: 9100
+    # ClickStack OTel Collector (forward telemetry)
+    - to:
+        - podSelector: {}
+      ports:
+        - protocol: TCP
+          port: 4317
+        - protocol: TCP
+          port: 4318
 ---
 # --- Kube State Metrics ---
 # Ingress: from OTel collector (scraping)
@@ -101,11 +109,7 @@ spec:
           port: 8080
   egress:
     # DNS
-    - to:
-        - namespaceSelector:
-            matchLabels:
-              kubernetes.io/metadata.name: kube-system
-      ports:
+    - ports:
         - protocol: UDP
           port: 53
         - protocol: TCP
@@ -174,11 +178,7 @@ spec:
           port: 9280
   egress:
     # DNS
-    - to:
-        - namespaceSelector:
-            matchLabels:
-              kubernetes.io/metadata.name: kube-system
-      ports:
+    - ports:
         - protocol: UDP
           port: 53
         - protocol: TCP
@@ -218,11 +218,7 @@ spec:
           port: 8443
   egress:
     # DNS
-    - to:
-        - namespaceSelector:
-            matchLabels:
-              kubernetes.io/metadata.name: kube-system
-      ports:
+    - ports:
         - protocol: UDP
           port: 53
         - protocol: TCP

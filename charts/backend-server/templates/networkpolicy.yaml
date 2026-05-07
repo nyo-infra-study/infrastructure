@@ -28,11 +28,7 @@ spec:
           port: {{ .Values.containerPort }}
   egress:
     # Allow DNS resolution
-    - to:
-        - namespaceSelector:
-            matchLabels:
-              kubernetes.io/metadata.name: kube-system
-      ports:
+    - ports:
         - protocol: UDP
           port: 53
         - protocol: TCP
