@@ -30,11 +30,9 @@ oap:
     rest: 12800
   env:
     # Enable OTel receiver for OTLP ingestion
-    - name: SW_OTEL_RECEIVER
-      value: default
+    SW_OTEL_RECEIVER: default
     # Accept metrics from OTel
-    - name: SW_OTEL_RECEIVER_ENABLED_OTEL_METRICS_RULES
-      value: "otel"
+    SW_OTEL_RECEIVER_ENABLED_OTEL_METRICS_RULES: otel
   service:
     type: ClusterIP
 
