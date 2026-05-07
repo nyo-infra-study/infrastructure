@@ -1,0 +1,38 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: dev-monitoring-radar
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "3" # After core monitoring infra
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+  labels:
+    environment: dev
+    domain: monitoring
+spec:
+  project: default
+  sources:
+    - chart: radar
+      repoURL: https://skyhook-io.github.io/helm-charts
+      targetRevision: 1.5.10
+      helm:
+        releaseName: dev-monitoring-radar
+        valueFiles:
+          - $values/platform/monitoring/radar/values.yaml
+
+    - repoURL: https://github.com/nyo-infra-study/infrastructure.git
+      targetRevision: main
+      ref: values
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true

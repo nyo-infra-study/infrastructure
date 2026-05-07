@@ -1,0 +1,92 @@
+# ============================================================
+# Radar by Skyhook — Kubernetes Visibility UI (Local Dev)
+# ============================================================
+# Chart: https://github.com/skyhook-io/helm-charts (skyhook/radar v1.5.10)
+# Docs:  https://radarhq.io/docs
+#
+# UI accessible at: http://radar.localhost:9000
+#
+# Features: Topology visualization, resource browser, event timeline,
+# Helm management, GitOps (ArgoCD/FluxCD), traffic maps, cluster audit,
+# image filesystem viewer, and MCP for AI agents.
+# ============================================================
+
+replicaCount: 1
+
+image:
+  repository: ghcr.io/skyhook-io/radar
+  pullPolicy: IfNotPresent
+
+# --- Service ---
+service:
+  type: ClusterIP
+  port: 9280
+
+# --- Ingress (Traefik — consistent with other monitoring tools) ---
+ingress:
+  enabled: true
+  className: traefik
+  annotations: {}
+  hosts:
+    - host: radar.localhost
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+# --- Resources (lightweight for local dev) ---
+resources:
+  requests:
+    cpu: 50m
+    memory: 128Mi
+  limits:
+    cpu: 300m
+    memory: 512Mi
+
+# --- RBAC ---
+rbac:
+  create: true
+  # Enable useful features for local dev
+  secrets: false
+  podExec: true
+  podLogs: true
+  portForward: true
+  helm: true
+  viewRBAC: true
+  traffic: true
+  metrics: true
+  # CRD access — enable ArgoCD since we use it
+  crdGroups:
+    all: false
+    argo: true
+    certManager: true
+    flux: true
+    gatewayApi: true
+    prometheus: true
+    traefik: true
+
+# --- Timeline ---
+timeline:
+  storage: memory
+  historyLimit: 10000
+
+# --- Auth (disabled for local dev) ---
+auth:
+  mode: none
+
+# --- MCP (AI integration — enabled) ---
+mcp:
+  enabled: true
+
+# --- Traffic source ---
+# Auto-discovers Hubble/Caretta/Istio. Set manually if needed:
+# traffic:
+#   prometheusUrl: "http://prometheus-server.monitoring:80"
+
+# --- Persistence (not needed for memory timeline) ---
+persistence:
+  enabled: false
+
+# --- Cloud (disabled — standalone OSS) ---
+cloud:
+  enabled: false
