@@ -79,9 +79,9 @@ mcp:
   enabled: true
 
 # --- Traffic source ---
-# Auto-discovers Hubble/Caretta/Istio. Set manually if needed:
-# traffic:
-#   prometheusUrl: "http://prometheus-server.monitoring:80"
+# Point Radar at Caretta's Victoria Metrics for traffic data
+traffic:
+  prometheusUrl: "http://caretta-vm.monitoring.svc.cluster.local:8428"
 
 # --- Persistence (not needed for memory timeline) ---
 persistence:

@@ -231,38 +231,37 @@ log_step "Waiting for ArgoCD"
 run "kubectl wait --for=condition=available deployment/argocd-server -n argocd --timeout=300s"
 run "kubectl -n argocd rollout status deployment argocd-server"
 
-log_step "Installing Argo Workflows"
-run "kubectl create namespace argo || true"
-# Using --server-side to handle large CRDs and --force-conflicts for recovery
-run "kubectl apply -n argo -f https://github.com/argoproj/argo-workflows/releases/download/v4.0.0/install.yaml --server-side --force-conflicts"
+# --- Argo Workflows (DISABLED — frontend build not needed locally) ---
+# log_step "Installing Argo Workflows"
+# run "kubectl create namespace argo || true"
+# run "kubectl apply -n argo -f https://github.com/argoproj/argo-workflows/releases/download/v4.0.0/install.yaml --server-side --force-conflicts"
 
-log_step "Waiting for Argo Workflows"
-run "kubectl -n argo rollout status deployment/argo-server"
-run "kubectl -n argo rollout status deployment/workflow-controller"
+# log_step "Waiting for Argo Workflows"
+# run "kubectl -n argo rollout status deployment/argo-server"
+# run "kubectl -n argo rollout status deployment/workflow-controller"
 
-log_step "Installing Argo Events"
-run "kubectl create namespace argo-events"
-run "kubectl apply -f https://raw.githubusercontent.com/argoproj/argo-events/stable/manifests/install.yaml"
-# Install EventBus (NATS for event transport)
-run "kubectl apply -n argo -f https://raw.githubusercontent.com/argoproj/argo-events/stable/examples/eventbus/native.yaml"
+# log_step "Installing Argo Events"
+# run "kubectl create namespace argo-events"
+# run "kubectl apply -f https://raw.githubusercontent.com/argoproj/argo-events/stable/manifests/install.yaml"
+# run "kubectl apply -n argo -f https://raw.githubusercontent.com/argoproj/argo-events/stable/examples/eventbus/native.yaml"
 
-log_step "Waiting for Argo Events"
-run "kubectl -n argo-events rollout status deployment/controller-manager"
+# log_step "Waiting for Argo Events"
+# run "kubectl -n argo-events rollout status deployment/controller-manager"
 
 log_step "Configuring Secrets"
-# GitHub Access Token
+# GitHub Access Token (still needed for ArgoCD private repo access)
+run "kubectl create namespace argo || true"
 run "kubectl create secret generic github-access \
   -n argo \
   --from-literal=token='$GITHUB_TOKEN'"
 
-# Docker Registry Credentials
-# Note: Creating generic secret for flexibility or docker-registry type if needed by Argo
-run "kubectl create secret docker-registry docker-credentials \
-  --docker-server='$DOCKER_REGISTRY_SERVER' \
-  --docker-username='$DOCKER_USERNAME' \
-  --docker-password='$DOCKER_PASSWORD' \
-  --docker-email='$DOCKER_EMAIL' \
-  -n argo"
+# --- Docker Registry Credentials (DISABLED — frontend build not needed locally) ---
+# run "kubectl create secret docker-registry docker-credentials \
+#   --docker-server='$DOCKER_REGISTRY_SERVER' \
+#   --docker-username='$DOCKER_USERNAME' \
+#   --docker-password='$DOCKER_PASSWORD' \
+#   --docker-email='$DOCKER_EMAIL' \
+#   -n argo"
 
 log_step "Initializing Dev Environment"
 # Create namespace early (ArgoCD might do it, but we need it for secrets)
@@ -312,14 +311,7 @@ echo ""
 echo "  ArgoCD UI:    http://localhost:9000/argocd"
 echo "  Frontend:     http://localhost:9000/web"
 echo "  Backend API:  http://localhost:9000/api"
-echo "  OneUptime:    http://oneuptime.localhost"
 echo "  Radar:        http://radar.localhost"
 echo ""
 echo "  ArgoCD Password: $(kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath='{.data.password}' 2>/dev/null | base64 --decode 2>/dev/null || echo 'see previous output')"
-echo ""
-echo "  ⚠️  POST-SETUP: Update OneUptime ingestion token"
-echo "     1. Open http://oneuptime.localhost → Settings → Ingestion Keys"
-echo "     2. Copy the token"
-echo "     3. Update 'x-oneuptime-token' in platform/monitoring/collector/values.yaml"
-echo "     4. Push to Git and let ArgoCD sync (or restart the otel collector pod)"
 echo ""

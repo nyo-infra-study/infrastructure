@@ -1,0 +1,93 @@
+# ============================================================
+# Caretta — eBPF-based K8s Traffic Visibility (Local Dev)
+# ============================================================
+# Chart: https://helm.groundcover.com (groundcover/caretta v0.0.16)
+# Docs:  https://github.com/groundcover-com/caretta
+#
+# Provides lightweight eBPF-based service-to-service traffic mapping.
+# Radar auto-detects Caretta as a traffic data source for its
+# Traffic view (topology + animated flow graph).
+#
+# NOTE: Requires Linux kernel >= 4.16 with CO-RE support.
+# Works in k3d/Colima (Linux VM) but NOT natively on Docker for Mac.
+# ============================================================
+
+# --- Caretta Agent ---
+image:
+  repository: quay.io/groundcover/caretta
+  pullPolicy: IfNotPresent
+
+resources:
+  requests:
+    cpu: 10m
+    memory: 50Mi
+  limits:
+    cpu: 150m
+    memory: 300Mi
+
+# Polling interval for eBPF metrics (seconds)
+pollIntervalSeconds: 5
+
+# Resolve K8s entities to their owners (pod → deployment)
+traverseUpHierarchy: true
+
+# DNS resolving for external connections
+enableDnsResolving: true
+
+# Tolerate control-plane nodes
+tolerations:
+  - key: node-role.kubernetes.io/control-plane
+    operator: Exists
+    effect: NoSchedule
+  - key: node-role.kubernetes.io/master
+    operator: Exists
+    effect: NoSchedule
+
+# --- Victoria Metrics (metrics storage for Caretta) ---
+# Keep enabled — Radar reads Caretta metrics from this instance
+victoria-metrics-single:
+  enabled: true
+  server:
+    image:
+      repository: quay.io/groundcover/victoria-metrics
+    resources:
+      requests:
+        cpu: 5m
+        memory: 50Mi
+      limits:
+        cpu: 200m
+        memory: 256Mi
+    fullnameOverride: caretta-vm
+    persistentVolume:
+      enabled: false
+    scrape:
+      enabled: true
+      config:
+        global:
+          scrape_interval: 15s
+        scrape_configs:
+          - job_name: 'caretta'
+            metrics_path: /metrics
+            scrape_interval: 5s
+            kubernetes_sd_configs:
+              - role: pod
+                namespaces:
+                  own_namespace: true
+            relabel_configs:
+              - source_labels: [__meta_kubernetes_pod_label_app]
+                separator: ;
+                regex: caretta
+                replacement: $1
+                action: keep
+              - action: labelmap
+                regex: __meta_kubernetes_pod_label_(.+)
+              - source_labels: [__meta_kubernetes_pod_name]
+                action: replace
+                target_label: caretta_pod
+              - source_labels: [__meta_kubernetes_pod_node_name]
+                action: replace
+                target_label: caretta_node
+
+# --- Grafana (disabled — Radar provides the visualization) ---
+grafana:
+  enabled: false

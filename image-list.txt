@@ -25,20 +25,13 @@ skimpjr/backend-server:latest
 # --- Web Frontend (charts/web-frontend/values.yaml + apps/dev) ---
 skimpjr/web-frontend:dev
 
-# --- OneUptime core (platform/monitoring/oneuptime/values.yaml) ---
-# The chart deploys multiple microservices using the same registry/repo pattern
-docker.io/oneuptime/app:10.0.94
-docker.io/oneuptime/nginx:10.0.94
-docker.io/oneuptime/probe:10.0.94
-
-# --- OneUptime PostgreSQL ---
-postgres:16
-
-# --- OneUptime Redis ---
-redis:7
-
-# --- OneUptime ClickHouse ---
-clickhouse/clickhouse-server:24.8
+# --- OneUptime core (DISABLED — too heavy for local dev) ---
+# docker.io/oneuptime/app:10.0.94
+# docker.io/oneuptime/nginx:10.0.94
+# docker.io/oneuptime/probe:10.0.94
+# postgres:16
+# redis:7
+# clickhouse/clickhouse-server:24.8
 
 # --- OTel Collector (platform/monitoring/collector/values.yaml) ---
 otel/opentelemetry-collector-contrib:0.119.0
@@ -49,14 +42,18 @@ registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.14.0
 # --- Node Exporter (apps/dev/monitoring-node-exporter.yaml — chart default image) ---
 quay.io/prometheus/node-exporter:v1.8.2
 
-# --- Argo Workflows (used by github-poller, frontend-build) ---
-alpine/git:latest
-gcr.io/kaniko-project/executor:latest
+# --- Argo Workflows + Events (DISABLED — frontend build not needed locally) ---
+# alpine/git:latest
+# gcr.io/kaniko-project/executor:latest
 
-# --- KEDA (deployed by OneUptime chart as dependency) ---
-ghcr.io/kedacore/keda:2.17.2
-ghcr.io/kedacore/keda-admission-webhooks:2.17.2
-ghcr.io/kedacore/keda-metrics-apiserver:2.17.2
+# --- KEDA (DISABLED — was deployed as OneUptime chart dependency) ---
+# ghcr.io/kedacore/keda:2.17.2
+# ghcr.io/kedacore/keda-admission-webhooks:2.17.2
+# ghcr.io/kedacore/keda-metrics-apiserver:2.17.2
+
+# --- Caretta (platform/monitoring/caretta/values.yaml) ---
+quay.io/groundcover/caretta:v0.0.16
+quay.io/groundcover/victoria-metrics:latest
 
 # --- Radar (platform/monitoring/radar/values.yaml) ---
 ghcr.io/skyhook-io/radar:1.5.10
