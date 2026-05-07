@@ -1,53 +1,19 @@
 # ============================================================
 # Network Policies — kube-system Namespace
 # ============================================================
-# Covers k3d system workloads: CoreDNS, Traefik, metrics-server,
+# Covers k3d system workloads: Traefik, metrics-server,
 # local-path-provisioner, svclb (service load balancer).
 #
-# NOTE: DNS egress uses open port rules (no `to:` restriction)
-# because ClusterIP-based DNS doesn't match pod selectors in
-# k3d/k3s network policy implementations.
+# NOTE: CoreDNS is intentionally NOT covered by a network policy.
+# In k3d, CoreDNS needs unrestricted egress to reach the host's
+# upstream DNS resolver, which uses non-standard networking that
+# network policies can't properly express. Restricting CoreDNS
+# breaks all DNS resolution cluster-wide.
+#
+# DNS egress in other policies uses open port rules (no `to:`)
+# because ClusterIP-based DNS doesn't match pod selectors.
 # ============================================================
 
-# --- CoreDNS ---
-# Ingress: DNS from all namespaces (open — every pod needs DNS)
-# Egress: upstream DNS, K8s API
-apiVersion: networking.k8s.io/v1
-kind: NetworkPolicy
-metadata:
-  name: coredns
-  namespace: kube-system
-spec:
-  podSelector:
-    matchLabels:
-      k8s-app: kube-dns
-  policyTypes:
-    - Ingress
-    - Egress
-  ingress:
-    # All pods need DNS — allow from everywhere
-    - ports:
-        - protocol: UDP
-          port: 53
-        - protocol: TCP
-          port: 53
-  egress:
-    # Upstream DNS resolvers
-    - ports:
-        - protocol: UDP
-          port: 53
-        - protocol: TCP
-          port: 53
-    # K8s API (for service discovery)
-    - to:
-        - ipBlock:
-            cidr: 0.0.0.0/0
-      ports:
-        - protocol: TCP
-          port: 443
-        - protocol: TCP
-          port: 6443
----
 # --- Traefik Ingress Controller ---
 # Ingress: external traffic (HTTP/HTTPS)
 # Egress: to all namespaces (routes to backend services), DNS, K8s API
