@@ -33,10 +33,10 @@ spec:
               name: http
           resources:
             requests:
-              cpu: 50m
+              cpu: 100m
               memory: 512Mi
             limits:
-              cpu: 500m
+              cpu: "1"
               memory: 1Gi
 ---
 apiVersion: v1
