@@ -64,29 +64,90 @@ Compare what's allocated vs what's actually used. Key for right-sizing.
 
 ---
 
-## 5. Suggested Dashboard Layout
+## 5. Suggested Dashboard Layout (with metric names)
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│ Row 1: Overview                                             │
-│ [Total Metrics/s] [Total Spans/s] [Total Logs/s] [OOM Count]│
-├─────────────────────────────────────────────────────────────┤
-│ Row 2: Collector Internals                                  │
-│ [Collector CPU] [Collector Memory] [Queue Length]            │
-├─────────────────────────────────────────────────────────────┤
-│ Row 3: Resource Usage                                       │
-│ [CPU by Pod - stacked] [Memory by Pod - stacked]            │
-├─────────────────────────────────────────────────────────────┤
-│ Row 4: Usage vs Requests                                    │
-│ [CPU usage vs request] [Memory usage vs request]            │
-├─────────────────────────────────────────────────────────────┤
-│ Row 5: Throttle & OOM                                       │
-│ [CPU Throttle %] [OOM Events] [Pod Restarts]                │
-├─────────────────────────────────────────────────────────────┤
-│ Row 6: Pod Health Table                                     │
-│ [Pod | Status | Restarts | Last Terminated Reason]          │
-└─────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ Row 1: Overview (Single Value / Counter widgets)                            │
+│                                                                             │
+│ [Total Metrics/s]                    [Total Spans/s]                        │
+│  rate(otelcol_receiver_accepted_     rate(otelcol_receiver_accepted_        │
+│  metric_points_total)                spans_total)                           │
+│                                                                             │
+│ [Total Logs/s]                       [OOM Count]                            │
+│  rate(otelcol_receiver_accepted_     container_oom_events_total             │
+│  log_records_total)                  {namespace="monitoring"}               │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ Row 2: Collector Internals (Line charts)                                    │
+│                                                                             │
+│ [Collector CPU]                      [Collector Memory]                     │
+│  otelcol_process_cpu_seconds_total   otelcol_process_memory_rss_bytes       │
+│  (rate)                              (raw value, bytes)                     │
+│                                                                             │
+│ [Queue Length]                        [Batch Send Size]                     │
+│  otelcol_exporter_queue_size          otelcol_processor_batch_              │
+│                                       batch_send_size                       │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ Row 3: Resource Usage — CPU & Memory (Stacked area charts)                  │
+│                                                                             │
+│ [CPU by Pod - stacked]               [Memory by Pod - stacked]             │
+│  container_cpu_usage_seconds_total   container_memory_working_set_bytes     │
+│  {namespace="monitoring"}            {namespace="monitoring"}               │
+│  (rate, group by pod)                (raw, group by pod)                    │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ Row 4: Usage vs Requests (Dual-line per pod)                                │
+│                                                                             │
+│ [CPU: Usage vs Request]              [Memory: Usage vs Request]             │
+│  Line 1: rate(container_cpu_usage_   Line 1: container_memory_             │
+│           seconds_total)                      working_set_bytes             │
+│  Line 2: kube_pod_container_         Line 2: kube_pod_container_           │
+│           resource_requests                   resource_requests             │
+│           {resource="cpu"}                    {resource="memory"}           │
+│  (both filtered namespace=           (both filtered namespace=             │
+│   "monitoring", group by pod)         "monitoring", group by pod)          │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ Row 5: Throttle & OOM (Line + Counter)                                      │
+│                                                                             │
+│ [CPU Throttle %]                     [OOM Events]                          │
+│  container_cpu_cfs_throttled_        container_oom_events_total             │
+│  periods_total                       {namespace="monitoring"}              │
+│  ÷ container_cpu_cfs_periods_total   (rate, group by pod)                  │
+│  {namespace="monitoring"}                                                   │
+│  (× 100, group by pod)              [Pod Restarts]                         │
+│                                      kube_pod_container_status_            │
+│                                      restarts_total                        │
+│                                      {namespace="monitoring"}              │
+│                                      (rate, group by pod)                  │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ Row 6: Pod Health (Table widget)                                            │
+│                                                                             │
+│ Columns:                                                                    │
+│  - pod:    from label                                                       │
+│  - phase:  kube_pod_status_phase{namespace="monitoring"}                    │
+│  - restarts: kube_pod_container_status_restarts_total                       │
+│  - terminated_reason: kube_pod_container_status_last_terminated_reason       │
+│  - waiting_reason: kube_container_status_waiting_reason                     │
+└─────────────────────────────────────────────────────────────────────────────┘
 ```
+
+### Quick Reference — Metric → What It Tells You
+
+| Metric | Unit | What to watch for |
+|--------|------|-------------------|
+| `otelcol_receiver_accepted_metric_points_total` | points/s | Ingest throughput |
+| `otelcol_receiver_accepted_spans_total` | spans/s | Trace volume |
+| `otelcol_receiver_accepted_log_records_total` | records/s | Log volume |
+| `otelcol_process_cpu_seconds_total` | cores (rate) | >0.2 = collector working hard |
+| `otelcol_process_memory_rss_bytes` | bytes | Approaching 256Mi limit? |
+| `otelcol_exporter_queue_size` | count | >0 sustained = backpressure |
+| `otelcol_processor_batch_batch_send_size` | count | Small = timeout-based, large = full batches |
+| `container_cpu_usage_seconds_total` | cores (rate) | Compare to requests/limits |
+| `container_memory_working_set_bytes` | bytes | What OOM killer uses |
+| `container_oom_events_total` | count | Any >0 = problem |
+| `container_cpu_cfs_throttled_periods_total` | count | Divide by `cfs_periods_total` for % |
+| `kube_pod_container_resource_requests` | cpu/memory | What's allocated |
+| `kube_pod_container_status_restarts_total` | count | >3 in 10m = crash loop |
+| `kube_pod_status_phase` | enum | Should be "Running" |
 
 ---
 
