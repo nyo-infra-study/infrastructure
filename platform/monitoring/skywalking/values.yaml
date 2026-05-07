@@ -33,8 +33,6 @@ oap:
   env:
     # Enable OTel receiver for OTLP ingestion
     SW_OTEL_RECEIVER: default
-    # Accept metrics from OTel
-    SW_OTEL_RECEIVER_ENABLED_OTEL_METRICS_RULES: otel
     # BanyanDB connection
     SW_STORAGE_BANYANDB_TARGETS: dev-monitoring-skywalking-banyandb:17912
   service:
