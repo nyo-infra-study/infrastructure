@@ -81,7 +81,7 @@ mcp:
 # --- Traffic source ---
 # Point Radar at Caretta's Victoria Metrics for traffic data
 traffic:
-  prometheusUrl: "http://caretta-vm.monitoring.svc.cluster.local:8428"
+  prometheusUrl: "http://caretta-vm-victoria-metrics-single-server.monitoring.svc.cluster.local:8428"
 
 # --- Persistence (not needed for memory timeline) ---
 persistence:

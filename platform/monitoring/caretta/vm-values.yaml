@@ -1,0 +1,50 @@
+# ============================================================
+# Victoria Metrics Single — Metrics store for Caretta
+# ============================================================
+# Chart: victoriametrics/victoria-metrics-single v0.37.0
+# Purpose: Scrapes Caretta's /metrics endpoint and serves PromQL
+#          queries for Radar's Traffic view.
+# ============================================================
+
+server:
+  enabled: true
+  image:
+    repository: victoriametrics/victoria-metrics
+  resources:
+    requests:
+      cpu: 5m
+      memory: 50Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+  persistentVolume:
+    enabled: false
+
+  scrape:
+    enabled: true
+    config:
+      global:
+        scrape_interval: 15s
+      scrape_configs:
+        - job_name: 'caretta'
+          metrics_path: /metrics
+          scrape_interval: 5s
+          kubernetes_sd_configs:
+            - role: pod
+              namespaces:
+                names:
+                  - monitoring
+          relabel_configs:
+            - source_labels: [__meta_kubernetes_pod_label_app]
+              separator: ;
+              regex: caretta
+              replacement: $1
+              action: keep
+            - action: labelmap
+              regex: __meta_kubernetes_pod_label_(.+)
+            - source_labels: [__meta_kubernetes_pod_name]
+              action: replace
+              target_label: caretta_pod
+            - source_labels: [__meta_kubernetes_pod_node_name]
+              action: replace
+              target_label: caretta_node
