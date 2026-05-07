@@ -53,9 +53,7 @@ ui:
     annotations:
       traefik.ingress.kubernetes.io/router.entrypoints: web
     hosts:
-      - host: skywalking.localhost
-        paths:
-          - /
+      - skywalking.localhost
     path: /
 
 # --- Satellite (disabled — not needed for local dev) ---
