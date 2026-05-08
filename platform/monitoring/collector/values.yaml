@@ -322,7 +322,9 @@ config:
     # Send logs to Loki (OTLP HTTP — Loki's native OTLP endpoint)
     otlphttp/loki:
       endpoint: "http://dev-lgtm-loki.monitoring.svc.cluster.local:3100/otlp"
-    # Send metrics to Prometheus (OTLP HTTP remote write)
+    # Send metrics to Prometheus (OTLP HTTP)
+    # Prometheus OTLP receiver expects: POST /api/v1/otlp/v1/metrics
+    # otlphttp exporter appends /v1/metrics automatically, so base = /api/v1/otlp
     otlphttp/prometheus:
       endpoint: "http://dev-lgtm-prometheus-server.monitoring.svc.cluster.local:80/api/v1/otlp"
 
