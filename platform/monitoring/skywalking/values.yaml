@@ -51,6 +51,10 @@ oap:
     # Enable OTel receiver with all OTLP handlers
     SW_OTEL_RECEIVER: default
     SW_OTEL_RECEIVER_ENABLED_HANDLERS: otlp-metrics,otlp-logs,otlp-traces
+    # Enable Zipkin receiver (required for otlp-traces handler)
+    SW_RECEIVER_ZIPKIN: default
+    # Enable Zipkin query (required for trace viewing)
+    SW_QUERY_ZIPKIN: default
   service:
     type: ClusterIP
 
