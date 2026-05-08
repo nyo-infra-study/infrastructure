@@ -54,7 +54,7 @@ datasources:
             datasourceUid: loki
             spanStartTimeShift: "-1m"
             spanEndTimeShift: "1m"
-            filterByTraceID: false
+            filterByTraceID: true
             filterBySpanID: false
             tags:
               - key: "service.name"
