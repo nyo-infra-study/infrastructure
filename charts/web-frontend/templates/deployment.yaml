@@ -32,6 +32,8 @@ spec:
                 - NET_BIND_SERVICE
                 - SETGID
                 - SETUID
+                - CHOWN
+                - DAC_OVERRIDE
           
           # Container port (Nginx web server listens here)
           ports:
