@@ -11,8 +11,8 @@ singleBinary:
   replicas: 1
   resources:
     requests:
-      cpu: 50m
-      memory: 256Mi
+      cpu: 20m
+      memory: 128Mi
     limits:
       cpu: 500m
       memory: 512Mi
@@ -59,4 +59,11 @@ monitoring:
 
 # Disable test
 test:
+  enabled: false
+
+
+# Disable caches (not needed for local dev, saves memory)
+chunksCache:
+  enabled: false
+resultsCache:
   enabled: false
