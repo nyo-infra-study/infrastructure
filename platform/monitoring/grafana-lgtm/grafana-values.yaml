@@ -29,11 +29,13 @@ datasources:
     datasources:
       - name: Prometheus
         type: prometheus
+        uid: prometheus
         url: http://dev-lgtm-prometheus-server.monitoring.svc.cluster.local:80
         isDefault: true
         access: proxy
       - name: Loki
         type: loki
+        uid: loki
         url: http://dev-lgtm-loki.monitoring.svc.cluster.local:3100
         access: proxy
         jsonData:
@@ -50,8 +52,24 @@ datasources:
         jsonData:
           tracesToLogsV2:
             datasourceUid: loki
+            spanStartTimeShift: "-1m"
+            spanEndTimeShift: "1m"
+            filterByTraceID: false
+            filterBySpanID: false
+            tags:
+              - key: "service.name"
+                value: "service_name"
+          tracesToMetrics:
+            datasourceUid: prometheus
+            spanStartTimeShift: "-1m"
+            spanEndTimeShift: "1m"
+            tags:
+              - key: "service.name"
+                value: "service_name"
           serviceMap:
             datasourceUid: prometheus
+          nodeGraph:
+            enabled: true
 
 # Disable test framework
 testFramework:
