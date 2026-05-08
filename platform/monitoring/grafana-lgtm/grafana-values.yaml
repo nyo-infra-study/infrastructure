@@ -1,0 +1,61 @@
+# ============================================================
+# Grafana — Observability UI (Local Dev)
+# ============================================================
+# Chart: grafana/grafana v10.5.15
+# UI: http://grafana.localhost
+# Default login: admin / admin
+# ============================================================
+
+replicas: 1
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 256Mi
+
+ingress:
+  enabled: true
+  ingressClassName: traefik
+  hosts:
+    - grafana.localhost
+
+# Pre-configure data sources (Loki, Tempo, Prometheus)
+datasources:
+  datasources.yaml:
+    apiVersion: 1
+    datasources:
+      - name: Prometheus
+        type: prometheus
+        url: http://dev-lgtm-prometheus-server.monitoring.svc.cluster.local:80
+        isDefault: true
+        access: proxy
+      - name: Loki
+        type: loki
+        url: http://dev-lgtm-loki.monitoring.svc.cluster.local:3100
+        access: proxy
+        jsonData:
+          derivedFields:
+            - datasourceUid: tempo
+              matcherRegex: '"traceId":"(\w+)"'
+              name: TraceID
+              url: '$${__value.raw}'
+      - name: Tempo
+        type: tempo
+        uid: tempo
+        url: http://dev-lgtm-tempo.monitoring.svc.cluster.local:3100
+        access: proxy
+        jsonData:
+          tracesToLogsV2:
+            datasourceUid: loki
+          serviceMap:
+            datasourceUid: prometheus
+
+# Disable test framework
+testFramework:
+  enabled: false
+
+# Admin password (local dev)
+adminPassword: admin

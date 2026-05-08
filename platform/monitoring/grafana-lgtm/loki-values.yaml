@@ -1,0 +1,62 @@
+# ============================================================
+# Loki — Log Aggregation (Local Dev, Single Binary Mode)
+# ============================================================
+# Chart: grafana/loki v7.0.0
+# Receives logs via OTLP from OTel Collector
+# ============================================================
+
+deploymentMode: SingleBinary
+
+singleBinary:
+  replicas: 1
+  resources:
+    requests:
+      cpu: 50m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+# Minimal storage (filesystem, no S3/MinIO needed for dev)
+loki:
+  auth_enabled: false
+  commonConfig:
+    replication_factor: 1
+  storage:
+    type: filesystem
+  schemaConfig:
+    configs:
+      - from: "2024-01-01"
+        store: tsdb
+        object_store: filesystem
+        schema: v13
+        index:
+          prefix: index_
+          period: 24h
+
+# Accept OTLP
+gateway:
+  enabled: false
+
+# Disable components not needed in single binary mode
+backend:
+  replicas: 0
+read:
+  replicas: 0
+write:
+  replicas: 0
+
+# Disable minio (use filesystem)
+minio:
+  enabled: false
+
+# Disable monitoring (we monitor via our own OTel collector)
+monitoring:
+  selfMonitoring:
+    enabled: false
+  lokiCanary:
+    enabled: false
+
+# Disable test
+test:
+  enabled: false

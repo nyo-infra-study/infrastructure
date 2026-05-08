@@ -314,12 +314,17 @@ config:
     #         - delete_key(attributes, "prometheus_replica")
 
   exporters:
-    # Send to SkyWalking OAP Server (standard OTLP gRPC on port 11800)
-    # Requires SW_OTEL_RECEIVER_ENABLED_HANDLERS: otlp-metrics,otlp-logs,otlp-traces
-    otlp/skywalking:
-      endpoint: "dev-monitoring-skywalking-oap.monitoring.svc.cluster.local:11800"
+    # Send traces to Tempo (OTLP gRPC)
+    otlp/tempo:
+      endpoint: "dev-lgtm-tempo.monitoring.svc.cluster.local:4317"
       tls:
         insecure: true
+    # Send logs to Loki (OTLP HTTP — Loki's native OTLP endpoint)
+    otlphttp/loki:
+      endpoint: "http://dev-lgtm-loki.monitoring.svc.cluster.local:3100/otlp"
+    # Send metrics to Prometheus (OTLP HTTP remote write)
+    otlphttp/prometheus:
+      endpoint: "http://dev-lgtm-prometheus-server.monitoring.svc.cluster.local:80/api/v1/otlp"
 
   service:
     # Enable internal telemetry so the collector emits otelcol_* metrics on :8888
@@ -333,36 +338,36 @@ config:
       # metrics/kubelet:
       #   receivers: [prometheus/kubelet]
       #   processors: [filter/infra-allow, batch]
-      #   exporters: [otlp/skywalking]
+      #   exporters: [otlphttp/prometheus]
 
       # Collector self-metrics (otelcol_* — monitor the collector's own resource usage)
       metrics/self:
         receivers: [prometheus/self]
         processors: [resource/self, batch]
-        exporters: [otlp/skywalking]
+        exporters: [otlphttp/prometheus]
       # cAdvisor metrics (OOM, CPU throttle, memory/cpu usage)
       metrics/cadvisor:
         receivers: [prometheus/cadvisor]
         processors: [resource/cadvisor, filter/infra-allow, batch]
-        exporters: [otlp/skywalking]
+        exporters: [otlphttp/prometheus]
       # KSM metrics (resource requests/limits, pod status)
       metrics/ksm:
         receivers: [prometheus/ksm]
         processors: [resource/ksm, filter/infra-allow, batch]
-        exporters: [otlp/skywalking]
+        exporters: [otlphttp/prometheus]
       # App metrics from OTLP (backend-server, etc.)
       metrics:
         receivers: [otlp]
         processors: [filter/metrics, batch]
-        exporters: [otlp/skywalking]
+        exporters: [otlphttp/prometheus]
       traces:
         receivers: [otlp]
         processors: [batch]
-        exporters: [otlp/skywalking]
+        exporters: [otlp/tempo]
       logs:
         receivers: [otlp]
         processors: [batch]
-        exporters: [otlp/skywalking]
+        exporters: [otlphttp/loki]
 
 # Observed usage: ~22m CPU, ~157Mi memory (with cadvisor + ksm scraping)
 resources:

@@ -1,0 +1,34 @@
+# ============================================================
+# Prometheus — Metrics (Local Dev)
+# ============================================================
+# Using Prometheus instead of Mimir for lightweight local dev.
+# Receives metrics via OTLP remote write from OTel Collector.
+# ============================================================
+
+# We don't need Prometheus to scrape anything — OTel Collector does that.
+# Prometheus just stores metrics received via remote write.
+server:
+  resources:
+    requests:
+      cpu: 50m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  persistentVolume:
+    enabled: true
+    size: 2Gi
+  # Enable OTLP write receiver
+  extraFlags:
+    - "web.enable-remote-write-receiver"
+    - "enable-feature=otlp-write-receiver"
+
+# Disable all scrapers (OTel Collector handles scraping)
+alertmanager:
+  enabled: false
+kube-state-metrics:
+  enabled: false
+prometheus-node-exporter:
+  enabled: false
+prometheus-pushgateway:
+  enabled: false

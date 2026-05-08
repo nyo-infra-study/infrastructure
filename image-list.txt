@@ -45,10 +45,11 @@ skimpjr/web-frontend:dev
 # quay.io/mongodb/mongodb-kubernetes-readinessprobe:1.0.23
 # quay.io/mongodb/mongodb-kubernetes-operator-version-upgrade-post-start-hook:1.0.10
 
-# --- SkyWalking (platform/monitoring/skywalking/values.yaml) ---
-skywalking.docker.scarf.sh/apache/skywalking-oap-server:10.2.0
-skywalking.docker.scarf.sh/apache/skywalking-ui:10.2.0
-docker.elastic.co/elasticsearch/elasticsearch:7.17.27
+# --- Grafana LGTM Stack (platform/monitoring/grafana-lgtm/) ---
+grafana/grafana:12.3.1
+grafana/loki:3.6.7
+grafana/tempo:2.9.0
+prom/prometheus:v3.4.1
 
 # --- OTel Collector (platform/monitoring/collector/values.yaml) ---
 otel/opentelemetry-collector-contrib:0.119.0

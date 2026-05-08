@@ -1,0 +1,33 @@
+# ============================================================
+# Tempo — Distributed Tracing (Local Dev, Single Binary)
+# ============================================================
+# Chart: grafana/tempo v1.24.4
+# Receives traces via OTLP from OTel Collector
+# ============================================================
+
+tempo:
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  # Accept OTLP gRPC and HTTP
+  receivers:
+    otlp:
+      protocols:
+        grpc:
+          endpoint: "0.0.0.0:4317"
+        http:
+          endpoint: "0.0.0.0:4318"
+  storage:
+    trace:
+      backend: local
+      local:
+        path: /var/tempo/traces
+      wal:
+        path: /var/tempo/wal
+
+# Single binary mode
+replicas: 1
