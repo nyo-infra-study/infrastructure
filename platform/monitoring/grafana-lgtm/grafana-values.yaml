@@ -33,6 +33,10 @@ datasources:
         url: http://dev-lgtm-prometheus-server.monitoring.svc.cluster.local:80
         isDefault: true
         access: proxy
+        jsonData:
+          exemplarTraceIdDestinations:
+            - datasourceUid: tempo
+              name: trace_id
       - name: Loki
         type: loki
         uid: loki
@@ -42,7 +46,7 @@ datasources:
           derivedFields:
             - datasourceUid: tempo
               matcherRegex: '"trace_id":"(\w+)"'
-              name: TraceID
+              name: trace_id
               url: '$${__value.raw}'
       - name: Tempo
         type: tempo
