@@ -80,9 +80,13 @@ spec:
         - podSelector: {}
       ports:
         - protocol: TCP
+          port: 80
+        - protocol: TCP
           port: 9090
         - protocol: TCP
           port: 3100
+        - protocol: TCP
+          port: 3200
         - protocol: TCP
           port: 12800
         - protocol: TCP
