@@ -1,0 +1,270 @@
+version: '3'
+
+vars:
+  CLUSTER_NAME: dev
+  NS_MON: monitoring
+  NS_DEV: dev
+  # Script paths (move run.sh/stop.sh to scripts/ when ready)
+  RUN_SCRIPT: '{{if (pathExists "./scripts/run.sh")}}./scripts/run.sh{{else}}./run.sh{{end}}'
+  STOP_SCRIPT: '{{if (pathExists "./scripts/stop.sh")}}./scripts/stop.sh{{else}}./stop.sh{{end}}'
+
+silent: true
+
+tasks:
+  # ─── Default ─────────────────────────────────────────────────
+  default:
+    desc: "Show available commands"
+    cmds:
+      - |
+        gum style \
+          --border rounded --border-foreground 39 \
+          --padding "0 2" --margin "1 0" \
+          "⚡ Infrastructure CLI"
+        echo ""
+        gum style --foreground 255 --bold "Cluster"
+        echo "  $(gum style --foreground 82 'task up')            Create cluster & deploy"
+        echo "  $(gum style --foreground 82 'task down')          Destroy cluster"
+        echo "  $(gum style --foreground 82 'task restart')       Destroy + recreate"
+        echo ""
+        gum style --foreground 255 --bold "Status"
+        echo "  $(gum style --foreground 75 'task status')        Dashboard overview"
+        echo "  $(gum style --foreground 75 'task pods')          All pods"
+        echo "  $(gum style --foreground 75 'task apps')          ArgoCD sync status"
+        echo "  $(gum style --foreground 75 'task top')           Resource usage"
+        echo ""
+        gum style --foreground 255 --bold "Logs"
+        echo "  $(gum style --foreground 213 'task logs:otel')     OTel Collector"
+        echo "  $(gum style --foreground 213 'task logs:backend')  Backend server"
+        echo "  $(gum style --foreground 213 'task logs:grafana')  Grafana"
+        echo "  $(gum style --foreground 213 'task logs:loki')     Loki"
+        echo "  $(gum style --foreground 213 'task logs:tempo')    Tempo"
+        echo ""
+        gum style --foreground 255 --bold "Debug"
+        echo "  $(gum style --foreground 220 'task debug:otel')    Export health check"
+        echo "  $(gum style --foreground 220 'task debug:argocd')  Sync issues"
+        echo ""
+        gum style --foreground 255 --bold "Utilities"
+        echo "  $(gum style --foreground 117 'task sync')          Force refresh all apps"
+        echo "  $(gum style --foreground 117 'task password')      ArgoCD password"
+        echo "  $(gum style --foreground 117 'task prune')         Clean Docker"
+        echo "  $(gum style --foreground 117 'task open:grafana')  Open Grafana"
+        echo "  $(gum style --foreground 117 'task open:argocd')   Open ArgoCD"
+        echo "  $(gum style --foreground 117 'task open:radar')    Open Radar"
+        echo ""
+
+  # ─── Cluster Lifecycle ───────────────────────────────────────
+  up:
+    desc: "🚀 Create cluster and deploy everything"
+    cmds:
+      - |
+        gum style \
+          --border rounded --border-foreground 82 \
+          --padding "0 2" --margin "1 0" \
+          "🚀 Starting Cluster"
+      - '{{.RUN_SCRIPT}} {{.CLI_ARGS}}'
+      - task: status
+
+  down:
+    desc: "🛑 Destroy the cluster"
+    cmds:
+      - |
+        gum style \
+          --border rounded --border-foreground 196 \
+          --padding "0 2" --margin "1 0" \
+          "🛑 Stopping Cluster"
+      - '{{.STOP_SCRIPT}}'
+
+  restart:
+    desc: "♻️  Destroy and recreate"
+    cmds:
+      - task: down
+      - task: up
+
+  # ─── Status ─────────────────────────────────────────────────
+  status:
+    desc: "📊 Cluster dashboard"
+    cmds:
+      - |
+        gum style \
+          --border rounded --border-foreground 39 \
+          --padding "0 2" --margin "1 0" \
+          "📊 Cluster Status"
+
+        # Endpoints
+        gum style --bold --foreground 255 "  🔗 Endpoints"
+        echo "     ArgoCD    → $(gum style --foreground 75 'http://localhost:9000/argocd')"
+        echo "     Frontend  → $(gum style --foreground 75 'http://localhost:9000/web')"
+        echo "     Backend   → $(gum style --foreground 75 'http://localhost:9000/api')"
+        echo "     Grafana   → $(gum style --foreground 75 'http://grafana.localhost') (admin/admin)"
+        echo "     Radar     → $(gum style --foreground 75 'http://radar.localhost')"
+        echo ""
+
+        # Pods
+        gum style --bold --foreground 255 "  📦 Pods"
+        RUNNING=$(kubectl get pods -A --no-headers 2>/dev/null | grep -c "Running" || echo 0)
+        TOTAL=$(kubectl get pods -A --no-headers 2>/dev/null | wc -l | tr -d ' ')
+        FAILED=$(kubectl get pods -A --no-headers 2>/dev/null | grep -cE "Error|CrashLoop|ImagePull" || echo 0)
+        if [ "$FAILED" -gt 0 ]; then
+          echo "     $(gum style --foreground 82 "● $RUNNING Running")  $(gum style --foreground 196 "● $FAILED Failed")  (${TOTAL} total)"
+        else
+          echo "     $(gum style --foreground 82 "● $RUNNING Running")  (${TOTAL} total)"
+        fi
+        echo ""
+
+        # ArgoCD
+        gum style --bold --foreground 255 "  🎯 ArgoCD"
+        SYNCED=$(kubectl get apps -n argocd --no-headers 2>/dev/null | grep -c "Synced" || echo 0)
+        TOTAL_APPS=$(kubectl get apps -n argocd --no-headers 2>/dev/null | wc -l | tr -d ' ')
+        OOS=$((TOTAL_APPS - SYNCED))
+        if [ "$OOS" -gt 0 ]; then
+          echo "     $(gum style --foreground 82 "✓ $SYNCED Synced")  $(gum style --foreground 220 "◌ $OOS OutOfSync")  (${TOTAL_APPS} apps)"
+        else
+          echo "     $(gum style --foreground 82 "✓ $SYNCED Synced")  (${TOTAL_APPS} apps)"
+        fi
+        echo ""
+
+  pods:
+    desc: "📋 All pods"
+    cmds:
+      - |
+        gum style --bold --margin "1 0" "📋 Pods"
+        kubectl get pods -A --sort-by=.metadata.namespace 2>/dev/null | \
+          gum style --foreground 252
+
+  apps:
+    desc: "🎯 ArgoCD apps"
+    cmds:
+      - |
+        gum style --bold --margin "1 0" "🎯 ArgoCD Applications"
+        echo ""
+        kubectl get apps -n argocd --no-headers 2>/dev/null | while read -r name sync health rest; do
+          if [ "$sync" = "Synced" ] && [ "$health" = "Healthy" ]; then
+            echo "  $(gum style --foreground 82 '✓') $(gum style --foreground 252 "$name")"
+          elif [ "$health" = "Progressing" ]; then
+            echo "  $(gum style --foreground 220 '◌') $(gum style --foreground 252 "$name") $(gum style --faint "$sync/$health")"
+          else
+            echo "  $(gum style --foreground 196 '✗') $(gum style --foreground 252 "$name") $(gum style --faint "$sync/$health")"
+          fi
+        done
+        echo ""
+
+  top:
+    desc: "📈 Resource usage"
+    cmds:
+      - |
+        gum style --bold --margin "1 0" "📈 Resource Usage"
+        echo ""
+        gum style --bold "  Node:"
+        kubectl top nodes 2>/dev/null | sed 's/^/  /' || echo "  (metrics-server not ready)"
+        echo ""
+        gum style --bold "  Top Pods (by memory):"
+        kubectl top pods -A --sort-by=memory --no-headers 2>/dev/null | head -10 | sed 's/^/  /' || true
+        echo ""
+
+  # ─── Logs ────────────────────────────────────────────────────
+  logs:otel:
+    desc: "📡 OTel Collector logs"
+    cmds:
+      - gum style --bold --foreground 39 --margin "1 0" "📡 OTel Collector" && echo ""
+      - kubectl logs -n {{.NS_MON}} -l app.kubernetes.io/instance=dev-monitoring-otel -f --tail=50
+
+  logs:backend:
+    desc: "🖥️  Backend logs"
+    cmds:
+      - gum style --bold --foreground 39 --margin "1 0" "🖥️  Backend Server" && echo ""
+      - kubectl logs -n {{.NS_DEV}} -l app=dev-backend-server -f --tail=50
+
+  logs:grafana:
+    desc: "📈 Grafana logs"
+    cmds:
+      - gum style --bold --foreground 39 --margin "1 0" "📈 Grafana" && echo ""
+      - kubectl logs -n {{.NS_MON}} -l app.kubernetes.io/name=grafana -f --tail=50
+
+  logs:loki:
+    desc: "📝 Loki logs"
+    cmds:
+      - gum style --bold --foreground 39 --margin "1 0" "📝 Loki" && echo ""
+      - kubectl logs -n {{.NS_MON}} -l app.kubernetes.io/name=loki -f --tail=50
+
+  logs:tempo:
+    desc: "🔍 Tempo logs"
+    cmds:
+      - gum style --bold --foreground 39 --margin "1 0" "🔍 Tempo" && echo ""
+      - kubectl logs -n {{.NS_MON}} -l app.kubernetes.io/name=tempo -f --tail=50
+
+  # ─── Debug ──────────────────────────────────────────────────
+  debug:otel:
+    desc: "🐛 OTel export health"
+    cmds:
+      - |
+        gum style --bold --margin "1 0" "🐛 OTel Export Health (last 60s)"
+        echo ""
+        ERRORS=$(kubectl logs -n {{.NS_MON}} -l app.kubernetes.io/instance=dev-monitoring-otel --since=60s 2>/dev/null | grep -ci "error\|failed" || true)
+        if [ "$ERRORS" = "0" ]; then
+          gum style --foreground 82 "  ✓ No errors — data flowing normally"
+        else
+          gum style --foreground 196 "  ✗ $ERRORS error(s):"
+          echo ""
+          kubectl logs -n {{.NS_MON}} -l app.kubernetes.io/instance=dev-monitoring-otel --since=60s 2>/dev/null | grep -i "error\|failed" | tail -5 | sed 's/^/    /'
+        fi
+        echo ""
+
+  debug:argocd:
+    desc: "🐛 ArgoCD sync issues"
+    cmds:
+      - |
+        gum style --bold --margin "1 0" "🐛 ArgoCD Issues"
+        echo ""
+        ISSUES=$(kubectl get apps -n argocd --no-headers 2>/dev/null | grep -v "Synced.*Healthy" | wc -l | tr -d ' ')
+        if [ "$ISSUES" = "0" ]; then
+          gum style --foreground 82 "  ✓ All apps healthy"
+        else
+          kubectl get apps -n argocd --no-headers 2>/dev/null | grep -v "Synced.*Healthy" | while read -r name sync health rest; do
+            echo "  $(gum style --foreground 196 '✗') $name ($sync/$health)"
+          done
+        fi
+        echo ""
+
+  # ─── Utilities ──────────────────────────────────────────────
+  sync:
+    desc: "🔄 Force refresh all apps"
+    cmds:
+      - |
+        gum spin --spinner dot --title "Refreshing all ArgoCD apps..." -- bash -c '
+          for app in $(kubectl get apps -n argocd -o jsonpath="{.items[*].metadata.name}" 2>/dev/null); do
+            kubectl patch app "$app" -n argocd --type merge -p "{\"metadata\":{\"annotations\":{\"argocd.argoproj.io/refresh\":\"hard\"}}}" 2>/dev/null
+          done
+        '
+        gum style --foreground 82 "  ✓ All apps refreshed"
+        echo ""
+
+  password:
+    desc: "🔑 ArgoCD password"
+    cmds:
+      - |
+        PW=$(kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath='{.data.password}' 2>/dev/null | base64 --decode)
+        echo ""
+        echo "  🔑 ArgoCD: $(gum style --bold --foreground 220 "$PW")"
+        echo ""
+
+  prune:
+    desc: "🧹 Clean Docker"
+    cmds:
+      - |
+        gum spin --spinner dot --title "Cleaning Docker resources..." -- docker system prune -a --volumes -f
+        gum style --foreground 82 "  ✓ Docker cleaned"
+        echo ""
+
+  # ─── Open ───────────────────────────────────────────────────
+  open:grafana:
+    desc: "🌐 Open Grafana"
+    cmds: [open http://grafana.localhost]
+  open:argocd:
+    desc: "🌐 Open ArgoCD"
+    cmds: [open http://localhost:9000/argocd]
+  open:radar:
+    desc: "🌐 Open Radar"
+    cmds: [open http://radar.localhost]
+  open:app:
+    desc: "🌐 Open web app"
+    cmds: [open http://localhost:9000/web]
