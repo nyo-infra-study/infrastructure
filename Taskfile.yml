@@ -4,9 +4,6 @@ vars:
   CLUSTER_NAME: dev
   NS_MON: monitoring
   NS_DEV: dev
-  # Script paths (move run.sh/stop.sh to scripts/ when ready)
-  RUN_SCRIPT: '{{if (pathExists "./scripts/run.sh")}}./scripts/run.sh{{else}}./run.sh{{end}}'
-  STOP_SCRIPT: '{{if (pathExists "./scripts/stop.sh")}}./scripts/stop.sh{{else}}./stop.sh{{end}}'
 
 silent: true
 
@@ -61,7 +58,7 @@ tasks:
           --border rounded --border-foreground 82 \
           --padding "0 2" --margin "1 0" \
           "🚀 Starting Cluster"
-      - '{{.RUN_SCRIPT}} {{.CLI_ARGS}}'
+      - './scripts/run.sh {{.CLI_ARGS}}'
       - task: status
 
   down:
@@ -72,7 +69,7 @@ tasks:
           --border rounded --border-foreground 196 \
           --padding "0 2" --margin "1 0" \
           "🛑 Stopping Cluster"
-      - '{{.STOP_SCRIPT}}'
+      - './scripts/stop.sh'
 
   restart:
     desc: "♻️  Destroy and recreate"
