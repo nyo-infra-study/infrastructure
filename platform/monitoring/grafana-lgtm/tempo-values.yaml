@@ -25,6 +25,26 @@ tempo:
   metricsGenerator:
     enabled: true
     remoteWriteUrl: "http://dev-lgtm-prometheus-server.monitoring.svc.cluster.local:80/api/v1/write"
+    processor:
+      service_graphs:
+        dimensions:
+          - service.name
+          - http.method
+          - http.status_code
+      span_metrics:
+        dimensions:
+          - service.name
+          - http.method
+          - http.status_code
+          - http.route
+
+  # Override defaults to enable metrics generator for all tenants
+  overrides:
+    defaults:
+      metrics_generator:
+        processors:
+          - service-graphs
+          - span-metrics
   storage:
     trace:
       backend: local
