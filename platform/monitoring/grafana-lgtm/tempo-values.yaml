@@ -21,6 +21,10 @@ tempo:
           endpoint: "0.0.0.0:4317"
         http:
           endpoint: "0.0.0.0:4318"
+  # Enable metrics generator for Grafana Traces Drilldown
+  metricsGenerator:
+    enabled: true
+    remoteWriteUrl: "http://dev-lgtm-prometheus-server.monitoring.svc.cluster.local:80/api/v1/write"
   storage:
     trace:
       backend: local
