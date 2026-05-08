@@ -45,8 +45,6 @@ spec:
               mountPath: /var/run
             - name: nginx-tmp
               mountPath: /tmp
-            - name: nginx-conf
-              mountPath: /etc/nginx/conf.d
           
           # Resource limits (CPU/Memory)
           # Frontend typically needs less than backend (static files)
@@ -58,6 +56,4 @@ spec:
         - name: nginx-run
           emptyDir: {}
         - name: nginx-tmp
-          emptyDir: {}
-        - name: nginx-conf
           emptyDir: {}
