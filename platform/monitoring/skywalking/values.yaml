@@ -6,35 +6,48 @@
 #
 # UI accessible at: http://skywalking.localhost
 #
-# Using H2 embedded storage for local dev (no Elasticsearch needed).
-# For production, switch to BanyanDB or Elasticsearch.
-#
-# OTel integration: OAP server accepts OTLP on gRPC port 11800
+# Using Elasticsearch (chart default, production-recommended).
+# ES handles schema init automatically via the initEs job.
 # ============================================================
 
-# --- Disable Elasticsearch (use BanyanDB instead) ---
+# --- Elasticsearch (bundled — single node for local dev) ---
 elasticsearch:
-  enabled: false
+  enabled: true
+  replicas: 1
+  minimumMasterNodes: 1
+  resources:
+    requests:
+      cpu: 100m
+      memory: 1Gi
+    limits:
+      cpu: "1"
+      memory: 2Gi
+  esJavaOpts: -Xmx1g -Xms1g
+  persistence:
+    enabled: true
+  volumeClaimTemplate:
+    accessModes:
+      - ReadWriteOnce
+    resources:
+      requests:
+        storage: 2Gi
+  # Use a newer ES version
+  imageTag: "7.17.27"
 
 # --- OAP Server (Analysis Platform) ---
 oap:
   replicas: 1
-  storageType: banyandb
   image:
     repository: skywalking.docker.scarf.sh/apache/skywalking-oap-server
     tag: "10.2.0"
-  # BanyanDB schemas are persisted (PVC). Normal mode — no schema init needed.
   javaOpts: -Xmx768m -Xms768m
-  initEs: false
   ports:
     grpc: 11800
     rest: 12800
   env:
-    # Enable OTel receiver with all OTLP handlers (traces, logs, metrics)
+    # Enable OTel receiver with all OTLP handlers
     SW_OTEL_RECEIVER: default
     SW_OTEL_RECEIVER_ENABLED_HANDLERS: otlp-metrics,otlp-logs,otlp-traces
-    # BanyanDB connection
-    SW_STORAGE_BANYANDB_TARGETS: dev-monitoring-skywalking-banyandb:17912
   service:
     type: ClusterIP
 
@@ -56,6 +69,6 @@ ui:
       - skywalking.localhost
     path: /
 
-# --- Satellite (disabled — not needed for local dev) ---
+# --- Satellite (disabled) ---
 satellite:
   enabled: false
