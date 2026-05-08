@@ -1,0 +1,208 @@
+# ============================================================
+# VPA Policies — Auto-tune resource requests for all workloads
+# ============================================================
+# Mode: Auto — VPA will update requests automatically on pod restart
+# ============================================================
+
+# --- LGTM Stack ---
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: vpa-grafana
+  namespace: monitoring
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: dev-lgtm-grafana
+  updatePolicy:
+    updateMode: Auto
+  resourcePolicy:
+    containerPolicies:
+      - containerName: grafana
+        minAllowed:
+          cpu: 10m
+          memory: 64Mi
+        maxAllowed:
+          cpu: 500m
+          memory: 512Mi
+---
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: vpa-loki
+  namespace: monitoring
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: StatefulSet
+    name: dev-lgtm-loki
+  updatePolicy:
+    updateMode: Auto
+  resourcePolicy:
+    containerPolicies:
+      - containerName: loki
+        minAllowed:
+          cpu: 10m
+          memory: 64Mi
+        maxAllowed:
+          cpu: "1"
+          memory: 1Gi
+---
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: vpa-tempo
+  namespace: monitoring
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: StatefulSet
+    name: dev-lgtm-tempo
+  updatePolicy:
+    updateMode: Auto
+  resourcePolicy:
+    containerPolicies:
+      - containerName: tempo
+        minAllowed:
+          cpu: 10m
+          memory: 32Mi
+        maxAllowed:
+          cpu: 500m
+          memory: 512Mi
+---
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: vpa-prometheus
+  namespace: monitoring
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: dev-lgtm-prometheus-server
+  updatePolicy:
+    updateMode: Auto
+  resourcePolicy:
+    containerPolicies:
+      - containerName: prometheus-server
+        minAllowed:
+          cpu: 10m
+          memory: 128Mi
+        maxAllowed:
+          cpu: "1"
+          memory: 1Gi
+---
+# --- OTel Collector ---
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: vpa-otel-collector
+  namespace: monitoring
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: dev-monitoring-otel-opentelemetry-collector
+  updatePolicy:
+    updateMode: Auto
+  resourcePolicy:
+    containerPolicies:
+      - containerName: opentelemetry-collector
+        minAllowed:
+          cpu: 10m
+          memory: 128Mi
+        maxAllowed:
+          cpu: 500m
+          memory: 768Mi
+---
+# --- Radar ---
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: vpa-radar
+  namespace: monitoring
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: dev-monitoring-radar
+  updatePolicy:
+    updateMode: Auto
+  resourcePolicy:
+    containerPolicies:
+      - containerName: radar
+        minAllowed:
+          cpu: 10m
+          memory: 32Mi
+        maxAllowed:
+          cpu: 300m
+          memory: 512Mi
+---
+# --- KSM ---
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: vpa-ksm
+  namespace: monitoring
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: dev-monitoring-ksm-kube-state-metrics
+  updatePolicy:
+    updateMode: Auto
+  resourcePolicy:
+    containerPolicies:
+      - containerName: kube-state-metrics
+        minAllowed:
+          cpu: 5m
+          memory: 16Mi
+        maxAllowed:
+          cpu: 200m
+          memory: 256Mi
+---
+# --- Dev namespace ---
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: vpa-backend-server
+  namespace: dev
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: dev-backend-server
+  updatePolicy:
+    updateMode: Auto
+  resourcePolicy:
+    containerPolicies:
+      - containerName: dev-backend-server
+        minAllowed:
+          cpu: 5m
+          memory: 16Mi
+        maxAllowed:
+          cpu: 300m
+          memory: 256Mi
+---
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: vpa-web-frontend
+  namespace: dev
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: dev-web-frontend
+  updatePolicy:
+    updateMode: Auto
+  resourcePolicy:
+    containerPolicies:
+      - containerName: dev-web-frontend
+        minAllowed:
+          cpu: 5m
+          memory: 8Mi
+        maxAllowed:
+          cpu: 200m
+          memory: 128Mi
