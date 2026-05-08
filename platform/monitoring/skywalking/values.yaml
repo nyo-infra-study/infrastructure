@@ -37,6 +37,7 @@ elasticsearch:
 # --- OAP Server (Analysis Platform) ---
 oap:
   replicas: 1
+  storageType: elasticsearch
   image:
     repository: skywalking.docker.scarf.sh/apache/skywalking-oap-server
     tag: "10.2.0"
