@@ -326,7 +326,7 @@ config:
     # Prometheus OTLP receiver expects: POST /api/v1/otlp/v1/metrics
     # otlphttp exporter appends /v1/metrics automatically, so base = /api/v1/otlp
     otlphttp/prometheus:
-      endpoint: "http://dev-lgtm-prometheus-server.monitoring.svc.cluster.local:9090/api/v1/otlp"
+      endpoint: "http://dev-lgtm-prometheus-server.monitoring.svc.cluster.local:80/api/v1/otlp"
 
   service:
     # Enable internal telemetry so the collector emits otelcol_* metrics on :8888
