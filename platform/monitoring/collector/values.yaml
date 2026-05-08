@@ -112,6 +112,23 @@ config:
             static_configs:
               - targets: ['dev-monitoring-ksm-kube-state-metrics.monitoring.svc.cluster.local:8080']
 
+    # ── ArgoCD metrics (sync status, app health, reconciliation) ──
+    prometheus/argocd:
+      config:
+        scrape_configs:
+          - job_name: 'argocd-server'
+            scrape_interval: 30s
+            static_configs:
+              - targets: ['argocd-server-metrics.argocd.svc.cluster.local:8083']
+          - job_name: 'argocd-repo-server'
+            scrape_interval: 30s
+            static_configs:
+              - targets: ['argocd-repo-server-metrics.argocd.svc.cluster.local:8084']
+          - job_name: 'argocd-application-controller'
+            scrape_interval: 30s
+            static_configs:
+              - targets: ['argocd-application-controller-metrics.argocd.svc.cluster.local:8082']
+
     # ── Prometheus scrape jobs (disabled — kubelet + node-exporter too heavy for local dev) ──
     # prometheus/kubelet:
     #   config:
@@ -238,6 +255,12 @@ config:
           value: "kube-state-metrics"
           action: upsert
 
+    resource/argocd:
+      attributes:
+        - key: service.name
+          value: "argocd"
+          action: upsert
+
     # ── Enrich logs with k8s metadata (disabled — not needed without filelog) ──
     # k8sattributes:
     #   auth_type: "serviceAccount"
@@ -354,6 +377,11 @@ config:
       metrics/ksm:
         receivers: [prometheus/ksm]
         processors: [resource/ksm, filter/infra-allow, batch]
+        exporters: [prometheusremotewrite]
+      # ArgoCD metrics (sync status, app health, reconciliation performance)
+      metrics/argocd:
+        receivers: [prometheus/argocd]
+        processors: [resource/argocd, batch]
         exporters: [prometheusremotewrite]
       # App metrics from OTLP (backend-server, etc.)
       metrics:

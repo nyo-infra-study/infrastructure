@@ -61,6 +61,17 @@ tasks:
       - './scripts/run.sh {{.CLI_ARGS}}'
       - task: status
 
+  up:verbose:
+    desc: "🚀 Create cluster (verbose)"
+    cmds:
+      - |
+        gum style \
+          --border rounded --border-foreground 82 \
+          --padding "0 2" --margin "1 0" \
+          "🚀 Starting Cluster (verbose)"
+      - './scripts/run.sh -vvv'
+      - task: status
+
   down:
     desc: "🛑 Destroy the cluster"
     cmds:
@@ -69,7 +80,7 @@ tasks:
           --border rounded --border-foreground 196 \
           --padding "0 2" --margin "1 0" \
           "🛑 Stopping Cluster"
-      - './scripts/stop.sh'
+      - './scripts/stop.sh {{.CLI_ARGS}}'
 
   restart:
     desc: "♻️  Destroy and recreate"

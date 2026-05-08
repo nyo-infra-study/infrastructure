@@ -33,6 +33,13 @@ server:
     # Without this, ArgoCD would generate broken URLs (expecting /)
     - --rootpath=/argocd
 
+  # Enable metrics service for OTel scraping
+  metrics:
+    enabled: true
+    service:
+      type: ClusterIP
+      servicePort: 8083
+
   # Ingress configuration for external access
   ingress:
     enabled: true # Enable Ingress (vs port-forward)
@@ -42,3 +49,17 @@ server:
     path: /argocd # URL path (http://localhost:9000/argocd)
     pathType: Prefix # Match /argocd and /argocd/*
     tls: false # Disable TLS (use HTTP not HTTPS)
+
+controller:
+  metrics:
+    enabled: true
+    service:
+      type: ClusterIP
+      servicePort: 8082
+
+repoServer:
+  metrics:
+    enabled: true
+    service:
+      type: ClusterIP
+      servicePort: 8084
