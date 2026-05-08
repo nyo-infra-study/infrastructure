@@ -45,7 +45,7 @@ datasources:
       - name: Tempo
         type: tempo
         uid: tempo
-        url: http://dev-lgtm-tempo.monitoring.svc.cluster.local:3100
+        url: http://dev-lgtm-tempo.monitoring.svc.cluster.local:3200
         access: proxy
         jsonData:
           tracesToLogsV2:
