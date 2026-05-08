@@ -30,6 +30,8 @@ spec:
                 - ALL
               add:
                 - NET_BIND_SERVICE
+                - SETGID
+                - SETUID
           
           # Container port (Nginx web server listens here)
           ports:
