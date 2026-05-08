@@ -51,6 +51,8 @@ oap:
     # Enable OTel receiver with all OTLP handlers
     SW_OTEL_RECEIVER: default
     SW_OTEL_RECEIVER_ENABLED_HANDLERS: otlp-metrics,otlp-logs,otlp-traces
+    # Metrics rules for K8s monitoring (built-in rule files)
+    SW_OTEL_RECEIVER_ENABLED_OTEL_METRICS_RULES: k8s/k8s-cluster,k8s/k8s-node,k8s/k8s-service
     # Enable Zipkin receiver (required for otlp-traces handler)
     SW_RECEIVER_ZIPKIN: default
     # Enable Zipkin query (required for trace viewing)
