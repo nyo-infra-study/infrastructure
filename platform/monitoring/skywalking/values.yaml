@@ -15,6 +15,8 @@ elasticsearch:
   enabled: true
   replicas: 1
   minimumMasterNodes: 1
+  # Disable PDB (uses deprecated policy/v1beta1 API removed in K8s 1.25+)
+  maxUnavailable: ""
   resources:
     requests:
       cpu: 100m
