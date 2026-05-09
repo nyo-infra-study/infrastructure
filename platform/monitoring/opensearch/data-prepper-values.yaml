@@ -8,6 +8,11 @@
 
 replicaCount: 1
 
+# JVM needs to start fast enough for the hardcoded 2s liveness probe
+extraEnvs:
+  - name: JAVA_OPTS
+    value: "-Xms128m -Xmx512m -XX:+UseG1GC"
+
 resources:
   requests:
     cpu: 200m
@@ -16,21 +21,9 @@ resources:
     cpu: 1500m
     memory: 2Gi
 
-# Data Prepper is a JVM app — needs time to start
-livenessProbe:
-  httpGet:
-    path: /list
-    port: 4900
-  initialDelaySeconds: 60
-  periodSeconds: 10
-  failureThreshold: 5
-readinessProbe:
-  httpGet:
-    path: /list
-    port: 4900
-  initialDelaySeconds: 30
-  periodSeconds: 10
-  failureThreshold: 5
+# Note: Chart has hardcoded probes (delay=2s, failure=2).
+# The JAVA_OPTS above ensure JVM starts within that window.
+# If still crashing, the chart templates need to be overridden.
 
 config:
   data-prepper-config.yaml: |
@@ -63,8 +56,7 @@ pipelineConfig:
         pipeline:
           name: otel-trace-pipeline
       processor:
-        - otel_traces:
-            version: "2.0"
+        - otel_traces: {}
       sink:
         - opensearch:
             hosts: ["http://opensearch-cluster-master.monitoring.svc.cluster.local:9200"]
