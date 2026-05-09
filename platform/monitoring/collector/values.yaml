@@ -112,6 +112,15 @@ config:
             static_configs:
               - targets: ['dev-monitoring-ksm-kube-state-metrics.monitoring.svc.cluster.local:8080']
 
+    # ── CoreDNS metrics (DNS request rates, latency, errors, cache) ──
+    prometheus/coredns:
+      config:
+        scrape_configs:
+          - job_name: 'coredns'
+            scrape_interval: 30s
+            static_configs:
+              - targets: ['kube-dns.kube-system.svc.cluster.local:9153']
+
     # ── ArgoCD metrics (sync status, app health, reconciliation) ──
     prometheus/argocd:
       config:
@@ -261,6 +270,12 @@ config:
           value: "argocd"
           action: upsert
 
+    resource/coredns:
+      attributes:
+        - key: service.name
+          value: "coredns"
+          action: upsert
+
     # ── Enrich logs with k8s metadata (disabled — not needed without filelog) ──
     # k8sattributes:
     #   auth_type: "serviceAccount"
@@ -391,6 +406,11 @@ config:
       metrics/argocd:
         receivers: [prometheus/argocd]
         processors: [resource/argocd, batch]
+        exporters: [prometheusremotewrite]
+      # CoreDNS metrics (DNS requests, latency, cache hits, errors)
+      metrics/coredns:
+        receivers: [prometheus/coredns]
+        processors: [resource/coredns, batch]
         exporters: [prometheusremotewrite]
       # App metrics from OTLP (backend-server, etc.)
       metrics:
