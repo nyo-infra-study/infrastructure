@@ -27,7 +27,7 @@ sidecar:
 # Ingress for local access
 ingress:
   enabled: true
-  className: traefik
+  ingressClassName: traefik
   hosts:
     - host: perses.localhost
       paths:
