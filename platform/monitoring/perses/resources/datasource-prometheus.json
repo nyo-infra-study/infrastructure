@@ -9,7 +9,12 @@
     "plugin": {
       "kind": "PrometheusDatasource",
       "spec": {
-        "directUrl": "http://dev-lgtm-prometheus-server.monitoring.svc.cluster.local:80"
+        "proxy": {
+          "kind": "HTTPProxy",
+          "spec": {
+            "url": "http://dev-lgtm-prometheus-server.monitoring.svc.cluster.local:80"
+          }
+        }
       }
     }
   }

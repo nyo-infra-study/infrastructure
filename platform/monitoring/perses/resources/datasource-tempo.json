@@ -9,7 +9,12 @@
     "plugin": {
       "kind": "TempoDatasource",
       "spec": {
-        "directUrl": "http://dev-lgtm-tempo.monitoring.svc.cluster.local:3200"
+        "proxy": {
+          "kind": "HTTPProxy",
+          "spec": {
+            "url": "http://dev-lgtm-tempo.monitoring.svc.cluster.local:3200"
+          }
+        }
       }
     }
   }

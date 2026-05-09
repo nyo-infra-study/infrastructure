@@ -9,7 +9,12 @@
     "plugin": {
       "kind": "LokiDatasource",
       "spec": {
-        "directUrl": "http://dev-lgtm-loki.monitoring.svc.cluster.local:3100"
+        "proxy": {
+          "kind": "HTTPProxy",
+          "spec": {
+            "url": "http://dev-lgtm-loki.monitoring.svc.cluster.local:3100"
+          }
+        }
       }
     }
   }

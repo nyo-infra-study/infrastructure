@@ -18,7 +18,12 @@ data:
         "plugin": {
           "kind": "PrometheusDatasource",
           "spec": {
-            "directUrl": "http://dev-lgtm-prometheus-server.monitoring.svc.cluster.local:80"
+            "proxy": {
+              "kind": "HTTPProxy",
+              "spec": {
+                "url": "http://dev-lgtm-prometheus-server.monitoring.svc.cluster.local:80"
+              }
+            }
           }
         }
       }
@@ -44,7 +49,12 @@ data:
         "plugin": {
           "kind": "TempoDatasource",
           "spec": {
-            "directUrl": "http://dev-lgtm-tempo.monitoring.svc.cluster.local:3200"
+            "proxy": {
+              "kind": "HTTPProxy",
+              "spec": {
+                "url": "http://dev-lgtm-tempo.monitoring.svc.cluster.local:3200"
+              }
+            }
           }
         }
       }
@@ -70,7 +80,12 @@ data:
         "plugin": {
           "kind": "LokiDatasource",
           "spec": {
-            "directUrl": "http://dev-lgtm-loki.monitoring.svc.cluster.local:3100"
+            "proxy": {
+              "kind": "HTTPProxy",
+              "spec": {
+                "url": "http://dev-lgtm-loki.monitoring.svc.cluster.local:3100"
+              }
+            }
           }
         }
       }
