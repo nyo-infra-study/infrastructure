@@ -19,7 +19,7 @@ extraEnvs:
 config:
   opensearch_dashboards.yml:
     data_source.enabled: true
-    workspace.enabled: true
+    workspace.enabled: false
     explore.enabled: true
 
 resources:
