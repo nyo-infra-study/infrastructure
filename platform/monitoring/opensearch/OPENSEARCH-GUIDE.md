@@ -53,8 +53,7 @@ graph TD
     end
 
     subgraph OpenSearch Stack
-        DP[Data Prepper<br/>transforms OTLP → OpenSearch format]
-        OS[OpenSearch<br/>otel-v1-apm-span, otel-logs]
+        OS[OpenSearch<br/>ss4o_traces + ss4o_logs]
         OSD[OpenSearch Dashboards<br/>opensearch.localhost]
     end
 
@@ -65,13 +64,7 @@ graph TD
     EX -->|traces| TEMPO
     EX -->|logs| LOKI
     EX -->|metrics| PROM
-    EX -->|"traces (OTLP :21890)"| DP
-    EX -->|"logs (OTLP :21892)"| DP
-    EX -->|"metrics (OTLP :21891)"| DP
-
-    DP -->|"otel-v1-apm-span-*<br/>otel-v1-apm-service-map"| OS
-    DP -->|"otel-logs-*"| OS
-    DP -->|"ss4o_metrics-*"| OS
+    EX -->|"traces + logs<br/>(opensearch exporter)"| OS
 
     TEMPO --> GRAF
     LOKI --> GRAF
@@ -79,86 +72,118 @@ graph TD
     OS --> OSD
 ```
 
-### Why Data Prepper?
+### Why No Data Prepper?
 
-The OTel Collector's direct `opensearch` exporter writes data in SS4O format, but OpenSearch Dashboards' **Observability plugin** (Traces, Services, Service Map) expects the **Data Prepper format** (`otel-v1-apm-span-*` indices). Data Prepper sits between the collector and OpenSearch to:
+The official OpenSearch observability stack recommends Data Prepper between the OTel Collector and OpenSearch. However, **Data Prepper only ships linux/amd64** — no ARM64 image exists. On M1/M2 Macs with Colima/k3d, it crashes under QEMU emulation.
 
-1. Transform OTLP spans into the format the Traces UI expects
-2. Build the **service map** (which service calls which)
-3. Create proper index templates with the right mappings
-4. Handle metrics transformation (histogram buckets, etc.)
+Instead, we use the OTel Collector's built-in `opensearch` exporter which writes directly in SS4O (Simple Schema for Observability) format. The Observability plugin in Dashboards needs custom index settings to read SS4O indices (see Tutorial Step 0).
+
+On x86 production servers, Data Prepper would provide:
+- Automatic service map generation
+- `otel-v1-apm-span-*` indices that the plugin reads natively
+- Trace sampling and enrichment
 
 ```mermaid
-sequenceDiagram
-    participant App
-    participant OTel as OTel Collector
-    participant DP as Data Prepper
-    participant OS as OpenSearch
+graph LR
+    subgraph "Local Dev (ARM64 — current setup)"
+        OC1[OTel Collector] -->|opensearch exporter| OS1[OpenSearch<br/>ss4o_traces-*]
+    end
 
-    App->>OTel: OTLP spans/logs/metrics
-    OTel->>DP: OTLP gRPC (ports 21890/21891/21892)
-    DP->>DP: Transform + build service map
-    DP->>OS: Bulk index (otel-v1-apm-span-*, service-map, otel-logs-*)
-    Note over OS: Observability plugin reads these indices
+    subgraph "Production (x86 — recommended)"
+        OC2[OTel Collector] -->|OTLP| DP[Data Prepper] -->|bulk index| OS2[OpenSearch<br/>otel-v1-apm-span-*]
+    end
 ```
 
 ---
 
 ## Index Naming Convention
 
-Data Prepper creates indices in the format the Observability plugin expects:
+The OTel Collector's `opensearch` exporter writes in SS4O (Simple Schema for Observability) format:
 
-| Signal | Index Pattern | Created By |
-|--------|--------------|------------|
-| Traces (spans) | `otel-v1-apm-span-*` | Data Prepper trace pipeline |
-| Service Map | `otel-v1-apm-service-map` | Data Prepper service_map processor |
-| Logs | `otel-logs-*` | Data Prepper log pipeline |
-| Metrics | `ss4o_metrics-otel-*` | Data Prepper metrics pipeline |
+```
+ss4o_{signal}-{dataset}-{namespace}
+```
 
-These are the indices that OpenSearch Dashboards' Observability plugin reads from automatically — no manual index pattern creation needed for Traces and Services views.
+| Signal | Index Name | Contents |
+|--------|-----------|----------|
+| Traces | `ss4o_traces-default-otel` | Trace spans as JSON documents |
+| Logs | `ss4o_logs-default-otel` | Log records as JSON documents |
+
+Each document has all OTel attributes flattened as searchable fields. You can query any attribute without pre-defining labels.
 
 ---
 
 ## Tutorial: Viewing Your Data
 
-### Traces & Services (automatic — no setup needed)
+### Step 0: Configure Trace Analytics (one-time setup)
 
-1. Go to `http://opensearch.localhost`
-2. Click hamburger menu (☰) → **Observability** → **Traces**
-3. You should see traces with latency, status, and service info
-4. Click a trace to see the waterfall/gantt view
-5. Go to **Observability** → **Services** for the service map
+Since we use the direct `opensearch` exporter (no Data Prepper — unavailable on ARM64/M1), the Observability plugin needs to be pointed at our SS4O indices.
 
-Data Prepper creates the right indices automatically — the Observability plugin finds them without manual index pattern creation.
+1. Go to `http://opensearch.localhost/app/settings#Observability`
+2. Set the following:
 
-### Logs (create index pattern once)
+| Setting | Value |
+|---------|-------|
+| **Enable APM** | On |
+| **Trace analytics custom mode default** | **On** |
+| **Trace analytics span indices** | `ss4o_traces-default-otel*,opensearch_dashboards_sample_data_otel_spans*` |
+| **Trace analytics service indices** | `ss4o_traces-default-otel*,opensearch_dashboards_sample_data_otel_service_map*` |
+| **Trace analytics correlated logs indices** | `ss4o_logs-*,opensearch_dashboards_sample_data_otel_logs*` |
 
-1. Click hamburger menu (☰) → **Management** → **Dashboards Management** → **Index Patterns**
-2. Click **Create index pattern**
-3. Enter: `otel-logs*` → Click **Next step**
-4. Select time field: `@timestamp` → Click **Create index pattern**
-5. Go to **Discover** → select `otel-logs*` → see your logs
+3. Save changes
 
-**Search examples (DQL):**
-- `http request` — full-text search across all fields
-- `severity_text: ERROR` — filter by field
+### Step 1: Create Index Patterns
+
+1. Go to `http://opensearch.localhost/app/management/opensearch-dashboards/indexPatterns`
+2. Click **Create index pattern** → select "Use default data source" → **Next step**
+3. Enter: `ss4o_logs*` → **Next step** → Time field: `@timestamp` → **Create index pattern**
+4. Repeat for `ss4o_traces*` with time field `@timestamp`
+
+### Step 2: View Traces
+
+1. Go to hamburger menu (☰) → **Observability** → **Traces**
+2. You should see traces with latency, status, and service info
+3. Click a trace to see the span detail view
+
+### Step 3: View Services
+
+1. Go to hamburger menu (☰) → **Observability** → **Services**
+2. Shows service list with request rate, error rate, latency
+
+### Step 4: Discover (Full-Text Log Search)
+
+1. Go to hamburger menu (☰) → **Discover**
+2. Select `ss4o_logs*` from the index pattern dropdown (top-left)
+3. Set time range to **"Last 1 hour"** (top-right)
+4. Search with DQL in the search bar
+
+**Search examples:**
+- `body: "http request"` — search log message body
+- `severity_text: ERROR` — filter by severity
 - `resource.service.name: backend-server` — filter by service
-- `body: "database connection"` — search log message body
+- `attributes.http.request.method: GET` — filter by HTTP method
+- `trace_id: abc123def456` — find all logs for a specific trace
+
+### Step 5: Alerting
+
+1. Go to hamburger menu (☰) → **Alerting** → **Monitors**
+2. Click **Create monitor** → "Per query monitor"
+3. Index: `ss4o_logs*`
+4. Query: `severity_text: ERROR AND resource.service.name: backend-server`
+5. Condition: count IS ABOVE 5 (in last 5 minutes)
+6. Add action: webhook, Slack, email
 
 ### Metrics
 
-1. Go to **Observability** → **Metrics**
-2. Select a metric source from the dropdown
-3. Browse available metrics from your applications
+Metrics are NOT sent to OpenSearch in this setup (intentionally — Prometheus is better for metrics). Use Grafana at `http://grafana.localhost` for metrics dashboards.
 
-### Alerting
+### Note on Data Prepper (ARM64/M1 limitation)
 
-1. Click hamburger menu (☰) → **Alerting** → **Monitors**
-2. Click **Create monitor**
-3. Choose "Per query monitor"
-4. Define a query like: `severity_text: ERROR AND resource.service.name: backend-server`
-5. Set condition: "IS ABOVE 5" (more than 5 errors)
-6. Add action: webhook, Slack, email, etc.
+The official OpenSearch observability stack uses Data Prepper between the OTel Collector and OpenSearch. Data Prepper creates `otel-v1-apm-span-*` indices that the Observability plugin reads natively without custom settings.
+
+However, **Data Prepper has no ARM64 image** — it only ships linux/amd64. On M1 Macs with Colima/k3d, it crashes under QEMU emulation. The workaround above (direct exporter + custom index settings) achieves the same result.
+
+On x86 production servers, use Data Prepper for the best experience.
 
 ---
 
@@ -246,12 +271,12 @@ If you really want metrics in OpenSearch, the official stack uses **Prometheus a
 
 ## Production Considerations
 
-For production, you'd enable:
-1. **Security plugin** — RBAC, SAML/OIDC, audit logs, field-level security
-2. **Multiple nodes** — 3 master + 2 data minimum for HA
-3. **ILM policies** — hot (SSD, 7d) → warm (HDD, 30d) → cold (S3, 90d) → delete
-4. **Snapshot repository** — S3 backups for disaster recovery
-5. **Data Prepper** — between OTel Collector and OpenSearch for enrichment/sampling
+For production (x86 servers), you'd enable:
+1. **Data Prepper** — between OTel Collector and OpenSearch for service map generation, sampling, enrichment
+2. **Security plugin** — RBAC, SAML/OIDC, audit logs, field-level security
+3. **Multiple nodes** — 3 master + 2 data minimum for HA
+4. **ILM policies** — hot (SSD, 7d) → warm (HDD, 30d) → cold (S3, 90d) → delete
+5. **Snapshot repository** — S3 backups for disaster recovery
 
 ### ILM (Index Lifecycle Management) Flow
 
