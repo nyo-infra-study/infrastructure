@@ -1,0 +1,22 @@
+# VPA Policy for OTel Collector
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: vpa-otel-collector
+  namespace: monitoring
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: dev-monitoring-otel-opentelemetry-collector
+  updatePolicy:
+    updateMode: Auto
+  resourcePolicy:
+    containerPolicies:
+      - containerName: opentelemetry-collector
+        minAllowed:
+          cpu: 10m
+          memory: 128Mi
+        maxAllowed:
+          cpu: 500m
+          memory: 768Mi

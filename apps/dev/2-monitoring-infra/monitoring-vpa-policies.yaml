@@ -15,12 +15,43 @@ spec:
   source:
     repoURL: https://github.com/nyo-infra-study/infrastructure.git
     targetRevision: main
-    path: platform/monitoring/vpa
+    path: platform/monitoring
     directory:
-      include: 'vpa-policies.yaml'
+      recurse: true
+      include: '{**/vpa.yaml,ksm-vpa.yaml}'
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+---
+# VPA for dev namespace apps (backend-server, web-frontend)
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: dev-apps-vpa-policies
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+  labels:
+    environment: dev
+    domain: apps
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/nyo-infra-study/infrastructure.git
+    targetRevision: main
+    path: charts
+    directory:
+      recurse: true
+      include: '**/vpa.yaml'
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: dev
   syncPolicy:
     automated:
       prune: true
