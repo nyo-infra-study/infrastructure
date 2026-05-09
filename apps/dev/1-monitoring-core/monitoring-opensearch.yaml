@@ -42,6 +42,43 @@ spec:
     syncOptions:
       - CreateNamespace=true
 ---
+# --- Data Prepper (OTel Pipeline → OpenSearch) ---
+# NOTE: Requires x86/amd64. Will NOT work on ARM64/M1 Macs.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+  name: dev-opensearch-data-prepper
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+  labels:
+    environment: dev
+    domain: monitoring
+spec:
+  project: default
+  sources:
+    - chart: data-prepper
+      repoURL: https://opensearch-project.github.io/helm-charts/
+      targetRevision: 0.3.1
+      helm:
+        releaseName: dev-opensearch-data-prepper
+        valueFiles:
+          - $values/platform/monitoring/opensearch/data-prepper-values.yaml
+    - repoURL: https://github.com/nyo-infra-study/infrastructure.git
+      targetRevision: main
+      ref: values
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+---
 # --- OpenSearch Dashboards (UI) ---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
