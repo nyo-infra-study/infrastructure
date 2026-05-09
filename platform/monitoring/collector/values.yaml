@@ -138,14 +138,20 @@ config:
             scrape_interval: 30s
             static_configs:
               - targets: ['argocd-server-metrics.argocd.svc.cluster.local:8083']
+                labels:
+                  namespace: argocd
           - job_name: 'argocd-repo-server'
             scrape_interval: 30s
             static_configs:
               - targets: ['argocd-repo-server-metrics.argocd.svc.cluster.local:8084']
+                labels:
+                  namespace: argocd
           - job_name: 'argocd-application-controller'
             scrape_interval: 30s
             static_configs:
               - targets: ['argocd-application-controller-metrics.argocd.svc.cluster.local:8082']
+                labels:
+                  namespace: argocd
 
     # ── Prometheus scrape jobs (disabled — kubelet + node-exporter too heavy for local dev) ──
     # prometheus/kubelet:
@@ -271,12 +277,6 @@ config:
       attributes:
         - key: service.name
           value: "kube-state-metrics"
-          action: upsert
-
-    resource/argocd:
-      attributes:
-        - key: service.name
-          value: "argocd"
           action: upsert
 
     resource/coredns:
@@ -414,7 +414,7 @@ config:
       # ArgoCD metrics (sync status, app health, reconciliation performance)
       metrics/argocd:
         receivers: [prometheus/argocd]
-        processors: [resource/argocd, batch]
+        processors: [batch]
         exporters: [prometheusremotewrite]
       # CoreDNS metrics (DNS requests, latency, cache hits, errors)
       metrics/coredns:
