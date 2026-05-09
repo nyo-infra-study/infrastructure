@@ -351,7 +351,7 @@ config:
     # Send traces + logs to OpenSearch (for comparison / full-text search)
     opensearch:
       http:
-        endpoint: "http://dev-opensearch.monitoring.svc.cluster.local:9200"
+        endpoint: "http://opensearch-cluster-master.monitoring.svc.cluster.local:9200"
       dataset: "default"
       namespace: "otel"
 

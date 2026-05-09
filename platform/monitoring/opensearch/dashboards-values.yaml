@@ -8,7 +8,7 @@
 replicas: 1
 
 # Point to our OpenSearch instance
-opensearchHosts: "http://dev-opensearch.monitoring.svc.cluster.local:9200"
+opensearchHosts: "http://opensearch-cluster-master.monitoring.svc.cluster.local:9200"
 
 # Disable security (matches OpenSearch config)
 extraEnvs:
