@@ -168,7 +168,7 @@ config:
               - targets: ['argocd-repo-server-metrics.argocd.svc.cluster.local:8084']
                 labels:
                   namespace: argocd
-          - job_name: 'argocd-application-controller-metrics'
+          - job_name: 'argocd-metrics'
             scrape_interval: 30s
             static_configs:
               - targets: ['argocd-application-controller-metrics.argocd.svc.cluster.local:8082']
