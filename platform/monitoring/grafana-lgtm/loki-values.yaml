@@ -11,10 +11,10 @@ singleBinary:
   replicas: 1
   resources:
     requests:
-      cpu: 20m
-      memory: 128Mi
+      cpu: 17m
+      memory: 229Mi
     limits:
-      cpu: 500m
+      cpu: 200m
       memory: 512Mi
 
 # Minimal storage (filesystem, no S3/MinIO needed for dev)

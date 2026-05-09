@@ -406,14 +406,14 @@ config:
         processors: [batch]
         exporters: [otlphttp/loki]
 
-# Observed usage: ~22m CPU, ~157Mi memory (with cadvisor + ksm scraping)
+# Observed usage: ~22m CPU, ~157Mi memory (with cadvisor + ksm scraping, without opensearch export)
 resources:
   requests:
     cpu: 22m
     memory: 157Mi
   limits:
-    cpu: 300m
-    memory: 512Mi
+    cpu: 200m
+    memory: 384Mi
 
 clusterRole:
   create: true
