@@ -87,3 +87,4 @@ registry.k8s.io/autoscaling/vpa-updater:1.5.1
 # --- OpenSearch (platform/monitoring/opensearch/) ---
 opensearchproject/opensearch:3.6.0
 opensearchproject/opensearch-dashboards:3.6.0
+opensearchproject/data-prepper:2.8.0
