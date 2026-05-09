@@ -273,6 +273,9 @@ tasks:
   open:radar:
     desc: "🌐 Open Radar"
     cmds: [open http://radar.localhost]
+  open:perses:
+    desc: "🌐 Open Perses"
+    cmds: [open http://perses.localhost]
   open:app:
     desc: "🌐 Open web app"
     cmds: [open http://localhost:9000/web]

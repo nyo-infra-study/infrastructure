@@ -1,0 +1,16 @@
+{
+  "kind": "Datasource",
+  "metadata": {
+    "name": "loki",
+    "project": "default"
+  },
+  "spec": {
+    "default": false,
+    "plugin": {
+      "kind": "LokiDatasource",
+      "spec": {
+        "directUrl": "http://dev-lgtm-loki.monitoring.svc.cluster.local:3100"
+      }
+    }
+  }
+}

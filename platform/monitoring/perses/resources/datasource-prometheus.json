@@ -1,0 +1,16 @@
+{
+  "kind": "Datasource",
+  "metadata": {
+    "name": "prometheus",
+    "project": "default"
+  },
+  "spec": {
+    "default": true,
+    "plugin": {
+      "kind": "PrometheusDatasource",
+      "spec": {
+        "directUrl": "http://dev-lgtm-prometheus-server.monitoring.svc.cluster.local:80"
+      }
+    }
+  }
+}

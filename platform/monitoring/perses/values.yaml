@@ -1,0 +1,43 @@
+# ============================================================
+# Perses — Dashboard-as-Code (Local Dev)
+# ============================================================
+# Chart: perses/perses
+# UI: http://perses.localhost
+# CNCF Sandbox project — GitOps-native dashboarding
+# ============================================================
+
+# Use filesystem storage (no external DB needed for local dev)
+config:
+  database:
+    file:
+      folder: /perses/data
+      extension: json
+  provisioning:
+    interval: "1m"
+    folders:
+      - /etc/perses/provisioning
+
+# Sidecar for ConfigMap-based dashboard provisioning
+sidecar:
+  enabled: true
+  label: "perses.dev/resource"
+  labelValue: "true"
+  allNamespaces: true
+
+# Ingress for local access
+ingress:
+  enabled: true
+  className: traefik
+  hosts:
+    - host: perses.localhost
+      paths:
+        - path: /
+          pathType: Prefix
+
+resources:
+  requests:
+    cpu: 10m
+    memory: 32Mi
+  limits:
+    cpu: 200m
+    memory: 128Mi

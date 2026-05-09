@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: perses-project-default
+  namespace: monitoring
+  labels:
+    perses.dev/resource: "true"
+data:
+  project.json: |-
+    {
+      "kind": "Project",
+      "metadata": {
+        "name": "default"
+      },
+      "spec": {
+        "display": {
+          "name": "Default Project"
+        }
+      }
+    }

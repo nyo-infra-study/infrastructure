@@ -1,0 +1,137 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: perses-dashboard-backend-red
+  namespace: monitoring
+  labels:
+    perses.dev/resource: "true"
+data:
+  dashboard-backend-red.json: |-
+    {
+      "kind": "Dashboard",
+      "metadata": {
+        "name": "backend-server-red",
+        "project": "default"
+      },
+      "spec": {
+        "display": {
+          "name": "Backend Server — RED Metrics"
+        },
+        "duration": "30m",
+        "refreshInterval": "30s",
+        "panels": {
+          "request-rate": {
+            "kind": "Panel",
+            "spec": {
+              "display": {
+                "name": "Request Rate",
+                "description": "Requests per second by endpoint"
+              },
+              "plugin": {
+                "kind": "TimeSeriesChart",
+                "spec": {
+                  "legend": { "position": "bottom" }
+                }
+              },
+              "queries": [
+                {
+                  "kind": "TimeSeriesQuery",
+                  "spec": {
+                    "plugin": {
+                      "kind": "PrometheusTimeSeriesQuery",
+                      "spec": {
+                        "query": "sum(rate(traces_spanmetrics_calls_total{service=\"backend-server\"}[5m])) by (span_name)",
+                        "datasource": {
+                          "kind": "PrometheusDatasource",
+                          "name": "prometheus"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "error-rate": {
+            "kind": "Panel",
+            "spec": {
+              "display": {
+                "name": "Error Rate (%)",
+                "description": "Percentage of failed requests"
+              },
+              "plugin": {
+                "kind": "TimeSeriesChart",
+                "spec": {
+                  "legend": { "position": "bottom" }
+                }
+              },
+              "queries": [
+                {
+                  "kind": "TimeSeriesQuery",
+                  "spec": {
+                    "plugin": {
+                      "kind": "PrometheusTimeSeriesQuery",
+                      "spec": {
+                        "query": "100 * sum(rate(traces_spanmetrics_calls_total{service=\"backend-server\", status_code=\"STATUS_CODE_ERROR\"}[5m])) / sum(rate(traces_spanmetrics_calls_total{service=\"backend-server\"}[5m]))",
+                        "datasource": {
+                          "kind": "PrometheusDatasource",
+                          "name": "prometheus"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "latency-p95": {
+            "kind": "Panel",
+            "spec": {
+              "display": {
+                "name": "Latency (p95)",
+                "description": "95th percentile request duration"
+              },
+              "plugin": {
+                "kind": "TimeSeriesChart",
+                "spec": {
+                  "legend": { "position": "bottom" }
+                }
+              },
+              "queries": [
+                {
+                  "kind": "TimeSeriesQuery",
+                  "spec": {
+                    "plugin": {
+                      "kind": "PrometheusTimeSeriesQuery",
+                      "spec": {
+                        "query": "histogram_quantile(0.95, sum(rate(traces_spanmetrics_duration_seconds_bucket{service=\"backend-server\"}[5m])) by (le, span_name))",
+                        "datasource": {
+                          "kind": "PrometheusDatasource",
+                          "name": "prometheus"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "layouts": [
+          {
+            "kind": "Grid",
+            "spec": {
+              "display": {
+                "title": "RED Metrics",
+                "collapse": { "open": true }
+              },
+              "items": [
+                { "x": 0, "y": 0, "width": 8, "height": 6, "content": { "$ref": "#/spec/panels/request-rate" } },
+                { "x": 8, "y": 0, "width": 8, "height": 6, "content": { "$ref": "#/spec/panels/error-rate" } },
+                { "x": 16, "y": 0, "width": 8, "height": 6, "content": { "$ref": "#/spec/panels/latency-p95" } }
+              ]
+            }
+          }
+        ]
+      }
+    }
