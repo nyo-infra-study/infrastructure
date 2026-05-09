@@ -15,6 +15,13 @@ extraEnvs:
   - name: DISABLE_SECURITY_DASHBOARDS_PLUGIN
     value: "true"
 
+# Enable enhanced Discover experience
+config:
+  opensearch_dashboards.yml:
+    data_source.enabled: true
+    workspace.enabled: true
+    explore.enabled: true
+
 resources:
   requests:
     cpu: 50m
