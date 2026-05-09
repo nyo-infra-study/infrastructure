@@ -1,0 +1,39 @@
+# ============================================================
+# OpenSearch — Search & Analytics (Local Dev, Single Node)
+# ============================================================
+# Chart: opensearch/opensearch v3.6.0
+# Single-node mode, security disabled for local dev simplicity.
+# Receives logs/traces/metrics from OTel Collector via opensearch exporter.
+# ============================================================
+
+# Single node (no HA for local dev)
+replicas: 1
+minimumMasterNodes: 1
+
+# Disable security plugin for local dev (no TLS, no auth)
+# In production, ENABLE this — it's the whole point of OpenSearch.
+extraEnvs:
+  - name: DISABLE_INSTALL_DEMO_CONFIG
+    value: "true"
+  - name: DISABLE_SECURITY_PLUGIN
+    value: "true"
+
+# Resource limits for local dev
+resources:
+  requests:
+    cpu: 100m
+    memory: 1Gi
+  limits:
+    cpu: 1000m
+    memory: 2Gi
+
+# JVM heap (half of memory limit)
+opensearchJavaOpts: "-Xmx1g -Xms1g"
+
+# Persistence
+persistence:
+  enabled: true
+  size: 5Gi
+
+# Single-node discovery
+singleNode: true

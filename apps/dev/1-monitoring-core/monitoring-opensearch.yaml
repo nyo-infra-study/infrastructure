@@ -1,0 +1,79 @@
+# ============================================================
+# OpenSearch — Full-Text Observability (Local Dev)
+# ============================================================
+# OpenSearch (storage) + Dashboards (UI)
+# Receives data from OTel Collector via opensearch exporter.
+# UI: http://opensearch.localhost
+# ============================================================
+
+# --- OpenSearch (Storage + Query Engine) ---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+  name: dev-opensearch
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+  labels:
+    environment: dev
+    domain: monitoring
+spec:
+  project: default
+  sources:
+    - chart: opensearch
+      repoURL: https://opensearch-project.github.io/helm-charts/
+      targetRevision: 3.6.0
+      helm:
+        releaseName: dev-opensearch
+        valueFiles:
+          - $values/platform/monitoring/opensearch/opensearch-values.yaml
+    - repoURL: https://github.com/nyo-infra-study/infrastructure.git
+      targetRevision: main
+      ref: values
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+---
+# --- OpenSearch Dashboards (UI) ---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+  name: dev-opensearch-dashboards
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+  labels:
+    environment: dev
+    domain: monitoring
+spec:
+  project: default
+  sources:
+    - chart: opensearch-dashboards
+      repoURL: https://opensearch-project.github.io/helm-charts/
+      targetRevision: 3.6.0
+      helm:
+        releaseName: dev-opensearch-dashboards
+        valueFiles:
+          - $values/platform/monitoring/opensearch/dashboards-values.yaml
+    - repoURL: https://github.com/nyo-infra-study/infrastructure.git
+      targetRevision: main
+      ref: values
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

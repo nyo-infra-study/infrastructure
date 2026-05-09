@@ -1,0 +1,38 @@
+# ============================================================
+# OpenSearch Dashboards — UI (Local Dev)
+# ============================================================
+# Chart: opensearch/opensearch-dashboards v3.6.0
+# UI: http://opensearch.localhost
+# ============================================================
+
+replicas: 1
+
+# Point to our OpenSearch instance
+opensearchHosts: "http://dev-opensearch.monitoring.svc.cluster.local:9200"
+
+# Disable security (matches OpenSearch config)
+extraEnvs:
+  - name: DISABLE_SECURITY_DASHBOARDS_PLUGIN
+    value: "true"
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 256Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+ingress:
+  enabled: true
+  ingressClassName: traefik
+  hosts:
+    - host: opensearch.localhost
+      paths:
+        - path: /
+          backend:
+            serviceName: ""
+            servicePort: ""
+
+# Server base path (optional, for sub-path routing)
+# serverBasePath: "/opensearch"

@@ -276,6 +276,9 @@ tasks:
   open:perses:
     desc: "🌐 Open Perses"
     cmds: [open http://perses.localhost]
+  open:opensearch:
+    desc: "🌐 Open OpenSearch Dashboards"
+    cmds: [open http://opensearch.localhost]
   open:app:
     desc: "🌐 Open web app"
     cmds: [open http://localhost:9000/web]
