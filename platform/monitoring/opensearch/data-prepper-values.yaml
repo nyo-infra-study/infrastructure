@@ -11,10 +11,10 @@ replicaCount: 1
 resources:
   requests:
     cpu: 200m
-    memory: 512Mi
-  limits:
-    cpu: 1000m
     memory: 1Gi
+  limits:
+    cpu: 1500m
+    memory: 2Gi
 
 config:
   data-prepper-config.yaml: |
