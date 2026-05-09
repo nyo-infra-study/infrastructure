@@ -49,11 +49,12 @@ graph TD
         TEMPO[Tempo<br/>traces]
         LOKI[Loki<br/>logs]
         PROM[Prometheus<br/>metrics]
-        GRAF[Grafana UI]
+        GRAF[Grafana UI<br/>grafana.localhost]
     end
 
     subgraph OpenSearch Stack
-        OS[OpenSearch<br/>ss4o_traces + ss4o_logs]
+        DP[Data Prepper<br/>transforms OTLP → OpenSearch format]
+        OS[OpenSearch<br/>otel-v1-apm-span, otel-logs]
         OSD[OpenSearch Dashboards<br/>opensearch.localhost]
     end
 
@@ -64,7 +65,13 @@ graph TD
     EX -->|traces| TEMPO
     EX -->|logs| LOKI
     EX -->|metrics| PROM
-    EX -->|traces + logs| OS
+    EX -->|"traces (OTLP :21890)"| DP
+    EX -->|"logs (OTLP :21892)"| DP
+    EX -->|"metrics (OTLP :21891)"| DP
+
+    DP -->|"otel-v1-apm-span-*<br/>otel-v1-apm-service-map"| OS
+    DP -->|"otel-logs-*"| OS
+    DP -->|"ss4o_metrics-*"| OS
 
     TEMPO --> GRAF
     LOKI --> GRAF
@@ -72,59 +79,79 @@ graph TD
     OS --> OSD
 ```
 
+### Why Data Prepper?
+
+The OTel Collector's direct `opensearch` exporter writes data in SS4O format, but OpenSearch Dashboards' **Observability plugin** (Traces, Services, Service Map) expects the **Data Prepper format** (`otel-v1-apm-span-*` indices). Data Prepper sits between the collector and OpenSearch to:
+
+1. Transform OTLP spans into the format the Traces UI expects
+2. Build the **service map** (which service calls which)
+3. Create proper index templates with the right mappings
+4. Handle metrics transformation (histogram buckets, etc.)
+
+```mermaid
+sequenceDiagram
+    participant App
+    participant OTel as OTel Collector
+    participant DP as Data Prepper
+    participant OS as OpenSearch
+
+    App->>OTel: OTLP spans/logs/metrics
+    OTel->>DP: OTLP gRPC (ports 21890/21891/21892)
+    DP->>DP: Transform + build service map
+    DP->>OS: Bulk index (otel-v1-apm-span-*, service-map, otel-logs-*)
+    Note over OS: Observability plugin reads these indices
+```
+
 ---
 
-## Index Naming Convention (SS4O)
+## Index Naming Convention
 
-The OTel Collector's `opensearch` exporter uses the **Simple Schema for Observability (SS4O)** format:
+Data Prepper creates indices in the format the Observability plugin expects:
 
-```
-ss4o_{signal}-{dataset}-{namespace}
-```
+| Signal | Index Pattern | Created By |
+|--------|--------------|------------|
+| Traces (spans) | `otel-v1-apm-span-*` | Data Prepper trace pipeline |
+| Service Map | `otel-v1-apm-service-map` | Data Prepper service_map processor |
+| Logs | `otel-logs-*` | Data Prepper log pipeline |
+| Metrics | `ss4o_metrics-otel-*` | Data Prepper metrics pipeline |
 
-In your setup:
-- `ss4o_traces-default-otel` — trace spans
-- `ss4o_logs-default-otel` — log records
-
-Each document in these indices is a JSON object with all OTel attributes flattened as fields.
+These are the indices that OpenSearch Dashboards' Observability plugin reads from automatically — no manual index pattern creation needed for Traces and Services views.
 
 ---
 
 ## Tutorial: Viewing Your Data
 
-### Step 1: Create Index Patterns
+### Traces & Services (automatic — no setup needed)
 
 1. Go to `http://opensearch.localhost`
-2. Click hamburger menu (☰) → **Management** → **Index Patterns**
-3. Click **Create index pattern**
-4. Enter: `ss4o_logs*` → Click **Next step**
-5. Select time field: `@timestamp` → Click **Create index pattern**
-6. Repeat for `ss4o_traces*`
+2. Click hamburger menu (☰) → **Observability** → **Traces**
+3. You should see traces with latency, status, and service info
+4. Click a trace to see the waterfall/gantt view
+5. Go to **Observability** → **Services** for the service map
 
-### Step 2: Discover (Raw Log Search)
+Data Prepper creates the right indices automatically — the Observability plugin finds them without manual index pattern creation.
 
-1. Click hamburger menu (☰) → **Discover**
-2. Select `ss4o_logs*` from the dropdown (top-left)
-3. Set time range to "Last 15 minutes" (top-right)
-4. You should see log documents
+### Logs (create index pattern once)
 
-**Search examples:**
+1. Click hamburger menu (☰) → **Management** → **Dashboards Management** → **Index Patterns**
+2. Click **Create index pattern**
+3. Enter: `otel-logs*` → Click **Next step**
+4. Select time field: `@timestamp` → Click **Create index pattern**
+5. Go to **Discover** → select `otel-logs*` → see your logs
+
+**Search examples (DQL):**
 - `http request` — full-text search across all fields
 - `severity_text: ERROR` — filter by field
 - `resource.service.name: backend-server` — filter by service
 - `body: "database connection"` — search log message body
 
-### Step 3: Trace Explorer
+### Metrics
 
-1. Click hamburger menu (☰) → **Observability** → **Traces**
-2. This shows a trace list with latency, status, service
-3. Click a trace to see the waterfall/gantt view (like Jaeger)
+1. Go to **Observability** → **Metrics**
+2. Select a metric source from the dropdown
+3. Browse available metrics from your applications
 
-If Observability → Traces shows nothing, it might need the index pattern. Try:
-1. Go to **Observability** → **Traces**
-2. If prompted, set the trace index to `ss4o_traces*`
-
-### Step 4: Alerting
+### Alerting
 
 1. Click hamburger menu (☰) → **Alerting** → **Monitors**
 2. Click **Create monitor**

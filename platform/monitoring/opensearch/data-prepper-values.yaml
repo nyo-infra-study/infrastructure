@@ -1,0 +1,117 @@
+# ============================================================
+# Data Prepper — OTel Pipeline for OpenSearch (Local Dev)
+# ============================================================
+# Chart: opensearch/data-prepper v0.3.1
+# Receives OTLP from OTel Collector, writes to OpenSearch
+# in the format the Observability plugin expects.
+# ============================================================
+
+replicaCount: 1
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 256Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+config:
+  data-prepper-config.yaml: |
+    ssl: false
+
+pipelineConfig:
+  enabled: true
+  config:
+    # --- Trace Pipeline ---
+    otel-trace-pipeline:
+      workers: 2
+      delay: 3000
+      source:
+        otel_trace_source:
+          ssl: false
+      buffer:
+        bounded_blocking:
+          buffer_size: 1024
+          batch_size: 256
+      sink:
+        - pipeline:
+            name: trace-service-map-pipeline
+        - pipeline:
+            name: trace-span-pipeline
+
+    trace-span-pipeline:
+      workers: 2
+      delay: 3000
+      source:
+        pipeline:
+          name: otel-trace-pipeline
+      processor:
+        - otel_traces:
+            version: "2.0"
+      sink:
+        - opensearch:
+            hosts: ["http://opensearch-cluster-master.monitoring.svc.cluster.local:9200"]
+            insecure: true
+            index_type: trace-analytics-raw
+            bulk_size: 4
+
+    trace-service-map-pipeline:
+      workers: 2
+      delay: 3000
+      source:
+        pipeline:
+          name: otel-trace-pipeline
+      processor:
+        - service_map:
+            window_duration: 180
+      sink:
+        - opensearch:
+            hosts: ["http://opensearch-cluster-master.monitoring.svc.cluster.local:9200"]
+            insecure: true
+            index_type: trace-analytics-service-map
+            bulk_size: 4
+
+    # --- Log Pipeline ---
+    otel-log-pipeline:
+      workers: 2
+      delay: 3000
+      source:
+        otel_logs_source:
+          ssl: false
+      buffer:
+        bounded_blocking:
+          buffer_size: 1024
+          batch_size: 256
+      sink:
+        - opensearch:
+            hosts: ["http://opensearch-cluster-master.monitoring.svc.cluster.local:9200"]
+            insecure: true
+            index: "otel-logs-%{yyyy.MM.dd}"
+            bulk_size: 4
+
+    # --- Metrics Pipeline ---
+    otel-metrics-pipeline:
+      workers: 2
+      delay: 3000
+      source:
+        otel_metrics_source:
+          ssl: false
+      buffer:
+        bounded_blocking:
+          buffer_size: 1024
+          batch_size: 256
+      processor:
+        - otel_metrics:
+            calculate_histogram_buckets: true
+            calculate_exponential_histogram_buckets: true
+            exponential_histogram_max_allowed_scale: 10
+            flatten_attributes: false
+      sink:
+        - opensearch:
+            hosts: ["http://opensearch-cluster-master.monitoring.svc.cluster.local:9200"]
+            insecure: true
+            index_type: custom
+            index: "ss4o_metrics-otel-%{yyyy.MM.dd}"
+            bulk_size: 4
+            template_type: index-template

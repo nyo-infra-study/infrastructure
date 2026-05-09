@@ -348,12 +348,19 @@ config:
     # Send metrics to Prometheus via remote write (most reliable method)
     prometheusremotewrite:
       endpoint: "http://dev-lgtm-prometheus-server.monitoring.svc.cluster.local:80/api/v1/write"
-    # Send traces + logs to OpenSearch (for comparison / full-text search)
-    opensearch:
-      http:
-        endpoint: "http://opensearch-cluster-master.monitoring.svc.cluster.local:9200"
-      dataset: "default"
-      namespace: "otel"
+    # Send traces + logs to OpenSearch via Data Prepper (OTLP)
+    otlp/dataprepper-traces:
+      endpoint: "dev-opensearch-data-prepper.monitoring.svc.cluster.local:21890"
+      tls:
+        insecure: true
+    otlp/dataprepper-logs:
+      endpoint: "dev-opensearch-data-prepper.monitoring.svc.cluster.local:21892"
+      tls:
+        insecure: true
+    otlp/dataprepper-metrics:
+      endpoint: "dev-opensearch-data-prepper.monitoring.svc.cluster.local:21891"
+      tls:
+        insecure: true
 
   service:
     # Enable internal telemetry so the collector emits otelcol_* metrics on :8888
@@ -397,11 +404,11 @@ config:
       traces:
         receivers: [otlp]
         processors: [batch]
-        exporters: [otlp/tempo, opensearch]
+        exporters: [otlp/tempo, otlp/dataprepper-traces]
       logs:
         receivers: [otlp]
         processors: [batch]
-        exporters: [otlphttp/loki, opensearch]
+        exporters: [otlphttp/loki, otlp/dataprepper-logs]
 
 # Observed usage: ~22m CPU, ~157Mi memory (with cadvisor + ksm scraping)
 resources:
