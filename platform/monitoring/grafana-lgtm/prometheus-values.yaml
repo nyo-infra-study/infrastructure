@@ -33,3 +33,8 @@ prometheus-node-exporter:
   enabled: false
 prometheus-pushgateway:
   enabled: false
+
+# Disable default scrape configs (OTel Collector does all scraping)
+serverFiles:
+  prometheus.yml:
+    scrape_configs: []
