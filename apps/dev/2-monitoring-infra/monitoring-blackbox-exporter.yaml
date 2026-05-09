@@ -1,0 +1,39 @@
+# ============================================================
+# Blackbox Exporter — Uptime Probing (Local Dev)
+# ============================================================
+# Probes internal services (ArgoCD, Grafana, etc.) for uptime metrics.
+# ============================================================
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+  name: dev-monitoring-blackbox-exporter
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+  labels:
+    environment: dev
+    domain: monitoring
+spec:
+  project: default
+  sources:
+    - chart: prometheus-blackbox-exporter
+      repoURL: https://prometheus-community.github.io/helm-charts
+      targetRevision: 9.4.0
+      helm:
+        releaseName: dev-monitoring-blackbox
+        valueFiles:
+          - $values/platform/monitoring/blackbox-exporter/values.yaml
+    - repoURL: https://github.com/nyo-infra-study/infrastructure.git
+      targetRevision: main
+      ref: values
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

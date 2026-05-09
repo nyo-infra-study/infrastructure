@@ -112,6 +112,28 @@ config:
             static_configs:
               - targets: ['dev-monitoring-ksm-kube-state-metrics.monitoring.svc.cluster.local:8080']
 
+    # ── Blackbox Exporter probes (uptime checks for ArgoCD, Grafana, etc.) ──
+    prometheus/blackbox:
+      config:
+        scrape_configs:
+          - job_name: 'blackbox-argocd'
+            scrape_interval: 30s
+            metrics_path: /probe
+            params:
+              module: [http_2xx]
+            static_configs:
+              - targets:
+                  - http://argocd-server.argocd.svc.cluster.local:80
+                labels:
+                  namespace: argocd
+            relabel_configs:
+              - source_labels: [__address__]
+                target_label: __param_target
+              - source_labels: [__param_target]
+                target_label: instance
+              - target_label: __address__
+                replacement: dev-monitoring-blackbox-prometheus-blackbox-exporter.monitoring.svc.cluster.local:9115
+
     # ── CoreDNS metrics (DNS request rates, latency, errors, cache) ──
     prometheus/coredns:
       config:
@@ -420,6 +442,11 @@ config:
       metrics/coredns:
         receivers: [prometheus/coredns]
         processors: [resource/coredns, batch]
+        exporters: [prometheusremotewrite]
+      # Blackbox probes (uptime checks)
+      metrics/blackbox:
+        receivers: [prometheus/blackbox]
+        processors: [batch]
         exporters: [prometheusremotewrite]
       # App metrics from OTLP (backend-server, etc.)
       metrics:
