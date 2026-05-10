@@ -46,11 +46,11 @@ resources:
 # --- RBAC ---
 rbac:
   create: true
-  # Enable useful features for local dev
+  # PCI DSS hardening: disable access to sensitive data and container shells
   secrets: false
-  podExec: true
-  podLogs: true
-  portForward: true
+  podExec: false
+  podLogs: false
+  portForward: false
   helm: true
   viewRBAC: true
   traffic: true
