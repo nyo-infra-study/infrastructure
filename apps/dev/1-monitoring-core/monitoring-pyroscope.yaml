@@ -1,0 +1,37 @@
+# ============================================================
+# Pyroscope — Continuous Profiling (Local Dev)
+# ============================================================
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+  name: dev-pyroscope
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+  labels:
+    environment: dev
+    domain: monitoring
+spec:
+  project: default
+  sources:
+    - chart: pyroscope
+      repoURL: https://grafana.github.io/helm-charts
+      targetRevision: 2.0.1
+      helm:
+        releaseName: dev-pyroscope
+        valueFiles:
+          - $values/platform/monitoring/pyroscope/values.yaml
+    - repoURL: https://github.com/nyo-infra-study/infrastructure.git
+      targetRevision: main
+      ref: values
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

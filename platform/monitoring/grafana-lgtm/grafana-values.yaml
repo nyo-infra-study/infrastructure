@@ -70,10 +70,20 @@ datasources:
             tags:
               - key: "service.name"
                 value: "service_name"
+          tracesToProfiles:
+            datasourceUid: pyroscope
+            tags:
+              - key: "service.name"
+                value: "service_name"
           serviceMap:
             datasourceUid: prometheus
           nodeGraph:
             enabled: true
+      - name: Pyroscope
+        type: grafana-pyroscope-datasource
+        uid: pyroscope
+        url: http://dev-pyroscope.monitoring.svc.cluster.local:4040
+        access: proxy
 
 # Disable test framework
 testFramework:

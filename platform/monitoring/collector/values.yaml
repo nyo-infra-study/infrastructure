@@ -211,6 +211,16 @@ config:
                 labels:
                   namespace: monitoring
 
+    prometheus/pyroscope:
+      config:
+        scrape_configs:
+          - job_name: 'pyroscope'
+            scrape_interval: 30s
+            static_configs:
+              - targets: ['dev-pyroscope.monitoring.svc.cluster.local:4040']
+                labels:
+                  namespace: monitoring
+
     # ── ArgoCD metrics (sync status, app health, reconciliation) ──
     prometheus/argocd:
       config:
@@ -468,6 +478,10 @@ config:
         exporters: [prometheusremotewrite]
       metrics/grafana:
         receivers: [prometheus/grafana]
+        processors: [batch]
+        exporters: [prometheusremotewrite]
+      metrics/pyroscope:
+        receivers: [prometheus/pyroscope]
         processors: [batch]
         exporters: [prometheusremotewrite]
       # CoreDNS metrics

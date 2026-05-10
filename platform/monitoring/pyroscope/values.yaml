@@ -1,0 +1,42 @@
+# ============================================================
+# Pyroscope — Continuous Profiling (Local Dev)
+# ============================================================
+# Chart: grafana/pyroscope v2.0.1
+# Receives profiling data from instrumented apps.
+# UI: via Grafana Profiles Drilldown
+# ============================================================
+
+pyroscope:
+  extraArgs:
+    store-gateway.sharding-ring.replication-factor: "1"
+  resources:
+    requests:
+      cpu: 10m
+      memory: 128Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+
+# Single binary mode for local dev
+minio:
+  enabled: false
+
+# Use filesystem storage
+storage:
+  backend: filesystem
+
+# Disable components not needed in monolithic mode
+ingester:
+  replicas: 0
+distributor:
+  replicas: 0
+compactor:
+  replicas: 0
+querier:
+  replicas: 0
+query-frontend:
+  replicas: 0
+query-scheduler:
+  replicas: 0
+store-gateway:
+  replicas: 0
