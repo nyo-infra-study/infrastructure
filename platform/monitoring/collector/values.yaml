@@ -1,32 +1,22 @@
 # ============================================================
-# OpenTelemetry Collector (Local Dev — Lightweight)
+# OpenTelemetry Collector (Local Dev)
 # ============================================================
 # Uses the open-telemetry/opentelemetry-collector chart.
-# Receives OTLP telemetry from apps and forwards to OneUptime.
-#
-# This is a minimal config for local dev that only handles:
-#  - OTLP metrics/traces/logs from instrumented apps (backend-server, etc.)
-#  - OTel Collector internal metrics
-#  - Forwarding to OneUptime
-#
-# Heavy infra scraping (kubelet, cAdvisor, KSM, node-exporter)
-# and pod log collection are disabled to save resources locally.
-# Re-enable the commented sections below if you need full observability.
+# Receives OTLP telemetry from apps, scrapes infra metrics,
+# and collects pod logs from all namespaces.
 # ============================================================
 image:
   repository: otel/opentelemetry-collector-contrib
   tag: 0.119.0
 
-# Switched to deployment since filelog (which needs DaemonSet) is disabled.
-# Change back to "daemonset" if re-enabling filelog receiver.
-mode: deployment
+# DaemonSet mode required for filelog receiver (reads host log files)
+mode: daemonset
 
 # Expose the collector as a service so apps can send OTLP to it
 service:
   enabled: true
 
 # ── Security hardening ──
-# Fixes Radar audit findings: privilege escalation, runAsNonRoot, read-only fs
 securityContext:
   runAsNonRoot: true
   runAsUser: 10001
@@ -37,28 +27,26 @@ securityContext:
     drop:
       - ALL
 
-# Disable auto-mounting service account token (not needed for OTLP receivers)
-# NOTE: Keep enabled because prometheus scraping (cadvisor, ksm) needs the token
 serviceAccount:
   create: true
   automountServiceAccountToken: true
 
-# ── Host log mounts (disabled — not needed without filelog receiver) ──
-# extraVolumes:
-#   - name: varlogpods
-#     hostPath:
-#       path: /var/log/pods
-#   - name: varlogcontainers
-#     hostPath:
-#       path: /var/log/containers
+# ── Host log mounts (required for filelog receiver) ──
+extraVolumes:
+  - name: varlogpods
+    hostPath:
+      path: /var/log/pods
+  - name: varlogcontainers
+    hostPath:
+      path: /var/log/containers
 
-# extraVolumeMounts:
-#   - name: varlogpods
-#     mountPath: /var/log/pods
-#     readOnly: true
-#   - name: varlogcontainers
-#     mountPath: /var/log/containers
-#     readOnly: true
+extraVolumeMounts:
+  - name: varlogpods
+    mountPath: /var/log/pods
+    readOnly: true
+  - name: varlogcontainers
+    mountPath: /var/log/containers
+    readOnly: true
 
 config:
   receivers:
@@ -69,9 +57,7 @@ config:
         http:
           endpoint: 0.0.0.0:4318
 
-    # ── Collector self-metrics (lightweight — scrapes its own /metrics) ──
-    # Gives you otelcol_* metrics to monitor collector health and resource usage
-    # before turning on heavier sources.
+    # ── Collector self-metrics ──
     prometheus/self:
       config:
         scrape_configs:
@@ -103,6 +89,38 @@ config:
                 target_label: __metrics_path__
                 replacement: /api/v1/nodes/$${1}/proxy/metrics/cadvisor
 
+    # ── Kubelet metrics (node-level resource usage) ──
+    prometheus/kubelet:
+      config:
+        scrape_configs:
+          - job_name: 'kubernetes-nodes'
+            scheme: https
+            scrape_interval: 30s
+            tls_config:
+              ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+              insecure_skip_verify: true
+            bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+            kubernetes_sd_configs:
+              - role: node
+            relabel_configs:
+              - action: labelmap
+                regex: __meta_kubernetes_node_label_(.+)
+              - target_label: __address__
+                replacement: kubernetes.default.svc:443
+              - source_labels: [__meta_kubernetes_node_name]
+                regex: (.+)
+                target_label: __metrics_path__
+                replacement: /api/v1/nodes/$${1}/proxy/metrics
+
+    # ── Node Exporter (hardware/OS metrics — disk, network, CPU) ──
+    prometheus/node-exporter:
+      config:
+        scrape_configs:
+          - job_name: 'node-exporter'
+            scrape_interval: 30s
+            static_configs:
+              - targets: ['dev-monitoring-node-exporter-prometheus-node-exporter.monitoring.svc.cluster.local:9100']
+
     # ── KSM (resource requests/limits to compare against actual usage) ──
     prometheus/ksm:
       config:
@@ -112,7 +130,7 @@ config:
             static_configs:
               - targets: ['dev-monitoring-ksm-kube-state-metrics.monitoring.svc.cluster.local:8080']
 
-    # ── Blackbox Exporter probes (uptime checks for ArgoCD, Grafana, etc.) ──
+    # ── Blackbox Exporter probes (uptime checks) ──
     prometheus/blackbox:
       config:
         scrape_configs:
@@ -175,114 +193,81 @@ config:
                 labels:
                   namespace: argocd
 
-    # ── Prometheus scrape jobs (disabled — kubelet + node-exporter too heavy for local dev) ──
-    # prometheus/kubelet:
-    #   config:
-    #     scrape_configs:
-    #       - job_name: 'kubernetes-nodes'
-    #         scheme: https
-    #         tls_config:
-    #           ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
-    #           insecure_skip_verify: true
-    #         bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
-    #         kubernetes_sd_configs:
-    #           - role: node
-    #         relabel_configs:
-    #           - action: labelmap
-    #             regex: __meta_kubernetes_node_label_(.+)
-    #           - target_label: __address__
-    #             replacement: kubernetes.default.svc:443
-    #           - source_labels: [__meta_kubernetes_node_name]
-    #             regex: (.+)
-    #             target_label: __metrics_path__
-    #             replacement: /api/v1/nodes/${1}/proxy/metrics
-    #
-    # prometheus/node-exporter:
-    #   config:
-    #     scrape_configs:
-    #       - job_name: 'node-exporter'
-    #         static_configs:
-    #           - targets: ['dev-monitoring-node-exporter-prometheus-node-exporter.monitoring.svc.cluster.local:9100']
+    # ── Pod log collection (all namespaces) ──
+    filelog:
+      include:
+        - /var/log/pods/*/*/*.log
+      exclude:
+        # Don't collect our own logs (feedback loop)
+        - /var/log/pods/monitoring_dev-monitoring-otel-*/**/*.log
+      start_at: end
+      include_file_path: true
+      include_file_name: false
+      operators:
+        - type: router
+          id: get-format
+          routes:
+            - output: parser-containerd
+              expr: 'body matches "^[^ Z]+ "'
+            - output: parser-docker
+              expr: 'body matches "^\\{"'
+          default: parser-containerd
 
-    # ── Pod log collection (disabled — heavy for local dev) ──
-    # filelog:
-    #   include:
-    #     - /var/log/pods/*/*/*.log
-    #   exclude:
-    #     - /var/log/pods/monitoring_dev-monitoring-otel-*/**/*.log
-    #     - /var/log/pods/monitoring_dev-monitoring-signoz-*/**/*.log
-    #     - /var/log/pods/monitoring_chi-*/**/*.log
-    #     - /var/log/pods/monitoring_signoz-*/**/*.log
-    #   start_at: end
-    #   include_file_path: true
-    #   include_file_name: false
-    #   operators:
-    #     - type: router
-    #       id: get-format
-    #       routes:
-    #         - output: parser-containerd
-    #           expr: 'body matches "^[^ Z]+ "'
-    #         - output: parser-docker
-    #           expr: 'body matches "^\\{"'
-    #       default: parser-containerd
-    #
-    #     - type: regex_parser
-    #       id: parser-containerd
-    #       regex: '^(?P<time>[^ Z]+Z) (?P<stream>stdout|stderr) (?P<logtag>[^ ]*) ?(?P<log>.*)'
-    #       timestamp:
-    #         parse_from: attributes.time
-    #         layout: '%Y-%m-%dT%H:%M:%S.%LZ'
-    #       output: extract-metadata
-    #
-    #     - type: json_parser
-    #       id: parser-docker
-    #       output: extract-metadata
-    #       timestamp:
-    #         parse_from: attributes.time
-    #         layout: '%Y-%m-%dT%H:%M:%S.%LZ'
-    #
-    #     - type: regex_parser
-    #       id: extract-metadata
-    #       regex: '^.*\/(?P<namespace>[^_]+)_(?P<pod_name>[^_]+)_(?P<uid>[a-f0-9\-]+)\/(?P<container_name>[^\._]+)\/.*'
-    #       parse_from: attributes["log.file.path"]
-    #
-    #     - type: move
-    #       from: attributes.log
-    #       to: body
-    #
-    #     - type: move
-    #       from: attributes.stream
-    #       to: attributes["log.iostream"]
-    #
-    #     - type: move
-    #       from: attributes.namespace
-    #       to: resource["k8s.namespace.name"]
-    #
-    #     - type: move
-    #       from: attributes.pod_name
-    #       to: resource["k8s.pod.name"]
-    #
-    #     - type: move
-    #       from: attributes.container_name
-    #       to: resource["k8s.container.name"]
-    #
-    #     - type: move
-    #       from: attributes.uid
-    #       to: resource["k8s.pod.uid"]
-    #
-    #     - type: remove
-    #       field: attributes.time
-    #     - type: remove
-    #       field: attributes.logtag
+        - type: regex_parser
+          id: parser-containerd
+          regex: '^(?P<time>[^ Z]+Z) (?P<stream>stdout|stderr) (?P<logtag>[^ ]*) ?(?P<log>.*)'
+          timestamp:
+            parse_from: attributes.time
+            layout: '%Y-%m-%dT%H:%M:%S.%LZ'
+          output: extract-metadata
+
+        - type: json_parser
+          id: parser-docker
+          output: extract-metadata
+          timestamp:
+            parse_from: attributes.time
+            layout: '%Y-%m-%dT%H:%M:%S.%LZ'
+
+        - type: regex_parser
+          id: extract-metadata
+          regex: '^.*\/(?P<namespace>[^_]+)_(?P<pod_name>[^_]+)_(?P<uid>[a-f0-9\-]+)\/(?P<container_name>[^\._]+)\/.*'
+          parse_from: attributes["log.file.path"]
+
+        - type: move
+          from: attributes.log
+          to: body
+
+        - type: move
+          from: attributes.stream
+          to: attributes["log.iostream"]
+
+        - type: move
+          from: attributes.namespace
+          to: resource["k8s.namespace.name"]
+
+        - type: move
+          from: attributes.pod_name
+          to: resource["k8s.pod.name"]
+
+        - type: move
+          from: attributes.container_name
+          to: resource["k8s.container.name"]
+
+        - type: move
+          from: attributes.uid
+          to: resource["k8s.pod.uid"]
+
+        - type: remove
+          field: attributes.time
+        - type: remove
+          field: attributes.logtag
 
   processors:
     batch:
       send_batch_size: 10000
       timeout: 2s
 
-    # ── Set service.name for scraped metrics ──────────────────
-    # OneUptime requires service.name to query metrics in chart widgets.
-    # Without this, metrics appear in explorer but not in dashboards.
+    # ── Set service.name for scraped metrics ──
     resource/self:
       attributes:
         - key: service.name
@@ -293,6 +278,18 @@ config:
       attributes:
         - key: service.name
           value: "kubernetes-cadvisor"
+          action: upsert
+
+    resource/kubelet:
+      attributes:
+        - key: service.name
+          value: "kubelet"
+          action: upsert
+
+    resource/node-exporter:
+      attributes:
+        - key: service.name
+          value: "node-exporter"
           action: upsert
 
     resource/ksm:
@@ -307,32 +304,31 @@ config:
           value: "coredns"
           action: upsert
 
-    # ── Enrich logs with k8s metadata (disabled — not needed without filelog) ──
-    # k8sattributes:
-    #   auth_type: "serviceAccount"
-    #   passthrough: false
-    #   extract:
-    #     metadata:
-    #       - k8s.namespace.name
-    #       - k8s.pod.name
-    #       - k8s.pod.uid
-    #       - k8s.deployment.name
-    #       - k8s.statefulset.name
-    #       - k8s.daemonset.name
-    #       - k8s.node.name
-    #       - k8s.container.name
-    #   pod_association:
-    #     - sources:
-    #         - from: resource_attribute
-    #           name: k8s.pod.uid
+    # ── Enrich logs with k8s metadata (pod, deployment, namespace) ──
+    k8sattributes:
+      auth_type: "serviceAccount"
+      passthrough: false
+      extract:
+        metadata:
+          - k8s.namespace.name
+          - k8s.pod.name
+          - k8s.pod.uid
+          - k8s.deployment.name
+          - k8s.statefulset.name
+          - k8s.daemonset.name
+          - k8s.node.name
+          - k8s.container.name
+      pod_association:
+        - sources:
+            - from: resource_attribute
+              name: k8s.pod.uid
 
-    # ── Filter logs: drop noisy namespaces (disabled — not needed without filelog) ──
-    # filter/logs:
-    #   error_mode: ignore
-    #   logs:
-    #     log_record:
-    #       - 'resource.attributes["k8s.namespace.name"] == "kube-system"'
-    #       - 'resource.attributes["k8s.namespace.name"] == "argocd"'
+    # ── Filter logs: drop noisy namespaces ──
+    filter/logs:
+      error_mode: ignore
+      logs:
+        log_record:
+          - 'resource.attributes["k8s.namespace.name"] == "kube-system"'
 
     # ── Drop noisy / low-value metrics (for app OTLP metrics) ──
     filter/metrics:
@@ -355,32 +351,16 @@ config:
           - 'name == "up"'
 
     # ── Keep only useful cAdvisor + KSM metrics (allowlist approach) ──
-    # cAdvisor: OOM kills, CPU throttling, memory/cpu usage
-    # KSM: resource requests/limits so you can compare usage vs allocation
     filter/infra-allow:
       error_mode: ignore
       metrics:
         metric:
-          # KEEP only these — drop everything else from cAdvisor + KSM
-          # This is a deny filter, so we drop metrics that DON'T match our allowlist
           - 'not(IsMatch(name, "container_cpu_usage_seconds_total") or IsMatch(name, "container_memory_usage_bytes") or IsMatch(name, "container_memory_working_set_bytes") or IsMatch(name, "container_oom_events_total") or IsMatch(name, "container_cpu_cfs_throttled_periods_total") or IsMatch(name, "container_cpu_cfs_periods_total") or IsMatch(name, "kube_pod_container_resource_requests") or IsMatch(name, "kube_pod_container_resource_limits") or IsMatch(name, "kube_pod_container_status_restarts_total") or IsMatch(name, "kube_pod_container_status_last_terminated_reason") or IsMatch(name, "kube_pod_status_phase") or IsMatch(name, "kube_container_status_waiting_reason") or IsMatch(name, "scrape_.*") or name == "up")'
-          # Now drop scrape meta from the allowed set
           - 'name == "scrape_duration_seconds"'
           - 'name == "scrape_samples_scraped"'
           - 'name == "scrape_samples_post_metric_relabeling"'
           - 'name == "scrape_series_added"'
           - 'name == "up"'
-
-    # ── Remove high-cardinality labels (disabled — mainly for prometheus scrapes) ──
-    # transform/drop_labels:
-    #   metric_statements:
-    #     - context: datapoint
-    #       statements:
-    #         - delete_key(attributes, "id")
-    #         - delete_key(attributes, "image")
-    #         - delete_key(attributes, "uid")
-    #         - delete_key(attributes, "instance")
-    #         - delete_key(attributes, "prometheus_replica")
 
   exporters:
     # Send traces to Tempo (OTLP gRPC)
@@ -391,34 +371,18 @@ config:
     # Send logs to Loki (OTLP HTTP — Loki's native OTLP endpoint)
     otlphttp/loki:
       endpoint: "http://dev-lgtm-loki.monitoring.svc.cluster.local:3100/otlp"
-    # Send metrics to Prometheus via remote write (most reliable method)
+    # Send metrics to Prometheus via remote write
     prometheusremotewrite:
       endpoint: "http://dev-lgtm-prometheus-server.monitoring.svc.cluster.local:80/api/v1/write"
-    # Send traces + logs to OpenSearch via Data Prepper (disabled — opensearch removed)
-    # otlp/dataprepper-traces:
-    #   endpoint: "dev-opensearch-data-prepper.monitoring.svc.cluster.local:21890"
-    #   tls:
-    #     insecure: true
-    # otlp/dataprepper-logs:
-    #   endpoint: "dev-opensearch-data-prepper.monitoring.svc.cluster.local:21892"
-    #   tls:
-    #     insecure: true
 
   service:
-    # Enable internal telemetry so the collector emits otelcol_* metrics on :8888
     telemetry:
       metrics:
         address: 0.0.0.0:8888
         level: normal
 
     pipelines:
-      # ── Infra metrics pipeline (disabled — kubelet + node-exporter) ──
-      # metrics/kubelet:
-      #   receivers: [prometheus/kubelet]
-      #   processors: [filter/infra-allow, batch]
-      #   exporters: [prometheusremotewrite]
-
-      # Collector self-metrics (otelcol_* — monitor the collector's own resource usage)
+      # Collector self-metrics
       metrics/self:
         receivers: [prometheus/self]
         processors: [resource/self, batch]
@@ -428,17 +392,27 @@ config:
         receivers: [prometheus/cadvisor]
         processors: [resource/cadvisor, filter/infra-allow, batch]
         exporters: [prometheusremotewrite]
+      # Kubelet metrics (node-level)
+      metrics/kubelet:
+        receivers: [prometheus/kubelet]
+        processors: [resource/kubelet, batch]
+        exporters: [prometheusremotewrite]
+      # Node Exporter metrics (hardware/OS)
+      metrics/node-exporter:
+        receivers: [prometheus/node-exporter]
+        processors: [resource/node-exporter, batch]
+        exporters: [prometheusremotewrite]
       # KSM metrics (resource requests/limits, pod status)
       metrics/ksm:
         receivers: [prometheus/ksm]
         processors: [resource/ksm, filter/infra-allow, batch]
         exporters: [prometheusremotewrite]
-      # ArgoCD metrics (sync status, app health, reconciliation performance)
+      # ArgoCD metrics
       metrics/argocd:
         receivers: [prometheus/argocd]
         processors: [batch]
         exporters: [prometheusremotewrite]
-      # CoreDNS metrics (DNS requests, latency, cache hits, errors)
+      # CoreDNS metrics
       metrics/coredns:
         receivers: [prometheus/coredns]
         processors: [resource/coredns, batch]
@@ -453,23 +427,30 @@ config:
         receivers: [otlp]
         processors: [filter/metrics, batch]
         exporters: [prometheusremotewrite]
+      # Traces
       traces:
         receivers: [otlp]
         processors: [batch]
         exporters: [otlp/tempo]
+      # Logs from OTLP (app instrumentation)
       logs:
         receivers: [otlp]
-        processors: [batch]
+        processors: [k8sattributes, batch]
+        exporters: [otlphttp/loki]
+      # Logs from pod files (all system pods)
+      logs/filelog:
+        receivers: [filelog]
+        processors: [k8sattributes, filter/logs, batch]
         exporters: [otlphttp/loki]
 
-# Observed usage: ~22m CPU, ~157Mi memory (with cadvisor + ksm scraping, without opensearch export)
+# Expected usage with all features: ~50m CPU, ~350Mi memory
 resources:
   requests:
-    cpu: 22m
-    memory: 157Mi
+    cpu: 50m
+    memory: 256Mi
   limits:
-    cpu: 200m
-    memory: 384Mi
+    cpu: 500m
+    memory: 512Mi
 
 clusterRole:
   create: true
@@ -477,15 +458,15 @@ clusterRole:
     - apiGroups: [""]
       resources: ["nodes", "nodes/proxy", "services", "endpoints", "pods"]
       verbs: ["get", "list", "watch"]
-    # ── Extended RBAC for k8sattributes processor (disabled) ──
-    # - apiGroups: ["apps"]
-    #   resources: ["replicasets", "deployments", "statefulsets", "daemonsets"]
-    #   verbs: ["get", "list", "watch"]
-    # - apiGroups: ["extensions", "networking.k8s.io"]
-    #   resources: ["ingresses"]
-    #   verbs: ["get", "list", "watch"]
-    # - apiGroups: ["batch"]
-    #   resources: ["jobs"]
-    #   verbs: ["get", "list", "watch"]
+    # Required for k8sattributes processor
+    - apiGroups: ["apps"]
+      resources: ["replicasets", "deployments", "statefulsets", "daemonsets"]
+      verbs: ["get", "list", "watch"]
+    - apiGroups: ["extensions", "networking.k8s.io"]
+      resources: ["ingresses"]
+      verbs: ["get", "list", "watch"]
+    - apiGroups: ["batch"]
+      resources: ["jobs"]
+      verbs: ["get", "list", "watch"]
     - nonResourceURLs: ["/metrics"]
       verbs: ["get"]
