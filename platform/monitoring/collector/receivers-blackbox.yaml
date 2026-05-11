@@ -35,7 +35,7 @@ config:
               module: [http_2xx]
             static_configs:
               - targets:
-                  - http://dev-lgtm-grafana.monitoring.svc.cluster.local:80
+                  - http://dev-lgtm-grafana.monitoring.svc.cluster.local:80/api/health
                 labels:
                   namespace: monitoring
             relabel_configs:
@@ -53,7 +53,7 @@ config:
               module: [http_2xx]
             static_configs:
               - targets:
-                  - http://dev-lgtm-prometheus-server.monitoring.svc.cluster.local:80
+                  - http://dev-lgtm-prometheus-server.monitoring.svc.cluster.local:80/-/ready
                 labels:
                   namespace: monitoring
             relabel_configs:
@@ -71,7 +71,7 @@ config:
               module: [http_2xx]
             static_configs:
               - targets:
-                  - http://dev-backend-server.dev.svc.cluster.local:9000
+                  - http://dev-backend-server.dev.svc.cluster.local:9091/api/healthz
                 labels:
                   namespace: dev
             relabel_configs:
@@ -89,7 +89,7 @@ config:
               module: [http_2xx]
             static_configs:
               - targets:
-                  - http://dev-web-frontend.dev.svc.cluster.local:80
+                  - http://dev-web-frontend.dev.svc.cluster.local:9092
                 labels:
                   namespace: dev
             relabel_configs:
@@ -107,7 +107,7 @@ config:
               module: [http_2xx]
             static_configs:
               - targets:
-                  - http://dev-lgtm-loki.monitoring.svc.cluster.local:3100
+                  - http://dev-lgtm-loki.monitoring.svc.cluster.local:3100/ready
                 labels:
                   namespace: monitoring
             relabel_configs:
@@ -125,7 +125,7 @@ config:
               module: [http_2xx]
             static_configs:
               - targets:
-                  - http://dev-lgtm-tempo.monitoring.svc.cluster.local:3200
+                  - http://dev-lgtm-tempo.monitoring.svc.cluster.local:3200/ready
                 labels:
                   namespace: monitoring
             relabel_configs:
