@@ -6,13 +6,14 @@
 
 global:
   monitoring:
-    # OneUptime (Unified Observability — Metrics, Logs, Traces, Incidents)
-    oneuptime:
-      ui: "http://oneuptime.localhost"
-      otel_grpc: "dev-monitoring-oneuptime-app.monitoring.svc.cluster.local:4317"
-      otel_http: "dev-monitoring-oneuptime-app.monitoring.svc.cluster.local:4318"
-
-    # OTel Collector (External — scrapes infra metrics/logs, forwards to OneUptime)
+    # OTel Collector (scrapes infra metrics/logs, forwards to LGTM stack)
     otel:
-      endpoint: "http://dev-monitoring-otel-opentelemetry-collector.monitoring.svc.cluster.local:4317"
-      http_endpoint: "http://dev-monitoring-otel-opentelemetry-collector.monitoring.svc.cluster.local:4318"
+      grpc_endpoint: "dev-monitoring-otel-opentelemetry-collector.monitoring.svc.cluster.local:4317"
+      http_endpoint: "dev-monitoring-otel-opentelemetry-collector.monitoring.svc.cluster.local:4318"
+
+    # LGTM Stack endpoints
+    prometheus: "dev-lgtm-prometheus-server.monitoring.svc.cluster.local:80"
+    loki: "dev-lgtm-loki.monitoring.svc.cluster.local:3100"
+    tempo: "dev-lgtm-tempo.monitoring.svc.cluster.local:3200"
+    grafana: "dev-lgtm-grafana.monitoring.svc.cluster.local:80"
+    pyroscope: "dev-pyroscope.monitoring.svc.cluster.local:4040"

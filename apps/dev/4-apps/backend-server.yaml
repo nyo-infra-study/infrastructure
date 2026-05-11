@@ -38,6 +38,9 @@ spec:
       valuesObject:
         replicaCount: 1 # Single replica for local playground
 
+        # OTel service identity (must match OTEL_SERVICE_NAME env var)
+        otelServiceName: "backend-server"
+
         image:
           tag: "latest" # Docker image tag to deploy
           pullPolicy: IfNotPresent
@@ -67,6 +70,12 @@ spec:
             value: "http://dev-monitoring-otel-opentelemetry-collector.monitoring.svc.cluster.local:4317"
           - name: OTEL_SERVICE_NAME
             value: "backend-server"
+          - name: OTEL_SERVICE_NAMESPACE
+            value: "dev"
+          - name: OTEL_SERVICE_VERSION
+            value: "latest"
+          - name: OTEL_DEPLOYMENT_ENVIRONMENT
+            value: "dev"
           - name: OTEL_EXPORTER_OTLP_INSECURE
             value: "true"
 

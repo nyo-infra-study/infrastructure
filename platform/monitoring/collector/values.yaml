@@ -315,8 +315,14 @@ config:
 
   processors:
     batch:
-      send_batch_size: 10000
+      send_batch_size: 1024
       timeout: 2s
+
+    # ── Memory limiter — prevents OOM by applying backpressure ──
+    memory_limiter:
+      check_interval: 1s
+      limit_mib: 400
+      spike_limit_mib: 100
 
     # ── Set service.name for scraped metrics ──
     resource/self:
@@ -355,7 +361,50 @@ config:
           value: "coredns"
           action: upsert
 
-    # ── Enrich logs with k8s metadata (pod, deployment, namespace) ──
+    resource/argocd:
+      attributes:
+        - key: service.name
+          value: "argocd"
+          action: upsert
+
+    resource/loki:
+      attributes:
+        - key: service.name
+          value: "loki"
+          action: upsert
+
+    resource/tempo:
+      attributes:
+        - key: service.name
+          value: "tempo"
+          action: upsert
+
+    resource/prometheus:
+      attributes:
+        - key: service.name
+          value: "prometheus"
+          action: upsert
+
+    resource/grafana:
+      attributes:
+        - key: service.name
+          value: "grafana"
+          action: upsert
+
+    resource/pyroscope:
+      attributes:
+        - key: service.name
+          value: "pyroscope"
+          action: upsert
+
+    resource/blackbox:
+      attributes:
+        - key: service.name
+          value: "blackbox-exporter"
+          action: upsert
+
+    # ── Enrich telemetry with k8s metadata (pod, deployment, namespace) ──
+    # Applied to all app OTLP pipelines (metrics, traces, logs) and filelog
     k8sattributes:
       auth_type: "serviceAccount"
       passthrough: false
@@ -369,10 +418,43 @@ config:
           - k8s.daemonset.name
           - k8s.node.name
           - k8s.container.name
+        annotations:
+          - tag_name: service.version
+            key: resource.opentelemetry.io/service.version
+            from: pod
+          - tag_name: deployment.environment
+            key: resource.opentelemetry.io/deployment.environment
+            from: pod
+        labels:
+          - tag_name: app.kubernetes.io/name
+            key: app.kubernetes.io/name
+            from: pod
+          - tag_name: app.kubernetes.io/version
+            key: app.kubernetes.io/version
+            from: pod
+          - tag_name: app.kubernetes.io/component
+            key: app.kubernetes.io/component
+            from: pod
       pod_association:
         - sources:
             - from: resource_attribute
               name: k8s.pod.uid
+        - sources:
+            - from: resource_attribute
+              name: k8s.pod.ip
+        - sources:
+            - from: connection
+
+    # ── Enforce required resource attributes on app telemetry ──
+    # Fills in missing attributes as defaults — does NOT overwrite SDK/annotation values
+    resource/app-enforce:
+      attributes:
+        - key: deployment.environment
+          value: "dev"
+          action: insert
+        - key: service.namespace
+          value: "dev"
+          action: insert
 
     # ── Filter logs: drop noisy namespaces ──
     filter/logs:
@@ -406,12 +488,7 @@ config:
       error_mode: ignore
       metrics:
         metric:
-          - 'not(IsMatch(name, "container_cpu_usage_seconds_total") or IsMatch(name, "container_memory_usage_bytes") or IsMatch(name, "container_memory_working_set_bytes") or IsMatch(name, "container_oom_events_total") or IsMatch(name, "container_cpu_cfs_throttled_periods_total") or IsMatch(name, "container_cpu_cfs_periods_total") or IsMatch(name, "kube_pod_container_resource_requests") or IsMatch(name, "kube_pod_container_resource_limits") or IsMatch(name, "kube_pod_container_status_restarts_total") or IsMatch(name, "kube_pod_container_status_last_terminated_reason") or IsMatch(name, "kube_pod_status_phase") or IsMatch(name, "kube_container_status_waiting_reason") or IsMatch(name, "kube_pod_info") or IsMatch(name, "kube_node_status_allocatable") or IsMatch(name, "kube_node_status_capacity") or IsMatch(name, "kube_node_info") or IsMatch(name, "kube_namespace_status_phase") or IsMatch(name, "kube_deployment_status_replicas") or IsMatch(name, "kube_deployment_spec_replicas") or IsMatch(name, "kube_statefulset_status_replicas") or IsMatch(name, "kube_statefulset_replicas") or IsMatch(name, "kube_daemonset_status.*") or IsMatch(name, "scrape_.*") or name == "up")'
-          - 'name == "scrape_duration_seconds"'
-          - 'name == "scrape_samples_scraped"'
-          - 'name == "scrape_samples_post_metric_relabeling"'
-          - 'name == "scrape_series_added"'
-          - 'name == "up"'
+          - 'not(IsMatch(name, "container_cpu_usage_seconds_total") or IsMatch(name, "container_memory_usage_bytes") or IsMatch(name, "container_memory_working_set_bytes") or IsMatch(name, "container_oom_events_total") or IsMatch(name, "container_cpu_cfs_throttled_periods_total") or IsMatch(name, "container_cpu_cfs_periods_total") or IsMatch(name, "kube_pod_container_resource_requests") or IsMatch(name, "kube_pod_container_resource_limits") or IsMatch(name, "kube_pod_container_status_restarts_total") or IsMatch(name, "kube_pod_container_status_last_terminated_reason") or IsMatch(name, "kube_pod_status_phase") or IsMatch(name, "kube_container_status_waiting_reason") or IsMatch(name, "kube_pod_info") or IsMatch(name, "kube_node_status_allocatable") or IsMatch(name, "kube_node_status_capacity") or IsMatch(name, "kube_node_info") or IsMatch(name, "kube_namespace_status_phase") or IsMatch(name, "kube_deployment_status_replicas") or IsMatch(name, "kube_deployment_spec_replicas") or IsMatch(name, "kube_statefulset_status_replicas") or IsMatch(name, "kube_statefulset_replicas") or IsMatch(name, "kube_daemonset_status.*"))'
 
   exporters:
     # Send traces to Tempo (OTLP gRPC)
@@ -436,83 +513,83 @@ config:
       # Collector self-metrics
       metrics/self:
         receivers: [prometheus/self]
-        processors: [resource/self, batch]
+        processors: [memory_limiter, resource/self, batch]
         exporters: [prometheusremotewrite]
       # cAdvisor metrics (OOM, CPU throttle, memory/cpu usage)
       metrics/cadvisor:
         receivers: [prometheus/cadvisor]
-        processors: [resource/cadvisor, filter/infra-allow, batch]
+        processors: [memory_limiter, resource/cadvisor, filter/infra-allow, batch]
         exporters: [prometheusremotewrite]
       # Kubelet metrics (node-level)
       metrics/kubelet:
         receivers: [prometheus/kubelet]
-        processors: [resource/kubelet, batch]
+        processors: [memory_limiter, resource/kubelet, batch]
         exporters: [prometheusremotewrite]
       # Node Exporter metrics (hardware/OS)
       metrics/node-exporter:
         receivers: [prometheus/node-exporter]
-        processors: [resource/node-exporter, batch]
+        processors: [memory_limiter, resource/node-exporter, batch]
         exporters: [prometheusremotewrite]
       # KSM metrics (resource requests/limits, pod status)
       metrics/ksm:
         receivers: [prometheus/ksm]
-        processors: [resource/ksm, filter/infra-allow, batch]
+        processors: [memory_limiter, resource/ksm, filter/infra-allow, batch]
         exporters: [prometheusremotewrite]
       # ArgoCD metrics
       metrics/argocd:
         receivers: [prometheus/argocd]
-        processors: [batch]
+        processors: [memory_limiter, resource/argocd, batch]
         exporters: [prometheusremotewrite]
       # LGTM stack self-monitoring
       metrics/loki:
         receivers: [prometheus/loki]
-        processors: [batch]
+        processors: [memory_limiter, resource/loki, batch]
         exporters: [prometheusremotewrite]
       metrics/tempo:
         receivers: [prometheus/tempo]
-        processors: [batch]
+        processors: [memory_limiter, resource/tempo, batch]
         exporters: [prometheusremotewrite]
       metrics/prometheus:
         receivers: [prometheus/prometheus]
-        processors: [batch]
+        processors: [memory_limiter, resource/prometheus, batch]
         exporters: [prometheusremotewrite]
       metrics/grafana:
         receivers: [prometheus/grafana]
-        processors: [batch]
+        processors: [memory_limiter, resource/grafana, batch]
         exporters: [prometheusremotewrite]
       metrics/pyroscope:
         receivers: [prometheus/pyroscope]
-        processors: [batch]
+        processors: [memory_limiter, resource/pyroscope, batch]
         exporters: [prometheusremotewrite]
       # CoreDNS metrics
       metrics/coredns:
         receivers: [prometheus/coredns]
-        processors: [resource/coredns, batch]
+        processors: [memory_limiter, resource/coredns, batch]
         exporters: [prometheusremotewrite]
       # Blackbox probes (uptime checks)
       metrics/blackbox:
         receivers: [prometheus/blackbox]
-        processors: [batch]
+        processors: [memory_limiter, resource/blackbox, batch]
         exporters: [prometheusremotewrite]
       # App metrics from OTLP (backend-server, etc.)
       metrics:
         receivers: [otlp]
-        processors: [filter/metrics, batch]
+        processors: [memory_limiter, k8sattributes, resource/app-enforce, filter/metrics, batch]
         exporters: [prometheusremotewrite]
       # Traces
       traces:
         receivers: [otlp]
-        processors: [batch]
+        processors: [memory_limiter, k8sattributes, resource/app-enforce, batch]
         exporters: [otlp/tempo]
       # Logs from OTLP (app instrumentation)
       logs:
         receivers: [otlp]
-        processors: [k8sattributes, batch]
+        processors: [memory_limiter, k8sattributes, resource/app-enforce, batch]
         exporters: [otlphttp/loki]
       # Logs from pod files (all system pods)
       logs/filelog:
         receivers: [filelog]
-        processors: [k8sattributes, filter/logs, batch]
+        processors: [memory_limiter, k8sattributes, filter/logs, batch]
         exporters: [otlphttp/loki]
 
 # Expected usage with all features: ~50m CPU, ~350Mi memory

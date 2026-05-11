@@ -23,6 +23,8 @@ server:
     - "web.enable-remote-write-receiver"
     - "web.enable-lifecycle"
     - "enable-feature=otlp-write-receiver"
+    - "storage.tsdb.retention.time=3d"
+    - "storage.tsdb.retention.size=1500MB"
 
 # Disable all scrapers (OTel Collector handles scraping)
 alertmanager:

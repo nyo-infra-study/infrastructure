@@ -17,6 +17,14 @@ spec:
     metadata:
       labels:
         app: {{ .Release.Name }}  # Pod label (must match selector)
+        app.kubernetes.io/name: {{ .Release.Name }}
+        app.kubernetes.io/version: {{ .Values.image.tag | quote }}
+        app.kubernetes.io/component: "backend"
+      annotations:
+        # OTel resource attributes — picked up by k8sattributes processor
+        resource.opentelemetry.io/service.name: {{ .Values.otelServiceName | default .Release.Name }}
+        resource.opentelemetry.io/service.version: {{ .Values.image.tag | quote }}
+        resource.opentelemetry.io/deployment.environment: {{ .Values.environment | default "dev" | quote }}
     spec:
       automountServiceAccountToken: false
       securityContext:

@@ -55,6 +55,10 @@ tempo:
         path: /var/tempo/traces
       wal:
         path: /var/tempo/wal
+  # Retention — auto-delete traces older than 72h
+  compactor:
+    compaction:
+      block_retention: 72h
 
 # Single binary mode
 replicas: 1

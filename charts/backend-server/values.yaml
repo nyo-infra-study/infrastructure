@@ -18,6 +18,9 @@
 # Number of pod replicas to run
 replicaCount: 1
 
+# Deployment environment (used in pod annotations for OTel resource detection)
+environment: "dev"
+
 # Docker image configuration
 image:
   repository: skimpjr/backend-server # Docker Hub repository

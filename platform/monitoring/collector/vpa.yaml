@@ -1,4 +1,4 @@
-# VPA Policy for OTel Collector
+# VPA Policy for OTel Collector (DaemonSet)
 apiVersion: autoscaling.k8s.io/v1
 kind: VerticalPodAutoscaler
 metadata:
@@ -7,7 +7,7 @@ metadata:
 spec:
   targetRef:
     apiVersion: apps/v1
-    kind: Deployment
+    kind: DaemonSet
     name: dev-monitoring-otel-opentelemetry-collector
   updatePolicy:
     updateMode: Auto
