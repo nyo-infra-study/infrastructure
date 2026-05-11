@@ -8,8 +8,8 @@
 tempo:
   resources:
     requests:
-      cpu: 50m
-      memory: 512Mi
+      cpu: 100m
+      memory: 768Mi
     limits:
       cpu: 500m
       memory: 1Gi
