@@ -17,6 +17,16 @@ pyroscope:
       cpu: 200m
       memory: 256Mi
 
+# Alloy sidecar (scrapes profiling targets and sends to Pyroscope)
+alloy:
+  resources:
+    requests:
+      cpu: 10m
+      memory: 64Mi
+    limits:
+      cpu: 100m
+      memory: 128Mi
+
 # Single binary mode for local dev
 minio:
   enabled: false
