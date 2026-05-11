@@ -14,10 +14,10 @@ config:
             scrape_interval: 30s
             metrics_path: /probe
             params:
-              module: [http_argocd]
+              module: [http_2xx]
             static_configs:
               - targets:
-                  - http://argocd-server.argocd.svc.cluster.local:80
+                  - http://argocd-server.argocd.svc.cluster.local:80/healthz
                 labels:
                   namespace: argocd
             relabel_configs:
