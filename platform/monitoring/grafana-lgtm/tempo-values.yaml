@@ -8,11 +8,11 @@
 tempo:
   resources:
     requests:
-      cpu: 12m
-      memory: 243Mi
-    limits:
-      cpu: 200m
+      cpu: 50m
       memory: 512Mi
+    limits:
+      cpu: 500m
+      memory: 1Gi
   # Accept OTLP gRPC and HTTP
   receivers:
     otlp:
