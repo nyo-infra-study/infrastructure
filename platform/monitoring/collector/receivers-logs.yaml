@@ -1,0 +1,75 @@
+# ============================================================
+# Receivers — Pod Log Collection (Filelog)
+# ============================================================
+# Collects container logs from all namespaces via host path.
+# Parses containerd and Docker log formats, extracts k8s metadata.
+# ============================================================
+config:
+  receivers:
+    filelog:
+      include:
+        - /var/log/pods/*/*/*.log
+      exclude:
+        # Don't collect our own logs (feedback loop)
+        - /var/log/pods/monitoring_dev-monitoring-otel-*/**/*.log
+      start_at: end
+      include_file_path: true
+      include_file_name: false
+      operators:
+        - type: router
+          id: get-format
+          routes:
+            - output: parser-containerd
+              expr: 'body matches "^[^ Z]+ "'
+            - output: parser-docker
+              expr: 'body matches "^\\{"'
+          default: parser-containerd
+
+        - type: regex_parser
+          id: parser-containerd
+          regex: '^(?P<time>[^ Z]+Z) (?P<stream>stdout|stderr) (?P<logtag>[^ ]*) ?(?P<log>.*)'
+          timestamp:
+            parse_from: attributes.time
+            layout: '%Y-%m-%dT%H:%M:%S.%LZ'
+          output: extract-metadata
+
+        - type: json_parser
+          id: parser-docker
+          output: extract-metadata
+          timestamp:
+            parse_from: attributes.time
+            layout: '%Y-%m-%dT%H:%M:%S.%LZ'
+
+        - type: regex_parser
+          id: extract-metadata
+          regex: '^.*\/(?P<namespace>[^_]+)_(?P<pod_name>[^_]+)_(?P<uid>[a-f0-9\-]+)\/(?P<container_name>[^\._]+)\/.*'
+          parse_from: attributes["log.file.path"]
+
+        - type: move
+          from: attributes.log
+          to: body
+
+        - type: move
+          from: attributes.stream
+          to: attributes["log.iostream"]
+
+        - type: move
+          from: attributes.namespace
+          to: resource["k8s.namespace.name"]
+
+        - type: move
+          from: attributes.pod_name
+          to: resource["k8s.pod.name"]
+
+        - type: move
+          from: attributes.container_name
+          to: resource["k8s.container.name"]
+
+        - type: move
+          from: attributes.uid
+          to: resource["k8s.pod.uid"]
+
+        - type: remove
+          field: attributes.time
+        - type: remove
+          field: attributes.logtag

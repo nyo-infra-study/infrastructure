@@ -23,6 +23,13 @@ spec:
         valueFiles:
           - $values/platform/monitoring/common-values.yaml
           - $values/platform/monitoring/collector/values.yaml
+          - $values/platform/monitoring/collector/receivers-infra.yaml
+          - $values/platform/monitoring/collector/receivers-blackbox.yaml
+          - $values/platform/monitoring/collector/receivers-apps.yaml
+          - $values/platform/monitoring/collector/receivers-logs.yaml
+          - $values/platform/monitoring/collector/processors.yaml
+          - $values/platform/monitoring/collector/exporters.yaml
+          - $values/platform/monitoring/collector/pipelines.yaml
 
     - repoURL: https://github.com/nyo-infra-study/infrastructure.git
       targetRevision: main

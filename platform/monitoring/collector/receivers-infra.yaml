@@ -1,0 +1,98 @@
+# ============================================================
+# Receivers — Infrastructure Metrics
+# ============================================================
+# Prometheus scrape receivers for cluster-level infra:
+# cAdvisor, kubelet, node-exporter, KSM, CoreDNS, collector self.
+# ============================================================
+config:
+  receivers:
+    # ── Collector self-metrics ──
+    prometheus/self:
+      config:
+        scrape_configs:
+          - job_name: 'otel-collector-self'
+            scrape_interval: 30s
+            static_configs:
+              - targets: ['localhost:8888']
+
+    # ── cAdvisor (OOM kills + CPU throttling + memory/cpu usage) ──
+    prometheus/cadvisor:
+      config:
+        scrape_configs:
+          - job_name: 'kubernetes-cadvisor'
+            scheme: https
+            scrape_interval: 30s
+            tls_config:
+              ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+              insecure_skip_verify: true
+            bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+            kubernetes_sd_configs:
+              - role: node
+            relabel_configs:
+              - action: labelmap
+                regex: __meta_kubernetes_node_label_(.+)
+              - target_label: __address__
+                replacement: kubernetes.default.svc:443
+              - source_labels: [__meta_kubernetes_node_name]
+                regex: (.+)
+                target_label: __metrics_path__
+                replacement: /api/v1/nodes/$${1}/proxy/metrics/cadvisor
+
+    # ── Kubelet metrics (node-level resource usage) ──
+    prometheus/kubelet:
+      config:
+        scrape_configs:
+          - job_name: 'kubernetes-nodes'
+            scheme: https
+            scrape_interval: 30s
+            tls_config:
+              ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+              insecure_skip_verify: true
+            bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+            kubernetes_sd_configs:
+              - role: node
+            relabel_configs:
+              - action: labelmap
+                regex: __meta_kubernetes_node_label_(.+)
+              - target_label: __address__
+                replacement: kubernetes.default.svc:443
+              - source_labels: [__meta_kubernetes_node_name]
+                regex: (.+)
+                target_label: __metrics_path__
+                replacement: /api/v1/nodes/$${1}/proxy/metrics
+
+    # ── Node Exporter (hardware/OS metrics — disk, network, CPU) ──
+    prometheus/node-exporter:
+      config:
+        scrape_configs:
+          - job_name: 'node-exporter'
+            scrape_interval: 30s
+            static_configs:
+              - targets: ['dev-monitoring-node-exporter-prometheus-node-exporter.monitoring.svc.cluster.local:9100']
+
+    # ── KSM (resource requests/limits to compare against actual usage) ──
+    prometheus/ksm:
+      config:
+        scrape_configs:
+          - job_name: 'kube-state-metrics'
+            scrape_interval: 30s
+            static_configs:
+              - targets: ['dev-monitoring-ksm-kube-state-metrics.monitoring.svc.cluster.local:8080']
+
+    # ── CoreDNS metrics (DNS request rates, latency, errors, cache) ──
+    prometheus/coredns:
+      config:
+        scrape_configs:
+          - job_name: 'coredns'
+            scrape_interval: 30s
+            kubernetes_sd_configs:
+              - role: endpoints
+                namespaces:
+                  names: ['kube-system']
+            relabel_configs:
+              - source_labels: [__meta_kubernetes_service_name]
+                action: keep
+                regex: kube-dns
+              - source_labels: [__meta_kubernetes_endpoint_port_name]
+                action: keep
+                regex: metrics

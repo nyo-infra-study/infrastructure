@@ -49,7 +49,9 @@ skimpjr/web-frontend:dev
 grafana/grafana:12.3.1
 grafana/loki:3.6.7
 grafana/tempo:2.9.0
-prom/prometheus:v3.4.1
+quay.io/prometheus/prometheus:v3.2.1
+quay.io/prometheus-operator/prometheus-config-reloader:v0.81.0
+docker.io/kiwigrid/k8s-sidecar:2.5.0
 
 # --- OTel Collector (platform/monitoring/collector/values.yaml) ---
 otel/opentelemetry-collector-contrib:0.119.0

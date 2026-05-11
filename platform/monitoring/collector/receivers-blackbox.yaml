@@ -1,0 +1,137 @@
+# ============================================================
+# Receivers — Blackbox Exporter Probes (Uptime Checks)
+# ============================================================
+# Each job probes a service endpoint through the blackbox exporter.
+# To add a new target, copy an existing job block and change the
+# job_name, target URL, and namespace label.
+# ============================================================
+config:
+  receivers:
+    prometheus/blackbox:
+      config:
+        scrape_configs:
+          - job_name: 'blackbox-argocd'
+            scrape_interval: 30s
+            metrics_path: /probe
+            params:
+              module: [http_argocd]
+            static_configs:
+              - targets:
+                  - http://argocd-server.argocd.svc.cluster.local:80
+                labels:
+                  namespace: argocd
+            relabel_configs:
+              - source_labels: [__address__]
+                target_label: __param_target
+              - source_labels: [__param_target]
+                target_label: instance
+              - target_label: __address__
+                replacement: dev-monitoring-blackbox-prometheus-blackbox-exporter.monitoring.svc.cluster.local:9115
+
+          - job_name: 'blackbox-grafana'
+            scrape_interval: 30s
+            metrics_path: /probe
+            params:
+              module: [http_2xx]
+            static_configs:
+              - targets:
+                  - http://dev-lgtm-grafana.monitoring.svc.cluster.local:80
+                labels:
+                  namespace: monitoring
+            relabel_configs:
+              - source_labels: [__address__]
+                target_label: __param_target
+              - source_labels: [__param_target]
+                target_label: instance
+              - target_label: __address__
+                replacement: dev-monitoring-blackbox-prometheus-blackbox-exporter.monitoring.svc.cluster.local:9115
+
+          - job_name: 'blackbox-prometheus'
+            scrape_interval: 30s
+            metrics_path: /probe
+            params:
+              module: [http_2xx]
+            static_configs:
+              - targets:
+                  - http://dev-lgtm-prometheus-server.monitoring.svc.cluster.local:80
+                labels:
+                  namespace: monitoring
+            relabel_configs:
+              - source_labels: [__address__]
+                target_label: __param_target
+              - source_labels: [__param_target]
+                target_label: instance
+              - target_label: __address__
+                replacement: dev-monitoring-blackbox-prometheus-blackbox-exporter.monitoring.svc.cluster.local:9115
+
+          - job_name: 'blackbox-backend-server'
+            scrape_interval: 30s
+            metrics_path: /probe
+            params:
+              module: [http_2xx]
+            static_configs:
+              - targets:
+                  - http://dev-backend-server.dev.svc.cluster.local:9000
+                labels:
+                  namespace: dev
+            relabel_configs:
+              - source_labels: [__address__]
+                target_label: __param_target
+              - source_labels: [__param_target]
+                target_label: instance
+              - target_label: __address__
+                replacement: dev-monitoring-blackbox-prometheus-blackbox-exporter.monitoring.svc.cluster.local:9115
+
+          - job_name: 'blackbox-web-frontend'
+            scrape_interval: 30s
+            metrics_path: /probe
+            params:
+              module: [http_2xx]
+            static_configs:
+              - targets:
+                  - http://dev-web-frontend.dev.svc.cluster.local:80
+                labels:
+                  namespace: dev
+            relabel_configs:
+              - source_labels: [__address__]
+                target_label: __param_target
+              - source_labels: [__param_target]
+                target_label: instance
+              - target_label: __address__
+                replacement: dev-monitoring-blackbox-prometheus-blackbox-exporter.monitoring.svc.cluster.local:9115
+
+          - job_name: 'blackbox-loki'
+            scrape_interval: 30s
+            metrics_path: /probe
+            params:
+              module: [http_2xx]
+            static_configs:
+              - targets:
+                  - http://dev-lgtm-loki.monitoring.svc.cluster.local:3100
+                labels:
+                  namespace: monitoring
+            relabel_configs:
+              - source_labels: [__address__]
+                target_label: __param_target
+              - source_labels: [__param_target]
+                target_label: instance
+              - target_label: __address__
+                replacement: dev-monitoring-blackbox-prometheus-blackbox-exporter.monitoring.svc.cluster.local:9115
+
+          - job_name: 'blackbox-tempo'
+            scrape_interval: 30s
+            metrics_path: /probe
+            params:
+              module: [http_2xx]
+            static_configs:
+              - targets:
+                  - http://dev-lgtm-tempo.monitoring.svc.cluster.local:3200
+                labels:
+                  namespace: monitoring
+            relabel_configs:
+              - source_labels: [__address__]
+                target_label: __param_target
+              - source_labels: [__param_target]
+                target_label: instance
+              - target_label: __address__
+                replacement: dev-monitoring-blackbox-prometheus-blackbox-exporter.monitoring.svc.cluster.local:9115

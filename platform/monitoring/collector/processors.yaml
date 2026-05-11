@@ -1,0 +1,183 @@
+# ============================================================
+# Processors
+# ============================================================
+# Batch, memory limiter, k8s enrichment, metric filters,
+# and resource attribute processors for service.name tagging.
+# ============================================================
+config:
+  processors:
+    batch:
+      send_batch_size: 1024
+      timeout: 2s
+
+    # ── Memory limiter — prevents OOM by applying backpressure ──
+    memory_limiter:
+      check_interval: 1s
+      limit_mib: 400
+      spike_limit_mib: 100
+
+    # ── Set service.name for scraped metrics ──
+    resource/self:
+      attributes:
+        - key: service.name
+          value: "otel-collector"
+          action: upsert
+
+    resource/cadvisor:
+      attributes:
+        - key: service.name
+          value: "kubernetes-cadvisor"
+          action: upsert
+
+    resource/kubelet:
+      attributes:
+        - key: service.name
+          value: "kubelet"
+          action: upsert
+
+    resource/node-exporter:
+      attributes:
+        - key: service.name
+          value: "node-exporter"
+          action: upsert
+
+    resource/ksm:
+      attributes:
+        - key: service.name
+          value: "kube-state-metrics"
+          action: upsert
+
+    resource/coredns:
+      attributes:
+        - key: service.name
+          value: "coredns"
+          action: upsert
+
+    resource/argocd:
+      attributes:
+        - key: service.name
+          value: "argocd"
+          action: upsert
+
+    resource/loki:
+      attributes:
+        - key: service.name
+          value: "loki"
+          action: upsert
+
+    resource/tempo:
+      attributes:
+        - key: service.name
+          value: "tempo"
+          action: upsert
+
+    resource/prometheus:
+      attributes:
+        - key: service.name
+          value: "prometheus"
+          action: upsert
+
+    resource/grafana:
+      attributes:
+        - key: service.name
+          value: "grafana"
+          action: upsert
+
+    resource/pyroscope:
+      attributes:
+        - key: service.name
+          value: "pyroscope"
+          action: upsert
+
+    resource/blackbox:
+      attributes:
+        - key: service.name
+          value: "blackbox-exporter"
+          action: upsert
+
+    # ── Enrich telemetry with k8s metadata (pod, deployment, namespace) ──
+    # Applied to all app OTLP pipelines (metrics, traces, logs) and filelog
+    k8sattributes:
+      auth_type: "serviceAccount"
+      passthrough: false
+      extract:
+        metadata:
+          - k8s.namespace.name
+          - k8s.pod.name
+          - k8s.pod.uid
+          - k8s.deployment.name
+          - k8s.statefulset.name
+          - k8s.daemonset.name
+          - k8s.node.name
+          - k8s.container.name
+        annotations:
+          - tag_name: service.version
+            key: resource.opentelemetry.io/service.version
+            from: pod
+          - tag_name: deployment.environment
+            key: resource.opentelemetry.io/deployment.environment
+            from: pod
+        labels:
+          - tag_name: app.kubernetes.io/name
+            key: app.kubernetes.io/name
+            from: pod
+          - tag_name: app.kubernetes.io/version
+            key: app.kubernetes.io/version
+            from: pod
+          - tag_name: app.kubernetes.io/component
+            key: app.kubernetes.io/component
+            from: pod
+      pod_association:
+        - sources:
+            - from: resource_attribute
+              name: k8s.pod.uid
+        - sources:
+            - from: resource_attribute
+              name: k8s.pod.ip
+        - sources:
+            - from: connection
+
+    # ── Enforce required resource attributes on app telemetry ──
+    # Fills in missing attributes as defaults — does NOT overwrite SDK/annotation values
+    resource/app-enforce:
+      attributes:
+        - key: deployment.environment
+          value: "dev"
+          action: insert
+        - key: service.namespace
+          value: "dev"
+          action: insert
+
+    # ── Filter logs: drop noisy namespaces ──
+    filter/logs:
+      error_mode: ignore
+      logs:
+        log_record:
+          - 'resource.attributes["k8s.namespace.name"] == "kube-system"'
+
+    # ── Drop noisy / low-value metrics (for app OTLP metrics) ──
+    filter/metrics:
+      error_mode: ignore
+      metrics:
+        metric:
+          # --- Go runtime noise from app instrumentation ---
+          - 'IsMatch(name, "go_gc_.*")'
+          - 'IsMatch(name, "go_sched_.*")'
+          - 'IsMatch(name, "go_cpu_.*")'
+          - 'name == "go_threads"'
+          - 'name == "go_info"'
+          # --- process metrics ---
+          - 'IsMatch(name, "process_.*")'
+          # --- scrape meta ---
+          - 'name == "scrape_duration_seconds"'
+          - 'name == "scrape_samples_scraped"'
+          - 'name == "scrape_samples_post_metric_relabeling"'
+          - 'name == "scrape_series_added"'
+          - 'name == "up"'
+
+    # ── Keep only useful cAdvisor + KSM metrics (allowlist approach) ──
+    filter/infra-allow:
+      error_mode: ignore
+      metrics:
+        metric:
+          - 'not(IsMatch(name, "container_cpu_usage_seconds_total") or IsMatch(name, "container_memory_usage_bytes") or IsMatch(name, "container_memory_working_set_bytes") or IsMatch(name, "container_oom_events_total") or IsMatch(name, "container_cpu_cfs_throttled_periods_total") or IsMatch(name, "container_cpu_cfs_periods_total") or IsMatch(name, "kube_pod_container_resource_requests") or IsMatch(name, "kube_pod_container_resource_limits") or IsMatch(name, "kube_pod_container_status_restarts_total") or IsMatch(name, "kube_pod_container_status_last_terminated_reason") or IsMatch(name, "kube_pod_status_phase") or IsMatch(name, "kube_container_status_waiting_reason") or IsMatch(name, "kube_pod_info") or IsMatch(name, "kube_node_status_allocatable") or IsMatch(name, "kube_node_status_capacity") or IsMatch(name, "kube_node_info") or IsMatch(name, "kube_namespace_status_phase") or IsMatch(name, "kube_deployment_status_replicas") or IsMatch(name, "kube_deployment_spec_replicas") or IsMatch(name, "kube_statefulset_status_replicas") or IsMatch(name, "kube_statefulset_replicas") or IsMatch(name, "kube_daemonset_status.*"))'

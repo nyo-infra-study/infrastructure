@@ -1,0 +1,97 @@
+# ============================================================
+# Service Pipelines
+# ============================================================
+# Wires receivers → processors → exporters.
+# Each pipeline is named by signal type and source.
+# ============================================================
+config:
+  service:
+    telemetry:
+      metrics:
+        address: 0.0.0.0:8888
+        level: normal
+
+    pipelines:
+      # ── Infrastructure metrics ──
+      metrics/self:
+        receivers: [prometheus/self]
+        processors: [memory_limiter, resource/self, batch]
+        exporters: [prometheusremotewrite]
+      metrics/cadvisor:
+        receivers: [prometheus/cadvisor]
+        processors: [memory_limiter, resource/cadvisor, filter/infra-allow, batch]
+        exporters: [prometheusremotewrite]
+      metrics/kubelet:
+        receivers: [prometheus/kubelet]
+        processors: [memory_limiter, resource/kubelet, batch]
+        exporters: [prometheusremotewrite]
+      metrics/node-exporter:
+        receivers: [prometheus/node-exporter]
+        processors: [memory_limiter, resource/node-exporter, batch]
+        exporters: [prometheusremotewrite]
+      metrics/ksm:
+        receivers: [prometheus/ksm]
+        processors: [memory_limiter, resource/ksm, filter/infra-allow, batch]
+        exporters: [prometheusremotewrite]
+      metrics/coredns:
+        receivers: [prometheus/coredns]
+        processors: [memory_limiter, resource/coredns, batch]
+        exporters: [prometheusremotewrite]
+
+      # ── Blackbox probes (uptime checks) ──
+      metrics/blackbox:
+        receivers: [prometheus/blackbox]
+        processors: [memory_limiter, resource/blackbox, batch]
+        exporters: [prometheusremotewrite]
+
+      # ── LGTM stack self-monitoring ──
+      metrics/loki:
+        receivers: [prometheus/loki]
+        processors: [memory_limiter, resource/loki, batch]
+        exporters: [prometheusremotewrite]
+      metrics/tempo:
+        receivers: [prometheus/tempo]
+        processors: [memory_limiter, resource/tempo, batch]
+        exporters: [prometheusremotewrite]
+      metrics/prometheus:
+        receivers: [prometheus/prometheus]
+        processors: [memory_limiter, resource/prometheus, batch]
+        exporters: [prometheusremotewrite]
+      metrics/grafana:
+        receivers: [prometheus/grafana]
+        processors: [memory_limiter, resource/grafana, batch]
+        exporters: [prometheusremotewrite]
+      metrics/pyroscope:
+        receivers: [prometheus/pyroscope]
+        processors: [memory_limiter, resource/pyroscope, batch]
+        exporters: [prometheusremotewrite]
+
+      # ── ArgoCD metrics ──
+      metrics/argocd:
+        receivers: [prometheus/argocd]
+        processors: [memory_limiter, resource/argocd, batch]
+        exporters: [prometheusremotewrite]
+
+      # ── App metrics from OTLP (backend-server, etc.) ──
+      metrics:
+        receivers: [otlp]
+        processors: [memory_limiter, k8sattributes, resource/app-enforce, filter/metrics, batch]
+        exporters: [prometheusremotewrite]
+
+      # ── Traces ──
+      traces:
+        receivers: [otlp]
+        processors: [memory_limiter, k8sattributes, resource/app-enforce, batch]
+        exporters: [otlp/tempo]
+
+      # ── Logs from OTLP (app instrumentation) ──
+      logs:
+        receivers: [otlp]
+        processors: [memory_limiter, k8sattributes, resource/app-enforce, batch]
+        exporters: [otlphttp/loki]
+
+      # ── Logs from pod files (all system pods) ──
+      logs/filelog:
+        receivers: [filelog]
+        processors: [memory_limiter, k8sattributes, filter/logs, batch]
+        exporters: [otlphttp/loki]

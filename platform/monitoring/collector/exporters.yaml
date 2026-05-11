@@ -1,0 +1,21 @@
+# ============================================================
+# Exporters
+# ============================================================
+# Where telemetry goes after processing:
+# - Traces → Tempo (OTLP gRPC)
+# - Logs → Loki (OTLP HTTP)
+# - Metrics → Prometheus (Remote Write)
+# ============================================================
+config:
+  exporters:
+    # Send traces to Tempo (OTLP gRPC)
+    otlp/tempo:
+      endpoint: "dev-lgtm-tempo.monitoring.svc.cluster.local:4317"
+      tls:
+        insecure: true
+    # Send logs to Loki (OTLP HTTP — Loki's native OTLP endpoint)
+    otlphttp/loki:
+      endpoint: "http://dev-lgtm-loki.monitoring.svc.cluster.local:3100/otlp"
+    # Send metrics to Prometheus via remote write
+    prometheusremotewrite:
+      endpoint: "http://dev-lgtm-prometheus-server.monitoring.svc.cluster.local:80/api/v1/write"
