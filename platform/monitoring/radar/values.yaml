@@ -51,7 +51,7 @@ rbac:
   podExec: false
   podLogs: false
   portForward: false
-  helm: true
+  helm: false
   viewRBAC: true
   traffic: true
   metrics: true
