@@ -1,23 +1,22 @@
 # ============================================================
 # ClickHouse — Observability Storage (Local Dev)
 # ============================================================
-# Chart: bitnami/clickhouse
+# Chart: bitnami/clickhouse v9.4.4 (app v25.7.5)
 # Single-node ClickHouse for storing OTel signals.
 #
 # Single database: otel
 # Multi-tenancy via row policies on materialized tenant_scope column.
 #
 # The OTel collector writes everything to one database.
-# After tables are auto-created, an init job adds:
+# After tables are auto-created, run setup-policies.sql to add:
 #   - Materialized column: tenant_scope (from ResourceAttributes)
-#   - Users: user_all (unrestricted), user_pci (PCI-scoped)
 #   - Row policies per table per user
 #
 # Grafana reads via different CH users per datasource.
 # ============================================================
 
-replicaCount: 1
 shards: 1
+replicaCount: 1
 
 auth:
   username: default
@@ -93,18 +92,18 @@ initdbScripts:
     -- CREATE ROW POLICY IF NOT EXISTS all_access ON otel.otel_metrics_sum USING 1=1 TO user_all;
     -- CREATE ROW POLICY IF NOT EXISTS all_access ON otel.otel_metrics_histogram USING 1=1 TO user_all;
 
-    -- Step 3: Row policies (PCI-scoped user)
+    -- Step 3: Row policies (non-PCI user — restricted)
     --
-    -- CREATE ROW POLICY IF NOT EXISTS pci_only ON otel.otel_logs
-    --   USING tenant_scope = 'pci' TO user_pci;
-    -- CREATE ROW POLICY IF NOT EXISTS pci_only ON otel.otel_traces
-    --   USING tenant_scope = 'pci' TO user_pci;
-    -- CREATE ROW POLICY IF NOT EXISTS pci_only ON otel.otel_metrics_gauge
-    --   USING tenant_scope = 'pci' TO user_pci;
-    -- CREATE ROW POLICY IF NOT EXISTS pci_only ON otel.otel_metrics_sum
-    --   USING tenant_scope = 'pci' TO user_pci;
-    -- CREATE ROW POLICY IF NOT EXISTS pci_only ON otel.otel_metrics_histogram
-    --   USING tenant_scope = 'pci' TO user_pci;
+    -- CREATE ROW POLICY IF NOT EXISTS nonpci_only ON otel.otel_logs
+    --   USING tenant_scope = 'non-pci' TO user_nonpci;
+    -- CREATE ROW POLICY IF NOT EXISTS nonpci_only ON otel.otel_traces
+    --   USING tenant_scope = 'non-pci' TO user_nonpci;
+    -- CREATE ROW POLICY IF NOT EXISTS nonpci_only ON otel.otel_metrics_gauge
+    --   USING tenant_scope = 'non-pci' TO user_nonpci;
+    -- CREATE ROW POLICY IF NOT EXISTS nonpci_only ON otel.otel_metrics_sum
+    --   USING tenant_scope = 'non-pci' TO user_nonpci;
+    -- CREATE ROW POLICY IF NOT EXISTS nonpci_only ON otel.otel_metrics_histogram
+    --   USING tenant_scope = 'non-pci' TO user_nonpci;
 
     SELECT 'Row policies must be applied after OTel exporter creates tables. See setup-policies.sql.';
 
@@ -112,9 +111,6 @@ initdbScripts:
 service:
   type: ClusterIP
 
-# Disable keeper for single-node setup
-zookeeper:
-  enabled: false
-
+# Disable keeper for single-node setup (no replication needed)
 keeper:
   enabled: false

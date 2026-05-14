@@ -22,7 +22,7 @@ spec:
   sources:
     - chart: clickhouse
       repoURL: https://charts.bitnami.com/bitnami
-      targetRevision: 8.0.3
+      targetRevision: 9.4.4
       helm:
         releaseName: dev-monitoring-clickhouse
         valueFiles:
