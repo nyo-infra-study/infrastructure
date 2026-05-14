@@ -1,9 +1,8 @@
 # ============================================================
 # ClickHouse — Observability Storage (Local Dev)
 # ============================================================
-# Chart: altinity/clickhouse v0.3.11 (app v25.3.6)
-# Image: altinity/clickhouse-server (official, from Docker Hub)
-# Single-node ClickHouse for storing OTel signals.
+# Chart: local charts/clickhouse (minimal StatefulSet)
+# Image: clickhouse/clickhouse-server:25.7-alpine (official)
 #
 # Single database: otel
 # Multi-tenancy via row policies on materialized tenant_scope column.
@@ -12,48 +11,35 @@
 # setup-policies.sql to add materialized columns + row policies.
 # ============================================================
 
-clickhouse:
-  shardsCount: 1
-  replicasCount: 1
+image:
+  repository: clickhouse/clickhouse-server
+  tag: "25.7-alpine"
+  pullPolicy: IfNotPresent
 
-  defaultUser:
-    password: clickhouse123
-    allowExternalAccess: true
+resources:
+  requests:
+    cpu: 100m
+    memory: 512Mi
+  limits:
+    cpu: "2"
+    memory: 2Gi
 
-  # Additional users for multi-tenancy (row policies applied separately)
-  users:
-    - name: user_all
-      hostIP: ["0.0.0.0/0"]
-      grants:
-        - "GRANT SELECT ON otel.*"
-    - name: user_nonpci
-      hostIP: ["0.0.0.0/0"]
-      grants:
-        - "GRANT SELECT ON otel.*"
+persistence:
+  enabled: true
+  size: 5Gi
 
-  image:
-    repository: altinity/clickhouse-server
-    tag: "25.3.6.10034.altinitystable"
-    pullPolicy: IfNotPresent
+service:
+  type: ClusterIP
 
-  persistence:
-    enabled: true
-    size: 5Gi
+auth:
+  defaultPassword: clickhouse123
 
-  service:
-    type: ClusterIP
-
-  resources:
-    cpuRequestsMs: 100
-    memoryRequestsMi: 512
-    cpuLimitsMs: 2000
-    memoryLimitsMi: 2048
-
-  # Init scripts to create the otel database
-  initScripts:
-    01-init.sql: |
-      CREATE DATABASE IF NOT EXISTS otel;
-
-# Disable keeper for single-node (no replication)
-keeper:
-  enabled: false
+# Init scripts run on first boot (mounted to /docker-entrypoint-initdb.d)
+initScripts:
+  01-init-database.sql: |
+    CREATE DATABASE IF NOT EXISTS otel;
+  02-init-users.sql: |
+    CREATE USER IF NOT EXISTS user_all IDENTIFIED BY 'all_pass';
+    CREATE USER IF NOT EXISTS user_nonpci IDENTIFIED BY 'nonpci_pass';
+    GRANT SELECT ON otel.* TO user_all;
+    GRANT SELECT ON otel.* TO user_nonpci;

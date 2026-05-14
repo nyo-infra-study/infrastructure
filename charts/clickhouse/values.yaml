@@ -1,0 +1,25 @@
+image:
+  repository: clickhouse/clickhouse-server
+  tag: "25.7-alpine"
+  pullPolicy: IfNotPresent
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 512Mi
+  limits:
+    cpu: "2"
+    memory: 2Gi
+
+persistence:
+  enabled: true
+  size: 5Gi
+  storageClass: ""
+
+service:
+  type: ClusterIP
+
+auth:
+  defaultPassword: clickhouse123
+
+initScripts: {}

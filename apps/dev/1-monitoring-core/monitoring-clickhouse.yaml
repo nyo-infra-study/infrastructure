@@ -1,8 +1,8 @@
 # ============================================================
 # ClickHouse — Observability Storage
 # ============================================================
-# Single-node ClickHouse for storing OTel signals.
-# Chart: altinity/clickhouse (uses official clickhouse-server image)
+# Minimal single-node ClickHouse using official clickhouse-server image.
+# No operators, no CRDs, no Bitnami — just a StatefulSet + Service.
 # Multi-tenancy: row policies on materialized tenant_scope column.
 # ============================================================
 apiVersion: argoproj.io/v1alpha1
@@ -20,9 +20,9 @@ metadata:
 spec:
   project: default
   sources:
-    - chart: clickhouse
-      repoURL: https://helm.altinity.com
-      targetRevision: 0.3.11
+    - repoURL: https://github.com/nyo-infra-study/infrastructure.git
+      targetRevision: main
+      path: charts/clickhouse
       helm:
         releaseName: dev-monitoring-clickhouse
         valueFiles:
