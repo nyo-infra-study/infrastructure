@@ -6,14 +6,18 @@
 
 global:
   monitoring:
-    # OTel Collector (scrapes infra metrics/logs, forwards to LGTM stack)
+    # OTel Collector (scrapes infra metrics/logs, writes to ClickHouse)
     otel:
       grpc_endpoint: "dev-monitoring-otel-opentelemetry-collector.monitoring.svc.cluster.local:4317"
       http_endpoint: "dev-monitoring-otel-opentelemetry-collector.monitoring.svc.cluster.local:4318"
 
-    # LGTM Stack endpoints
-    prometheus: "dev-lgtm-prometheus-server.monitoring.svc.cluster.local:80"
-    loki: "dev-lgtm-loki.monitoring.svc.cluster.local:3100"
-    tempo: "dev-lgtm-tempo.monitoring.svc.cluster.local:3200"
-    grafana: "dev-lgtm-grafana.monitoring.svc.cluster.local:80"
+    # ClickHouse (observability storage)
+    clickhouse: "dev-monitoring-clickhouse.monitoring.svc.cluster.local"
+    clickhouse_http_port: "8123"
+    clickhouse_native_port: "9000"
+
+    # Grafana (visualization)
+    grafana: "dev-grafana-clickhouse.monitoring.svc.cluster.local:80"
+
+    # Pyroscope (continuous profiling — independent)
     pyroscope: "dev-pyroscope.monitoring.svc.cluster.local:4040"

@@ -1,0 +1,43 @@
+# ============================================================
+# Grafana — ClickHouse Backend
+# ============================================================
+# Grafana UI with ClickHouse datasource plugin.
+# Two datasources:
+#   - "All Apps" (otel_all)      → frontend + backend + infra
+#   - "Backend Only" (otel_backend) → backend signals only
+# UI: http://grafana.localhost
+# ============================================================
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+  name: dev-grafana-clickhouse
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+  labels:
+    environment: dev
+    domain: monitoring
+spec:
+  project: default
+  sources:
+    - chart: grafana
+      repoURL: https://grafana.github.io/helm-charts
+      targetRevision: 10.5.15
+      helm:
+        releaseName: dev-grafana-clickhouse
+        valueFiles:
+          - $values/platform/monitoring/grafana-clickhouse/grafana-values.yaml
+    - repoURL: https://github.com/nyo-infra-study/infrastructure.git
+      targetRevision: main
+      ref: values
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

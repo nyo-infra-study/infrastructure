@@ -76,6 +76,8 @@ spec:
             value: "latest"
           - name: OTEL_DEPLOYMENT_ENVIRONMENT
             value: "dev"
+          - name: OTEL_RESOURCE_ATTRIBUTES
+            value: "compliance.scope=pci"
           - name: OTEL_EXPORTER_OTLP_INSECURE
             value: "true"
 

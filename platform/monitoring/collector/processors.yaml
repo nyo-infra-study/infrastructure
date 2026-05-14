@@ -59,34 +59,10 @@ config:
           value: "argocd"
           action: upsert
 
-    resource/loki:
+    resource/clickhouse:
       attributes:
         - key: service.name
-          value: "loki"
-          action: upsert
-
-    resource/tempo:
-      attributes:
-        - key: service.name
-          value: "tempo"
-          action: upsert
-
-    resource/prometheus:
-      attributes:
-        - key: service.name
-          value: "prometheus"
-          action: upsert
-
-    resource/grafana:
-      attributes:
-        - key: service.name
-          value: "grafana"
-          action: upsert
-
-    resource/pyroscope:
-      attributes:
-        - key: service.name
-          value: "pyroscope"
+          value: "clickhouse"
           action: upsert
 
     resource/blackbox:
@@ -94,6 +70,14 @@ config:
         - key: service.name
           value: "blackbox-exporter"
           action: upsert
+
+    # ── Default compliance scope for infrastructure metrics ──
+    # Default to PCI (confidential) — services must explicitly opt out
+    resource/infra-scope:
+      attributes:
+        - key: compliance.scope
+          value: "pci"
+          action: insert
 
     # ── Enrich telemetry with k8s metadata (pod, deployment, namespace) ──
     # Applied to all app OTLP pipelines (metrics, traces, logs) and filelog
@@ -139,6 +123,7 @@ config:
 
     # ── Enforce required resource attributes on app telemetry ──
     # Fills in missing attributes as defaults — does NOT overwrite SDK/annotation values
+    # Default to PCI (confidential) — services explicitly set non-pci to opt out
     resource/app-enforce:
       attributes:
         - key: deployment.environment
@@ -146,6 +131,9 @@ config:
           action: insert
         - key: service.namespace
           value: "dev"
+          action: insert
+        - key: compliance.scope
+          value: "pci"
           action: insert
 
     # ── Filter logs: drop noisy namespaces ──

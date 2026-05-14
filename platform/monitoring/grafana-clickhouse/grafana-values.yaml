@@ -1,0 +1,93 @@
+# ============================================================
+# Grafana — ClickHouse Observability UI (Local Dev)
+# ============================================================
+# Chart: grafana/grafana v10.5.15
+# UI: http://grafana.localhost
+# Default login: admin / admin
+#
+# Two ClickHouse datasources using different CH users:
+#   1. "PCI" (user_all)       — sees all data (PCI + non-PCI)
+#   2. "Non-PCI" (user_nonpci) — sees only compliance.scope = 'non-pci'
+#
+# Both point to the same database (otel) and same tables.
+# Row policies in ClickHouse enforce the scoping transparently.
+# ============================================================
+
+replicas: 1
+
+resources:
+  requests:
+    cpu: 10m
+    memory: 194Mi
+  limits:
+    cpu: 200m
+    memory: 384Mi
+
+ingress:
+  enabled: true
+  ingressClassName: traefik
+  hosts:
+    - grafana.localhost
+
+# Install ClickHouse datasource plugin
+plugins:
+  - grafana-clickhouse-datasource
+
+# Pre-configure datasources
+datasources:
+  datasources.yaml:
+    apiVersion: 1
+    datasources:
+      # ── PCI (unrestricted — sees everything including PCI data) ──
+      - name: "ClickHouse - PCI"
+        type: grafana-clickhouse-datasource
+        uid: clickhouse-pci
+        isDefault: true
+        access: proxy
+        jsonData:
+          host: dev-monitoring-clickhouse.monitoring.svc.cluster.local
+          port: 8123
+          protocol: http
+          username: user_all
+          defaultDatabase: otel
+          # OTel schema integration
+          logs: true
+          logsDatabase: otel
+          logsTable: otel_logs
+          logsOtelEnabled: true
+          traces: true
+          tracesDatabase: otel
+          tracesTable: otel_traces
+          tracesOtelEnabled: true
+        secureJsonData:
+          password: all_pass
+
+      # ── Non-PCI (row policy restricts to compliance.scope = 'non-pci') ──
+      - name: "ClickHouse - Non-PCI"
+        type: grafana-clickhouse-datasource
+        uid: clickhouse-nonpci
+        access: proxy
+        jsonData:
+          host: dev-monitoring-clickhouse.monitoring.svc.cluster.local
+          port: 8123
+          protocol: http
+          username: user_nonpci
+          defaultDatabase: otel
+          # OTel schema integration
+          logs: true
+          logsDatabase: otel
+          logsTable: otel_logs
+          logsOtelEnabled: true
+          traces: true
+          tracesDatabase: otel
+          tracesTable: otel_traces
+          tracesOtelEnabled: true
+        secureJsonData:
+          password: nonpci_pass
+
+# Disable test framework
+testFramework:
+  enabled: false
+
+# Admin password (local dev)
+adminPassword: admin
