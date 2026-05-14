@@ -15,7 +15,6 @@ config:
       endpoint: tcp://dev-monitoring-clickhouse.monitoring.svc.cluster.local:9000?database=otel
       username: default
       password: clickhouse123
-      database: otel
       logs_table_name: otel_logs
       traces_table_name: otel_traces
       ttl: 72h
