@@ -18,6 +18,10 @@
 shards: 1
 replicaCount: 1
 
+# Bitnami images moved from docker.io to registry.bitnami.com (Sep 2025)
+global:
+  imageRegistry: registry.bitnami.com
+
 auth:
   username: default
   password: clickhouse123
