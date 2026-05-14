@@ -2,8 +2,8 @@
 # ClickHouse — Observability Storage
 # ============================================================
 # Single-node ClickHouse for storing OTel signals.
-# Two databases: otel_all (everything) and otel_backend (backend only).
-# Chart: bitnami/clickhouse
+# Chart: altinity/clickhouse (uses official clickhouse-server image)
+# Multi-tenancy: row policies on materialized tenant_scope column.
 # ============================================================
 apiVersion: argoproj.io/v1alpha1
 kind: Application
@@ -21,8 +21,8 @@ spec:
   project: default
   sources:
     - chart: clickhouse
-      repoURL: https://charts.bitnami.com/bitnami
-      targetRevision: 9.4.4
+      repoURL: https://helm.altinity.com
+      targetRevision: 0.3.11
       helm:
         releaseName: dev-monitoring-clickhouse
         valueFiles:

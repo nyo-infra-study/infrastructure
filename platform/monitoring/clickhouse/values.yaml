@@ -1,120 +1,59 @@
 # ============================================================
 # ClickHouse — Observability Storage (Local Dev)
 # ============================================================
-# Chart: bitnami/clickhouse v9.4.4 (app v25.7.5)
+# Chart: altinity/clickhouse v0.3.11 (app v25.3.6)
+# Image: altinity/clickhouse-server (official, from Docker Hub)
 # Single-node ClickHouse for storing OTel signals.
 #
 # Single database: otel
 # Multi-tenancy via row policies on materialized tenant_scope column.
 #
-# The OTel collector writes everything to one database.
-# After tables are auto-created, run setup-policies.sql to add:
-#   - Materialized column: tenant_scope (from ResourceAttributes)
-#   - Row policies per table per user
-#
-# Grafana reads via different CH users per datasource.
+# After tables are auto-created by the OTel exporter, run
+# setup-policies.sql to add materialized columns + row policies.
 # ============================================================
 
-shards: 1
-replicaCount: 1
+clickhouse:
+  shardsCount: 1
+  replicasCount: 1
 
-# Bitnami images moved from docker.io to registry.bitnami.com (Sep 2025)
-global:
-  imageRegistry: registry.bitnami.com
+  defaultUser:
+    password: clickhouse123
+    allowExternalAccess: true
 
-auth:
-  username: default
-  password: clickhouse123
+  # Additional users for multi-tenancy (row policies applied separately)
+  users:
+    - name: user_all
+      hostIP: ["0.0.0.0/0"]
+      grants:
+        - "GRANT SELECT ON otel.*"
+    - name: user_nonpci
+      hostIP: ["0.0.0.0/0"]
+      grants:
+        - "GRANT SELECT ON otel.*"
 
-# Resource limits for local dev
-resources:
-  requests:
-    cpu: 100m
-    memory: 512Mi
-  limits:
-    cpu: "2"
-    memory: 2Gi
+  image:
+    repository: altinity/clickhouse-server
+    tag: "25.3.6.10034.altinitystable"
+    pullPolicy: IfNotPresent
 
-persistence:
-  enabled: true
-  size: 5Gi
+  persistence:
+    enabled: true
+    size: 5Gi
 
-# Create database + users + row policies on startup
-# NOTE: The materialized columns must be added AFTER the OTel exporter
-# creates the tables (first write). Use a separate Job/CronJob for that.
-# This init script handles the database and user setup only.
-initdbScripts:
-  01-init-database.sql: |
-    CREATE DATABASE IF NOT EXISTS otel;
+  service:
+    type: ClusterIP
 
-  02-init-users.sql: |
-    -- User with full access (all scopes)
-    CREATE USER IF NOT EXISTS user_all IDENTIFIED BY 'all_pass';
-    GRANT SELECT ON otel.* TO user_all;
+  resources:
+    cpuRequestsMs: 100
+    memoryRequestsMi: 512
+    cpuLimitsMs: 2000
+    memoryLimitsMi: 2048
 
-    -- User restricted to non-PCI data only (PCI user sees all)
-    CREATE USER IF NOT EXISTS user_nonpci IDENTIFIED BY 'nonpci_pass';
-    GRANT SELECT ON otel.* TO user_nonpci;
+  # Init scripts to create the otel database
+  initScripts:
+    01-init.sql: |
+      CREATE DATABASE IF NOT EXISTS otel;
 
-  03-init-policies.sql: |
-    -- ═══════════════════════════════════════════════════════════
-    -- Row policies are created AFTER the OTel exporter creates
-    -- tables on first write. Run this script manually or via a
-    -- Kubernetes Job after the collector has started sending data.
-    --
-    -- Materialized columns + row policies:
-    -- ═══════════════════════════════════════════════════════════
-
-    -- Step 1: Add materialized tenant_scope column to each table
-    -- (extracts compliance.scope from ResourceAttributes Map)
-    --
-    -- ALTER TABLE otel.otel_logs
-    --   ADD COLUMN IF NOT EXISTS `tenant_scope` LowCardinality(String)
-    --   MATERIALIZED ResourceAttributes['compliance.scope'];
-    --
-    -- ALTER TABLE otel.otel_traces
-    --   ADD COLUMN IF NOT EXISTS `tenant_scope` LowCardinality(String)
-    --   MATERIALIZED ResourceAttributes['compliance.scope'];
-    --
-    -- ALTER TABLE otel.otel_metrics_gauge
-    --   ADD COLUMN IF NOT EXISTS `tenant_scope` LowCardinality(String)
-    --   MATERIALIZED ResourceAttributes['compliance.scope'];
-    --
-    -- ALTER TABLE otel.otel_metrics_sum
-    --   ADD COLUMN IF NOT EXISTS `tenant_scope` LowCardinality(String)
-    --   MATERIALIZED ResourceAttributes['compliance.scope'];
-    --
-    -- ALTER TABLE otel.otel_metrics_histogram
-    --   ADD COLUMN IF NOT EXISTS `tenant_scope` LowCardinality(String)
-    --   MATERIALIZED ResourceAttributes['compliance.scope'];
-
-    -- Step 2: Row policies (unrestricted user)
-    --
-    -- CREATE ROW POLICY IF NOT EXISTS all_access ON otel.otel_logs USING 1=1 TO user_all;
-    -- CREATE ROW POLICY IF NOT EXISTS all_access ON otel.otel_traces USING 1=1 TO user_all;
-    -- CREATE ROW POLICY IF NOT EXISTS all_access ON otel.otel_metrics_gauge USING 1=1 TO user_all;
-    -- CREATE ROW POLICY IF NOT EXISTS all_access ON otel.otel_metrics_sum USING 1=1 TO user_all;
-    -- CREATE ROW POLICY IF NOT EXISTS all_access ON otel.otel_metrics_histogram USING 1=1 TO user_all;
-
-    -- Step 3: Row policies (non-PCI user — restricted)
-    --
-    -- CREATE ROW POLICY IF NOT EXISTS nonpci_only ON otel.otel_logs
-    --   USING tenant_scope = 'non-pci' TO user_nonpci;
-    -- CREATE ROW POLICY IF NOT EXISTS nonpci_only ON otel.otel_traces
-    --   USING tenant_scope = 'non-pci' TO user_nonpci;
-    -- CREATE ROW POLICY IF NOT EXISTS nonpci_only ON otel.otel_metrics_gauge
-    --   USING tenant_scope = 'non-pci' TO user_nonpci;
-    -- CREATE ROW POLICY IF NOT EXISTS nonpci_only ON otel.otel_metrics_sum
-    --   USING tenant_scope = 'non-pci' TO user_nonpci;
-    -- CREATE ROW POLICY IF NOT EXISTS nonpci_only ON otel.otel_metrics_histogram
-    --   USING tenant_scope = 'non-pci' TO user_nonpci;
-
-    SELECT 'Row policies must be applied after OTel exporter creates tables. See setup-policies.sql.';
-
-# Expose native (9000) and HTTP (8123) ports
-service:
-  type: ClusterIP
-
-# Disable keeper for single-node setup (no replication needed)
+# Disable keeper for single-node (no replication)
 keeper:
   enabled: false
