@@ -159,7 +159,7 @@
         {
           "datasource": { "uid": "clickhouse-pci" },
           "queryType": "sql",
-          "rawSql": "SELECT\n  Timestamp AS time,\n  TraceId AS traceID,\n  SpanName AS operation,\n  Duration / 1000000 AS duration_ms,\n  StatusCode AS status\nFROM otel.otel_traces\nWHERE ServiceName = 'backend-server'\n  AND Timestamp >= $__fromTime\n  AND Timestamp <= $__toTime\nORDER BY Timestamp DESC\nLIMIT 50",
+          "rawSql": "SELECT\n  Timestamp AS time,\n  TraceId AS traceID,\n  SpanName AS operation,\n  Duration / 1000000 AS duration_ms,\n  StatusCode AS status\nFROM otel.otel_traces\nWHERE ServiceName = 'backend-server'\n  AND Timestamp >= $__fromTime\n  AND Timestamp <= $__toTime\nORDER BY Timestamp ASC\nLIMIT 50",
           "refId": "A"
         }
       ]
