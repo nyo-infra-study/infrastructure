@@ -43,10 +43,13 @@ config:
         receivers: [prometheus/coredns]
         processors: [memory_limiter, resource/coredns, resource/infra-scope, batch]
         exporters: [otlp/clickstack]
-      metrics/blackbox:
-        receivers: [prometheus/blackbox]
-        processors: [memory_limiter, resource/blackbox, resource/infra-scope, batch]
-        exporters: [otlp/clickstack]
+
+      # ── Blackbox probes (disabled — enable with monitoring-blackbox-exporter.yaml) ──
+      # metrics/blackbox:
+      #   receivers: [prometheus/blackbox]
+      #   processors: [memory_limiter, resource/blackbox, resource/infra-scope, batch]
+      #   exporters: [otlp/clickstack]
+
       metrics/argocd:
         receivers: [prometheus/argocd]
         processors: [memory_limiter, resource/argocd, resource/infra-scope, batch]
