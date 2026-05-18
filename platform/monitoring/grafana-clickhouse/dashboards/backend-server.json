@@ -22,7 +22,7 @@
         {
           "datasource": { "uid": "clickhouse-pci" },
           "queryType": "sql",
-          "rawSql": "SELECT\n  toStartOfInterval(TimeUnix, INTERVAL 30 second) AS time,\n  sum(Value) / 30 AS rps\nFROM otel.otel_metrics_sum\nWHERE ServiceName = 'backend-server'\n  AND MetricName = 'http.server.request.duration'\n  AND TimeUnix >= $__fromTime\n  AND TimeUnix <= $__toTime\nGROUP BY time\nORDER BY time",
+          "rawSql": "SELECT\n  toStartOfInterval(TimeUnix, INTERVAL 30 second) AS time,\n  sum(Count) / 30 AS rps\nFROM otel.otel_metrics_histogram\nWHERE ServiceName = 'backend-server'\n  AND MetricName = 'http.server.request.duration'\n  AND TimeUnix >= $__fromTime\n  AND TimeUnix <= $__toTime\nGROUP BY time\nORDER BY time",
           "refId": "A"
         }
       ]
