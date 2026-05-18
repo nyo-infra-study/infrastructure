@@ -1,16 +1,15 @@
 # ============================================================
 # Exporters
 # ============================================================
-# Single ClickHouse exporter writing to one database (otel).
-# Multi-tenancy is handled by row policies in ClickHouse,
-# not by separate databases or routing.
+# Two destinations:
+#   1. clickhouse — direct to standalone ClickHouse (row-policy multi-tenancy)
+#   2. otlp/clickstack — to ClickStack's bundled OTel collector (HyperDX UI)
 #
-# The clickhouse exporter auto-creates OTel tables on first write:
-#   otel_logs, otel_traces, otel_metrics_gauge,
-#   otel_metrics_sum, otel_metrics_histogram
+# Both receive the same data. ClickStack handles its own schema.
 # ============================================================
 config:
   exporters:
+    # Direct to standalone ClickHouse (multi-tenant via row policies)
     clickhouse:
       endpoint: tcp://dev-monitoring-clickhouse.monitoring.svc.cluster.local:9000
       database: otel
@@ -25,3 +24,9 @@ config:
         initial_interval: 5s
         max_interval: 30s
         max_elapsed_time: 300s
+
+    # To ClickStack's bundled OTel collector (feeds HyperDX UI)
+    otlp/clickstack:
+      endpoint: "dev-monitoring-clickstack-otel-collector.monitoring.svc.cluster.local:4317"
+      tls:
+        insecure: true
