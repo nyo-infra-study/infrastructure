@@ -1,21 +1,21 @@
 # ============================================================
 # Exporters
 # ============================================================
-# Where telemetry goes after processing:
-# - Traces → Tempo (OTLP gRPC)
-# - Logs → Loki (OTLP HTTP)
-# - Metrics → Prometheus (Remote Write)
+# All signals → ClickHouse (standalone, row-policy multi-tenancy)
 # ============================================================
 config:
   exporters:
-    # Send traces to Tempo (OTLP gRPC)
-    otlp/tempo:
-      endpoint: "dev-lgtm-tempo.monitoring.svc.cluster.local:4317"
-      tls:
-        insecure: true
-    # Send logs to Loki (OTLP HTTP — Loki's native OTLP endpoint)
-    otlphttp/loki:
-      endpoint: "http://dev-lgtm-loki.monitoring.svc.cluster.local:3100/otlp"
-    # Send metrics to Prometheus via remote write
-    prometheusremotewrite:
-      endpoint: "http://dev-lgtm-prometheus-server.monitoring.svc.cluster.local:80/api/v1/write"
+    clickhouse:
+      endpoint: tcp://dev-monitoring-clickhouse.monitoring.svc.cluster.local:9000
+      database: otel
+      username: default
+      password: clickhouse123
+      logs_table_name: otel_logs
+      traces_table_name: otel_traces
+      ttl: 72h
+      timeout: 10s
+      retry_on_failure:
+        enabled: true
+        initial_interval: 5s
+        max_interval: 30s
+        max_elapsed_time: 300s

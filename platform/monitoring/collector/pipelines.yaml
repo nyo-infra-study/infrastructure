@@ -1,8 +1,8 @@
 # ============================================================
 # Service Pipelines
 # ============================================================
-# Wires receivers → processors → exporters.
-# Each pipeline is named by signal type and source.
+# Dual-write: LGTM stack + ClickHouse
+# LGTM for native Grafana experience, ClickHouse for SQL analytics.
 # ============================================================
 config:
   service:
@@ -16,82 +16,60 @@ config:
       metrics/self:
         receivers: [prometheus/self]
         processors: [memory_limiter, resource/self, resource/infra-scope, batch]
-        exporters: [prometheusremotewrite]
+        exporters: [clickhouse]
       metrics/cadvisor:
         receivers: [prometheus/cadvisor]
         processors: [memory_limiter, resource/cadvisor, resource/infra-scope, filter/infra-allow, batch]
-        exporters: [prometheusremotewrite]
+        exporters: [clickhouse]
       metrics/kubelet:
         receivers: [prometheus/kubelet]
         processors: [memory_limiter, resource/kubelet, resource/infra-scope, batch]
-        exporters: [prometheusremotewrite]
+        exporters: [clickhouse]
       metrics/node-exporter:
         receivers: [prometheus/node-exporter]
         processors: [memory_limiter, resource/node-exporter, resource/infra-scope, batch]
-        exporters: [prometheusremotewrite]
+        exporters: [clickhouse]
       metrics/ksm:
         receivers: [prometheus/ksm]
         processors: [memory_limiter, resource/ksm, resource/infra-scope, filter/infra-allow, batch]
-        exporters: [prometheusremotewrite]
+        exporters: [clickhouse]
       metrics/coredns:
         receivers: [prometheus/coredns]
         processors: [memory_limiter, resource/coredns, resource/infra-scope, batch]
-        exporters: [prometheusremotewrite]
+        exporters: [clickhouse]
 
       # ── Blackbox probes (uptime checks) ──
       metrics/blackbox:
         receivers: [prometheus/blackbox]
         processors: [memory_limiter, resource/blackbox, resource/infra-scope, batch]
-        exporters: [prometheusremotewrite]
+        exporters: [clickhouse]
 
       # ── ArgoCD metrics ──
       metrics/argocd:
         receivers: [prometheus/argocd]
         processors: [memory_limiter, resource/argocd, resource/infra-scope, batch]
-        exporters: [prometheusremotewrite]
-
-      # ── LGTM stack self-monitoring ──
-      metrics/loki:
-        receivers: [prometheus/loki]
-        processors: [memory_limiter, resource/infra-scope, batch]
-        exporters: [prometheusremotewrite]
-      metrics/tempo:
-        receivers: [prometheus/tempo]
-        processors: [memory_limiter, resource/infra-scope, batch]
-        exporters: [prometheusremotewrite]
-      metrics/prometheus:
-        receivers: [prometheus/prometheus]
-        processors: [memory_limiter, resource/infra-scope, batch]
-        exporters: [prometheusremotewrite]
-      metrics/grafana:
-        receivers: [prometheus/grafana]
-        processors: [memory_limiter, resource/infra-scope, batch]
-        exporters: [prometheusremotewrite]
-      metrics/pyroscope:
-        receivers: [prometheus/pyroscope]
-        processors: [memory_limiter, resource/infra-scope, batch]
-        exporters: [prometheusremotewrite]
+        exporters: [clickhouse]
 
       # ── App metrics from OTLP (backend-server, etc.) ──
       metrics:
         receivers: [otlp]
         processors: [memory_limiter, k8sattributes, resource/app-enforce, filter/metrics, batch]
-        exporters: [prometheusremotewrite]
+        exporters: [clickhouse]
 
       # ── Traces ──
       traces:
         receivers: [otlp]
         processors: [memory_limiter, k8sattributes, resource/app-enforce, batch]
-        exporters: [otlp/tempo]
+        exporters: [clickhouse]
 
       # ── Logs from OTLP (app instrumentation) ──
       logs:
         receivers: [otlp]
         processors: [memory_limiter, k8sattributes, resource/app-enforce, batch]
-        exporters: [otlphttp/loki]
+        exporters: [clickhouse]
 
       # ── Logs from pod files (all system pods) ──
       logs/filelog:
         receivers: [filelog]
         processors: [memory_limiter, k8sattributes, filter/logs, batch]
-        exporters: [otlphttp/loki]
+        exporters: [clickhouse]
