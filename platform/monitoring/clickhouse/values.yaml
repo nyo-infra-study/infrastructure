@@ -43,3 +43,5 @@ initScripts:
     CREATE USER IF NOT EXISTS user_nonpci IDENTIFIED BY 'nonpci_pass';
     GRANT SELECT ON otel.* TO user_all;
     GRANT SELECT ON otel.* TO user_nonpci;
+    GRANT SELECT ON system.* TO user_all;
+    GRANT SELECT ON system.* TO user_nonpci;
