@@ -51,22 +51,26 @@ datasources:
           protocol: http
           username: user_all
           defaultDatabase: otel
-          # OTel schema integration
-          logs: true
-          logsDatabase: otel
-          logsTable: otel_logs
-          logsOtelEnabled: true
-          otelVersion: "1.29.0"
-          traces: true
-          tracesDatabase: otel
-          tracesTable: otel_traces
-          tracesOtelEnabled: true
-          traceIdColumnName: TraceId
-          spanIdColumnName: SpanId
-          operationNameColumnName: SpanName
-          durationColumnName: Duration
-          serviceNameColumnName: ServiceName
-          startTimeColumnName: Timestamp
+          logs:
+            defaultDatabase: otel
+            defaultTable: otel_logs
+            otelEnabled: true
+            otelVersion: "1.29.0"
+            timeColumn: Timestamp
+            levelColumn: SeverityText
+            messageColumn: Body
+          traces:
+            defaultDatabase: otel
+            defaultTable: otel_traces
+            otelEnabled: true
+            otelVersion: "1.29.0"
+            durationUnit: nanoseconds
+            traceIdColumn: TraceId
+            spanIdColumn: SpanId
+            operationNameColumn: SpanName
+            durationColumn: Duration
+            serviceNameColumn: ServiceName
+            startTimeColumn: Timestamp
         secureJsonData:
           password: all_pass
 
@@ -81,22 +85,26 @@ datasources:
           protocol: http
           username: user_nonpci
           defaultDatabase: otel
-          # OTel schema integration
-          logs: true
-          logsDatabase: otel
-          logsTable: otel_logs
-          logsOtelEnabled: true
-          otelVersion: "1.29.0"
-          traces: true
-          tracesDatabase: otel
-          tracesTable: otel_traces
-          tracesOtelEnabled: true
-          traceIdColumnName: TraceId
-          spanIdColumnName: SpanId
-          operationNameColumnName: SpanName
-          durationColumnName: Duration
-          serviceNameColumnName: ServiceName
-          startTimeColumnName: Timestamp
+          logs:
+            defaultDatabase: otel
+            defaultTable: otel_logs
+            otelEnabled: true
+            otelVersion: "1.29.0"
+            timeColumn: Timestamp
+            levelColumn: SeverityText
+            messageColumn: Body
+          traces:
+            defaultDatabase: otel
+            defaultTable: otel_traces
+            otelEnabled: true
+            otelVersion: "1.29.0"
+            durationUnit: nanoseconds
+            traceIdColumn: TraceId
+            spanIdColumn: SpanId
+            operationNameColumn: SpanName
+            durationColumn: Duration
+            serviceNameColumn: ServiceName
+            startTimeColumn: Timestamp
         secureJsonData:
           password: nonpci_pass
 
