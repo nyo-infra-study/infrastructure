@@ -56,10 +56,17 @@ datasources:
           logsDatabase: otel
           logsTable: otel_logs
           logsOtelEnabled: true
+          otelVersion: "1.29.0"
           traces: true
           tracesDatabase: otel
           tracesTable: otel_traces
           tracesOtelEnabled: true
+          traceIdColumnName: TraceId
+          spanIdColumnName: SpanId
+          operationNameColumnName: SpanName
+          durationColumnName: Duration
+          serviceNameColumnName: ServiceName
+          startTimeColumnName: Timestamp
         secureJsonData:
           password: all_pass
 
@@ -79,10 +86,17 @@ datasources:
           logsDatabase: otel
           logsTable: otel_logs
           logsOtelEnabled: true
+          otelVersion: "1.29.0"
           traces: true
           tracesDatabase: otel
           tracesTable: otel_traces
           tracesOtelEnabled: true
+          traceIdColumnName: TraceId
+          spanIdColumnName: SpanId
+          operationNameColumnName: SpanName
+          durationColumnName: Duration
+          serviceNameColumnName: ServiceName
+          startTimeColumnName: Timestamp
         secureJsonData:
           password: nonpci_pass
 
