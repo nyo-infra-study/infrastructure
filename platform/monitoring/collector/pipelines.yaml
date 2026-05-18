@@ -67,6 +67,10 @@ config:
         receivers: [prometheus/grafana]
         processors: [memory_limiter, resource/infra-scope, batch]
         exporters: [prometheusremotewrite]
+      metrics/pyroscope:
+        receivers: [prometheus/pyroscope]
+        processors: [memory_limiter, resource/infra-scope, batch]
+        exporters: [prometheusremotewrite]
 
       # ── App metrics from OTLP (backend-server, etc.) ──
       metrics:
