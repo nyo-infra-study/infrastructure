@@ -29,9 +29,10 @@ ingress:
   hosts:
     - grafana.localhost
 
-# Install ClickHouse datasource plugin
+# Install plugins
 plugins:
   - grafana-clickhouse-datasource
+  - marcusolsson-treemap-panel
 
 # Pre-configure datasources
 datasources:

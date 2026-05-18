@@ -1,0 +1,195 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "links": [],
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "title": "HTTP Performance",
+      "type": "row"
+    },
+    {
+      "title": "Request Rate (req/s)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 1 },
+      "datasource": { "uid": "clickhouse-pci" },
+      "fieldConfig": { "defaults": { "unit": "reqps" }, "overrides": [] },
+      "options": { "legend": { "displayMode": "list" } },
+      "targets": [
+        {
+          "datasource": { "uid": "clickhouse-pci" },
+          "queryType": "sql",
+          "rawSql": "SELECT\n  toStartOfInterval(TimeUnix, INTERVAL 30 second) AS time,\n  sum(Value) / 30 AS rps\nFROM otel.otel_metrics_sum\nWHERE ServiceName = 'backend-server'\n  AND MetricName = 'http.server.request.duration'\n  AND TimeUnix >= $__fromTime\n  AND TimeUnix <= $__toTime\nGROUP BY time\nORDER BY time",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "title": "Avg Latency (ms)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 1 },
+      "datasource": { "uid": "clickhouse-pci" },
+      "fieldConfig": { "defaults": { "unit": "ms" }, "overrides": [] },
+      "options": { "legend": { "displayMode": "list" } },
+      "targets": [
+        {
+          "datasource": { "uid": "clickhouse-pci" },
+          "queryType": "sql",
+          "rawSql": "SELECT\n  toStartOfInterval(TimeUnix, INTERVAL 30 second) AS time,\n  (sum(Sum) / sum(Count)) * 1000 AS avg_latency_ms\nFROM otel.otel_metrics_histogram\nWHERE ServiceName = 'backend-server'\n  AND MetricName = 'http.server.request.duration'\n  AND Count > 0\n  AND TimeUnix >= $__fromTime\n  AND TimeUnix <= $__toTime\nGROUP BY time\nORDER BY time",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "title": "Request Body Size (bytes)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 1 },
+      "datasource": { "uid": "clickhouse-pci" },
+      "fieldConfig": { "defaults": { "unit": "bytes" }, "overrides": [] },
+      "targets": [
+        {
+          "datasource": { "uid": "clickhouse-pci" },
+          "queryType": "sql",
+          "rawSql": "SELECT\n  toStartOfInterval(TimeUnix, INTERVAL 30 second) AS time,\n  avg(Sum / Count) AS avg_size\nFROM otel.otel_metrics_histogram\nWHERE ServiceName = 'backend-server'\n  AND MetricName = 'http.server.request.body.size'\n  AND Count > 0\n  AND TimeUnix >= $__fromTime\n  AND TimeUnix <= $__toTime\nGROUP BY time\nORDER BY time",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 9 },
+      "title": "Go Runtime",
+      "type": "row"
+    },
+    {
+      "title": "Goroutines",
+      "type": "timeseries",
+      "gridPos": { "h": 7, "w": 8, "x": 0, "y": 10 },
+      "datasource": { "uid": "clickhouse-pci" },
+      "targets": [
+        {
+          "datasource": { "uid": "clickhouse-pci" },
+          "queryType": "sql",
+          "rawSql": "SELECT\n  toStartOfInterval(TimeUnix, INTERVAL 30 second) AS time,\n  max(Value) AS goroutines\nFROM otel.otel_metrics_sum\nWHERE ServiceName = 'backend-server'\n  AND MetricName = 'go.goroutine.count'\n  AND TimeUnix >= $__fromTime\n  AND TimeUnix <= $__toTime\nGROUP BY time\nORDER BY time",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "title": "Memory Used (bytes)",
+      "type": "timeseries",
+      "gridPos": { "h": 7, "w": 8, "x": 8, "y": 10 },
+      "datasource": { "uid": "clickhouse-pci" },
+      "fieldConfig": { "defaults": { "unit": "bytes" }, "overrides": [] },
+      "targets": [
+        {
+          "datasource": { "uid": "clickhouse-pci" },
+          "queryType": "sql",
+          "rawSql": "SELECT\n  toStartOfInterval(TimeUnix, INTERVAL 30 second) AS time,\n  max(Value) AS memory_used\nFROM otel.otel_metrics_sum\nWHERE ServiceName = 'backend-server'\n  AND MetricName = 'go.memory.used'\n  AND TimeUnix >= $__fromTime\n  AND TimeUnix <= $__toTime\nGROUP BY time\nORDER BY time",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "title": "Memory Allocations (rate/s)",
+      "type": "timeseries",
+      "gridPos": { "h": 7, "w": 8, "x": 16, "y": 10 },
+      "datasource": { "uid": "clickhouse-pci" },
+      "targets": [
+        {
+          "datasource": { "uid": "clickhouse-pci" },
+          "queryType": "sql",
+          "rawSql": "SELECT\n  toStartOfInterval(TimeUnix, INTERVAL 30 second) AS time,\n  max(Value) AS allocs\nFROM otel.otel_metrics_sum\nWHERE ServiceName = 'backend-server'\n  AND MetricName = 'go.memory.allocations'\n  AND TimeUnix >= $__fromTime\n  AND TimeUnix <= $__toTime\nGROUP BY time\nORDER BY time",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 17 },
+      "title": "Resource Treemap",
+      "type": "row"
+    },
+    {
+      "title": "Container Memory Usage (Treemap)",
+      "type": "marcusolsson-treemap-panel",
+      "gridPos": { "h": 10, "w": 12, "x": 0, "y": 18 },
+      "datasource": { "uid": "clickhouse-pci" },
+      "fieldConfig": { "defaults": { "unit": "bytes" }, "overrides": [] },
+      "options": { "tiling": "treemapSquarify" },
+      "targets": [
+        {
+          "datasource": { "uid": "clickhouse-pci" },
+          "queryType": "sql",
+          "rawSql": "SELECT\n  Attributes['container'] AS container,\n  avg(Value) AS memory\nFROM otel.otel_metrics_gauge\nWHERE ServiceName = 'kubernetes-cadvisor'\n  AND MetricName = 'container_memory_working_set_bytes'\n  AND Attributes['container'] != ''\n  AND TimeUnix >= now() - INTERVAL 5 MINUTE\nGROUP BY container\nORDER BY memory DESC",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "title": "Container CPU Usage (Treemap)",
+      "type": "marcusolsson-treemap-panel",
+      "gridPos": { "h": 10, "w": 12, "x": 12, "y": 18 },
+      "datasource": { "uid": "clickhouse-pci" },
+      "options": { "tiling": "treemapSquarify" },
+      "targets": [
+        {
+          "datasource": { "uid": "clickhouse-pci" },
+          "queryType": "sql",
+          "rawSql": "SELECT\n  Attributes['container'] AS container,\n  max(Value) AS cpu_seconds\nFROM otel.otel_metrics_sum\nWHERE ServiceName = 'kubernetes-cadvisor'\n  AND MetricName = 'container_cpu_usage_seconds_total'\n  AND Attributes['container'] != ''\n  AND TimeUnix >= now() - INTERVAL 5 MINUTE\nGROUP BY container\nORDER BY cpu_seconds DESC",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 28 },
+      "title": "Traces",
+      "type": "row"
+    },
+    {
+      "title": "Recent Traces",
+      "type": "table",
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 29 },
+      "datasource": { "uid": "clickhouse-pci" },
+      "targets": [
+        {
+          "datasource": { "uid": "clickhouse-pci" },
+          "queryType": "sql",
+          "rawSql": "SELECT\n  Timestamp AS time,\n  TraceId AS traceID,\n  SpanName AS operation,\n  Duration / 1000000 AS duration_ms,\n  StatusCode AS status\nFROM otel.otel_traces\nWHERE ServiceName = 'backend-server'\n  AND Timestamp >= $__fromTime\n  AND Timestamp <= $__toTime\nORDER BY Timestamp DESC\nLIMIT 50",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 37 },
+      "title": "Logs",
+      "type": "row"
+    },
+    {
+      "title": "Recent Logs",
+      "type": "logs",
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 38 },
+      "datasource": { "uid": "clickhouse-pci" },
+      "options": { "showTime": true, "sortOrder": "Descending", "enableLogDetails": true },
+      "targets": [
+        {
+          "datasource": { "uid": "clickhouse-pci" },
+          "queryType": "sql",
+          "rawSql": "SELECT\n  Timestamp AS timestamp,\n  Body AS body,\n  SeverityText AS level,\n  TraceId AS traceID\nFROM otel.otel_logs\nWHERE ServiceName = 'backend-server'\n  AND Timestamp >= $__fromTime\n  AND Timestamp <= $__toTime\nORDER BY Timestamp DESC\nLIMIT 200",
+          "refId": "A"
+        }
+      ]
+    }
+  ],
+  "schemaVersion": 39,
+  "tags": ["backend", "otel", "clickhouse"],
+  "templating": { "list": [] },
+  "time": { "from": "now-1h", "to": "now" },
+  "title": "Backend Server",
+  "uid": "backend-server-otel"
+}
