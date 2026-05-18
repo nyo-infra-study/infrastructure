@@ -1,8 +1,8 @@
 # ============================================================
-# Receivers — App OTLP + ArgoCD Self-Monitoring
+# Receivers — App OTLP + Stack Self-Monitoring
 # ============================================================
 # OTLP receiver for application telemetry (traces, metrics, logs)
-# plus Prometheus scrapers for ArgoCD self-metrics.
+# plus Prometheus scrapers for LGTM stack and ArgoCD self-metrics.
 # ============================================================
 config:
   receivers:
@@ -12,6 +12,47 @@ config:
           endpoint: 0.0.0.0:4317
         http:
           endpoint: 0.0.0.0:4318
+
+    # ── LGTM Stack self-monitoring ──
+    prometheus/loki:
+      config:
+        scrape_configs:
+          - job_name: 'loki'
+            scrape_interval: 30s
+            static_configs:
+              - targets: ['dev-lgtm-loki.monitoring.svc.cluster.local:3100']
+                labels:
+                  namespace: monitoring
+
+    prometheus/tempo:
+      config:
+        scrape_configs:
+          - job_name: 'tempo'
+            scrape_interval: 30s
+            static_configs:
+              - targets: ['dev-lgtm-tempo.monitoring.svc.cluster.local:3200']
+                labels:
+                  namespace: monitoring
+
+    prometheus/prometheus:
+      config:
+        scrape_configs:
+          - job_name: 'prometheus'
+            scrape_interval: 30s
+            static_configs:
+              - targets: ['dev-lgtm-prometheus-server.monitoring.svc.cluster.local:80']
+                labels:
+                  namespace: monitoring
+
+    prometheus/grafana:
+      config:
+        scrape_configs:
+          - job_name: 'grafana'
+            scrape_interval: 30s
+            static_configs:
+              - targets: ['dev-lgtm-grafana.monitoring.svc.cluster.local:80']
+                labels:
+                  namespace: monitoring
 
     # ── ArgoCD metrics (sync status, app health, reconciliation) ──
     prometheus/argocd:
