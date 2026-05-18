@@ -38,11 +38,11 @@ config:
         processors: [memory_limiter, resource/coredns, resource/infra-scope, batch]
         exporters: [prometheusremotewrite]
 
-      # ── Blackbox probes (disabled — enable with monitoring-blackbox-exporter.yaml) ──
-      # metrics/blackbox:
-      #   receivers: [prometheus/blackbox]
-      #   processors: [memory_limiter, resource/blackbox, resource/infra-scope, batch]
-      #   exporters: [prometheusremotewrite]
+      # ── Blackbox probes (uptime checks) ──
+      metrics/blackbox:
+        receivers: [prometheus/blackbox]
+        processors: [memory_limiter, resource/blackbox, resource/infra-scope, batch]
+        exporters: [prometheusremotewrite]
 
       # ── ArgoCD metrics ──
       metrics/argocd:
