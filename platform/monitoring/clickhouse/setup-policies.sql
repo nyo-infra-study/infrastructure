@@ -5,8 +5,7 @@
 -- (which triggers auto-creation of otel_logs, otel_traces, etc.)
 --
 -- Usage:
---   kubectl exec -n monitoring dev-monitoring-clickhouse-0 -- \
---     clickhouse-client --multiquery < setup-policies.sql
+--   kubectl exec -n monitoring dev-monitoring-clickhouse-0 -- clickhouse-client --multiquery < setup-policies.sql
 --
 -- Or via a Kubernetes Job targeting the ClickHouse pod.
 -- ============================================================
