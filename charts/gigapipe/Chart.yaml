@@ -1,0 +1,6 @@
+apiVersion: v2
+name: gigapipe
+description: Gigapipe (qryn) — LGTM-compatible observability backed by ClickHouse
+type: application
+version: 1.0.0
+appVersion: "latest"

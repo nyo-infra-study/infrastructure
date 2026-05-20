@@ -1,0 +1,41 @@
+{{- if .Values.writer.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-writer
+  labels:
+    app.kubernetes.io/name: gigapipe
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: writer
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: {{ .Values.writer.port }}
+      targetPort: http
+  selector:
+    app.kubernetes.io/name: gigapipe
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: writer
+---
+{{- end }}
+{{- if .Values.reader.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-reader
+  labels:
+    app.kubernetes.io/name: gigapipe
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: reader
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: {{ .Values.reader.port }}
+      targetPort: http
+  selector:
+    app.kubernetes.io/name: gigapipe
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: reader
+{{- end }}

@@ -1,0 +1,47 @@
+{{- if and .Values.writer.enabled .Values.writer.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Release.Name }}-writer
+  labels:
+    app.kubernetes.io/name: gigapipe
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: writer
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: {{ .Values.writer.ingress.host }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Release.Name }}-writer
+                port:
+                  number: {{ .Values.writer.port }}
+---
+{{- end }}
+{{- if and .Values.reader.enabled .Values.reader.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Release.Name }}-reader
+  labels:
+    app.kubernetes.io/name: gigapipe
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: reader
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: {{ .Values.reader.ingress.host }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Release.Name }}-reader
+                port:
+                  number: {{ .Values.reader.port }}
+{{- end }}

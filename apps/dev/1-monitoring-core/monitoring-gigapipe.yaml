@@ -1,0 +1,46 @@
+# ============================================================
+# Gigapipe — LGTM-compatible Observability (ClickHouse backend)
+# ============================================================
+# Two instances:
+#   1. Writer (MODE=all) — full access, writes + reads all data
+#      → gigapipe.localhost (Loki/Prometheus/Tempo APIs)
+#   2. Reader (MODE=reader) — non-PCI user, reads only non-pci data
+#      → gigapipe-nonpci.localhost (Loki/Prometheus/Tempo APIs)
+#
+# Both connect to the same ClickHouse but with different users.
+# Row policies enforce tenant isolation transparently.
+# ============================================================
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+  name: dev-monitoring-gigapipe
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+  labels:
+    environment: dev
+    domain: monitoring
+spec:
+  project: default
+  sources:
+    - repoURL: https://github.com/nyo-infra-study/infrastructure.git
+      targetRevision: main
+      path: charts/gigapipe
+      helm:
+        releaseName: dev-monitoring-gigapipe
+        valueFiles:
+          - $values/platform/monitoring/gigapipe/values.yaml
+    - repoURL: https://github.com/nyo-infra-study/infrastructure.git
+      targetRevision: main
+      ref: values
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

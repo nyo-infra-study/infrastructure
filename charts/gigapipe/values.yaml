@@ -1,0 +1,48 @@
+image:
+  repository: ghcr.io/metrico/gigapipe
+  tag: "latest"
+  pullPolicy: Always
+
+# Gigapipe 1: MODE=all (write + read, full access)
+writer:
+  enabled: true
+  replicas: 1
+  mode: "all"
+  port: 3100
+  clickhouse:
+    server: "dev-monitoring-clickhouse"
+    port: "9000"
+    auth: "default:clickhouse123"
+    db: "otel"
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  ingress:
+    enabled: true
+    host: "gigapipe.localhost"
+
+# Gigapipe 2: MODE=reader (read only, non-PCI user)
+reader:
+  enabled: true
+  replicas: 1
+  mode: "reader"
+  port: 3100
+  clickhouse:
+    server: "dev-monitoring-clickhouse"
+    port: "9000"
+    auth: "user_nonpci:nonpci_pass"
+    db: "otel"
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  ingress:
+    enabled: true
+    host: "gigapipe-nonpci.localhost"

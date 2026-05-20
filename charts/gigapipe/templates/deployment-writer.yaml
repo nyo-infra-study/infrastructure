@@ -1,0 +1,60 @@
+{{- if .Values.writer.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-writer
+  labels:
+    app.kubernetes.io/name: gigapipe
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: writer
+spec:
+  replicas: {{ .Values.writer.replicas }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: gigapipe
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: writer
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: gigapipe
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/component: writer
+    spec:
+      containers:
+        - name: gigapipe
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.writer.port }}
+          env:
+            - name: CLICKHOUSE_SERVER
+              value: {{ .Values.writer.clickhouse.server | quote }}
+            - name: CLICKHOUSE_PORT
+              value: {{ .Values.writer.clickhouse.port | quote }}
+            - name: CLICKHOUSE_AUTH
+              value: {{ .Values.writer.clickhouse.auth | quote }}
+            - name: CLICKHOUSE_DB
+              value: {{ .Values.writer.clickhouse.db | quote }}
+            - name: MODE
+              value: {{ .Values.writer.mode | quote }}
+            - name: PORT
+              value: {{ .Values.writer.port | quote }}
+            - name: BULK_MAX_AGE_MS
+              value: "200"
+          resources:
+            {{- toYaml .Values.writer.resources | nindent 12 }}
+          livenessProbe:
+            httpGet:
+              path: /ready
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 5
+{{- end }}

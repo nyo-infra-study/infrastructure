@@ -1,21 +1,24 @@
 # ============================================================
 # Exporters
 # ============================================================
-# All signals → ClickHouse (standalone, row-policy multi-tenancy)
+# All signals → Gigapipe Writer (LGTM-compatible APIs)
+# Gigapipe batches and writes to ClickHouse internally.
+#
+# Also keep direct ClickHouse exporter for OTel-native tables
+# (Gigapipe uses its own schema: samples_v3, tempo_traces, etc.)
 # ============================================================
 config:
   exporters:
-    clickhouse:
-      endpoint: tcp://dev-monitoring-clickhouse.monitoring.svc.cluster.local:9000
-      database: otel
-      username: default
-      password: clickhouse123
-      logs_table_name: otel_logs
-      traces_table_name: otel_traces
-      ttl: 72h
-      timeout: 10s
-      retry_on_failure:
-        enabled: true
-        initial_interval: 5s
-        max_interval: 30s
-        max_elapsed_time: 300s
+    # Traces → Gigapipe (Tempo-compatible OTLP endpoint)
+    otlp/gigapipe:
+      endpoint: "dev-monitoring-gigapipe-writer.monitoring.svc.cluster.local:3100"
+      tls:
+        insecure: true
+
+    # Logs → Gigapipe (Loki push API)
+    otlphttp/gigapipe:
+      endpoint: "http://dev-monitoring-gigapipe-writer.monitoring.svc.cluster.local:3100/otlp"
+
+    # Metrics → Gigapipe (Prometheus remote write)
+    prometheusremotewrite/gigapipe:
+      endpoint: "http://dev-monitoring-gigapipe-writer.monitoring.svc.cluster.local:3100/api/v1/write"
