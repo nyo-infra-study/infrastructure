@@ -52,6 +52,7 @@ datasources:
         url: http://dev-monitoring-gigapipe-writer.monitoring.svc.cluster.local:3100
         access: proxy
         jsonData:
+          maxLines: 1000
           derivedFields:
             - datasourceUid: tempo-pci
               matcherRegex: '"trace_id":"(\w+)"'

@@ -21,4 +21,4 @@ config:
 
     # Metrics → Gigapipe (Prometheus remote write)
     prometheusremotewrite/gigapipe:
-      endpoint: "http://dev-monitoring-gigapipe-writer.monitoring.svc.cluster.local:3100/api/v1/write"
+      endpoint: "http://dev-monitoring-gigapipe-writer.monitoring.svc.cluster.local:3100/api/prom/remote/write"
