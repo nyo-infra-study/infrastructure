@@ -9,11 +9,9 @@
 # ============================================================
 config:
   exporters:
-    # Traces → Gigapipe (Tempo-compatible OTLP endpoint)
-    otlp/gigapipe:
-      endpoint: "dev-monitoring-gigapipe-writer.monitoring.svc.cluster.local:3100"
-      tls:
-        insecure: true
+    # Traces → Gigapipe (Tempo-compatible HTTP endpoint)
+    otlphttp/gigapipe-traces:
+      endpoint: "http://dev-monitoring-gigapipe-writer.monitoring.svc.cluster.local:3100"
 
     # Logs → Gigapipe (OTLP HTTP)
     otlphttp/gigapipe:
