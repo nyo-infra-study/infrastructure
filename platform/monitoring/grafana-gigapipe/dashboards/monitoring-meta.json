@@ -13,15 +13,16 @@
         "x": 0,
         "y": 0
       },
-      "title": "Series & Cardinality",
+      "title": "Pipeline: Scraped \u2192 Stored \u2192 Queried",
       "type": "row"
     },
     {
-      "title": "Total Active Series",
+      "title": "\u2460 Scraped (raw/s)",
+      "description": "Total samples scraped from all targets per second. This is BEFORE filtering.",
       "type": "stat",
       "gridPos": {
-        "h": 4,
-        "w": 6,
+        "h": 5,
+        "w": 4,
         "x": 0,
         "y": 1
       },
@@ -31,7 +32,11 @@
       },
       "fieldConfig": {
         "defaults": {
-          "unit": "short"
+          "unit": "short",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "yellow"
+          }
         },
         "overrides": []
       },
@@ -39,18 +44,132 @@
         {
           "expr": "sum(scrape_samples_scraped)",
           "refId": "A",
+          "instant": true,
+          "legendFormat": "scraped"
+        }
+      ]
+    },
+    {
+      "title": "\u2461 Stored (rate/s)",
+      "description": "Metric points exported by OTel Collector to Gigapipe per second. This is AFTER filtering.",
+      "type": "stat",
+      "gridPos": {
+        "h": 5,
+        "w": 4,
+        "x": 4,
+        "y": 1
+      },
+      "datasource": {
+        "uid": "prometheus-pci",
+        "type": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "green"
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(otelcol_exporter_sent_metric_points_total{service_name=\"otel-collector\"}[5m]))",
+          "refId": "A",
+          "instant": true,
+          "legendFormat": "stored"
+        }
+      ]
+    },
+    {
+      "title": "\u2462 Queried (queries/s)",
+      "description": "ClickHouse SELECT queries per second. How much is being read by Grafana/Gigapipe.",
+      "type": "stat",
+      "gridPos": {
+        "h": 5,
+        "w": 4,
+        "x": 8,
+        "y": 1
+      },
+      "datasource": {
+        "uid": "prometheus-pci",
+        "type": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "blue"
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "rate(ClickHouseProfileEvents_SelectQuery_total{service_name=\"clickhouse\"}[5m])",
+          "refId": "A",
+          "instant": true,
+          "legendFormat": "queries"
+        }
+      ]
+    },
+    {
+      "title": "Filter Efficiency",
+      "description": "Percentage of scraped data that gets dropped by filters. Higher = more aggressive filtering.",
+      "type": "gauge",
+      "gridPos": {
+        "h": 5,
+        "w": 4,
+        "x": 12,
+        "y": 1
+      },
+      "datasource": {
+        "uid": "prometheus-pci",
+        "type": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "min": 0,
+          "max": 1,
+          "thresholds": {
+            "steps": [
+              {
+                "value": 0,
+                "color": "red"
+              },
+              {
+                "value": 0.5,
+                "color": "yellow"
+              },
+              {
+                "value": 0.8,
+                "color": "green"
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "1 - (sum(rate(otelcol_exporter_sent_metric_points_total{service_name=\"otel-collector\"}[5m])) / sum(rate(otelcol_processor_incoming_items_total{service_name=\"otel-collector\"}[5m])))",
+          "refId": "A",
           "instant": true
         }
       ]
     },
     {
-      "title": "Series by Service",
+      "title": "Scraped by Target",
+      "description": "Raw samples each target exposes (pre-filter). High is OK if filter efficiency is good.",
       "type": "piechart",
       "gridPos": {
         "h": 8,
-        "w": 9,
-        "x": 6,
-        "y": 1
+        "w": 12,
+        "x": 0,
+        "y": 6
       },
       "datasource": {
         "uid": "prometheus-pci",
@@ -58,10 +177,10 @@
       },
       "targets": [
         {
-          "expr": "sum by (service_name) (scrape_samples_scraped)",
+          "expr": "sum by (job) (scrape_samples_scraped)",
           "refId": "A",
           "instant": true,
-          "legendFormat": "{{service_name}}"
+          "legendFormat": "{{job}}"
         }
       ],
       "options": {
@@ -76,35 +195,36 @@
       }
     },
     {
-      "title": "Top 10 Metrics by Series Count",
-      "type": "bargauge",
+      "title": "Stored by Signal (Gigapipe writes/s)",
+      "description": "Rows written to ClickHouse per second, by signal type.",
+      "type": "piechart",
       "gridPos": {
         "h": 8,
-        "w": 9,
-        "x": 15,
-        "y": 1
+        "w": 12,
+        "x": 12,
+        "y": 6
       },
       "datasource": {
         "uid": "prometheus-pci",
         "type": "prometheus"
       },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short"
-        },
-        "overrides": []
-      },
       "targets": [
         {
-          "expr": "topk(10, sum by (job) (scrape_samples_scraped))",
+          "expr": "rate(sent_rows_total[5m])",
           "refId": "A",
           "instant": true,
-          "legendFormat": "{{job}}"
+          "legendFormat": "{{service}}"
         }
       ],
       "options": {
-        "orientation": "horizontal",
-        "displayMode": "gradient"
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "values": [
+            "value",
+            "percent"
+          ]
+        }
       }
     },
     {
@@ -113,7 +233,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 9
+        "y": 17
       },
       "title": "OTel Collector",
       "type": "row"
@@ -125,7 +245,7 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 10
+        "y": 18
       },
       "datasource": {
         "uid": "prometheus-pci",
@@ -146,7 +266,7 @@
         "h": 7,
         "w": 6,
         "x": 12,
-        "y": 10
+        "y": 18
       },
       "datasource": {
         "uid": "prometheus-pci",
@@ -167,7 +287,7 @@
         "h": 7,
         "w": 6,
         "x": 18,
-        "y": 10
+        "y": 18
       },
       "datasource": {
         "uid": "prometheus-pci",
@@ -188,7 +308,7 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 17
+        "y": 25
       },
       "datasource": {
         "uid": "prometheus-pci",
@@ -228,7 +348,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 17
+        "y": 25
       },
       "datasource": {
         "uid": "prometheus-pci",
@@ -254,7 +374,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 24
+        "y": 32
       },
       "title": "Gigapipe",
       "type": "row"
@@ -266,7 +386,7 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 25
+        "y": 33
       },
       "datasource": {
         "uid": "prometheus-pci",
@@ -287,7 +407,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 25
+        "y": 33
       },
       "datasource": {
         "uid": "prometheus-pci",
@@ -313,7 +433,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 32
+        "y": 40
       },
       "title": "ClickHouse",
       "type": "row"
@@ -325,7 +445,7 @@
         "h": 7,
         "w": 8,
         "x": 0,
-        "y": 33
+        "y": 41
       },
       "datasource": {
         "uid": "prometheus-pci",
@@ -346,7 +466,7 @@
         "h": 7,
         "w": 8,
         "x": 8,
-        "y": 33
+        "y": 41
       },
       "datasource": {
         "uid": "prometheus-pci",
@@ -367,7 +487,7 @@
         "h": 7,
         "w": 8,
         "x": 16,
-        "y": 33
+        "y": 41
       },
       "datasource": {
         "uid": "prometheus-pci",
