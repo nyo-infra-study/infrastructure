@@ -15,9 +15,9 @@ config:
       tls:
         insecure: true
 
-    # Logs → Gigapipe (Loki push API)
+    # Logs → Gigapipe (OTLP HTTP)
     otlphttp/gigapipe:
-      endpoint: "http://dev-monitoring-gigapipe-writer.monitoring.svc.cluster.local:3100/otlp"
+      endpoint: "http://dev-monitoring-gigapipe-writer.monitoring.svc.cluster.local:3100"
 
     # Metrics → Gigapipe (Prometheus remote write)
     prometheusremotewrite/gigapipe:
