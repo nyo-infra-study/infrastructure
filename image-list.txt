@@ -81,6 +81,18 @@ quay.io/prometheus/node-exporter:v1.8.2
 # --- Radar (platform/monitoring/radar/values.yaml) ---
 ghcr.io/skyhook-io/radar:1.5.10
 
+# --- Gigapipe (charts/gigapipe — writer + reader) ---
+ghcr.io/metrico/gigapipe:v4.1.6
+
+# --- ClickHouse (charts/clickhouse — observability storage) ---
+clickhouse/clickhouse-server:25.7.8-alpine
+
+# --- Blackbox Exporter ---
+quay.io/prometheus/blackbox-exporter:v0.25.0
+
+# --- Pyroscope (continuous profiling) ---
+grafana/pyroscope:1.13.3
+
 # --- VPA (cowboysysop/vertical-pod-autoscaler chart) ---
 registry.k8s.io/autoscaling/vpa-admission-controller:1.5.1
 registry.k8s.io/autoscaling/vpa-recommender:1.5.1
