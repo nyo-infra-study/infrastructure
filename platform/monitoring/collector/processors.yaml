@@ -186,3 +186,16 @@ config:
           - 'IsMatch(name, "scheduler_plugin_execution_duration.*")'
           - 'IsMatch(name, "storage_operation_duration_seconds.*")'
           - 'IsMatch(name, "kubelet_runtime_operations_duration.*")'
+
+    # ── Drop noisy ArgoCD gRPC metrics (1900+ series) ──
+    filter/argocd:
+      error_mode: ignore
+      metrics:
+        metric:
+          - 'IsMatch(name, "grpc_server_handled_total")'
+          - 'IsMatch(name, "grpc_server_started_total")'
+          - 'IsMatch(name, "grpc_server_msg_sent_total")'
+          - 'IsMatch(name, "grpc_server_msg_received_total")'
+          - 'IsMatch(name, "go_gc_heap_allocs_by_size_bytes.*")'
+          - 'IsMatch(name, "go_gc_heap_frees_by_size_bytes.*")'
+          - 'IsMatch(name, "go_gc_duration_seconds.*")'

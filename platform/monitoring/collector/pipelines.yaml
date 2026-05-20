@@ -47,7 +47,7 @@ config:
       # ── ArgoCD metrics ──
       metrics/argocd:
         receivers: [prometheus/argocd]
-        processors: [memory_limiter, resource/argocd, resource/infra-scope, batch]
+        processors: [memory_limiter, resource/argocd, resource/infra-scope, filter/argocd, batch]
         exporters: [prometheusremotewrite/gigapipe]
 
       # ── ClickHouse metrics ──
