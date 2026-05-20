@@ -37,7 +37,7 @@
       },
       "targets": [
         {
-          "expr": "count({__name__=~\".+\"})",
+          "expr": "sum(scrape_samples_scraped)",
           "refId": "A",
           "instant": true
         }
@@ -58,7 +58,7 @@
       },
       "targets": [
         {
-          "expr": "count by (service_name) ({__name__=~\".+\"})",
+          "expr": "sum by (service_name) (scrape_samples_scraped)",
           "refId": "A",
           "instant": true,
           "legendFormat": "{{service_name}}"
@@ -96,10 +96,10 @@
       },
       "targets": [
         {
-          "expr": "topk(10, count by (__name__) ({__name__=~\".+\"}))",
+          "expr": "topk(10, sum by (job) (scrape_samples_scraped))",
           "refId": "A",
           "instant": true,
-          "legendFormat": "{{__name__}}"
+          "legendFormat": "{{job}}"
         }
       ],
       "options": {
@@ -242,7 +242,7 @@
       },
       "targets": [
         {
-          "expr": "otelcol_process_runtime_total_alloc_bytes{service_name=\"otel-collector\"}",
+          "expr": "otelcol_process_memory_rss_bytes{service_name=\"otel-collector\"}",
           "refId": "A",
           "legendFormat": "RSS"
         }
@@ -333,7 +333,7 @@
       },
       "targets": [
         {
-          "expr": "rate(ClickHouseProfileEvents_Query{service_name=\"clickhouse\"}[5m])",
+          "expr": "rate(ClickHouseProfileEvents_Query_total{service_name=\"clickhouse\"}[5m])",
           "refId": "A",
           "legendFormat": "queries/s"
         }
@@ -354,7 +354,7 @@
       },
       "targets": [
         {
-          "expr": "rate(ClickHouseProfileEvents_InsertedRows{service_name=\"clickhouse\"}[5m])",
+          "expr": "rate(ClickHouseProfileEvents_InsertedRows_total{service_name=\"clickhouse\"}[5m])",
           "refId": "A",
           "legendFormat": "rows/s"
         }

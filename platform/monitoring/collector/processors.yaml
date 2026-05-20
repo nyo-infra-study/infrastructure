@@ -186,6 +186,11 @@ config:
           - 'IsMatch(name, "scheduler_plugin_execution_duration.*")'
           - 'IsMatch(name, "storage_operation_duration_seconds.*")'
           - 'IsMatch(name, "kubelet_runtime_operations_duration.*")'
+          - 'IsMatch(name, "workqueue_queue_duration_seconds.*")'
+          - 'IsMatch(name, "workqueue_work_duration_seconds.*")'
+          - 'IsMatch(name, "rest_client_request_duration_seconds.*")'
+          - 'IsMatch(name, "scheduler_event_handling_duration.*")'
+          - 'IsMatch(name, "apiserver_admission_controller_admission.*")'
 
     # ── Drop noisy ArgoCD gRPC metrics (1900+ series) ──
     filter/argocd:
