@@ -60,6 +60,11 @@ config:
                 regex: (.+)
                 target_label: __metrics_path__
                 replacement: /api/v1/nodes/$${1}/proxy/metrics
+            # Drop noisy metrics at scrape time (before they enter the pipeline)
+            metric_relabel_configs:
+              - source_labels: [__name__]
+                regex: '(apiserver_request_duration|apiserver_request_sli|apiserver_request_body_size|apiserver_response_sizes|apiserver_watch_cache|apiserver_watch_events|apiserver_flowcontrol|etcd_request_duration|scheduler_plugin_execution|storage_operation_duration|kubelet_runtime_operations_duration|workqueue_queue_duration|workqueue_work_duration|rest_client_request_duration|scheduler_event_handling|apiserver_admission_controller|apiserver_request_total|apiserver_current_inflight|etcd_requests_total|lasso_controller|kubernetes_feature).*'
+                action: drop
 
     # ── Node Exporter (hardware/OS metrics — disk, network, CPU) ──
     prometheus/node-exporter:
