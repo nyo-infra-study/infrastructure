@@ -31,6 +31,10 @@ persistence:
 service:
   type: ClusterIP
 
+ingress:
+  enabled: true
+  host: "clickhouse.localhost"
+
 auth:
   defaultPassword: clickhouse123
 
