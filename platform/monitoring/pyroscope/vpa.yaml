@@ -37,8 +37,8 @@ spec:
     containerPolicies:
       - containerName: alloy
         minAllowed:
-          cpu: 10m
-          memory: 64Mi
+          cpu: 20m
+          memory: 128Mi
         maxAllowed:
-          cpu: 200m
-          memory: 256Mi
+          cpu: 300m
+          memory: 384Mi
