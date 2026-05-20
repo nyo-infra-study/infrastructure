@@ -14,6 +14,9 @@ spec:
     - name: native
       port: 9000
       targetPort: native
+    - name: metrics
+      port: 9363
+      targetPort: metrics
   selector:
     app.kubernetes.io/name: clickhouse
     app.kubernetes.io/instance: {{ .Release.Name }}

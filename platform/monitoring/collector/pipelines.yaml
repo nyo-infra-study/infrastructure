@@ -50,6 +50,12 @@ config:
         processors: [memory_limiter, resource/argocd, resource/infra-scope, batch]
         exporters: [prometheusremotewrite/gigapipe]
 
+      # ── ClickHouse metrics ──
+      metrics/clickhouse:
+        receivers: [prometheus/clickhouse]
+        processors: [memory_limiter, resource/infra-scope, batch]
+        exporters: [prometheusremotewrite/gigapipe]
+
       # ── App metrics from OTLP ──
       metrics:
         receivers: [otlp]
