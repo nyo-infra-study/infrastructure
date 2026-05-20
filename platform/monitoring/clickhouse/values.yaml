@@ -35,6 +35,10 @@ ingress:
   enabled: true
   host: "clickhouse.localhost"
 
+# Auto-run setup-policies after Gigapipe creates tables
+setupPolicies:
+  enabled: true
+
 auth:
   defaultPassword: clickhouse123
 

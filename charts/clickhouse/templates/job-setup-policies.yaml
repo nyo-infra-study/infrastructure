@@ -1,0 +1,86 @@
+{{- if .Values.setupPolicies.enabled }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Release.Name }}-setup-policies
+  labels:
+    app.kubernetes.io/name: clickhouse
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: setup-policies
+  annotations:
+    argocd.argoproj.io/hook: PostSync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+spec:
+  backoffLimit: 10
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: clickhouse
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/component: setup-policies
+    spec:
+      restartPolicy: OnFailure
+      initContainers:
+        - name: wait-for-tables
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          command:
+            - sh
+            - -c
+            - |
+              echo "Waiting for Gigapipe to create tables..."
+              until clickhouse-client \
+                --host {{ .Release.Name }} \
+                --password {{ .Values.auth.defaultPassword }} \
+                --query "SELECT 1 FROM system.tables WHERE database = 'otel' AND name = 'time_series'" \
+                2>/dev/null | grep -q 1; do
+                echo "  tables not ready yet, retrying in 10s..."
+                sleep 10
+              done
+              echo "Tables exist. Proceeding with setup."
+      containers:
+        - name: setup
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          command:
+            - sh
+            - -c
+            - |
+              clickhouse-client \
+                --host {{ .Release.Name }} \
+                --password {{ .Values.auth.defaultPassword }} \
+                --multiquery \
+                --query "
+              -- Materialized column on time_series
+              ALTER TABLE otel.time_series ADD COLUMN IF NOT EXISTS tenant_scope LowCardinality(String) MATERIALIZED JSONExtractString(labels, 'compliance_scope');
+              ALTER TABLE otel.time_series MATERIALIZE COLUMN tenant_scope;
+
+              -- Fingerprint → tenant mapping table
+              CREATE TABLE IF NOT EXISTS otel.fingerprint_tenant_map (fingerprint UInt64, tenant_scope LowCardinality(String)) ENGINE = ReplacingMergeTree() ORDER BY fingerprint;
+              INSERT INTO otel.fingerprint_tenant_map SELECT DISTINCT fingerprint, JSONExtractString(labels, 'compliance_scope') AS tenant_scope FROM otel.time_series WHERE JSONExtractString(labels, 'compliance_scope') != '';
+
+              -- MV to keep mapping updated
+              CREATE MATERIALIZED VIEW IF NOT EXISTS otel.fingerprint_tenant_map_mv TO otel.fingerprint_tenant_map AS SELECT fingerprint, JSONExtractString(labels, 'compliance_scope') AS tenant_scope FROM otel.time_series WHERE JSONExtractString(labels, 'compliance_scope') != '';
+
+              -- Add tenant_scope to data tables
+              ALTER TABLE otel.samples_v3 ADD COLUMN IF NOT EXISTS tenant_scope LowCardinality(String) DEFAULT '';
+              ALTER TABLE otel.metrics_15s ADD COLUMN IF NOT EXISTS tenant_scope LowCardinality(String) DEFAULT '';
+              ALTER TABLE otel.tempo_traces ADD COLUMN IF NOT EXISTS tenant_scope LowCardinality(String) DEFAULT '';
+
+              -- Row policies: user_all (unrestricted)
+              CREATE ROW POLICY IF NOT EXISTS all_access ON otel.time_series USING 1=1 TO user_all;
+              CREATE ROW POLICY IF NOT EXISTS all_access ON otel.samples_v3 USING 1=1 TO user_all;
+              CREATE ROW POLICY IF NOT EXISTS all_access ON otel.metrics_15s USING 1=1 TO user_all;
+              CREATE ROW POLICY IF NOT EXISTS all_access ON otel.tempo_traces USING 1=1 TO user_all;
+              CREATE ROW POLICY IF NOT EXISTS all_access ON otel.tempo_traces_kv USING 1=1 TO user_all;
+              CREATE ROW POLICY IF NOT EXISTS all_access ON otel.tempo_traces_attrs_gin USING 1=1 TO user_all;
+
+              -- Row policies: user_nonpci (no PCI data)
+              CREATE ROW POLICY IF NOT EXISTS nonpci_only ON otel.time_series USING tenant_scope != 'pci' TO user_nonpci;
+              CREATE ROW POLICY IF NOT EXISTS nonpci_only ON otel.samples_v3 USING fingerprint NOT IN (SELECT fingerprint FROM otel.fingerprint_tenant_map WHERE tenant_scope = 'pci') TO user_nonpci;
+              CREATE ROW POLICY IF NOT EXISTS nonpci_only ON otel.metrics_15s USING fingerprint NOT IN (SELECT fingerprint FROM otel.fingerprint_tenant_map WHERE tenant_scope = 'pci') TO user_nonpci;
+              CREATE ROW POLICY IF NOT EXISTS nonpci_only ON otel.tempo_traces USING oid NOT IN (SELECT DISTINCT oid FROM otel.tempo_traces_kv WHERE key = 'compliance.scope' AND val = 'pci') TO user_nonpci;
+              CREATE ROW POLICY IF NOT EXISTS nonpci_only ON otel.tempo_traces_kv USING oid NOT IN (SELECT DISTINCT oid FROM otel.tempo_traces_kv WHERE key = 'compliance.scope' AND val = 'pci') TO user_nonpci;
+              CREATE ROW POLICY IF NOT EXISTS nonpci_only ON otel.tempo_traces_attrs_gin USING oid NOT IN (SELECT DISTINCT oid FROM otel.tempo_traces_kv WHERE key = 'compliance.scope' AND val = 'pci') TO user_nonpci;
+
+              SELECT 'Setup policies complete';
+              "
+{{- end }}
