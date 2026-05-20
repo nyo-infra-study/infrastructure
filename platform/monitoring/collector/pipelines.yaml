@@ -23,7 +23,7 @@ config:
         exporters: [prometheusremotewrite/gigapipe]
       metrics/kubelet:
         receivers: [prometheus/kubelet]
-        processors: [memory_limiter, resource/kubelet, resource/infra-scope, batch]
+        processors: [memory_limiter, resource/kubelet, resource/infra-scope, filter/kubelet, batch]
         exporters: [prometheusremotewrite/gigapipe]
       metrics/node-exporter:
         receivers: [prometheus/node-exporter]

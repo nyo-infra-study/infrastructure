@@ -169,3 +169,20 @@ config:
       metrics:
         metric:
           - 'not(IsMatch(name, "container_cpu_usage_seconds_total") or IsMatch(name, "container_memory_usage_bytes") or IsMatch(name, "container_memory_working_set_bytes") or IsMatch(name, "container_oom_events_total") or IsMatch(name, "container_cpu_cfs_throttled_periods_total") or IsMatch(name, "container_cpu_cfs_periods_total") or IsMatch(name, "kube_pod_container_resource_requests") or IsMatch(name, "kube_pod_container_resource_limits") or IsMatch(name, "kube_pod_container_status_restarts_total") or IsMatch(name, "kube_pod_container_status_last_terminated_reason") or IsMatch(name, "kube_pod_status_phase") or IsMatch(name, "kube_container_status_waiting_reason") or IsMatch(name, "kube_pod_info") or IsMatch(name, "kube_node_status_allocatable") or IsMatch(name, "kube_node_status_capacity") or IsMatch(name, "kube_node_info") or IsMatch(name, "kube_namespace_status_phase") or IsMatch(name, "kube_deployment_status_replicas") or IsMatch(name, "kube_deployment_spec_replicas") or IsMatch(name, "kube_statefulset_status_replicas") or IsMatch(name, "kube_statefulset_replicas") or IsMatch(name, "kube_daemonset_status.*"))'
+
+    # ── Drop noisy kubelet metrics (apiserver/etcd histograms — 42K+ series) ──
+    filter/kubelet:
+      error_mode: ignore
+      metrics:
+        metric:
+          - 'IsMatch(name, "apiserver_request_duration_seconds.*")'
+          - 'IsMatch(name, "apiserver_request_sli_duration_seconds.*")'
+          - 'IsMatch(name, "apiserver_request_body_size_bytes.*")'
+          - 'IsMatch(name, "apiserver_response_sizes.*")'
+          - 'IsMatch(name, "apiserver_watch_cache_read_wait.*")'
+          - 'IsMatch(name, "apiserver_watch_events_sizes.*")'
+          - 'IsMatch(name, "apiserver_flowcontrol.*")'
+          - 'IsMatch(name, "etcd_request_duration_seconds.*")'
+          - 'IsMatch(name, "scheduler_plugin_execution_duration.*")'
+          - 'IsMatch(name, "storage_operation_duration_seconds.*")'
+          - 'IsMatch(name, "kubelet_runtime_operations_duration.*")'
