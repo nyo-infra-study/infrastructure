@@ -56,6 +56,12 @@ config:
         processors: [memory_limiter, resource/infra-scope, batch]
         exporters: [prometheusremotewrite/gigapipe]
 
+      # ── Gigapipe self-metrics ──
+      metrics/gigapipe:
+        receivers: [prometheus/gigapipe]
+        processors: [memory_limiter, resource/infra-scope, batch]
+        exporters: [prometheusremotewrite/gigapipe]
+
       # ── App metrics from OTLP ──
       metrics:
         receivers: [otlp]

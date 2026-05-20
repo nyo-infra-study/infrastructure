@@ -24,6 +24,23 @@ config:
                 labels:
                   namespace: monitoring
 
+    # ── Gigapipe self-metrics ──
+    prometheus/gigapipe:
+      config:
+        scrape_configs:
+          - job_name: 'gigapipe-writer'
+            scrape_interval: 30s
+            static_configs:
+              - targets: ['dev-monitoring-gigapipe-writer.monitoring.svc.cluster.local:3100']
+                labels:
+                  namespace: monitoring
+          - job_name: 'gigapipe-reader'
+            scrape_interval: 30s
+            static_configs:
+              - targets: ['dev-monitoring-gigapipe-reader.monitoring.svc.cluster.local:3100']
+                labels:
+                  namespace: monitoring
+
     # ── ArgoCD metrics (sync status, app health, reconciliation) ──
     prometheus/argocd:
       config:

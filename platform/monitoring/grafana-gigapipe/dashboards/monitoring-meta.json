@@ -1,140 +1,406 @@
 {
-  "annotations": { "list": [] },
+  "annotations": {
+    "list": []
+  },
   "editable": true,
   "graphTooltip": 1,
   "panels": [
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
       "title": "Series & Cardinality",
       "type": "row"
     },
     {
       "title": "Total Active Series",
       "type": "stat",
-      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 1 },
-      "datasource": { "uid": "prometheus-pci", "type": "prometheus" },
-      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] },
-      "targets": [{ "expr": "count({__name__=~\".+\"})", "refId": "A", "instant": true }]
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 1
+      },
+      "datasource": {
+        "uid": "prometheus-pci",
+        "type": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "count({__name__=~\".+\"})",
+          "refId": "A",
+          "instant": true
+        }
+      ]
     },
     {
       "title": "Series by Service",
       "type": "piechart",
-      "gridPos": { "h": 8, "w": 9, "x": 6, "y": 1 },
-      "datasource": { "uid": "prometheus-pci", "type": "prometheus" },
-      "targets": [{ "expr": "count by (service_name) ({__name__=~\".+\"})", "refId": "A", "instant": true, "legendFormat": "{{service_name}}" }],
-      "options": { "legend": { "displayMode": "table", "placement": "right", "values": ["value", "percent"] } }
+      "gridPos": {
+        "h": 8,
+        "w": 9,
+        "x": 6,
+        "y": 1
+      },
+      "datasource": {
+        "uid": "prometheus-pci",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "count by (service_name) ({__name__=~\".+\"})",
+          "refId": "A",
+          "instant": true,
+          "legendFormat": "{{service_name}}"
+        }
+      ],
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "values": [
+            "value",
+            "percent"
+          ]
+        }
+      }
     },
     {
       "title": "Top 10 Metrics by Series Count",
       "type": "bargauge",
-      "gridPos": { "h": 8, "w": 9, "x": 15, "y": 1 },
-      "datasource": { "uid": "prometheus-pci", "type": "prometheus" },
-      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] },
-      "targets": [{ "expr": "topk(10, count by (__name__) ({__name__=~\".+\"}))", "refId": "A", "instant": true, "legendFormat": "{{__name__}}" }],
-      "options": { "orientation": "horizontal", "displayMode": "gradient" }
+      "gridPos": {
+        "h": 8,
+        "w": 9,
+        "x": 15,
+        "y": 1
+      },
+      "datasource": {
+        "uid": "prometheus-pci",
+        "type": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "topk(10, count by (__name__) ({__name__=~\".+\"}))",
+          "refId": "A",
+          "instant": true,
+          "legendFormat": "{{__name__}}"
+        }
+      ],
+      "options": {
+        "orientation": "horizontal",
+        "displayMode": "gradient"
+      }
     },
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 9 },
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 9
+      },
       "title": "OTel Collector",
       "type": "row"
     },
     {
-      "title": "OTel Collector — Exported Metrics (rate/s)",
+      "title": "OTel Collector \u2014 Exported Metrics (rate/s)",
       "type": "timeseries",
-      "gridPos": { "h": 7, "w": 12, "x": 0, "y": 10 },
-      "datasource": { "uid": "prometheus-pci", "type": "prometheus" },
-      "targets": [{ "expr": "rate(otelcol_exporter_sent_metric_points{service_name=\"otel-collector\"}[5m])", "refId": "A", "legendFormat": "metrics/s" }]
-    },
-    {
-      "title": "OTel Collector — Exported Logs (rate/s)",
-      "type": "timeseries",
-      "gridPos": { "h": 7, "w": 6, "x": 12, "y": 10 },
-      "datasource": { "uid": "prometheus-pci", "type": "prometheus" },
-      "targets": [{ "expr": "rate(otelcol_exporter_sent_log_records{service_name=\"otel-collector\"}[5m])", "refId": "A", "legendFormat": "logs/s" }]
-    },
-    {
-      "title": "OTel Collector — Exported Spans (rate/s)",
-      "type": "timeseries",
-      "gridPos": { "h": 7, "w": 6, "x": 18, "y": 10 },
-      "datasource": { "uid": "prometheus-pci", "type": "prometheus" },
-      "targets": [{ "expr": "rate(otelcol_exporter_sent_spans{service_name=\"otel-collector\"}[5m])", "refId": "A", "legendFormat": "spans/s" }]
-    },
-    {
-      "title": "OTel Collector — Dropped (rate/s)",
-      "type": "timeseries",
-      "gridPos": { "h": 7, "w": 12, "x": 0, "y": 17 },
-      "datasource": { "uid": "prometheus-pci", "type": "prometheus" },
-      "fieldConfig": { "defaults": { "color": { "mode": "fixed", "fixedColor": "red" } }, "overrides": [] },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 0,
+        "y": 10
+      },
+      "datasource": {
+        "uid": "prometheus-pci",
+        "type": "prometheus"
+      },
       "targets": [
-        { "expr": "rate(otelcol_exporter_send_failed_metric_points{service_name=\"otel-collector\"}[5m])", "refId": "A", "legendFormat": "failed metrics/s" },
-        { "expr": "rate(otelcol_exporter_send_failed_log_records{service_name=\"otel-collector\"}[5m])", "refId": "B", "legendFormat": "failed logs/s" },
-        { "expr": "rate(otelcol_exporter_send_failed_spans{service_name=\"otel-collector\"}[5m])", "refId": "C", "legendFormat": "failed spans/s" }
+        {
+          "expr": "rate(otelcol_exporter_sent_metric_points_total{service_name=\"otel-collector\"}[5m])",
+          "refId": "A",
+          "legendFormat": "metrics/s"
+        }
       ]
     },
     {
-      "title": "OTel Collector — Memory (bytes)",
+      "title": "OTel Collector \u2014 Exported Logs (rate/s)",
       "type": "timeseries",
-      "gridPos": { "h": 7, "w": 12, "x": 12, "y": 17 },
-      "datasource": { "uid": "prometheus-pci", "type": "prometheus" },
-      "fieldConfig": { "defaults": { "unit": "bytes" }, "overrides": [] },
-      "targets": [{ "expr": "otelcol_process_memory_rss{service_name=\"otel-collector\"}", "refId": "A", "legendFormat": "RSS" }]
+      "gridPos": {
+        "h": 7,
+        "w": 6,
+        "x": 12,
+        "y": 10
+      },
+      "datasource": {
+        "uid": "prometheus-pci",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "rate(otelcol_exporter_sent_log_records_total{service_name=\"otel-collector\"}[5m])",
+          "refId": "A",
+          "legendFormat": "logs/s"
+        }
+      ]
+    },
+    {
+      "title": "OTel Collector \u2014 Exported Spans (rate/s)",
+      "type": "timeseries",
+      "gridPos": {
+        "h": 7,
+        "w": 6,
+        "x": 18,
+        "y": 10
+      },
+      "datasource": {
+        "uid": "prometheus-pci",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "rate(otelcol_exporter_sent_spans_total{service_name=\"otel-collector\"}[5m])",
+          "refId": "A",
+          "legendFormat": "spans/s"
+        }
+      ]
+    },
+    {
+      "title": "OTel Collector \u2014 Dropped (rate/s)",
+      "type": "timeseries",
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 0,
+        "y": 17
+      },
+      "datasource": {
+        "uid": "prometheus-pci",
+        "type": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "red"
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "rate(otelcol_exporter_send_failed_metric_points_total{service_name=\"otel-collector\"}[5m])",
+          "refId": "A",
+          "legendFormat": "failed metrics/s"
+        },
+        {
+          "expr": "rate(otelcol_exporter_send_failed_log_records_total{service_name=\"otel-collector\"}[5m])",
+          "refId": "B",
+          "legendFormat": "failed logs/s"
+        },
+        {
+          "expr": "rate(otelcol_exporter_send_failed_spans_total{service_name=\"otel-collector\"}[5m])",
+          "refId": "C",
+          "legendFormat": "failed spans/s"
+        }
+      ]
+    },
+    {
+      "title": "OTel Collector \u2014 Memory (bytes)",
+      "type": "timeseries",
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 12,
+        "y": 17
+      },
+      "datasource": {
+        "uid": "prometheus-pci",
+        "type": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "otelcol_process_runtime_total_alloc_bytes{service_name=\"otel-collector\"}",
+          "refId": "A",
+          "legendFormat": "RSS"
+        }
+      ]
     },
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 24 },
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 24
+      },
       "title": "Gigapipe",
       "type": "row"
     },
     {
-      "title": "Gigapipe — Rows Written (rate/s)",
+      "title": "Gigapipe \u2014 Rows Written (rate/s)",
       "type": "timeseries",
-      "gridPos": { "h": 7, "w": 12, "x": 0, "y": 25 },
-      "datasource": { "uid": "prometheus-pci", "type": "prometheus" },
-      "targets": [{ "expr": "rate(sent_rows{service_name=~\"gigapipe.*\"}[5m])", "refId": "A", "legendFormat": "{{service}}" }]
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 0,
+        "y": 25
+      },
+      "datasource": {
+        "uid": "prometheus-pci",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "rate(sent_rows_total[5m])",
+          "refId": "A",
+          "legendFormat": "{{service}}"
+        }
+      ]
     },
     {
-      "title": "Gigapipe — Bytes Written (rate/s)",
+      "title": "Gigapipe \u2014 Bytes Written (rate/s)",
       "type": "timeseries",
-      "gridPos": { "h": 7, "w": 12, "x": 12, "y": 25 },
-      "datasource": { "uid": "prometheus-pci", "type": "prometheus" },
-      "fieldConfig": { "defaults": { "unit": "Bps" }, "overrides": [] },
-      "targets": [{ "expr": "rate(sent_bytes{service_name=~\"gigapipe.*\"}[5m])", "refId": "A", "legendFormat": "{{service}}" }]
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 12,
+        "y": 25
+      },
+      "datasource": {
+        "uid": "prometheus-pci",
+        "type": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "Bps"
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "rate(sent_bytes_total[5m])",
+          "refId": "A",
+          "legendFormat": "{{service}}"
+        }
+      ]
     },
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 32 },
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 32
+      },
       "title": "ClickHouse",
       "type": "row"
     },
     {
-      "title": "ClickHouse — Queries/s",
+      "title": "ClickHouse \u2014 Queries/s",
       "type": "timeseries",
-      "gridPos": { "h": 7, "w": 8, "x": 0, "y": 33 },
-      "datasource": { "uid": "prometheus-pci", "type": "prometheus" },
-      "targets": [{ "expr": "rate(ClickHouseProfileEvents_Query{service_name=\"clickhouse\"}[5m])", "refId": "A", "legendFormat": "queries/s" }]
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 0,
+        "y": 33
+      },
+      "datasource": {
+        "uid": "prometheus-pci",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "rate(ClickHouseProfileEvents_Query{service_name=\"clickhouse\"}[5m])",
+          "refId": "A",
+          "legendFormat": "queries/s"
+        }
+      ]
     },
     {
-      "title": "ClickHouse — Inserted Rows/s",
+      "title": "ClickHouse \u2014 Inserted Rows/s",
       "type": "timeseries",
-      "gridPos": { "h": 7, "w": 8, "x": 8, "y": 33 },
-      "datasource": { "uid": "prometheus-pci", "type": "prometheus" },
-      "targets": [{ "expr": "rate(ClickHouseProfileEvents_InsertedRows{service_name=\"clickhouse\"}[5m])", "refId": "A", "legendFormat": "rows/s" }]
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 8,
+        "y": 33
+      },
+      "datasource": {
+        "uid": "prometheus-pci",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "rate(ClickHouseProfileEvents_InsertedRows{service_name=\"clickhouse\"}[5m])",
+          "refId": "A",
+          "legendFormat": "rows/s"
+        }
+      ]
     },
     {
-      "title": "ClickHouse — Memory Tracking",
+      "title": "ClickHouse \u2014 Memory Tracking",
       "type": "timeseries",
-      "gridPos": { "h": 7, "w": 8, "x": 16, "y": 33 },
-      "datasource": { "uid": "prometheus-pci", "type": "prometheus" },
-      "fieldConfig": { "defaults": { "unit": "bytes" }, "overrides": [] },
-      "targets": [{ "expr": "ClickHouseMetrics_MemoryTracking{service_name=\"clickhouse\"}", "refId": "A", "legendFormat": "memory" }]
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 16,
+        "y": 33
+      },
+      "datasource": {
+        "uid": "prometheus-pci",
+        "type": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "ClickHouseMetrics_MemoryTracking{service_name=\"clickhouse\"}",
+          "refId": "A",
+          "legendFormat": "memory"
+        }
+      ]
     }
   ],
   "schemaVersion": 39,
-  "tags": ["monitoring", "meta", "observability"],
-  "templating": { "list": [] },
-  "time": { "from": "now-1h", "to": "now" },
+  "tags": [
+    "monitoring",
+    "meta",
+    "observability"
+  ],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
   "title": "Monitoring Meta",
   "uid": "monitoring-meta"
 }
