@@ -80,8 +80,8 @@ config:
         processors: [memory_limiter, k8sattributes, resource/app-enforce, batch]
         exporters: [otlphttp/gigapipe]
 
-      # ── Logs from pod files (all system pods) ──
+      # ── Logs from pod files (all namespaces except kube-system) ──
       logs/filelog:
         receivers: [filelog]
-        processors: [memory_limiter, k8sattributes, filter/logs, batch]
+        processors: [memory_limiter, k8sattributes, resource/logs-scope, filter/logs, batch]
         exporters: [otlphttp/gigapipe]

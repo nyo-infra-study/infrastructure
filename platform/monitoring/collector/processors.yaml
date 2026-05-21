@@ -79,6 +79,15 @@ config:
           value: "pci"
           action: insert
 
+    # ── Default compliance scope for system pod logs (filelog) ──
+    # System logs are non-PCI by default. Apps that need PCI scoping
+    # set it via OTEL_RESOURCE_ATTRIBUTES in their SDK telemetry.
+    resource/logs-scope:
+      attributes:
+        - key: compliance.scope
+          value: "non-pci"
+          action: insert
+
     # ── Enrich telemetry with k8s metadata (pod, deployment, namespace) ──
     # Applied to all app OTLP pipelines (metrics, traces, logs) and filelog
     k8sattributes:
