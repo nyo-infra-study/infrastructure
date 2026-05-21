@@ -87,6 +87,9 @@ config:
         - key: compliance.scope
           value: "non-pci"
           action: insert
+        - key: service.name
+          from_attribute: k8s.pod.name
+          action: insert
 
     # ── Enrich telemetry with k8s metadata (pod, deployment, namespace) ──
     # Applied to all app OTLP pipelines (metrics, traces, logs) and filelog
