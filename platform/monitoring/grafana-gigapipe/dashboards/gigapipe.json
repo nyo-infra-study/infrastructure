@@ -1,0 +1,166 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "graphTooltip": 1,
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "title": "Overview",
+      "type": "row"
+    },
+    {
+      "title": "Rows Written/s",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 1 },
+      "datasource": { "uid": "prometheus", "type": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "short", "color": { "mode": "fixed", "fixedColor": "green" } }, "overrides": [] },
+      "targets": [{ "expr": "sum(rate(sent_rows_total{job=~\"$instance\"}[$__rate_interval]))", "refId": "A", "instant": true }]
+    },
+    {
+      "title": "Bytes Written/s",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 1 },
+      "datasource": { "uid": "prometheus", "type": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "Bps", "color": { "mode": "fixed", "fixedColor": "blue" } }, "overrides": [] },
+      "targets": [{ "expr": "sum(rate(sent_bytes_total{job=~\"$instance\"}[$__rate_interval]))", "refId": "A", "instant": true }]
+    },
+    {
+      "title": "Active Insert Services",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 1 },
+      "datasource": { "uid": "prometheus", "type": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "short", "color": { "mode": "fixed", "fixedColor": "purple" } }, "overrides": [] },
+      "targets": [{ "expr": "count(sent_rows_total{job=~\"$instance\"})", "refId": "A", "instant": true }]
+    },
+    {
+      "title": "Total Rows Written",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 1 },
+      "datasource": { "uid": "prometheus", "type": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "short", "color": { "mode": "fixed", "fixedColor": "orange" } }, "overrides": [] },
+      "targets": [{ "expr": "sum(sent_rows_total{job=~\"$instance\"})", "refId": "A", "instant": true }]
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 5 },
+      "title": "Write Throughput",
+      "type": "row"
+    },
+    {
+      "title": "Rows Written/s by Signal",
+      "type": "timeseries",
+      "gridPos": { "h": 7, "w": 12, "x": 0, "y": 6 },
+      "datasource": { "uid": "prometheus", "type": "prometheus" },
+      "targets": [{ "expr": "rate(sent_rows_total{job=~\"$instance\"}[$__rate_interval])", "refId": "A", "legendFormat": "{{service}}" }]
+    },
+    {
+      "title": "Bytes Written/s by Signal",
+      "type": "timeseries",
+      "gridPos": { "h": 7, "w": 12, "x": 12, "y": 6 },
+      "datasource": { "uid": "prometheus", "type": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "Bps" }, "overrides": [] },
+      "targets": [{ "expr": "rate(sent_bytes_total{job=~\"$instance\"}[$__rate_interval])", "refId": "A", "legendFormat": "{{service}}" }]
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 13 },
+      "title": "Insert Latency",
+      "type": "row"
+    },
+    {
+      "title": "Send Time (ms)",
+      "description": "Time spent sending batch to ClickHouse.",
+      "type": "timeseries",
+      "gridPos": { "h": 7, "w": 12, "x": 0, "y": 14 },
+      "datasource": { "uid": "prometheus", "type": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "ms" }, "overrides": [] },
+      "targets": [{ "expr": "rate(send_time_ms_sum{job=~\"$instance\"}[$__rate_interval]) / rate(send_time_ms_count{job=~\"$instance\"}[$__rate_interval])", "refId": "A", "legendFormat": "avg send time" }]
+    },
+    {
+      "title": "TX Close Time (ms)",
+      "description": "Time to close the ClickHouse transaction after sending.",
+      "type": "timeseries",
+      "gridPos": { "h": 7, "w": 12, "x": 12, "y": 14 },
+      "datasource": { "uid": "prometheus", "type": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "ms" }, "overrides": [] },
+      "targets": [{ "expr": "rate(tx_close_time_ms_sum{job=~\"$instance\"}[$__rate_interval]) / rate(tx_close_time_ms_count{job=~\"$instance\"}[$__rate_interval])", "refId": "A", "legendFormat": "avg tx close" }]
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 21 },
+      "title": "Ingest Health",
+      "type": "row"
+    },
+    {
+      "title": "Prometheus Remote Write Samples/s",
+      "type": "timeseries",
+      "gridPos": { "h": 7, "w": 12, "x": 0, "y": 22 },
+      "datasource": { "uid": "prometheus", "type": "prometheus" },
+      "targets": [{ "expr": "rate(prometheus_remote_storage_samples_in_total{job=~\"$instance\"}[$__rate_interval])", "refId": "A", "legendFormat": "samples in/s" }]
+    },
+    {
+      "title": "Connection Resets",
+      "description": "Connection reset by peer errors. Indicates network issues between OTel Collector and Gigapipe.",
+      "type": "timeseries",
+      "gridPos": { "h": 7, "w": 12, "x": 12, "y": 22 },
+      "datasource": { "uid": "prometheus", "type": "prometheus" },
+      "fieldConfig": { "defaults": { "color": { "mode": "fixed", "fixedColor": "red" } }, "overrides": [] },
+      "targets": [{ "expr": "rate(connection_reset_by_peer_count_total{job=~\"$instance\"}[$__rate_interval])", "refId": "A", "legendFormat": "resets/s" }]
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 29 },
+      "title": "Resources",
+      "type": "row"
+    },
+    {
+      "title": "Memory (RSS)",
+      "type": "timeseries",
+      "gridPos": { "h": 7, "w": 8, "x": 0, "y": 30 },
+      "datasource": { "uid": "prometheus", "type": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "bytes" }, "overrides": [] },
+      "targets": [{ "expr": "process_resident_memory_bytes{job=~\"$instance\"}", "refId": "A", "legendFormat": "{{job}}" }]
+    },
+    {
+      "title": "Goroutines",
+      "type": "timeseries",
+      "gridPos": { "h": 7, "w": 8, "x": 8, "y": 30 },
+      "datasource": { "uid": "prometheus", "type": "prometheus" },
+      "targets": [{ "expr": "go_goroutines{job=~\"$instance\"}", "refId": "A", "legendFormat": "{{job}}" }]
+    },
+    {
+      "title": "Open File Descriptors",
+      "type": "timeseries",
+      "gridPos": { "h": 7, "w": 8, "x": 16, "y": 30 },
+      "datasource": { "uid": "prometheus", "type": "prometheus" },
+      "targets": [{ "expr": "process_open_fds{job=~\"$instance\"}", "refId": "A", "legendFormat": "{{job}}" }]
+    }
+  ],
+  "schemaVersion": 39,
+  "tags": ["gigapipe", "observability"],
+  "templating": {
+    "list": [
+      {
+        "current": { "selected": true, "text": "All", "value": "$__all" },
+        "datasource": { "uid": "prometheus", "type": "prometheus" },
+        "definition": "label_values(sent_rows_total, job)",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Instance",
+        "multi": true,
+        "name": "instance",
+        "options": [],
+        "query": { "qryType": 1, "query": "label_values(sent_rows_total, job)" },
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1,
+        "type": "query"
+      }
+    ]
+  },
+  "time": { "from": "now-1h", "to": "now" },
+  "title": "Gigapipe",
+  "uid": "gigapipe"
+}
