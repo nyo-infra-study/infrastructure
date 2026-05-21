@@ -16,11 +16,13 @@ mode: daemonset
 service:
   enabled: true
 
-# ── Security hardening ──
+# ── Security context ──
+# Must run as root to read /var/log/pods (host log files are root-owned).
+# This is the standard requirement for filelog receiver in DaemonSet mode.
 securityContext:
-  runAsNonRoot: true
-  runAsUser: 10001
-  runAsGroup: 10001
+  runAsNonRoot: false
+  runAsUser: 0
+  runAsGroup: 0
   allowPrivilegeEscalation: false
   readOnlyRootFilesystem: true
   capabilities:
