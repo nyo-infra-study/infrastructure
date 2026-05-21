@@ -1739,7 +1739,7 @@
           "color": "rgba(255,0,255,0.7)"
         },
         "filterValues": {
-          "le": 1e-09
+          "le": 1e-9
         },
         "legend": {
           "show": true
@@ -2848,7 +2848,7 @@
           "color": "rgba(255,0,255,0.7)"
         },
         "filterValues": {
-          "le": 1e-09
+          "le": 1e-9
         },
         "legend": {
           "show": false
@@ -2928,7 +2928,7 @@
           "color": "rgba(255,0,255,0.7)"
         },
         "filterValues": {
-          "le": 1e-09
+          "le": 1e-9
         },
         "legend": {
           "show": false
@@ -4642,7 +4642,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus-pci"
+        "uid": "${datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -4727,7 +4727,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus-pci"
+            "uid": "${datasource}"
           },
           "expr": "sum(increase(argocd_redis_request_total{namespace=~\"$namespace\"}[5m])) by (failed)",
           "refId": "A"
@@ -4745,8 +4745,8 @@
     "list": [
       {
         "current": {
-          "text": "Prometheus (PCI)",
-          "value": "prometheus-pci"
+          "text": "Prometheus",
+          "value": "prometheus"
         },
         "includeAll": false,
         "name": "datasource",
@@ -4759,7 +4759,6 @@
       {
         "allValue": ".*",
         "current": {
-          "selected": true,
           "text": "argocd",
           "value": "argocd"
         },
@@ -4767,13 +4766,7 @@
         "definition": "label_values(argocd_app_info, namespace)",
         "includeAll": true,
         "name": "namespace",
-        "options": [
-          {
-            "selected": true,
-            "text": "argocd",
-            "value": "argocd"
-          }
-        ],
+        "options": [],
         "query": {
           "query": "label_values(argocd_app_info, namespace)",
           "refId": "namespace-var"
@@ -4867,7 +4860,6 @@
       {
         "allValue": ".*",
         "current": {
-          "selected": true,
           "text": "All",
           "value": "$__all"
         },
@@ -4966,5 +4958,5 @@
   "timezone": "",
   "title": "ArgoCD",
   "uid": "qPkgGHg7k",
-  "version": 2
+  "version": 3
 }
