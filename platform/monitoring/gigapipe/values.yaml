@@ -2,17 +2,23 @@
 # Gigapipe — LGTM-compatible Observability (Local Dev)
 # ============================================================
 # Image: ghcr.io/metrico/gigapipe
-# Two instances sharing the same ClickHouse:
+# Three instances sharing the same ClickHouse:
 #
-#   1. Writer (MODE=all, user=default)
+#   1. Writer (MODE=writer, user=default)
 #      - Accepts writes from OTel Collector
-#      - Reads all data (PCI + non-PCI)
-#      - Grafana "PCI" datasource points here
+#      - Write-only, no read queries
 #      - URL: gigapipe.localhost
 #
-#   2. Reader (MODE=reader, user=user_nonpci)
-#      - Read-only, sees only compliance.scope = 'non-pci'
-#      - Grafana "Non-PCI" datasource points here
+#   2. Reader PCI (MODE=reader, user=user_all)
+#      - Read-only, sees all data (PCI + non-PCI, all signals)
+#      - Grafana "PCI" datasources point here
+#      - URL: gigapipe-pci.localhost
+#
+#   3. Reader Non-PCI (MODE=reader, user=user_nonpci)
+#      - Read-only
+#      - All metrics + traces visible
+#      - PCI logs filtered out by ClickHouse row policy
+#      - Grafana "Non-PCI" datasources point here
 #      - URL: gigapipe-nonpci.localhost
 # ============================================================
 
@@ -21,11 +27,11 @@ image:
   tag: "v4.1.6"
   pullPolicy: IfNotPresent
 
-# Gigapipe 1: Full access (write + read)
+# Gigapipe 1: Writer only (ingest from OTel Collector)
 writer:
   enabled: true
   replicas: 1
-  mode: "all"
+  mode: "writer"
   port: 3100
   clickhouse:
     server: "dev-monitoring-clickhouse"
@@ -43,8 +49,30 @@ writer:
     enabled: true
     host: "gigapipe.localhost"
 
-# Gigapipe 2: Non-PCI read-only
-reader:
+# Gigapipe 2: Reader PCI (full access for Grafana PCI datasources)
+readerPci:
+  enabled: true
+  replicas: 1
+  mode: "reader"
+  port: 3100
+  clickhouse:
+    server: "dev-monitoring-clickhouse"
+    port: "9000"
+    auth: "user_all:all_pass"
+    db: "otel"
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  ingress:
+    enabled: true
+    host: "gigapipe-pci.localhost"
+
+# Gigapipe 3: Reader Non-PCI (PCI logs hidden)
+readerNonpci:
   enabled: true
   replicas: 1
   mode: "reader"

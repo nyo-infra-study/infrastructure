@@ -91,7 +91,7 @@ clickhouse/clickhouse-server:25.7.8-alpine
 quay.io/prometheus/blackbox-exporter:v0.25.0
 
 # --- Pyroscope (continuous profiling) ---
-grafana/pyroscope:1.13.3
+grafana/pyroscope:2.0.1
 
 # --- VPA (cowboysysop/vertical-pod-autoscaler chart) ---
 registry.k8s.io/autoscaling/vpa-admission-controller:1.5.1
@@ -102,3 +102,6 @@ registry.k8s.io/autoscaling/vpa-updater:1.5.1
 # opensearchproject/opensearch:3.6.0
 # opensearchproject/opensearch-dashboards:3.6.0
 # opensearchproject/data-prepper:2.8.0
+
+# --- VPA ---
+docker.io/bitnamilegacy/kubectl:1.29.3

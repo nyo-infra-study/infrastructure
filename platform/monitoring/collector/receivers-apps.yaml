@@ -34,10 +34,16 @@ config:
               - targets: ['dev-monitoring-gigapipe-writer.monitoring.svc.cluster.local:3100']
                 labels:
                   namespace: monitoring
-          - job_name: 'gigapipe-reader'
+          - job_name: 'gigapipe-reader-pci'
             scrape_interval: 30s
             static_configs:
-              - targets: ['dev-monitoring-gigapipe-reader.monitoring.svc.cluster.local:3100']
+              - targets: ['dev-monitoring-gigapipe-reader-pci.monitoring.svc.cluster.local:3100']
+                labels:
+                  namespace: monitoring
+          - job_name: 'gigapipe-reader-nonpci'
+            scrape_interval: 30s
+            static_configs:
+              - targets: ['dev-monitoring-gigapipe-reader-nonpci.monitoring.svc.cluster.local:3100']
                 labels:
                   namespace: monitoring
 

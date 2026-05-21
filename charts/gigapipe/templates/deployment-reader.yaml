@@ -1,25 +1,25 @@
-{{- if .Values.reader.enabled }}
+{{- if .Values.readerPci.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-reader
+  name: {{ .Release.Name }}-reader-pci
   labels:
     app.kubernetes.io/name: gigapipe
     app.kubernetes.io/instance: {{ .Release.Name }}
-    app.kubernetes.io/component: reader
+    app.kubernetes.io/component: reader-pci
 spec:
-  replicas: {{ .Values.reader.replicas }}
+  replicas: {{ .Values.readerPci.replicas }}
   selector:
     matchLabels:
       app.kubernetes.io/name: gigapipe
       app.kubernetes.io/instance: {{ .Release.Name }}
-      app.kubernetes.io/component: reader
+      app.kubernetes.io/component: reader-pci
   template:
     metadata:
       labels:
         app.kubernetes.io/name: gigapipe
         app.kubernetes.io/instance: {{ .Release.Name }}
-        app.kubernetes.io/component: reader
+        app.kubernetes.io/component: reader-pci
     spec:
       containers:
         - name: gigapipe
@@ -27,22 +27,81 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
-              containerPort: {{ .Values.reader.port }}
+              containerPort: {{ .Values.readerPci.port }}
           env:
             - name: CLICKHOUSE_SERVER
-              value: {{ .Values.reader.clickhouse.server | quote }}
+              value: {{ .Values.readerPci.clickhouse.server | quote }}
             - name: CLICKHOUSE_PORT
-              value: {{ .Values.reader.clickhouse.port | quote }}
+              value: {{ .Values.readerPci.clickhouse.port | quote }}
             - name: CLICKHOUSE_AUTH
-              value: {{ .Values.reader.clickhouse.auth | quote }}
+              value: {{ .Values.readerPci.clickhouse.auth | quote }}
             - name: CLICKHOUSE_DB
-              value: {{ .Values.reader.clickhouse.db | quote }}
+              value: {{ .Values.readerPci.clickhouse.db | quote }}
             - name: MODE
-              value: {{ .Values.reader.mode | quote }}
+              value: {{ .Values.readerPci.mode | quote }}
             - name: PORT
-              value: {{ .Values.reader.port | quote }}
+              value: {{ .Values.readerPci.port | quote }}
           resources:
-            {{- toYaml .Values.reader.resources | nindent 12 }}
+            {{- toYaml .Values.readerPci.resources | nindent 12 }}
+          livenessProbe:
+            httpGet:
+              path: /ready
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 5
+{{- end }}
+---
+{{- if .Values.readerNonpci.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-reader-nonpci
+  labels:
+    app.kubernetes.io/name: gigapipe
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: reader-nonpci
+spec:
+  replicas: {{ .Values.readerNonpci.replicas }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: gigapipe
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: reader-nonpci
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: gigapipe
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/component: reader-nonpci
+    spec:
+      containers:
+        - name: gigapipe
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.readerNonpci.port }}
+          env:
+            - name: CLICKHOUSE_SERVER
+              value: {{ .Values.readerNonpci.clickhouse.server | quote }}
+            - name: CLICKHOUSE_PORT
+              value: {{ .Values.readerNonpci.clickhouse.port | quote }}
+            - name: CLICKHOUSE_AUTH
+              value: {{ .Values.readerNonpci.clickhouse.auth | quote }}
+            - name: CLICKHOUSE_DB
+              value: {{ .Values.readerNonpci.clickhouse.db | quote }}
+            - name: MODE
+              value: {{ .Values.readerNonpci.mode | quote }}
+            - name: PORT
+              value: {{ .Values.readerNonpci.port | quote }}
+          resources:
+            {{- toYaml .Values.readerNonpci.resources | nindent 12 }}
           livenessProbe:
             httpGet:
               path: /ready

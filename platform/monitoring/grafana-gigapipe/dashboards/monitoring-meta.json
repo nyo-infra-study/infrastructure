@@ -27,7 +27,7 @@
         "y": 1
       },
       "datasource": {
-        "uid": "$datasource",
+        "uid": "prometheus",
         "type": "prometheus"
       },
       "fieldConfig": {
@@ -42,7 +42,7 @@
       },
       "targets": [
         {
-          "expr": "sum(scrape_samples_scraped)",
+          "expr": "sum(scrape_samples_scraped{job=~\"$job\"})",
           "refId": "A",
           "instant": true,
           "legendFormat": "scraped"
@@ -60,7 +60,7 @@
         "y": 1
       },
       "datasource": {
-        "uid": "$datasource",
+        "uid": "prometheus",
         "type": "prometheus"
       },
       "fieldConfig": {
@@ -93,7 +93,7 @@
         "y": 1
       },
       "datasource": {
-        "uid": "$datasource",
+        "uid": "prometheus",
         "type": "prometheus"
       },
       "fieldConfig": {
@@ -126,7 +126,7 @@
         "y": 1
       },
       "datasource": {
-        "uid": "$datasource",
+        "uid": "prometheus",
         "type": "prometheus"
       },
       "fieldConfig": {
@@ -172,12 +172,12 @@
         "y": 6
       },
       "datasource": {
-        "uid": "$datasource",
+        "uid": "prometheus",
         "type": "prometheus"
       },
       "targets": [
         {
-          "expr": "sum by (job) (scrape_samples_scraped)",
+          "expr": "sum by (job) (scrape_samples_scraped{job=~\"$job\"})",
           "refId": "A",
           "instant": true,
           "legendFormat": "{{job}}"
@@ -205,7 +205,7 @@
         "y": 6
       },
       "datasource": {
-        "uid": "$datasource",
+        "uid": "prometheus",
         "type": "prometheus"
       },
       "targets": [
@@ -248,7 +248,7 @@
         "y": 18
       },
       "datasource": {
-        "uid": "$datasource",
+        "uid": "prometheus",
         "type": "prometheus"
       },
       "targets": [
@@ -269,7 +269,7 @@
         "y": 18
       },
       "datasource": {
-        "uid": "$datasource",
+        "uid": "prometheus",
         "type": "prometheus"
       },
       "targets": [
@@ -290,7 +290,7 @@
         "y": 18
       },
       "datasource": {
-        "uid": "$datasource",
+        "uid": "prometheus",
         "type": "prometheus"
       },
       "targets": [
@@ -311,7 +311,7 @@
         "y": 25
       },
       "datasource": {
-        "uid": "$datasource",
+        "uid": "prometheus",
         "type": "prometheus"
       },
       "fieldConfig": {
@@ -351,7 +351,7 @@
         "y": 25
       },
       "datasource": {
-        "uid": "$datasource",
+        "uid": "prometheus",
         "type": "prometheus"
       },
       "fieldConfig": {
@@ -389,7 +389,7 @@
         "y": 33
       },
       "datasource": {
-        "uid": "$datasource",
+        "uid": "prometheus",
         "type": "prometheus"
       },
       "targets": [
@@ -410,7 +410,7 @@
         "y": 33
       },
       "datasource": {
-        "uid": "$datasource",
+        "uid": "prometheus",
         "type": "prometheus"
       },
       "fieldConfig": {
@@ -435,6 +435,184 @@
         "x": 0,
         "y": 40
       },
+      "title": "PCI Log Sanity Check",
+      "type": "row"
+    },
+    {
+      "title": "PCI Log Lines (via selected Loki)",
+      "description": "Count of log lines with compliance_scope=pci. Flip the Loki datasource variable to test: PCI should show >0, Non-PCI should show 0.",
+      "type": "stat",
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 0,
+        "y": 41
+      },
+      "datasource": {
+        "uid": "$loki",
+        "type": "loki"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "thresholds": {
+            "steps": [
+              {
+                "value": 0,
+                "color": "green"
+              },
+              {
+                "value": 1,
+                "color": "orange"
+              }
+            ]
+          },
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "text": "0 (FILTERED \u2713)",
+                  "color": "green"
+                }
+              }
+            }
+          ]
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "count_over_time({compliance_scope=\"pci\"}[1h])",
+          "refId": "A",
+          "instant": true,
+          "legendFormat": "pci logs"
+        }
+      ]
+    },
+    {
+      "title": "Non-PCI Log Lines (via selected Loki)",
+      "description": "Count of log lines without PCI scope. Should be visible on both Loki datasources.",
+      "type": "stat",
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 6,
+        "y": 41
+      },
+      "datasource": {
+        "uid": "$loki",
+        "type": "loki"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "green"
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "count_over_time({compliance_scope!=\"pci\",compliance_scope!=\"\"}[1h])",
+          "refId": "A",
+          "instant": true,
+          "legendFormat": "non-pci logs"
+        }
+      ]
+    },
+    {
+      "title": "PCI Filter Status",
+      "description": "Shows PASS if the selected Loki datasource correctly hides PCI logs. Switch the Loki dropdown to verify.",
+      "type": "stat",
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 12,
+        "y": 41
+      },
+      "datasource": {
+        "uid": "$loki",
+        "type": "loki"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            {
+              "type": "range",
+              "options": {
+                "from": 1,
+                "to": 999999999,
+                "result": {
+                  "text": "PCI LOGS VISIBLE \u26a0\ufe0f",
+                  "color": "orange"
+                }
+              }
+            },
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "text": "PCI LOGS HIDDEN \u2713",
+                  "color": "green"
+                }
+              }
+            }
+          ]
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "count_over_time({compliance_scope=\"pci\"}[1h])",
+          "refId": "A",
+          "instant": true
+        }
+      ]
+    },
+    {
+      "title": "Logs by compliance_scope",
+      "description": "Distribution of log lines by compliance_scope. On Non-PCI Loki, 'pci' should not appear.",
+      "type": "piechart",
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 18,
+        "y": 41
+      },
+      "datasource": {
+        "uid": "$loki",
+        "type": "loki"
+      },
+      "targets": [
+        {
+          "expr": "sum by (compliance_scope) (count_over_time({compliance_scope!=\"\"}[1h]))",
+          "refId": "A",
+          "instant": true,
+          "legendFormat": "{{compliance_scope}}"
+        }
+      ],
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "values": [
+            "value",
+            "percent"
+          ]
+        }
+      }
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 47
+      },
       "title": "ClickHouse",
       "type": "row"
     },
@@ -445,10 +623,10 @@
         "h": 7,
         "w": 8,
         "x": 0,
-        "y": 41
+        "y": 48
       },
       "datasource": {
-        "uid": "$datasource",
+        "uid": "prometheus",
         "type": "prometheus"
       },
       "targets": [
@@ -466,10 +644,10 @@
         "h": 7,
         "w": 8,
         "x": 8,
-        "y": 41
+        "y": 48
       },
       "datasource": {
-        "uid": "$datasource",
+        "uid": "prometheus",
         "type": "prometheus"
       },
       "targets": [
@@ -487,10 +665,10 @@
         "h": 7,
         "w": 8,
         "x": 16,
-        "y": 41
+        "y": 48
       },
       "datasource": {
-        "uid": "$datasource",
+        "uid": "prometheus",
         "type": "prometheus"
       },
       "fieldConfig": {
@@ -519,16 +697,43 @@
       {
         "current": {
           "selected": true,
-          "text": "prometheus-pci",
-          "value": "prometheus-pci"
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": {
+          "uid": "prometheus",
+          "type": "prometheus"
+        },
+        "definition": "label_values(up, job)",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Job",
+        "multi": true,
+        "name": "job",
+        "options": [],
+        "query": {
+          "qryType": 1,
+          "query": "label_values(up, job)"
+        },
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "current": {
+          "selected": true,
+          "text": "Loki (PCI)",
+          "value": "loki-pci"
         },
         "hide": 0,
         "includeAll": false,
-        "label": "Datasource",
+        "label": "Loki",
         "multi": false,
-        "name": "datasource",
+        "name": "loki",
         "options": [],
-        "query": "prometheus",
+        "query": "loki",
         "queryValue": "",
         "refresh": 1,
         "regex": "",

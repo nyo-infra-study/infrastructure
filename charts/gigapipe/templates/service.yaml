@@ -19,23 +19,44 @@ spec:
     app.kubernetes.io/component: writer
 ---
 {{- end }}
-{{- if .Values.reader.enabled }}
+{{- if .Values.readerPci.enabled }}
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Release.Name }}-reader
+  name: {{ .Release.Name }}-reader-pci
   labels:
     app.kubernetes.io/name: gigapipe
     app.kubernetes.io/instance: {{ .Release.Name }}
-    app.kubernetes.io/component: reader
+    app.kubernetes.io/component: reader-pci
 spec:
   type: ClusterIP
   ports:
     - name: http
-      port: {{ .Values.reader.port }}
+      port: {{ .Values.readerPci.port }}
       targetPort: http
   selector:
     app.kubernetes.io/name: gigapipe
     app.kubernetes.io/instance: {{ .Release.Name }}
-    app.kubernetes.io/component: reader
+    app.kubernetes.io/component: reader-pci
+---
+{{- end }}
+{{- if .Values.readerNonpci.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-reader-nonpci
+  labels:
+    app.kubernetes.io/name: gigapipe
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: reader-nonpci
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: {{ .Values.readerNonpci.port }}
+      targetPort: http
+  selector:
+    app.kubernetes.io/name: gigapipe
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: reader-nonpci
 {{- end }}

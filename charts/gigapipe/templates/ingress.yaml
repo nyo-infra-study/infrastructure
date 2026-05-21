@@ -22,26 +22,50 @@ spec:
                   number: {{ .Values.writer.port }}
 ---
 {{- end }}
-{{- if and .Values.reader.enabled .Values.reader.ingress.enabled }}
+{{- if and .Values.readerPci.enabled .Values.readerPci.ingress.enabled }}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ .Release.Name }}-reader
+  name: {{ .Release.Name }}-reader-pci
   labels:
     app.kubernetes.io/name: gigapipe
     app.kubernetes.io/instance: {{ .Release.Name }}
-    app.kubernetes.io/component: reader
+    app.kubernetes.io/component: reader-pci
 spec:
   ingressClassName: traefik
   rules:
-    - host: {{ .Values.reader.ingress.host }}
+    - host: {{ .Values.readerPci.ingress.host }}
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: {{ .Release.Name }}-reader
+                name: {{ .Release.Name }}-reader-pci
                 port:
-                  number: {{ .Values.reader.port }}
+                  number: {{ .Values.readerPci.port }}
+---
+{{- end }}
+{{- if and .Values.readerNonpci.enabled .Values.readerNonpci.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Release.Name }}-reader-nonpci
+  labels:
+    app.kubernetes.io/name: gigapipe
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: reader-nonpci
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: {{ .Values.readerNonpci.ingress.host }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Release.Name }}-reader-nonpci
+                port:
+                  number: {{ .Values.readerNonpci.port }}
 {{- end }}

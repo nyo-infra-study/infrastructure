@@ -47,7 +47,9 @@ initScripts:
   01-init-database.sql: |
     CREATE DATABASE IF NOT EXISTS otel;
   02-init-users.sql: |
+    -- user_all: full access (PCI + non-PCI, all signals including logs)
     CREATE USER IF NOT EXISTS user_all IDENTIFIED BY 'all_pass';
+    -- user_nonpci: all metrics + traces, but PCI logs are hidden
     CREATE USER IF NOT EXISTS user_nonpci IDENTIFIED BY 'nonpci_pass';
     GRANT SELECT ON otel.* TO user_all;
     GRANT SELECT ON otel.* TO user_nonpci;

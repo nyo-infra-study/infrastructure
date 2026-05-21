@@ -3,11 +3,11 @@ image:
   tag: "v4.1.6"
   pullPolicy: IfNotPresent
 
-# Gigapipe 1: MODE=all (write + read, full access)
+# Gigapipe Writer: MODE=writer (ingest only, no read queries)
 writer:
   enabled: true
   replicas: 1
-  mode: "all"
+  mode: "writer"
   port: 3100
   clickhouse:
     server: "dev-monitoring-clickhouse"
@@ -25,8 +25,30 @@ writer:
     enabled: true
     host: "gigapipe.localhost"
 
-# Gigapipe 2: MODE=reader (read only, non-PCI user)
-reader:
+# Gigapipe Reader PCI: MODE=reader (full access, all signals)
+readerPci:
+  enabled: true
+  replicas: 1
+  mode: "reader"
+  port: 3100
+  clickhouse:
+    server: "dev-monitoring-clickhouse"
+    port: "9000"
+    auth: "user_all:all_pass"
+    db: "otel"
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  ingress:
+    enabled: true
+    host: "gigapipe-pci.localhost"
+
+# Gigapipe Reader Non-PCI: MODE=reader (all metrics + traces, PCI logs hidden)
+readerNonpci:
   enabled: true
   replicas: 1
   mode: "reader"

@@ -5,10 +5,14 @@
 # UI: http://grafana.localhost
 # Default login: admin / admin
 #
-# Uses standard Loki/Prometheus/Tempo datasources pointing to Gigapipe.
-# Two sets of datasources:
-#   1. PCI (Gigapipe Writer) — sees all data
-#   2. Non-PCI (Gigapipe Reader) — sees only non-pci data
+# Datasources:
+#   - Prometheus     → Reader PCI (metrics are the same for both users)
+#   - Tempo          → Reader PCI (traces are the same for both users)
+#   - Loki (PCI)     → Reader PCI (all logs including PCI)
+#   - Loki (Non-PCI) → Reader Non-PCI (PCI logs filtered out)
+#
+# Only logs differ between PCI and Non-PCI. Metrics and traces
+# are unrestricted for both ClickHouse users.
 # ============================================================
 
 replicas: 1
@@ -27,72 +31,64 @@ ingress:
   hosts:
     - grafana.localhost
 
-# Pre-configure datasources (standard Loki/Prometheus/Tempo — no special plugins needed)
 datasources:
   datasources.yaml:
     apiVersion: 1
     datasources:
-      # ════════════════════════════════════════════
-      # PCI datasources (Gigapipe Writer — full access)
-      # ════════════════════════════════════════════
-      - name: "Prometheus (PCI)"
+      # ── Metrics (single source, no PCI restriction) ──
+      - name: "Prometheus"
         type: prometheus
-        uid: prometheus-pci
-        url: http://dev-monitoring-gigapipe-writer.monitoring.svc.cluster.local:3100
+        uid: prometheus
+        url: http://dev-monitoring-gigapipe-reader-pci.monitoring.svc.cluster.local:3100
         isDefault: true
         access: proxy
         jsonData:
           exemplarTraceIdDestinations:
-            - datasourceUid: tempo-pci
+            - datasourceUid: tempo
               name: trace_id
 
-      - name: "Loki (PCI)"
-        type: loki
-        uid: loki-pci
-        url: http://dev-monitoring-gigapipe-writer.monitoring.svc.cluster.local:3100
-        access: proxy
-        jsonData:
-          maxLines: 1000
-          derivedFields:
-            - datasourceUid: tempo-pci
-              matcherRegex: '"trace_id":"(\w+)"'
-              name: trace_id
-              url: '$${__value.raw}'
-
-      - name: "Tempo (PCI)"
+      # ── Traces (single source, no PCI restriction) ──
+      - name: "Tempo"
         type: tempo
-        uid: tempo-pci
-        url: http://dev-monitoring-gigapipe-writer.monitoring.svc.cluster.local:3100
+        uid: tempo
+        url: http://dev-monitoring-gigapipe-reader-pci.monitoring.svc.cluster.local:3100
         access: proxy
         jsonData:
           tracesToLogsV2:
             datasourceUid: loki-pci
             filterByTraceID: true
           tracesToMetrics:
-            datasourceUid: prometheus-pci
+            datasourceUid: prometheus
           nodeGraph:
             enabled: true
 
-      # ════════════════════════════════════════════
-      # Non-PCI datasources (Gigapipe Reader — restricted)
-      # ════════════════════════════════════════════
-      - name: "Prometheus (Non-PCI)"
-        type: prometheus
-        uid: prometheus-nonpci
-        url: http://dev-monitoring-gigapipe-reader.monitoring.svc.cluster.local:3100
+      # ── Logs PCI (all logs, including PCI-scoped) ──
+      - name: "Loki (PCI)"
+        type: loki
+        uid: loki-pci
+        url: http://dev-monitoring-gigapipe-reader-pci.monitoring.svc.cluster.local:3100
         access: proxy
+        jsonData:
+          maxLines: 1000
+          derivedFields:
+            - datasourceUid: tempo
+              matcherRegex: '"trace_id":"(\w+)"'
+              name: trace_id
+              url: '$${__value.raw}'
 
+      # ── Logs Non-PCI (PCI logs hidden by ClickHouse row policy) ──
       - name: "Loki (Non-PCI)"
         type: loki
         uid: loki-nonpci
-        url: http://dev-monitoring-gigapipe-reader.monitoring.svc.cluster.local:3100
+        url: http://dev-monitoring-gigapipe-reader-nonpci.monitoring.svc.cluster.local:3100
         access: proxy
-
-      - name: "Tempo (Non-PCI)"
-        type: tempo
-        uid: tempo-nonpci
-        url: http://dev-monitoring-gigapipe-reader.monitoring.svc.cluster.local:3100
-        access: proxy
+        jsonData:
+          maxLines: 1000
+          derivedFields:
+            - datasourceUid: tempo
+              matcherRegex: '"trace_id":"(\w+)"'
+              name: trace_id
+              url: '$${__value.raw}'
 
 # Disable test framework
 testFramework:
