@@ -27,7 +27,7 @@
         "y": 1
       },
       "datasource": {
-        "uid": "prometheus-pci",
+        "uid": "$datasource",
         "type": "prometheus"
       },
       "fieldConfig": {
@@ -60,7 +60,7 @@
         "y": 1
       },
       "datasource": {
-        "uid": "prometheus-pci",
+        "uid": "$datasource",
         "type": "prometheus"
       },
       "fieldConfig": {
@@ -93,7 +93,7 @@
         "y": 1
       },
       "datasource": {
-        "uid": "prometheus-pci",
+        "uid": "$datasource",
         "type": "prometheus"
       },
       "fieldConfig": {
@@ -126,7 +126,7 @@
         "y": 1
       },
       "datasource": {
-        "uid": "prometheus-pci",
+        "uid": "$datasource",
         "type": "prometheus"
       },
       "fieldConfig": {
@@ -172,7 +172,7 @@
         "y": 6
       },
       "datasource": {
-        "uid": "prometheus-pci",
+        "uid": "$datasource",
         "type": "prometheus"
       },
       "targets": [
@@ -205,7 +205,7 @@
         "y": 6
       },
       "datasource": {
-        "uid": "prometheus-pci",
+        "uid": "$datasource",
         "type": "prometheus"
       },
       "targets": [
@@ -248,7 +248,7 @@
         "y": 18
       },
       "datasource": {
-        "uid": "prometheus-pci",
+        "uid": "$datasource",
         "type": "prometheus"
       },
       "targets": [
@@ -269,7 +269,7 @@
         "y": 18
       },
       "datasource": {
-        "uid": "prometheus-pci",
+        "uid": "$datasource",
         "type": "prometheus"
       },
       "targets": [
@@ -290,7 +290,7 @@
         "y": 18
       },
       "datasource": {
-        "uid": "prometheus-pci",
+        "uid": "$datasource",
         "type": "prometheus"
       },
       "targets": [
@@ -311,7 +311,7 @@
         "y": 25
       },
       "datasource": {
-        "uid": "prometheus-pci",
+        "uid": "$datasource",
         "type": "prometheus"
       },
       "fieldConfig": {
@@ -351,7 +351,7 @@
         "y": 25
       },
       "datasource": {
-        "uid": "prometheus-pci",
+        "uid": "$datasource",
         "type": "prometheus"
       },
       "fieldConfig": {
@@ -389,7 +389,7 @@
         "y": 33
       },
       "datasource": {
-        "uid": "prometheus-pci",
+        "uid": "$datasource",
         "type": "prometheus"
       },
       "targets": [
@@ -410,7 +410,7 @@
         "y": 33
       },
       "datasource": {
-        "uid": "prometheus-pci",
+        "uid": "$datasource",
         "type": "prometheus"
       },
       "fieldConfig": {
@@ -448,7 +448,7 @@
         "y": 41
       },
       "datasource": {
-        "uid": "prometheus-pci",
+        "uid": "$datasource",
         "type": "prometheus"
       },
       "targets": [
@@ -469,7 +469,7 @@
         "y": 41
       },
       "datasource": {
-        "uid": "prometheus-pci",
+        "uid": "$datasource",
         "type": "prometheus"
       },
       "targets": [
@@ -490,7 +490,7 @@
         "y": 41
       },
       "datasource": {
-        "uid": "prometheus-pci",
+        "uid": "$datasource",
         "type": "prometheus"
       },
       "fieldConfig": {
@@ -515,7 +515,27 @@
     "observability"
   ],
   "templating": {
-    "list": []
+    "list": [
+      {
+        "current": {
+          "selected": true,
+          "text": "prometheus-pci",
+          "value": "prometheus-pci"
+        },
+        "hide": 0,
+        "includeAll": false,
+        "label": "Datasource",
+        "multi": false,
+        "name": "datasource",
+        "options": [],
+        "query": "prometheus",
+        "queryValue": "",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "type": "datasource"
+      }
+    ]
   },
   "time": {
     "from": "now-1h",
