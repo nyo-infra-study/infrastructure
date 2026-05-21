@@ -52,10 +52,9 @@ spec:
             periodSeconds: 10
             failureThreshold: 6
           readinessProbe:
-            httpGet:
-              path: /ready
+            tcpSocket:
               port: http
-            initialDelaySeconds: 10
-            periodSeconds: 10
-            failureThreshold: 12
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            failureThreshold: 3
 {{- end }}
