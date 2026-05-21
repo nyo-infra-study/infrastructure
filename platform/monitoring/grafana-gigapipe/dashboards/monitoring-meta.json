@@ -483,7 +483,7 @@
       },
       "targets": [
         {
-          "expr": "count_over_time({compliance_scope=\"pci\"}[1h])",
+          "expr": "count_over_time({compliance_scope=\"pci\"}[$__range])",
           "refId": "A",
           "instant": true,
           "legendFormat": "pci logs"
@@ -516,7 +516,7 @@
       },
       "targets": [
         {
-          "expr": "count_over_time({compliance_scope!=\"pci\",compliance_scope!=\"\"}[1h])",
+          "expr": "count_over_time({compliance_scope!=\"pci\",compliance_scope!=\"\"}[$__range])",
           "refId": "A",
           "instant": true,
           "legendFormat": "non-pci logs"
@@ -566,7 +566,7 @@
       },
       "targets": [
         {
-          "expr": "count_over_time({compliance_scope=\"pci\"}[1h])",
+          "expr": "count_over_time({compliance_scope=\"pci\"}[$__range])",
           "refId": "A",
           "instant": true
         }
@@ -588,7 +588,7 @@
       },
       "targets": [
         {
-          "expr": "sum by (compliance_scope) (count_over_time({compliance_scope!=\"\"}[1h]))",
+          "expr": "sum by (compliance_scope) (count_over_time({compliance_scope!=\"\"}[$__range]))",
           "refId": "A",
           "instant": true,
           "legendFormat": "{{compliance_scope}}"

@@ -4740,7 +4740,9 @@
   "preload": false,
   "refresh": "",
   "schemaVersion": 42,
-  "tags": [],
+  "tags": [
+    "ArgoCD"
+  ],
   "templating": {
     "list": [
       {
@@ -4958,5 +4960,5 @@
   "timezone": "",
   "title": "ArgoCD",
   "uid": "qPkgGHg7k",
-  "version": 3
+  "version": 2
 }
