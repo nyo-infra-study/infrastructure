@@ -1,14 +1,15 @@
-# VPA Policy for ClickHouse (monitoring storage)
 apiVersion: autoscaling.k8s.io/v1
 kind: VerticalPodAutoscaler
 metadata:
-  name: vpa-monitoring-clickhouse
-  namespace: monitoring
+  name: vpa-{{ .Release.Name }}
+  labels:
+    app.kubernetes.io/name: clickhouse
+    app.kubernetes.io/instance: {{ .Release.Name }}
 spec:
   targetRef:
     apiVersion: apps/v1
     kind: StatefulSet
-    name: dev-monitoring-clickhouse
+    name: {{ .Release.Name }}
   updatePolicy:
     updateMode: Auto
   resourcePolicy:

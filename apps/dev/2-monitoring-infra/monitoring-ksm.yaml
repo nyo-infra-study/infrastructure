@@ -4,7 +4,7 @@ metadata:
   name: dev-monitoring-ksm
   namespace: argocd
   annotations:
-    argocd.argoproj.io/sync-wave: "2" # Lightweight, deploy alongside OTel
+    argocd.argoproj.io/sync-wave: "2"
   finalizers:
     - resources-finalizer.argocd.argoproj.io
   labels:
@@ -12,20 +12,25 @@ metadata:
     domain: monitoring
 spec:
   project: default
-  source:
-    chart: kube-state-metrics
-    repoURL: https://prometheus-community.github.io/helm-charts
-    targetRevision: 5.27.0
-    helm:
-      releaseName: dev-monitoring-ksm
-      valuesObject:
-        resources:
-          requests:
-            cpu: 10m
-            memory: 32Mi
-          limits:
-            cpu: 100m
-            memory: 128Mi
+  sources:
+    - chart: kube-state-metrics
+      repoURL: https://prometheus-community.github.io/helm-charts
+      targetRevision: 5.27.0
+      helm:
+        releaseName: dev-monitoring-ksm
+        valuesObject:
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              cpu: 100m
+              memory: 128Mi
+    - repoURL: https://github.com/nyo-infra-study/infrastructure.git
+      targetRevision: main
+      path: platform/monitoring
+      directory:
+        include: 'ksm-vpa.yaml'
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring

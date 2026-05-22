@@ -64,6 +64,8 @@ rbac:
     gatewayApi: true
     prometheus: true
     traefik: true
+  additionalCrdGroups:
+    - autoscaling.k8s.io
 
 # --- Timeline ---
 timeline:

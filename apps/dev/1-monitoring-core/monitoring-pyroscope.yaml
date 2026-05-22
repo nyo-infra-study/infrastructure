@@ -25,6 +25,11 @@ spec:
           - $values/platform/monitoring/pyroscope/values.yaml
     - repoURL: https://github.com/nyo-infra-study/infrastructure.git
       targetRevision: main
+      path: platform/monitoring/pyroscope
+      directory:
+        include: 'vpa.yaml'
+    - repoURL: https://github.com/nyo-infra-study/infrastructure.git
+      targetRevision: main
       ref: values
   destination:
     server: https://kubernetes.default.svc

@@ -52,4 +52,4 @@ store-gateway:
   replicas: 0
 
 # VPAs — deployed via platform/monitoring/pyroscope/vpa.yaml
-# (picked up by dev-monitoring-vpa-policies ArgoCD app)
+# (included as multi-source directory in the dev-pyroscope ArgoCD app)

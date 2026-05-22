@@ -29,6 +29,11 @@ spec:
           - $values/platform/monitoring/grafana-gigapipe/grafana-values.yaml
     - repoURL: https://github.com/nyo-infra-study/infrastructure.git
       targetRevision: main
+      path: platform/monitoring/grafana-gigapipe
+      directory:
+        include: 'vpa.yaml'
+    - repoURL: https://github.com/nyo-infra-study/infrastructure.git
+      targetRevision: main
       ref: values
   destination:
     server: https://kubernetes.default.svc

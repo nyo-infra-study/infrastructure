@@ -2,10 +2,8 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   annotations:
-    argocd.argoproj.io/sync-wave: "2" # After OneUptime PVCs are provisioned
+    argocd.argoproj.io/sync-wave: "2"
   name: dev-monitoring-otel
-
-
   namespace: argocd
   finalizers:
     - resources-finalizer.argocd.argoproj.io
@@ -30,15 +28,17 @@ spec:
           - $values/platform/monitoring/collector/processors.yaml
           - $values/platform/monitoring/collector/exporters.yaml
           - $values/platform/monitoring/collector/pipelines.yaml
-
+    - repoURL: https://github.com/nyo-infra-study/infrastructure.git
+      targetRevision: main
+      path: platform/monitoring/collector
+      directory:
+        include: 'vpa.yaml'
     - repoURL: https://github.com/nyo-infra-study/infrastructure.git
       targetRevision: main
       ref: values
-
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring
-
   syncPolicy:
     automated:
       prune: true

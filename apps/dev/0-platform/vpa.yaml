@@ -27,7 +27,7 @@ spec:
       helm:
         releaseName: dev-platform-vpa
         valueFiles:
-          - $values/platform/monitoring/vpa/values.yaml
+          - $values/platform/vpa/values.yaml
 
     - repoURL: https://github.com/nyo-infra-study/infrastructure.git
       targetRevision: main

@@ -27,6 +27,11 @@ spec:
           - $values/platform/monitoring/blackbox-exporter/values.yaml
     - repoURL: https://github.com/nyo-infra-study/infrastructure.git
       targetRevision: main
+      path: platform/monitoring/blackbox-exporter
+      directory:
+        include: 'vpa.yaml'
+    - repoURL: https://github.com/nyo-infra-study/infrastructure.git
+      targetRevision: main
       ref: values
   destination:
     server: https://kubernetes.default.svc

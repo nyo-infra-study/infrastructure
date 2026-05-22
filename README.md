@@ -6,167 +6,124 @@ GitOps infrastructure repository for deploying applications to Kubernetes using 
 
 ```
 infrastructure/
-├── bootstrap/           # Entry point - App of Apps
-│   └── dev.yaml        # Bootstraps all apps in apps/dev/
+├── bootstrap/              # Entry point - App of Apps
+│   └── dev.yaml           # Bootstraps all apps in apps/dev/
 │
-├── apps/               # ArgoCD Applications (environment-specific)
+├── apps/                   # ArgoCD Applications (environment-specific)
 │   └── dev/
-│       ├── argocd.yaml
-│       ├── argo-events.yaml
-│       ├── argo-workflows.yaml
-│       ├── backend-db.yaml
-│       ├── backend-server.yaml
-│       ├── web-frontend.yaml
-│       ├── monitoring-signoz.yaml
-│       ├── monitoring-otel.yaml
-│       ├── monitoring-ksm.yaml
-│       └── monitoring-node-exporter.yaml
+│       ├── 0-platform/         # Platform layer (VPA controller, ArgoCD)
+│       │   ├── argocd.yaml
+│       │   └── vpa.yaml
+│       ├── 1-monitoring-core/  # Core observability (storage + query + UI)
+│       │   ├── monitoring-clickhouse.yaml
+│       │   ├── monitoring-gigapipe.yaml
+│       │   ├── monitoring-grafana-gigapipe.yaml
+│       │   └── monitoring-pyroscope.yaml
+│       ├── 2-monitoring-infra/ # Monitoring infrastructure (collectors + exporters)
+│       │   ├── monitoring-blackbox-exporter.yaml
+│       │   ├── monitoring-ksm.yaml
+│       │   ├── monitoring-node-exporter.yaml
+│       │   ├── monitoring-otel.yaml
+│       │   └── monitoring-radar.yaml
+│       ├── 3-data/             # Data stores
+│       │   └── backend-db.yaml
+│       ├── 4-apps/             # Application workloads
+│       │   ├── backend-server.yaml
+│       │   └── web-frontend.yaml
+│       └── 5-cicd/             # CI/CD (disabled in local dev)
+│           ├── argo-events.yaml.disabled
+│           └── argo-workflows.yaml.disabled
 │
-├── charts/             # Local Helm charts
-│   ├── backend-db/     # Wrapper for Bitnami PostgreSQL
-│   ├── backend-server/
-│   └── web-frontend/
+├── charts/                 # Local Helm charts
+│   ├── backend-db/        # Wrapper for Bitnami PostgreSQL
+│   ├── backend-server/    # Go backend (includes VPA template)
+│   ├── clickhouse/        # ClickHouse StatefulSet (includes VPA template)
+│   ├── gigapipe/          # Gigapipe writer + readers (includes VPA template)
+│   └── web-frontend/      # React frontend (includes VPA template)
 │
-├── argo-workflows/     # CI/CD templates & RBAC
+├── argo-workflows/         # CI/CD templates & RBAC
 │   ├── frontend-build-template.yaml
 │   ├── github-poller.yaml
 │   └── rbac.yaml
 │
-├── argo-events/        # Event-driven triggers
+├── argo-events/            # Event-driven triggers
 │   ├── github-event-source.yaml
-│   └── frontend-build-sensor.yaml
+│   ├── frontend-build-sensor.yaml
+│   └── rbac.yaml
 │
-└── platform/           # Platform configs (Values files)
+└── platform/               # Platform configs (values + VPA policies)
     ├── argocd/
     │   └── values.yaml
+    ├── vpa/                    # VPA controller values
+    │   └── values.yaml
     └── monitoring/
-        ├── common-values.yaml
-        ├── signoz/
-        └── traces-otel/
+        ├── blackbox-exporter/  # Blackbox exporter values + VPA
+        ├── clickhouse/         # ClickHouse values
+        ├── collector/          # OTel Collector values + VPA
+        ├── gigapipe/           # Gigapipe values
+        ├── grafana-gigapipe/   # Grafana values + dashboards + VPA
+        ├── pyroscope/          # Pyroscope values + VPA
+        ├── radar/              # Radar values + VPA
+        ├── common-values.yaml  # Shared OTel config
+        └── ksm-vpa.yaml        # KSM VPA policy
+```
 
 ### Folder Purposes
 
-| Folder            | Purpose                                                                     | When to Edit                                        |
-| ----------------- | --------------------------------------------------------------------------- | --------------------------------------------------- |
-| `bootstrap/`      | App-of-Apps entry point. Apply once to bootstrap entire environment         | Adding new environments (staging, prod)             |
-| `apps/`           | ArgoCD Application manifests with **environment-specific** config overrides | Changing env-specific values (replicas, image tags) |
-| `charts/`         | Reusable Helm charts with templates and **base defaults**                   | Adding new services or changing K8s resources       |
-| `argo-workflows/` | CI/CD workflow definitions for building Docker images                       | Creating new workflows or modifying build steps     |
-| `argo-events/`    | Event sources and sensors for automated workflow triggering                 | Setting up GitHub webhooks or event automation      |
-| `platform/`       | Platform-level services that are **shared across all environments**         | Configuring ArgoCD, monitoring, logging             |
+| Folder | Purpose | When to Edit |
+|--------|---------|--------------|
+| `bootstrap/` | App-of-Apps entry point. Apply once to bootstrap entire environment | Adding new environments (staging, prod) |
+| `apps/` | ArgoCD Application manifests with **environment-specific** config overrides | Changing env-specific values (replicas, image tags) |
+| `charts/` | Reusable Helm charts with templates and **base defaults** | Adding new services or changing K8s resources |
+| `argo-workflows/` | CI/CD workflow definitions for building Docker images | Creating new workflows or modifying build steps |
+| `argo-events/` | Event sources and sensors for automated workflow triggering | Setting up GitHub webhooks or event automation |
+| `platform/` | Platform-level services that are **shared across all environments** | Configuring ArgoCD, monitoring, logging |
+
+### VPA Strategy
+
+VPA policies are co-located with each app for visibility in ArgoCD UI:
+
+- **Local charts** → VPA template in `charts/<app>/templates/vpa.yaml`
+- **Upstream charts** → VPA file in `platform/monitoring/<app>/vpa.yaml`, included via ArgoCD multi-source `directory.include`
+
+This means clicking any app in ArgoCD shows its VPA resource directly in the resource tree.
 
 ## 🚀 How to Run
 
-### Prerequisites
+See [HOW-TO-RUN.md](./HOW-TO-RUN.md) for detailed step-by-step instructions.
 
-- Docker Desktop or similar (for local Kubernetes)
-- kubectl
-- Helm
-- k3d (for lightweight local cluster)
-- ArgoCD CLI (optional, for CLI management)
-
-Install tools (macOS):
+### Quick Start
 
 ```bash
-brew install kubectl helm k3d argocd
-```
-
-### Step 1: Create Local Cluster
-
-```bash
-# Create k3d cluster with port mapping for Ingress
+# 1. Create local cluster
 k3d cluster create dev --port "9000:80@loadbalancer"
 
-# Verify
-kubectl cluster-info
-kubectl get nodes
-```
-
-### Step 2: Install ArgoCD
-
-```bash
-# Add Helm repo
+# 2. Install ArgoCD
 helm repo add argo https://argoproj.github.io/argo-helm
-helm repo update
-
-# Install ArgoCD with custom values for HTTP and subpath
 helm install argocd argo/argo-cd \
-  --namespace argocd \
-  --create-namespace \
+  --namespace argocd --create-namespace \
   -f platform/argocd/values.yaml
 
-# Wait for ArgoCD to be ready
-kubectl -n argocd rollout status deployment argocd-server
-```
-
-### Step 3: Get ArgoCD Admin Password
-
-```bash
-kubectl -n argocd get secret argocd-initial-admin-secret \
-  -o jsonpath="{.data.password}" | base64 -d
-echo  # newline
-```
-
-### Step 4: Bootstrap Applications
-
-This is the **only manual kubectl apply** you need. ArgoCD handles everything else.
-
-```bash
+# 3. Bootstrap everything (only manual step needed)
 kubectl apply -f bootstrap/dev.yaml
+
+# 4. Access
+# ArgoCD:  http://localhost:9000/argocd (admin/password)
+# Grafana: http://grafana.localhost:9000 (admin/admin)
+# Radar:   http://radar.localhost:9000
 ```
-
-This creates the "App of Apps" which:
-
-1. Reads all manifests in `apps/dev/`
-2. Creates ArgoCD Applications for each service
-3. Deploys Helm charts to the `dev` namespace
-4. Auto-syncs on every Git push
-
-### Step 5: Verify Deployment
-
-```bash
-# Check ArgoCD Applications
-kubectl get applications -n argocd
-
-# Check pods in dev namespace
-kubectl get pods -n dev
-
-# Check services
-kubectl get svc -n dev
-
-# Check ingresses
-kubectl get ingress -n dev
-kubectl get ingress -n argocd
-```
-
-### Step 6: Access Applications
-
-All applications are accessible via Ingress on `localhost:9000`:
-
-- **Frontend**: http://localhost:9000/
-- **Backend API**: http://localhost:9000/api
-- **ArgoCD UI**: http://localhost:9000/argocd
-- **SigNoz UI**: http://localhost:9000/signoz
-
-Login to ArgoCD with username `admin` and the password from Step 3.
 
 ## 🔄 Development Workflow
 
 After initial setup, just push changes to Git:
 
 ```bash
-# Example 1: Update application code
-# 1. Build and push new Docker image with tag 1.0.2
-# 2. Update image tag in apps/dev/backend-server.yaml
-# 3. Git commit and push
+# Scale application
+# Edit apps/dev/4-apps/backend-server.yaml → change replicaCount: 2
+git add . && git commit -m "scale backend to 2 replicas" && git push
 # → ArgoCD auto-syncs within ~3 minutes
 
-# Example 2: Scale application
-# Edit apps/dev/web-frontend.yaml → change replicaCount: 2
-git add . && git commit -m "scale frontend to 2 replicas" && git push
-# → ArgoCD detects change and updates deployment
-
-# Example 3: Modify Kubernetes resources
+# Modify Kubernetes resources
 # Edit charts/backend-server/templates/deployment.yaml
 git add . && git commit -m "add resource limits" && git push
 # → ArgoCD redeploys with new template
@@ -175,94 +132,68 @@ git add . && git commit -m "add resource limits" && git push
 ## 📦 App of Apps Pattern
 
 ```
-                    kubectl apply -f bootstrap/dev.yaml
-                                   │
-                                   ▼
-                          ┌── dev-root ──┐       (App of Apps)
-                          │              │
-                          ▼              ▼
-                 dev-backend-server   dev-web-frontend   (Child Apps)
-                          │              │
-                          ▼              ▼
-                  charts/backend    charts/frontend      (Helm → K8s)
+kubectl apply -f bootstrap/dev.yaml
+              │
+              ▼
+     ┌── dev-root ──┐                    (App of Apps)
+     │              │
+     ▼              ▼
+  0-platform    1-monitoring-core         (Wave-based ordering)
+     │              │
+     ▼              ▼
+  VPA controller  ClickHouse → Gigapipe → Grafana
+                                          (Dependency chain)
 ```
 
-**Benefits:**
-
-- **Single entry point**: Only `kubectl apply` once
-- **Automatic discovery**: Adding `apps/dev/new-service.yaml` auto-deploys
-- **Environment isolation**: Dev changes don't affect prod
-- **Declarative sync policies**: Dev auto-syncs, prod requires approval
+**Wave-based deployment order:**
+1. `0-platform` — VPA controller, ArgoCD (CRDs must exist first)
+2. `1-monitoring-core` — ClickHouse, Gigapipe, Grafana, Pyroscope
+3. `2-monitoring-infra` — OTel Collector, KSM, Node Exporter, Blackbox, Radar
+4. `3-data` — PostgreSQL
+5. `4-apps` — Backend Server, Web Frontend
+6. `5-cicd` — Argo Workflows/Events (disabled in local dev)
 
 ## 🔧 Common Tasks
 
 ### Add a New Service
 
-1. Create Helm chart in `charts/my-service/`
-2. Create Application manifest in `apps/dev/my-service.yaml`
+1. Create Helm chart in `charts/my-service/` (include `templates/vpa.yaml`)
+2. Create Application manifest in `apps/dev/<wave>/my-service.yaml`
 3. Push to Git → ArgoCD deploys automatically
 
-### Add Staging/Production Environment
+### Add VPA to an Upstream Chart
 
-1. Create `apps/staging/` with environment-specific configs
-2. Create `bootstrap/staging.yaml` (copy from dev, update sync policy)
-3. `kubectl apply -f bootstrap/staging.yaml`
+1. Create `platform/monitoring/<app>/vpa.yaml` with the VPA manifest
+2. Add a directory source to the ArgoCD Application:
+   ```yaml
+   sources:
+     - chart: <upstream-chart>
+       # ... helm config ...
+     - repoURL: https://github.com/nyo-infra-study/infrastructure.git
+       targetRevision: main
+       path: platform/monitoring/<app>
+       directory:
+         include: 'vpa.yaml'
+     - repoURL: ...
+       ref: values
+   ```
 
-### Update Application Image
-
-Edit `apps/dev/backend-server.yaml`:
-
-```yaml
-valuesObject:
-  image:
-    tag: "1.0.2" # Change this
-```
-
-### Check ArgoCD Sync Status
-
-```bash
-# Using ArgoCD CLI
-argocd app list
-argocd app get dev-backend-server
-
-# Using kubectl
-kubectl get applications -n argocd
-kubectl describe application dev-backend-server -n argocd
-```
-
-### Force Sync (if needed)
+### Check VPA Recommendations
 
 ```bash
-argocd app sync dev-backend-server
-# or sync all
-argocd app sync -l environment=dev
+kubectl get vpa --all-namespaces
+kubectl describe vpa <vpa-name> -n <namespace>
 ```
 
 ## 🧹 Cleanup
 
 ```bash
-# Delete everything
 k3d cluster delete dev
 ```
 
 ## 📚 Additional Resources
 
 - [ArgoCD Documentation](https://argo-cd.readthedocs.io/)
-- [Argo Workflows Documentation](https://argo-workflows.readthedocs.io/)
-- [Argo Events Documentation](https://argoproj.github.io/argo-events/)
 - [Helm Documentation](https://helm.sh/docs/)
 - [App of Apps Pattern](https://argo-cd.readthedocs.io/en/stable/operator-manual/cluster-bootstrapping/)
-- See [HOW-TO-RUN.md](./HOW-TO-RUN.md) for detailed step-by-step instructions
-
-## 🏗️ Infrastructure Patterns
-
-### Bitnami PostgreSQL Chart
-
-We use the [Bitnami PostgreSQL Helm Chart](https://github.com/bitnami/charts/tree/main/bitnami/postgresql) for production-grade database features (Replication, HA).
-
-**Key Implementation Details:**
-
-- **Repository:** Uses `bitnamilegacy/postgresql` due to Docker Hub archiving.
-- **Service Discovery:** Read/Write split via `backend-db-primary` and `backend-db-read` services.
-- **Replication:** Configured with `architecture: replication` and 1+ read replicas.
-- **Secret Management:** Uses existing Kubernetes secrets (`backend-db-secret`) mapped to chart env vars.
+- [VPA Documentation](https://github.com/kubernetes/autoscaler/tree/master/vertical-pod-autoscaler)

@@ -4,7 +4,7 @@ metadata:
   name: dev-monitoring-radar
   namespace: argocd
   annotations:
-    argocd.argoproj.io/sync-wave: "3" # After core monitoring infra
+    argocd.argoproj.io/sync-wave: "3"
   finalizers:
     - resources-finalizer.argocd.argoproj.io
   labels:
@@ -20,15 +20,17 @@ spec:
         releaseName: dev-monitoring-radar
         valueFiles:
           - $values/platform/monitoring/radar/values.yaml
-
+    - repoURL: https://github.com/nyo-infra-study/infrastructure.git
+      targetRevision: main
+      path: platform/monitoring/radar
+      directory:
+        include: 'vpa.yaml'
     - repoURL: https://github.com/nyo-infra-study/infrastructure.git
       targetRevision: main
       ref: values
-
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring
-
   syncPolicy:
     automated:
       prune: true

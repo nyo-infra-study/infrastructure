@@ -1,0 +1,44 @@
+# ============================================================
+# Vertical Pod Autoscaler Controller (Local Dev)
+# ============================================================
+# Chart: cowboysysop/vertical-pod-autoscaler v11.1.1
+# Installs VPA CRDs + controller components (recommender, updater, admission).
+#
+# VPA policies live inside each app for ArgoCD visibility:
+#   Local charts  → charts/<app>/templates/vpa.yaml
+#   Upstream charts → platform/monitoring/<app>/vpa.yaml (multi-source)
+# ============================================================
+
+# Admission controller: validates and mutates pod resource requests
+admissionController:
+  enabled: true
+  replicaCount: 1
+  resources:
+    requests:
+      cpu: 10m
+      memory: 32Mi
+    limits:
+      cpu: 100m
+      memory: 128Mi
+
+# Recommender: computes resource recommendations from metrics
+recommender:
+  replicaCount: 1
+  resources:
+    requests:
+      cpu: 10m
+      memory: 32Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+
+# Updater: evicts pods to apply new recommendations
+updater:
+  replicaCount: 1
+  resources:
+    requests:
+      cpu: 10m
+      memory: 32Mi
+    limits:
+      cpu: 100m
+      memory: 128Mi
