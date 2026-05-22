@@ -1,22 +1,22 @@
-# VPA Policies for Dev namespace apps
 apiVersion: autoscaling.k8s.io/v1
 kind: VerticalPodAutoscaler
 metadata:
-  name: vpa-backend-server
-  namespace: dev
+  name: vpa-{{ .Release.Name }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
 spec:
   targetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: dev-backend-server
+    name: {{ .Release.Name }}
   updatePolicy:
     updateMode: Auto
   resourcePolicy:
     containerPolicies:
-      - containerName: dev-backend-server
+      - containerName: {{ .Release.Name }}
         minAllowed:
           cpu: 5m
-          memory: 16Mi
+          memory: 8Mi
         maxAllowed:
-          cpu: 300m
-          memory: 256Mi
+          cpu: 200m
+          memory: 128Mi
