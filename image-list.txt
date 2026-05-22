@@ -90,8 +90,9 @@ clickhouse/clickhouse-server:25.7.8-alpine
 # --- Blackbox Exporter ---
 quay.io/prometheus/blackbox-exporter:v0.25.0
 
-# --- Pyroscope (continuous profiling) ---
-grafana/pyroscope:2.0.1
+# --- Pyroscope / Profile Scraper (Alloy → Gigapipe) ---
+# grafana/pyroscope:2.0.1  # REMOVED — profiles now stored in Gigapipe
+docker.io/grafana/alloy:v1.12.2
 
 # --- VPA (cowboysysop/vertical-pod-autoscaler chart) ---
 registry.k8s.io/autoscaling/vpa-admission-controller:1.5.1

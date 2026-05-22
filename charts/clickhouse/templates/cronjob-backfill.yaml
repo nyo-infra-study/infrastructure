@@ -19,7 +19,7 @@ spec:
           restartPolicy: OnFailure
           containers:
             - name: backfill
-              image: clickhouse/clickhouse-client:24.8
+              image: clickhouse/clickhouse-server:25.7.8-alpine
               command:
                 - clickhouse-client
                 - --host={{ .Release.Name }}
