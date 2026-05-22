@@ -20,7 +20,7 @@
       "fieldConfig": { "defaults": { "unit": "bytes", "color": { "mode": "fixed", "fixedColor": "blue" } }, "overrides": [] },
       "targets": [
         {
-          "expr": "sum(ClickHouseMetrics_DiskDataBytes{service_name=\"clickhouse\"})",
+          "expr": "sum(ClickHouseAsyncMetrics_DiskUsed_default{job=\"clickhouse\"})",
           "refId": "A",
           "instant": true,
           "legendFormat": "disk usage"
@@ -36,7 +36,7 @@
       "fieldConfig": { "defaults": { "unit": "short", "color": { "mode": "fixed", "fixedColor": "purple" } }, "overrides": [] },
       "targets": [
         {
-          "expr": "ClickHouseMetrics_PartsActive{service_name=\"clickhouse\"}",
+          "expr": "ClickHouseMetrics_PartsActive{job=\"clickhouse\"}",
           "refId": "A",
           "instant": true,
           "legendFormat": "active parts"
@@ -52,7 +52,7 @@
       "fieldConfig": { "defaults": { "unit": "short", "color": { "mode": "fixed", "fixedColor": "green" } }, "overrides": [] },
       "targets": [
         {
-          "expr": "ClickHouseMetrics_TotalRowsOfMergeTreeTables{service_name=\"clickhouse\"}",
+          "expr": "ClickHouseAsyncMetrics_TotalRowsOfMergeTreeTables{job=\"clickhouse\"}",
           "refId": "A",
           "instant": true,
           "legendFormat": "rows"
@@ -68,7 +68,7 @@
       "fieldConfig": { "defaults": { "unit": "bytes", "thresholds": { "steps": [ { "value": 0, "color": "green" }, { "value": 1073741824, "color": "yellow" }, { "value": 2147483648, "color": "red" } ] } }, "overrides": [] },
       "targets": [
         {
-          "expr": "ClickHouseMetrics_MemoryTracking{service_name=\"clickhouse\"}",
+          "expr": "ClickHouseMetrics_MemoryTracking{job=\"clickhouse\"}",
           "refId": "A",
           "instant": true,
           "legendFormat": "memory"
@@ -83,7 +83,7 @@
       "fieldConfig": { "defaults": { "unit": "bytes" }, "overrides": [] },
       "targets": [
         {
-          "expr": "ClickHouseMetrics_DiskDataBytes{service_name=\"clickhouse\"}",
+          "expr": "ClickHouseAsyncMetrics_DiskUsed_default{job=\"clickhouse\"}",
           "refId": "A",
           "legendFormat": "data bytes"
         }
@@ -96,7 +96,7 @@
       "datasource": { "uid": "prometheus", "type": "prometheus" },
       "targets": [
         {
-          "expr": "ClickHouseMetrics_PartsActive{service_name=\"clickhouse\"}",
+          "expr": "ClickHouseMetrics_PartsActive{job=\"clickhouse\"}",
           "refId": "A",
           "legendFormat": "active parts"
         }
@@ -115,17 +115,17 @@
       "datasource": { "uid": "prometheus", "type": "prometheus" },
       "targets": [
         {
-          "expr": "rate(ClickHouseProfileEvents_Query_total{service_name=\"clickhouse\"}[5m])",
+          "expr": "rate(ClickHouseProfileEvents_Query_total{job=\"clickhouse\"}[5m])",
           "refId": "A",
           "legendFormat": "all queries/s"
         },
         {
-          "expr": "rate(ClickHouseProfileEvents_SelectQuery_total{service_name=\"clickhouse\"}[5m])",
+          "expr": "rate(ClickHouseProfileEvents_SelectQuery_total{job=\"clickhouse\"}[5m])",
           "refId": "B",
           "legendFormat": "selects/s"
         },
         {
-          "expr": "rate(ClickHouseProfileEvents_InsertQuery_total{service_name=\"clickhouse\"}[5m])",
+          "expr": "rate(ClickHouseProfileEvents_InsertQuery_total{job=\"clickhouse\"}[5m])",
           "refId": "C",
           "legendFormat": "inserts/s"
         }
@@ -139,17 +139,17 @@
       "fieldConfig": { "defaults": { "color": { "mode": "fixed", "fixedColor": "red" } }, "overrides": [] },
       "targets": [
         {
-          "expr": "rate(ClickHouseProfileEvents_FailedQuery_total{service_name=\"clickhouse\"}[5m])",
+          "expr": "rate(ClickHouseProfileEvents_FailedQuery_total{job=\"clickhouse\"}[5m])",
           "refId": "A",
           "legendFormat": "failed queries/s"
         },
         {
-          "expr": "rate(ClickHouseProfileEvents_FailedSelectQuery_total{service_name=\"clickhouse\"}[5m])",
+          "expr": "rate(ClickHouseProfileEvents_FailedSelectQuery_total{job=\"clickhouse\"}[5m])",
           "refId": "B",
           "legendFormat": "failed selects/s"
         },
         {
-          "expr": "rate(ClickHouseProfileEvents_FailedInsertQuery_total{service_name=\"clickhouse\"}[5m])",
+          "expr": "rate(ClickHouseProfileEvents_FailedInsertQuery_total{job=\"clickhouse\"}[5m])",
           "refId": "C",
           "legendFormat": "failed inserts/s"
         }
@@ -163,7 +163,7 @@
       "fieldConfig": { "defaults": { "unit": "short", "thresholds": { "steps": [ { "value": 0, "color": "green" }, { "value": 10, "color": "yellow" }, { "value": 50, "color": "red" } ] } }, "overrides": [] },
       "targets": [
         {
-          "expr": "ClickHouseMetrics_Query{service_name=\"clickhouse\"}",
+          "expr": "ClickHouseMetrics_Query{job=\"clickhouse\"}",
           "refId": "A",
           "instant": true,
           "legendFormat": "running"
@@ -183,7 +183,7 @@
       "datasource": { "uid": "prometheus", "type": "prometheus" },
       "targets": [
         {
-          "expr": "rate(ClickHouseProfileEvents_InsertedRows_total{service_name=\"clickhouse\"}[5m])",
+          "expr": "rate(ClickHouseProfileEvents_InsertedRows_total{job=\"clickhouse\"}[5m])",
           "refId": "A",
           "legendFormat": "rows/s"
         }
@@ -197,7 +197,7 @@
       "fieldConfig": { "defaults": { "unit": "Bps" }, "overrides": [] },
       "targets": [
         {
-          "expr": "rate(ClickHouseProfileEvents_InsertedBytes_total{service_name=\"clickhouse\"}[5m])",
+          "expr": "rate(ClickHouseProfileEvents_InsertedBytes_total{job=\"clickhouse\"}[5m])",
           "refId": "A",
           "legendFormat": "bytes/s"
         }
@@ -216,7 +216,7 @@
       "datasource": { "uid": "prometheus", "type": "prometheus" },
       "targets": [
         {
-          "expr": "ClickHouseMetrics_Merge{service_name=\"clickhouse\"}",
+          "expr": "ClickHouseMetrics_Merge{job=\"clickhouse\"}",
           "refId": "A",
           "legendFormat": "merges"
         }
@@ -229,7 +229,7 @@
       "datasource": { "uid": "prometheus", "type": "prometheus" },
       "targets": [
         {
-          "expr": "rate(ClickHouseProfileEvents_MergedRows_total{service_name=\"clickhouse\"}[5m])",
+          "expr": "rate(ClickHouseProfileEvents_MergedRows_total{job=\"clickhouse\"}[5m])",
           "refId": "A",
           "legendFormat": "merged rows/s"
         }
@@ -243,7 +243,7 @@
       "fieldConfig": { "defaults": { "unit": "Bps" }, "overrides": [] },
       "targets": [
         {
-          "expr": "rate(ClickHouseProfileEvents_MergedUncompressedBytes_total{service_name=\"clickhouse\"}[5m])",
+          "expr": "rate(ClickHouseProfileEvents_MergedUncompressedBytes_total{job=\"clickhouse\"}[5m])",
           "refId": "A",
           "legendFormat": "merged bytes/s"
         }
@@ -262,12 +262,12 @@
       "datasource": { "uid": "prometheus", "type": "prometheus" },
       "targets": [
         {
-          "expr": "ClickHouseMetrics_TCPConnection{service_name=\"clickhouse\"}",
+          "expr": "ClickHouseMetrics_TCPConnection{job=\"clickhouse\"}",
           "refId": "A",
           "legendFormat": "TCP connections"
         },
         {
-          "expr": "ClickHouseMetrics_HTTPConnection{service_name=\"clickhouse\"}",
+          "expr": "ClickHouseMetrics_HTTPConnection{job=\"clickhouse\"}",
           "refId": "B",
           "legendFormat": "HTTP connections"
         }
@@ -281,7 +281,7 @@
       "fieldConfig": { "defaults": { "unit": "bytes" }, "overrides": [] },
       "targets": [
         {
-          "expr": "ClickHouseMetrics_MemoryTracking{service_name=\"clickhouse\"}",
+          "expr": "ClickHouseMetrics_MemoryTracking{job=\"clickhouse\"}",
           "refId": "A",
           "legendFormat": "memory tracking"
         }
@@ -295,12 +295,12 @@
       "fieldConfig": { "defaults": { "unit": "Bps" }, "overrides": [] },
       "targets": [
         {
-          "expr": "rate(ClickHouseProfileEvents_ReadBufferFromFileDescriptorReadBytes_total{service_name=\"clickhouse\"}[5m])",
+          "expr": "rate(ClickHouseProfileEvents_ReadBufferFromFileDescriptorReadBytes_total{job=\"clickhouse\"}[5m])",
           "refId": "A",
           "legendFormat": "read bytes/s"
         },
         {
-          "expr": "rate(ClickHouseProfileEvents_WriteBufferFromFileDescriptorWriteBytes_total{service_name=\"clickhouse\"}[5m])",
+          "expr": "rate(ClickHouseProfileEvents_WriteBufferFromFileDescriptorWriteBytes_total{job=\"clickhouse\"}[5m])",
           "refId": "B",
           "legendFormat": "write bytes/s"
         }
@@ -319,12 +319,12 @@
       "datasource": { "uid": "prometheus", "type": "prometheus" },
       "targets": [
         {
-          "expr": "rate(ClickHouseProfileEvents_ZooKeeperTransactions_total{service_name=\"clickhouse\"}[5m])",
+          "expr": "rate(ClickHouseProfileEvents_ZooKeeperTransactions_total{job=\"clickhouse\"}[5m])",
           "refId": "A",
           "legendFormat": "transactions/s"
         },
         {
-          "expr": "rate(ClickHouseProfileEvents_ZooKeeperGet_total{service_name=\"clickhouse\"}[5m])",
+          "expr": "rate(ClickHouseProfileEvents_ZooKeeperGet_total{job=\"clickhouse\"}[5m])",
           "refId": "B",
           "legendFormat": "gets/s"
         }
@@ -338,7 +338,7 @@
       "fieldConfig": { "defaults": { "unit": "µs" }, "overrides": [] },
       "targets": [
         {
-          "expr": "rate(ClickHouseProfileEvents_ZooKeeperWaitMicroseconds_total{service_name=\"clickhouse\"}[5m])",
+          "expr": "rate(ClickHouseProfileEvents_ZooKeeperWaitMicroseconds_total{job=\"clickhouse\"}[5m])",
           "refId": "A",
           "legendFormat": "wait µs/s"
         }
