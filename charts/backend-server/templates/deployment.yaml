@@ -48,9 +48,10 @@ spec:
             {{- with .Values.env | default list }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
-            {{- if .Values.monitoring.otel.endpoint }}
+            {{- $otelEndpoint := .Values.monitoring.otel.endpoint | default (printf "http://%s" (index .Values.global "endpoints" "otel" "grpc" | default "")) }}
+            {{- if $otelEndpoint }}
             - name: OTEL_EXPORTER_OTLP_ENDPOINT
-              value: {{ .Values.monitoring.otel.endpoint | quote }}
+              value: {{ $otelEndpoint | quote }}
             - name: OTEL_SERVICE_NAME
               value: {{ .Values.monitoring.otel.serviceName | default .Release.Name | quote }}
             - name: OTEL_SERVICE_NAMESPACE
@@ -66,9 +67,10 @@ spec:
             - name: OTEL_EXPORTER_OTLP_INSECURE
               value: {{ .Values.monitoring.otel.insecure | default "true" | quote }}
             {{- end }}
-            {{- if .Values.monitoring.pyroscope.url }}
+            {{- $pyroscopeUrl := .Values.monitoring.pyroscope.url | default (index .Values.global "endpoints" "pyroscope" | default "") }}
+            {{- if $pyroscopeUrl }}
             - name: PYROSCOPE_URL
-              value: {{ .Values.monitoring.pyroscope.url | quote }}
+              value: {{ $pyroscopeUrl | quote }}
             {{- end }}
           
           # Container port (Go server listens here)

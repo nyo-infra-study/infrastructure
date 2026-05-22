@@ -47,18 +47,15 @@ spec:
                   name: backend-db-secret
                   key: POSTGRES_PASSWORD
 
-          # Monitoring config (uses endpoints from common-values.yaml global.endpoints)
+          # Monitoring config (endpoints resolved from common-values.yaml → global.endpoints)
           monitoring:
             otel:
-              endpoint: "http://dev-monitoring-otel-opentelemetry-collector.monitoring.svc.cluster.local:4317"
               serviceName: "backend-server"
               serviceNamespace: "dev"
               serviceVersion: "latest"
               deploymentEnvironment: "dev"
               resourceAttributes: "compliance.scope=pci"
               insecure: "true"
-            pyroscope:
-              url: "http://dev-monitoring-gigapipe-writer.monitoring.svc.cluster.local:3100"
 
           service:
             port: 9091
