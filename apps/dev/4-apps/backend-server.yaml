@@ -50,7 +50,7 @@ spec:
           # Monitoring config (uses endpoints from common-values.yaml global.endpoints)
           monitoring:
             otel:
-              endpoint: "http://dev-monitoring-otel-opentelemetry-collector-agent.monitoring.svc.cluster.local:4317"
+              endpoint: "http://dev-monitoring-otel-opentelemetry-collector.monitoring.svc.cluster.local:4317"
               serviceName: "backend-server"
               serviceNamespace: "dev"
               serviceVersion: "latest"

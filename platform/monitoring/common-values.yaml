@@ -46,8 +46,8 @@ global:
 
     # ── OTel Collector (telemetry ingest) ──
     otel:
-      grpc: "dev-monitoring-otel-opentelemetry-collector-agent.monitoring.svc.cluster.local:4317"
-      http: "dev-monitoring-otel-opentelemetry-collector-agent.monitoring.svc.cluster.local:4318"
+      grpc: "dev-monitoring-otel-opentelemetry-collector.monitoring.svc.cluster.local:4317"
+      http: "dev-monitoring-otel-opentelemetry-collector.monitoring.svc.cluster.local:4318"
 
     # ── ClickHouse (storage) ──
     clickhouse:
