@@ -1,4 +1,4 @@
-# VPA Policies for Pyroscope
+# VPA Policy for Profile Scraper (Alloy → Gigapipe)
 apiVersion: autoscaling.k8s.io/v1
 kind: VerticalPodAutoscaler
 metadata:
@@ -9,28 +9,6 @@ spec:
     apiVersion: apps/v1
     kind: StatefulSet
     name: dev-pyroscope
-  updatePolicy:
-    updateMode: Auto
-  resourcePolicy:
-    containerPolicies:
-      - containerName: pyroscope
-        minAllowed:
-          cpu: 10m
-          memory: 128Mi
-        maxAllowed:
-          cpu: 500m
-          memory: 512Mi
----
-apiVersion: autoscaling.k8s.io/v1
-kind: VerticalPodAutoscaler
-metadata:
-  name: vpa-pyroscope-alloy
-  namespace: monitoring
-spec:
-  targetRef:
-    apiVersion: apps/v1
-    kind: StatefulSet
-    name: dev-pyroscope-alloy
   updatePolicy:
     updateMode: Auto
   resourcePolicy:

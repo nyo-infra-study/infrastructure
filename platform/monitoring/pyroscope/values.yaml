@@ -1,64 +1,203 @@
 # ============================================================
-# Pyroscope — Continuous Profiling (Local Dev)
+# Grafana Alloy — Profile Scraper (pushes to Gigapipe)
 # ============================================================
-# Chart: grafana/pyroscope v2.0.1
-# Receives profiling data from instrumented apps.
-# UI: via Grafana Profiles Drilldown
+# Chart: grafana/alloy
+# Scrapes pprof endpoints from annotated pods and pushes
+# profiles to Gigapipe's Pyroscope-compatible /ingest endpoint.
+#
+# Annotation-based scraping:
+#   profiles.grafana.com/cpu.scrape: "true"
+#   profiles.grafana.com/cpu.port_name: "http"
+#   profiles.grafana.com/memory.scrape: "true"
+#   profiles.grafana.com/memory.port_name: "http"
+#   profiles.grafana.com/goroutine.scrape: "true"
+#   profiles.grafana.com/goroutine.port_name: "http"
 # ============================================================
 
-pyroscope:
-  extraArgs:
-    store-gateway.sharding-ring.replication-factor: "1"
-  resources:
-    requests:
-      cpu: 10m
-      memory: 128Mi
-    limits:
-      cpu: 200m
-      memory: 256Mi
-
-# Alloy sidecar (scrapes profiling targets and sends to Pyroscope)
 alloy:
-  alloy:
-    resources:
-      requests:
-        cpu: 50m
-        memory: 128Mi
-      limits:
-        cpu: 500m
-        memory: 512Mi
-  configReloader:
-    resources:
-      requests:
-        cpu: 10m
-        memory: 64Mi
-      limits:
-        cpu: 100m
-        memory: 128Mi
+  stabilityLevel: "public-preview"
+  configMap:
+    create: true
+    content: |
+      logging {
+        level  = "info"
+        format = "logfmt"
+      }
 
-# Single binary mode for local dev
-minio:
-  enabled: false
+      discovery.kubernetes "pods" {
+        role = "pod"
+      }
 
-# Use filesystem storage
-storage:
-  backend: filesystem
+      discovery.relabel "kubernetes_pods" {
+        targets = concat(discovery.kubernetes.pods.targets)
 
-# Disable components not needed in monolithic mode
-ingester:
-  replicas: 0
-distributor:
-  replicas: 0
-compactor:
-  replicas: 0
-querier:
-  replicas: 0
-query-frontend:
-  replicas: 0
-query-scheduler:
-  replicas: 0
-store-gateway:
-  replicas: 0
+        rule {
+          action        = "drop"
+          source_labels = ["__meta_kubernetes_pod_phase"]
+          regex         = "Pending|Succeeded|Failed|Completed"
+        }
+        rule {
+          action = "labelmap"
+          regex  = "__meta_kubernetes_pod_label_(.+)"
+        }
+        rule {
+          action        = "replace"
+          source_labels = ["__meta_kubernetes_namespace"]
+          target_label  = "namespace"
+        }
+        rule {
+          action        = "replace"
+          source_labels = ["__meta_kubernetes_pod_name"]
+          target_label  = "pod"
+        }
+        rule {
+          action        = "replace"
+          source_labels = ["__meta_kubernetes_pod_container_name"]
+          target_label  = "container"
+        }
+      }
 
-# VPAs — deployed via platform/monitoring/pyroscope/vpa.yaml
-# (included as multi-source directory in the dev-pyroscope ArgoCD app)
+      // ── CPU profiles ──
+      discovery.relabel "cpu" {
+        targets = concat(discovery.relabel.kubernetes_pods.output)
+        rule {
+          source_labels = ["__meta_kubernetes_pod_annotation_profiles_grafana_com_cpu_scrape"]
+          action        = "keep"
+          regex         = "true"
+        }
+        rule {
+          source_labels = ["__meta_kubernetes_pod_annotation_profiles_grafana_com_cpu_port_name"]
+          action        = "keep"
+          regex         = ""
+        }
+        rule {
+          source_labels = ["__meta_kubernetes_pod_container_port_number"]
+          target_label  = "__meta_kubernetes_pod_annotation_profiles_grafana_com_cpu_port"
+          action        = "keepequal"
+        }
+        rule {
+          source_labels = ["__address__", "__meta_kubernetes_pod_annotation_profiles_grafana_com_cpu_port"]
+          action        = "replace"
+          regex         = "(.+?)(?::\\d+)?;(\\d+)"
+          target_label  = "__address__"
+          replacement   = "$1:$2"
+        }
+      }
+
+      pyroscope.scrape "cpu" {
+        targets    = concat(discovery.relabel.cpu.output)
+        forward_to = [pyroscope.write.gigapipe.receiver]
+        profiling_config {
+          profile.process_cpu { enabled = true }
+          profile.memory      { enabled = false }
+          profile.goroutine   { enabled = false }
+          profile.block       { enabled = false }
+          profile.mutex       { enabled = false }
+          profile.fgprof      { enabled = false }
+        }
+      }
+
+      // ── Memory profiles ──
+      discovery.relabel "memory" {
+        targets = concat(discovery.relabel.kubernetes_pods.output)
+        rule {
+          source_labels = ["__meta_kubernetes_pod_annotation_profiles_grafana_com_memory_scrape"]
+          action        = "keep"
+          regex         = "true"
+        }
+        rule {
+          source_labels = ["__meta_kubernetes_pod_annotation_profiles_grafana_com_memory_port_name"]
+          action        = "keep"
+          regex         = ""
+        }
+        rule {
+          source_labels = ["__meta_kubernetes_pod_container_port_number"]
+          target_label  = "__meta_kubernetes_pod_annotation_profiles_grafana_com_memory_port"
+          action        = "keepequal"
+        }
+        rule {
+          source_labels = ["__address__", "__meta_kubernetes_pod_annotation_profiles_grafana_com_memory_port"]
+          action        = "replace"
+          regex         = "(.+?)(?::\\d+)?;(\\d+)"
+          target_label  = "__address__"
+          replacement   = "$1:$2"
+        }
+      }
+
+      pyroscope.scrape "memory" {
+        targets    = concat(discovery.relabel.memory.output)
+        forward_to = [pyroscope.write.gigapipe.receiver]
+        profiling_config {
+          profile.process_cpu { enabled = false }
+          profile.memory      { enabled = true }
+          profile.goroutine   { enabled = false }
+          profile.block       { enabled = false }
+          profile.mutex       { enabled = false }
+          profile.fgprof      { enabled = false }
+        }
+      }
+
+      // ── Goroutine profiles ──
+      discovery.relabel "goroutine" {
+        targets = concat(discovery.relabel.kubernetes_pods.output)
+        rule {
+          source_labels = ["__meta_kubernetes_pod_annotation_profiles_grafana_com_goroutine_scrape"]
+          action        = "keep"
+          regex         = "true"
+        }
+        rule {
+          source_labels = ["__meta_kubernetes_pod_annotation_profiles_grafana_com_goroutine_port_name"]
+          action        = "keep"
+          regex         = ""
+        }
+        rule {
+          source_labels = ["__meta_kubernetes_pod_container_port_number"]
+          target_label  = "__meta_kubernetes_pod_annotation_profiles_grafana_com_goroutine_port"
+          action        = "keepequal"
+        }
+        rule {
+          source_labels = ["__address__", "__meta_kubernetes_pod_annotation_profiles_grafana_com_goroutine_port"]
+          action        = "replace"
+          regex         = "(.+?)(?::\\d+)?;(\\d+)"
+          target_label  = "__address__"
+          replacement   = "$1:$2"
+        }
+      }
+
+      pyroscope.scrape "goroutine" {
+        targets    = concat(discovery.relabel.goroutine.output)
+        forward_to = [pyroscope.write.gigapipe.receiver]
+        profiling_config {
+          profile.process_cpu { enabled = false }
+          profile.memory      { enabled = false }
+          profile.goroutine   { enabled = true }
+          profile.block       { enabled = false }
+          profile.mutex       { enabled = false }
+          profile.fgprof      { enabled = false }
+        }
+      }
+
+      // ── Write to Gigapipe ──
+      pyroscope.write "gigapipe" {
+        endpoint {
+          url = "http://dev-monitoring-gigapipe-writer.monitoring.svc.cluster.local:3100"
+        }
+      }
+
+controller:
+  type: statefulset
+  replicas: 1
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+serviceAccount:
+  create: true
+
+rbac:
+  create: true

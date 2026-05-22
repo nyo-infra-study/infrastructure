@@ -1,5 +1,10 @@
 # ============================================================
-# Pyroscope — Continuous Profiling (Local Dev)
+# Profile Scraper — Alloy pushing to Gigapipe (Local Dev)
+# ============================================================
+# Replaces standalone Pyroscope. Alloy scrapes pprof endpoints
+# from annotated pods and pushes profiles to Gigapipe's
+# Pyroscope-compatible /ingest API. Grafana queries profiles
+# from Gigapipe's reader (same URL as metrics/logs/traces).
 # ============================================================
 apiVersion: argoproj.io/v1alpha1
 kind: Application
@@ -16,9 +21,9 @@ metadata:
 spec:
   project: default
   sources:
-    - chart: pyroscope
+    - chart: alloy
       repoURL: https://grafana.github.io/helm-charts
-      targetRevision: 2.0.1
+      targetRevision: 1.5.2
       helm:
         releaseName: dev-pyroscope
         valueFiles:

@@ -90,6 +90,13 @@ datasources:
               name: trace_id
               url: '$${__value.raw}'
 
+      # ── Profiles (continuous profiling via Gigapipe's Pyroscope API) ──
+      - name: "Pyroscope"
+        type: grafana-pyroscope-datasource
+        uid: pyroscope
+        url: http://dev-monitoring-gigapipe-reader-pci.monitoring.svc.cluster.local:3100
+        access: proxy
+
 # Disable test framework
 testFramework:
   enabled: false
