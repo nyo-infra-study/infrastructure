@@ -1,0 +1,42 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ .Release.Name }}-tenant-backfill
+  labels:
+    app.kubernetes.io/name: clickhouse
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: backfill
+spec:
+  schedule: "*/2 * * * *"  # Every 2 minutes
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      ttlSecondsAfterFinished: 300
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: backfill
+              image: clickhouse/clickhouse-client:24.8
+              command:
+                - clickhouse-client
+                - --host={{ .Release.Name }}
+                - --port=9000
+                - --user=default
+                - --password={{ .Values.auth.defaultPassword }}
+                - --multiquery
+                - --query
+                - |
+                  ALTER TABLE otel.samples_v3
+                    UPDATE tenant_scope = dictGetOrDefault('otel.fingerprint_scope_dict', 'tenant_scope', fingerprint, '')
+                    WHERE tenant_scope = ''
+                      AND dictHas('otel.fingerprint_scope_dict', fingerprint);
+              resources:
+                requests:
+                  cpu: 10m
+                  memory: 32Mi
+                limits:
+                  cpu: 100m
+                  memory: 64Mi

@@ -136,6 +136,8 @@ PRIMARY KEY fingerprint
 SOURCE(CLICKHOUSE(
   DB 'otel'
   TABLE 'fingerprint_tenant_map'
+  USER 'default'
+  PASSWORD 'clickhouse123'
   WHERE 'tenant_scope != \'\''
 ))
 LAYOUT(HASHED())
