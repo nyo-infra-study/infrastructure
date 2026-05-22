@@ -4,19 +4,19 @@
 # All signals → Gigapipe Writer (LGTM-compatible APIs)
 # Gigapipe batches and writes to ClickHouse internally.
 #
-# Also keep direct ClickHouse exporter for OTel-native tables
-# (Gigapipe uses its own schema: samples_v3, tempo_traces, etc.)
+# Endpoints templated from: platform/monitoring/common-values.yaml
+# (loaded via $values in the ArgoCD Application)
 # ============================================================
 config:
   exporters:
     # Traces → Gigapipe (Tempo-compatible HTTP endpoint)
     otlphttp/gigapipe-traces:
-      endpoint: "http://dev-monitoring-gigapipe-writer.monitoring.svc.cluster.local:3100"
+      endpoint: "{{ .Values.global.endpoints.gigapipe.writer }}"
 
     # Logs → Gigapipe (OTLP HTTP)
     otlphttp/gigapipe:
-      endpoint: "http://dev-monitoring-gigapipe-writer.monitoring.svc.cluster.local:3100"
+      endpoint: "{{ .Values.global.endpoints.gigapipe.writer }}"
 
     # Metrics → Gigapipe (Prometheus remote write)
     prometheusremotewrite/gigapipe:
-      endpoint: "http://dev-monitoring-gigapipe-writer.monitoring.svc.cluster.local:3100/api/prom/remote/write"
+      endpoint: "{{ .Values.global.endpoints.gigapipe.writer }}/api/prom/remote/write"

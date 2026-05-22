@@ -1,18 +1,62 @@
 # ============================================================
-# Global Monitoring Configuration
+# Shared Monitoring Endpoints (Single Source of Truth)
 # ============================================================
-# Use these values across all monitoring components to ensure
-# consistency and prevent DNS mismatches.
+# All monitoring service URLs in one place.
+#
+# HOW TO USE:
+#
+# 1. In ArgoCD Application (multi-source with $values ref):
+#    helm:
+#      valueFiles:
+#        - $values/platform/monitoring/common-values.yaml
+#
+# 2. In Helm templates:
+#    {{ .Values.global.endpoints.gigapipe.writer }}
+#    {{ .Values.global.endpoints.otel.grpc }}
+#
+# 3. In ArgoCD valuesObject (copy the value):
+#    monitoring:
+#      pyroscope:
+#        url: "http://dev-monitoring-gigapipe-writer.monitoring.svc.cluster.local:3100"
+#
+# WHEN TO EDIT: Service renamed, port changed, or new service added.
+# THEN UPDATE:
+#   Templated (auto-resolved via {{ .Values.global.endpoints.* }}):
+#   - platform/monitoring/collector/exporters.yaml ✅
+#   - platform/monitoring/collector/receivers-apps.yaml (partial) ✅
+#   - apps/dev/4-apps/backend-server.yaml (via chart values) ✅
+#
+#   Hardcoded (manual find-and-replace):
+#   - platform/monitoring/grafana-gigapipe/grafana-values.yaml
+#   - platform/monitoring/pyroscope/values.yaml (Alloy config block)
+#   - platform/monitoring/collector/receivers-blackbox.yaml
+#   - platform/monitoring/collector/receivers-infra.yaml
+# ============================================================
 
 global:
-  monitoring:
-    # OTel Collector (scrapes infra metrics/logs, forwards to LGTM stack)
-    otel:
-      grpc_endpoint: "dev-monitoring-otel-opentelemetry-collector.monitoring.svc.cluster.local:4317"
-      http_endpoint: "dev-monitoring-otel-opentelemetry-collector.monitoring.svc.cluster.local:4318"
+  # Namespace where monitoring stack runs
+  namespace: monitoring
 
-    # LGTM Stack endpoints
-    prometheus: "dev-lgtm-prometheus-server.monitoring.svc.cluster.local:80"
-    loki: "dev-lgtm-loki.monitoring.svc.cluster.local:3100"
-    tempo: "dev-lgtm-tempo.monitoring.svc.cluster.local:3200"
-    grafana: "dev-lgtm-grafana.monitoring.svc.cluster.local:80"
+  endpoints:
+    # ── Gigapipe (all-in-one observability backend) ──
+    gigapipe:
+      writer: "http://dev-monitoring-gigapipe-writer.monitoring.svc.cluster.local:3100"
+      reader_pci: "http://dev-monitoring-gigapipe-reader-pci.monitoring.svc.cluster.local:3100"
+      reader_nonpci: "http://dev-monitoring-gigapipe-reader-nonpci.monitoring.svc.cluster.local:3100"
+
+    # ── OTel Collector (telemetry ingest) ──
+    otel:
+      grpc: "dev-monitoring-otel-opentelemetry-collector-agent.monitoring.svc.cluster.local:4317"
+      http: "dev-monitoring-otel-opentelemetry-collector-agent.monitoring.svc.cluster.local:4318"
+
+    # ── ClickHouse (storage) ──
+    clickhouse:
+      host: "dev-monitoring-clickhouse.monitoring.svc.cluster.local"
+      port: "9000"
+      http_port: "8123"
+
+    # ── Grafana (UI) ──
+    grafana: "http://dev-grafana-gigapipe.monitoring.svc.cluster.local:80"
+
+    # ── Pyroscope-compatible profiling (via Gigapipe) ──
+    pyroscope: "http://dev-monitoring-gigapipe-writer.monitoring.svc.cluster.local:3100"

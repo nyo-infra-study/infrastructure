@@ -20,7 +20,7 @@ config:
           - job_name: 'clickhouse'
             scrape_interval: 30s
             static_configs:
-              - targets: ['dev-monitoring-clickhouse.monitoring.svc.cluster.local:9363']
+              - targets: ['{{ .Values.global.endpoints.clickhouse.host }}:9363']
                 labels:
                   namespace: monitoring
 

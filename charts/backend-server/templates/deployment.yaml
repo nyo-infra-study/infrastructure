@@ -44,10 +44,32 @@ spec:
                 - ALL
           
           # Environment variables (only rendered if .Values.env is set)
-          {{- with .Values.env | default list }}
           env:
+            {{- with .Values.env | default list }}
             {{- toYaml . | nindent 12 }}
-          {{- end }}
+            {{- end }}
+            {{- if .Values.monitoring.otel.endpoint }}
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: {{ .Values.monitoring.otel.endpoint | quote }}
+            - name: OTEL_SERVICE_NAME
+              value: {{ .Values.monitoring.otel.serviceName | default .Release.Name | quote }}
+            - name: OTEL_SERVICE_NAMESPACE
+              value: {{ .Values.monitoring.otel.serviceNamespace | quote }}
+            - name: OTEL_SERVICE_VERSION
+              value: {{ .Values.monitoring.otel.serviceVersion | default .Values.image.tag | quote }}
+            - name: OTEL_DEPLOYMENT_ENVIRONMENT
+              value: {{ .Values.monitoring.otel.deploymentEnvironment | quote }}
+            {{- if .Values.monitoring.otel.resourceAttributes }}
+            - name: OTEL_RESOURCE_ATTRIBUTES
+              value: {{ .Values.monitoring.otel.resourceAttributes | quote }}
+            {{- end }}
+            - name: OTEL_EXPORTER_OTLP_INSECURE
+              value: {{ .Values.monitoring.otel.insecure | default "true" | quote }}
+            {{- end }}
+            {{- if .Values.monitoring.pyroscope.url }}
+            - name: PYROSCOPE_URL
+              value: {{ .Values.monitoring.pyroscope.url | quote }}
+            {{- end }}
           
           # Container port (Go server listens here)
           ports:
