@@ -15,30 +15,30 @@ admissionController:
   replicaCount: 1
   resources:
     requests:
-      cpu: 10m
-      memory: 32Mi
+      cpu: 25m
+      memory: 64Mi
     limits:
-      cpu: 100m
-      memory: 128Mi
+      cpu: 200m
+      memory: 256Mi
 
 # Recommender: computes resource recommendations from metrics
 recommender:
   replicaCount: 1
   resources:
     requests:
-      cpu: 10m
-      memory: 32Mi
+      cpu: 25m
+      memory: 64Mi
     limits:
-      cpu: 200m
-      memory: 256Mi
+      cpu: 500m
+      memory: 512Mi
 
 # Updater: evicts pods to apply new recommendations
 updater:
   replicaCount: 1
   resources:
     requests:
-      cpu: 10m
-      memory: 32Mi
+      cpu: 25m
+      memory: 64Mi
     limits:
-      cpu: 100m
-      memory: 128Mi
+      cpu: 200m
+      memory: 256Mi
