@@ -1,22 +1,22 @@
-# VPA Policy for OTel Collector (DaemonSet)
+# VPA Policy for Grafana (Gigapipe backend)
 apiVersion: autoscaling.k8s.io/v1
 kind: VerticalPodAutoscaler
 metadata:
-  name: vpa-otel-collector
+  name: vpa-grafana-gigapipe
   namespace: monitoring
 spec:
   targetRef:
     apiVersion: apps/v1
-    kind: DaemonSet
-    name: dev-monitoring-otel-opentelemetry-collector-agent
+    kind: Deployment
+    name: dev-grafana-gigapipe
   updatePolicy:
     updateMode: Auto
   resourcePolicy:
     containerPolicies:
-      - containerName: opentelemetry-collector
+      - containerName: grafana
         minAllowed:
           cpu: 10m
           memory: 128Mi
         maxAllowed:
-          cpu: 500m
-          memory: 768Mi
+          cpu: 300m
+          memory: 512Mi
