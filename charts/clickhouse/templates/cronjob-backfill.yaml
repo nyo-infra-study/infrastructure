@@ -29,6 +29,7 @@ spec:
                 - --multiquery
                 - --query
                 - |
+                  SYSTEM RELOAD DICTIONARY IF EXISTS otel.fingerprint_scope_dict;
                   ALTER TABLE otel.samples_v3
                     UPDATE tenant_scope = dictGetOrDefault('otel.fingerprint_scope_dict', 'tenant_scope', fingerprint, '')
                     WHERE tenant_scope = ''
