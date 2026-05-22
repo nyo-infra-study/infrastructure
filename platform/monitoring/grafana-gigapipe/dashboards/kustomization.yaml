@@ -1,0 +1,57 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: monitoring
+
+# Generate ConfigMaps from dashboard JSON files
+# Each ConfigMap gets the label grafana_dashboard=1 for sidecar pickup
+configMapGenerator:
+  - name: grafana-dashboard-argocd
+    files:
+      - argocd.json
+    options:
+      labels:
+        grafana_dashboard: "1"
+      disableNameSuffixHash: true
+  - name: grafana-dashboard-clickhouse
+    files:
+      - clickhouse.json
+    options:
+      labels:
+        grafana_dashboard: "1"
+      disableNameSuffixHash: true
+  - name: grafana-dashboard-gigapipe
+    files:
+      - gigapipe.json
+    options:
+      labels:
+        grafana_dashboard: "1"
+      disableNameSuffixHash: true
+  - name: grafana-dashboard-kubernetes
+    files:
+      - kubernetes.json
+    options:
+      labels:
+        grafana_dashboard: "1"
+      disableNameSuffixHash: true
+  - name: grafana-dashboard-monitoring-meta
+    files:
+      - monitoring-meta.json
+    options:
+      labels:
+        grafana_dashboard: "1"
+      disableNameSuffixHash: true
+  - name: grafana-dashboard-node
+    files:
+      - node.json
+    options:
+      labels:
+        grafana_dashboard: "1"
+      disableNameSuffixHash: true
+  - name: grafana-dashboard-otel-collector
+    files:
+      - otel-collector.json
+    options:
+      labels:
+        grafana_dashboard: "1"
+      disableNameSuffixHash: true
