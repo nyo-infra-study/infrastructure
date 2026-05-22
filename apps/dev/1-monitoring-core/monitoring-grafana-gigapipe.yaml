@@ -29,6 +29,10 @@ spec:
           - $values/platform/monitoring/grafana-gigapipe/grafana-values.yaml
     - repoURL: https://github.com/nyo-infra-study/infrastructure.git
       targetRevision: main
+      path: platform/monitoring/grafana-gigapipe/dashboards
+      kustomize: {}
+    - repoURL: https://github.com/nyo-infra-study/infrastructure.git
+      targetRevision: main
       path: platform/monitoring/grafana-gigapipe
       directory:
         include: 'vpa.yaml'

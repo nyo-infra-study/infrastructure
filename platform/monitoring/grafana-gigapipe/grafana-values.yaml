@@ -103,3 +103,29 @@ testFramework:
 
 # Admin password (local dev)
 adminPassword: admin
+
+# ── Dashboard Provisioning (auto-loaded from ConfigMaps) ──
+# The sidecar watches for ConfigMaps with label grafana_dashboard=1
+# and loads their JSON content as dashboards on startup.
+# Dashboards are idempotent: same UID = overwrite, new UID = create.
+sidecar:
+  dashboards:
+    enabled: true
+    label: grafana_dashboard
+    labelValue: "1"
+    folder: /tmp/dashboards
+    provider:
+      allowUiUpdates: true
+  resources:
+    requests:
+      cpu: 5m
+      memory: 32Mi
+    limits:
+      cpu: 100m
+      memory: 128Mi
+
+# Dashboards are auto-provisioned from ConfigMaps (created by kustomize
+# in platform/monitoring/grafana-gigapipe/dashboards/kustomization.yaml).
+# The sidecar picks up any ConfigMap with label grafana_dashboard=1.
+# To add a new dashboard: drop a .json file in the dashboards/ folder
+# and add it to kustomization.yaml.
