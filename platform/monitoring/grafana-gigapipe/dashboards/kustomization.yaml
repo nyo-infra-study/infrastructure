@@ -20,13 +20,6 @@ configMapGenerator:
       labels:
         grafana_dashboard: "1"
       disableNameSuffixHash: true
-  - name: grafana-dashboard-gigapipe
-    files:
-      - gigapipe.json
-    options:
-      labels:
-        grafana_dashboard: "1"
-      disableNameSuffixHash: true
   - name: grafana-dashboard-kubernetes
     files:
       - kubernetes.json
@@ -44,13 +37,6 @@ configMapGenerator:
   - name: grafana-dashboard-node
     files:
       - node.json
-    options:
-      labels:
-        grafana_dashboard: "1"
-      disableNameSuffixHash: true
-  - name: grafana-dashboard-otel-collector
-    files:
-      - otel-collector.json
     options:
       labels:
         grafana_dashboard: "1"

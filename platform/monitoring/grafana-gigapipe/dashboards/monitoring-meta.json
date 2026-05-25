@@ -1,709 +1,306 @@
 {
-  "annotations": {
-    "list": []
-  },
+  "annotations": { "list": [] },
   "editable": true,
   "graphTooltip": 1,
   "panels": [
     {
       "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 0
-      },
-      "title": "Pipeline: Scraped \u2192 Stored \u2192 Queried",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "title": "Pipeline Overview",
       "type": "row"
     },
     {
-      "title": "\u2460 Scraped (raw/s)",
-      "description": "Total samples scraped from all targets per second. This is BEFORE filtering.",
-      "type": "stat",
-      "gridPos": {
-        "h": 5,
-        "w": 4,
-        "x": 0,
-        "y": 1
-      },
-      "datasource": {
-        "uid": "prometheus",
-        "type": "prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "color": {
-            "mode": "fixed",
-            "fixedColor": "yellow"
-          }
-        },
-        "overrides": []
-      },
+      "title": "Data Volume by Signal",
+      "description": "Proportional view of data flowing through the pipeline by signal type. Biggest block = biggest talker.",
+      "type": "marcusolsson-treemap-panel",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 1 },
+      "datasource": { "uid": "prometheus", "type": "prometheus" },
       "targets": [
-        {
-          "expr": "sum(scrape_samples_scraped{job=~\"$job\"})",
-          "refId": "A",
-          "instant": true,
-          "legendFormat": "scraped"
-        }
-      ]
+        { "expr": "sum by (service) (rate(sent_bytes_total{job=~\"$instance\"}[$__rate_interval]))", "refId": "A", "instant": true, "legendFormat": "{{service}}" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "Bps" }, "overrides": [] },
+      "options": { "tiling": "treemapSquarify" }
     },
     {
-      "title": "\u2461 Stored (rate/s)",
-      "description": "Metric points exported by OTel Collector to Gigapipe per second. This is AFTER filtering.",
-      "type": "stat",
-      "gridPos": {
-        "h": 5,
-        "w": 4,
-        "x": 4,
-        "y": 1
-      },
-      "datasource": {
-        "uid": "prometheus",
-        "type": "prometheus"
-      },
+      "title": "Component Health",
+      "description": "At-a-glance health of all observability components. Green = healthy, Red = down.",
+      "type": "grafana-polystat-panel",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 1 },
+      "datasource": { "uid": "prometheus", "type": "prometheus" },
+      "targets": [
+        { "expr": "up{job=~\"otel-collector|clickhouse|gigapipe.*\"}", "refId": "A", "instant": true, "legendFormat": "{{job}}" }
+      ],
       "fieldConfig": {
         "defaults": {
-          "unit": "short",
-          "color": {
-            "mode": "fixed",
-            "fixedColor": "green"
-          }
+          "thresholds": { "steps": [{ "value": 0, "color": "red" }, { "value": 1, "color": "green" }] }
         },
         "overrides": []
-      },
-      "targets": [
-        {
-          "expr": "sum(rate(otelcol_exporter_sent_metric_points_total{service_name=\"otel-collector\"}[5m]))",
-          "refId": "A",
-          "instant": true,
-          "legendFormat": "stored"
-        }
-      ]
+      }
     },
     {
-      "title": "\u2462 Queried (queries/s)",
-      "description": "ClickHouse SELECT queries per second. How much is being read by Grafana/Gigapipe.",
+      "title": "① Scraped (raw/s)",
+      "description": "Total samples scraped from all targets per second. BEFORE filtering.",
       "type": "stat",
-      "gridPos": {
-        "h": 5,
-        "w": 4,
-        "x": 8,
-        "y": 1
-      },
-      "datasource": {
-        "uid": "prometheus",
-        "type": "prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "color": {
-            "mode": "fixed",
-            "fixedColor": "blue"
-          }
-        },
-        "overrides": []
-      },
-      "targets": [
-        {
-          "expr": "rate(ClickHouseProfileEvents_SelectQuery_total{service_name=\"clickhouse\"}[5m])",
-          "refId": "A",
-          "instant": true,
-          "legendFormat": "queries"
-        }
-      ]
+      "gridPos": { "h": 4, "w": 4, "x": 0, "y": 9 },
+      "datasource": { "uid": "prometheus", "type": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "short", "color": { "mode": "fixed", "fixedColor": "yellow" } }, "overrides": [] },
+      "targets": [{ "expr": "sum(scrape_samples_scraped{job=~\"$job\"})", "refId": "A", "instant": true }]
+    },
+    {
+      "title": "② Stored (rate/s)",
+      "description": "Metric points exported by OTel Collector to Gigapipe per second. AFTER filtering.",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 4, "x": 4, "y": 9 },
+      "datasource": { "uid": "prometheus", "type": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "short", "color": { "mode": "fixed", "fixedColor": "green" } }, "overrides": [] },
+      "targets": [{ "expr": "sum(rate(otelcol_exporter_sent_metric_points_total{service_name=\"otel-collector\"}[5m]))", "refId": "A", "instant": true }]
+    },
+    {
+      "title": "③ Queried (queries/s)",
+      "description": "ClickHouse SELECT queries per second.",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 4, "x": 8, "y": 9 },
+      "datasource": { "uid": "prometheus", "type": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "short", "color": { "mode": "fixed", "fixedColor": "blue" } }, "overrides": [] },
+      "targets": [{ "expr": "rate(ClickHouseProfileEvents_SelectQuery_total{service_name=\"clickhouse\"}[5m])", "refId": "A", "instant": true }]
     },
     {
       "title": "Filter Efficiency",
-      "description": "Percentage of scraped data that gets dropped by filters. Higher = more aggressive filtering.",
+      "description": "Percentage of scraped data dropped by filters. Higher = more aggressive filtering.",
       "type": "gauge",
-      "gridPos": {
-        "h": 5,
-        "w": 4,
-        "x": 12,
-        "y": 1
-      },
-      "datasource": {
-        "uid": "prometheus",
-        "type": "prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "percentunit",
-          "min": 0,
-          "max": 1,
-          "thresholds": {
-            "steps": [
-              {
-                "value": 0,
-                "color": "red"
-              },
-              {
-                "value": 0.5,
-                "color": "yellow"
-              },
-              {
-                "value": 0.8,
-                "color": "green"
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "targets": [
-        {
-          "expr": "1 - (sum(rate(otelcol_exporter_sent_metric_points_total{service_name=\"otel-collector\"}[5m])) / sum(rate(otelcol_processor_incoming_items_total{service_name=\"otel-collector\"}[5m])))",
-          "refId": "A",
-          "instant": true
-        }
-      ]
+      "gridPos": { "h": 4, "w": 4, "x": 12, "y": 9 },
+      "datasource": { "uid": "prometheus", "type": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "percentunit", "min": 0, "max": 1, "thresholds": { "steps": [{ "value": 0, "color": "red" }, { "value": 0.5, "color": "yellow" }, { "value": 0.8, "color": "green" }] } }, "overrides": [] },
+      "targets": [{ "expr": "1 - (sum(rate(otelcol_exporter_sent_metric_points_total{service_name=\"otel-collector\"}[5m])) / sum(rate(otelcol_processor_incoming_items_total{service_name=\"otel-collector\"}[5m])))", "refId": "A", "instant": true }]
     },
     {
-      "title": "Scraped by Target",
-      "description": "Raw samples each target exposes (pre-filter). High is OK if filter efficiency is good.",
-      "type": "piechart",
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 6
-      },
-      "datasource": {
-        "uid": "prometheus",
-        "type": "prometheus"
-      },
-      "targets": [
-        {
-          "expr": "sum by (job) (scrape_samples_scraped{job=~\"$job\"})",
-          "refId": "A",
-          "instant": true,
-          "legendFormat": "{{job}}"
-        }
-      ],
-      "options": {
-        "legend": {
-          "displayMode": "table",
-          "placement": "right",
-          "values": [
-            "value",
-            "percent"
-          ]
-        }
-      }
+      "title": "CH Active Parts",
+      "description": "ClickHouse active parts count. High = merge pressure.",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 4, "x": 16, "y": 9 },
+      "datasource": { "uid": "prometheus", "type": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "short", "thresholds": { "steps": [{ "value": 0, "color": "green" }, { "value": 500, "color": "yellow" }, { "value": 1000, "color": "red" }] } }, "overrides": [] },
+      "targets": [{ "expr": "ClickHouseMetrics_PartsActive{job=\"clickhouse\"}", "refId": "A", "instant": true }]
     },
     {
-      "title": "Stored by Signal (Gigapipe writes/s)",
-      "description": "Rows written to ClickHouse per second, by signal type.",
-      "type": "piechart",
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 6
-      },
-      "datasource": {
-        "uid": "prometheus",
-        "type": "prometheus"
-      },
-      "targets": [
-        {
-          "expr": "rate(sent_rows_total[5m])",
-          "refId": "A",
-          "instant": true,
-          "legendFormat": "{{service}}"
-        }
-      ],
-      "options": {
-        "legend": {
-          "displayMode": "table",
-          "placement": "right",
-          "values": [
-            "value",
-            "percent"
-          ]
-        }
-      }
+      "title": "CH Memory",
+      "description": "ClickHouse memory tracking.",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 4, "x": 20, "y": 9 },
+      "datasource": { "uid": "prometheus", "type": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "bytes", "thresholds": { "steps": [{ "value": 0, "color": "green" }, { "value": 1073741824, "color": "yellow" }, { "value": 2147483648, "color": "red" }] } }, "overrides": [] },
+      "targets": [{ "expr": "ClickHouseMetrics_MemoryTracking{job=\"clickhouse\"}", "refId": "A", "instant": true }]
     },
     {
       "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 17
-      },
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 13 },
       "title": "OTel Collector",
       "type": "row"
     },
     {
-      "title": "OTel Collector \u2014 Exported Metrics (rate/s)",
+      "title": "OTel — Exported by Signal (rate/s)",
       "type": "timeseries",
-      "gridPos": {
-        "h": 7,
-        "w": 12,
-        "x": 0,
-        "y": 18
-      },
-      "datasource": {
-        "uid": "prometheus",
-        "type": "prometheus"
-      },
+      "gridPos": { "h": 7, "w": 12, "x": 0, "y": 14 },
+      "datasource": { "uid": "prometheus", "type": "prometheus" },
       "targets": [
-        {
-          "expr": "rate(otelcol_exporter_sent_metric_points_total{service_name=\"otel-collector\"}[5m])",
-          "refId": "A",
-          "legendFormat": "metrics/s"
-        }
+        { "expr": "rate(otelcol_exporter_sent_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval])", "refId": "A", "legendFormat": "metrics/s" },
+        { "expr": "rate(otelcol_exporter_sent_log_records_total{service_name=\"otel-collector\"}[$__rate_interval])", "refId": "B", "legendFormat": "logs/s" },
+        { "expr": "rate(otelcol_exporter_sent_spans_total{service_name=\"otel-collector\"}[$__rate_interval])", "refId": "C", "legendFormat": "spans/s" }
       ]
     },
     {
-      "title": "OTel Collector \u2014 Exported Logs (rate/s)",
+      "title": "OTel — Failed & Dropped (rate/s)",
       "type": "timeseries",
-      "gridPos": {
-        "h": 7,
-        "w": 6,
-        "x": 12,
-        "y": 18
-      },
-      "datasource": {
-        "uid": "prometheus",
-        "type": "prometheus"
-      },
+      "gridPos": { "h": 7, "w": 12, "x": 12, "y": 14 },
+      "datasource": { "uid": "prometheus", "type": "prometheus" },
+      "fieldConfig": { "defaults": { "color": { "mode": "fixed", "fixedColor": "red" } }, "overrides": [] },
       "targets": [
-        {
-          "expr": "rate(otelcol_exporter_sent_log_records_total{service_name=\"otel-collector\"}[5m])",
-          "refId": "A",
-          "legendFormat": "logs/s"
-        }
+        { "expr": "rate(otelcol_exporter_send_failed_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval])", "refId": "A", "legendFormat": "failed metrics" },
+        { "expr": "rate(otelcol_exporter_send_failed_log_records_total{service_name=\"otel-collector\"}[$__rate_interval])", "refId": "B", "legendFormat": "failed logs" },
+        { "expr": "rate(otelcol_exporter_send_failed_spans_total{service_name=\"otel-collector\"}[$__rate_interval])", "refId": "C", "legendFormat": "failed spans" }
       ]
     },
     {
-      "title": "OTel Collector \u2014 Exported Spans (rate/s)",
+      "title": "OTel — Queue Size & Capacity",
       "type": "timeseries",
-      "gridPos": {
-        "h": 7,
-        "w": 6,
-        "x": 18,
-        "y": 18
-      },
-      "datasource": {
-        "uid": "prometheus",
-        "type": "prometheus"
-      },
+      "gridPos": { "h": 7, "w": 8, "x": 0, "y": 21 },
+      "datasource": { "uid": "prometheus", "type": "prometheus" },
       "targets": [
-        {
-          "expr": "rate(otelcol_exporter_sent_spans_total{service_name=\"otel-collector\"}[5m])",
-          "refId": "A",
-          "legendFormat": "spans/s"
-        }
+        { "expr": "otelcol_exporter_queue_size{service_name=\"otel-collector\"}", "refId": "A", "legendFormat": "queue {{exporter}}" },
+        { "expr": "otelcol_exporter_queue_capacity{service_name=\"otel-collector\"}", "refId": "B", "legendFormat": "capacity {{exporter}}" }
       ]
     },
     {
-      "title": "OTel Collector \u2014 Dropped (rate/s)",
+      "title": "OTel — Processor In vs Out",
       "type": "timeseries",
-      "gridPos": {
-        "h": 7,
-        "w": 12,
-        "x": 0,
-        "y": 25
-      },
-      "datasource": {
-        "uid": "prometheus",
-        "type": "prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "fixed",
-            "fixedColor": "red"
-          }
-        },
-        "overrides": []
-      },
+      "gridPos": { "h": 7, "w": 8, "x": 8, "y": 21 },
+      "datasource": { "uid": "prometheus", "type": "prometheus" },
       "targets": [
-        {
-          "expr": "rate(otelcol_exporter_send_failed_metric_points_total{service_name=\"otel-collector\"}[5m])",
-          "refId": "A",
-          "legendFormat": "failed metrics/s"
-        },
-        {
-          "expr": "rate(otelcol_exporter_send_failed_log_records_total{service_name=\"otel-collector\"}[5m])",
-          "refId": "B",
-          "legendFormat": "failed logs/s"
-        },
-        {
-          "expr": "rate(otelcol_exporter_send_failed_spans_total{service_name=\"otel-collector\"}[5m])",
-          "refId": "C",
-          "legendFormat": "failed spans/s"
-        }
+        { "expr": "rate(otelcol_processor_incoming_items_total{service_name=\"otel-collector\"}[$__rate_interval])", "refId": "A", "legendFormat": "in {{processor}}" },
+        { "expr": "rate(otelcol_processor_outgoing_items_total{service_name=\"otel-collector\"}[$__rate_interval])", "refId": "B", "legendFormat": "out {{processor}}" }
       ]
     },
     {
-      "title": "OTel Collector \u2014 Memory (bytes)",
+      "title": "OTel — Memory & CPU",
       "type": "timeseries",
-      "gridPos": {
-        "h": 7,
-        "w": 12,
-        "x": 12,
-        "y": 25
-      },
-      "datasource": {
-        "uid": "prometheus",
-        "type": "prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "bytes"
-        },
-        "overrides": []
-      },
+      "gridPos": { "h": 7, "w": 8, "x": 16, "y": 21 },
+      "datasource": { "uid": "prometheus", "type": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "bytes" }, "overrides": [{ "matcher": { "id": "byName", "options": "CPU" }, "properties": [{ "id": "unit", "value": "percentunit" }, { "id": "custom.axisPlacement", "value": "right" }] }] },
       "targets": [
-        {
-          "expr": "otelcol_process_memory_rss_bytes{service_name=\"otel-collector\"}",
-          "refId": "A",
-          "legendFormat": "RSS"
-        }
+        { "expr": "otelcol_process_memory_rss_bytes{service_name=\"otel-collector\"}", "refId": "A", "legendFormat": "RSS" },
+        { "expr": "rate(otelcol_process_cpu_seconds_total{service_name=\"otel-collector\"}[$__rate_interval])", "refId": "B", "legendFormat": "CPU" }
       ]
     },
     {
       "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 32
-      },
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 28 },
       "title": "Gigapipe",
       "type": "row"
     },
     {
-      "title": "Gigapipe \u2014 Rows Written (rate/s)",
+      "title": "Gigapipe — Rows Written/s by Signal",
       "type": "timeseries",
-      "gridPos": {
-        "h": 7,
-        "w": 12,
-        "x": 0,
-        "y": 33
-      },
-      "datasource": {
-        "uid": "prometheus",
-        "type": "prometheus"
-      },
+      "gridPos": { "h": 7, "w": 12, "x": 0, "y": 29 },
+      "datasource": { "uid": "prometheus", "type": "prometheus" },
+      "targets": [{ "expr": "rate(sent_rows_total{job=~\"$instance\"}[$__rate_interval])", "refId": "A", "legendFormat": "{{service}}" }]
+    },
+    {
+      "title": "Gigapipe — Bytes Written/s by Signal",
+      "type": "timeseries",
+      "gridPos": { "h": 7, "w": 12, "x": 12, "y": 29 },
+      "datasource": { "uid": "prometheus", "type": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "Bps" }, "overrides": [] },
+      "targets": [{ "expr": "rate(sent_bytes_total{job=~\"$instance\"}[$__rate_interval])", "refId": "A", "legendFormat": "{{service}}" }]
+    },
+    {
+      "title": "Gigapipe — Send Time (ms)",
+      "description": "Time spent sending batch to ClickHouse.",
+      "type": "timeseries",
+      "gridPos": { "h": 7, "w": 8, "x": 0, "y": 36 },
+      "datasource": { "uid": "prometheus", "type": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "ms" }, "overrides": [] },
+      "targets": [{ "expr": "rate(send_time_ms_sum{job=~\"$instance\"}[$__rate_interval]) / rate(send_time_ms_count{job=~\"$instance\"}[$__rate_interval])", "refId": "A", "legendFormat": "avg send time" }]
+    },
+    {
+      "title": "Gigapipe — Memory (RSS)",
+      "type": "timeseries",
+      "gridPos": { "h": 7, "w": 8, "x": 8, "y": 36 },
+      "datasource": { "uid": "prometheus", "type": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "bytes" }, "overrides": [] },
+      "targets": [{ "expr": "process_resident_memory_bytes{job=~\"$instance\"}", "refId": "A", "legendFormat": "{{job}}" }]
+    },
+    {
+      "title": "Gigapipe — Connection Resets",
+      "description": "Connection reset by peer errors.",
+      "type": "timeseries",
+      "gridPos": { "h": 7, "w": 8, "x": 16, "y": 36 },
+      "datasource": { "uid": "prometheus", "type": "prometheus" },
+      "fieldConfig": { "defaults": { "color": { "mode": "fixed", "fixedColor": "red" } }, "overrides": [] },
+      "targets": [{ "expr": "rate(connection_reset_by_peer_count_total{job=~\"$instance\"}[$__rate_interval])", "refId": "A", "legendFormat": "resets/s" }]
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 43 },
+      "title": "ClickHouse (Summary)",
+      "type": "row"
+    },
+    {
+      "title": "CH — Queries/s",
+      "type": "timeseries",
+      "gridPos": { "h": 7, "w": 8, "x": 0, "y": 44 },
+      "datasource": { "uid": "prometheus", "type": "prometheus" },
       "targets": [
-        {
-          "expr": "rate(sent_rows_total[5m])",
-          "refId": "A",
-          "legendFormat": "{{service}}"
-        }
+        { "expr": "rate(ClickHouseProfileEvents_SelectQuery_total{job=\"clickhouse\"}[5m])", "refId": "A", "legendFormat": "selects/s" },
+        { "expr": "rate(ClickHouseProfileEvents_InsertQuery_total{job=\"clickhouse\"}[5m])", "refId": "B", "legendFormat": "inserts/s" }
       ]
     },
     {
-      "title": "Gigapipe \u2014 Bytes Written (rate/s)",
+      "title": "CH — Inserted Rows/s",
       "type": "timeseries",
-      "gridPos": {
-        "h": 7,
-        "w": 12,
-        "x": 12,
-        "y": 33
-      },
-      "datasource": {
-        "uid": "prometheus",
-        "type": "prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "Bps"
-        },
-        "overrides": []
-      },
+      "gridPos": { "h": 7, "w": 8, "x": 8, "y": 44 },
+      "datasource": { "uid": "prometheus", "type": "prometheus" },
+      "targets": [{ "expr": "rate(ClickHouseProfileEvents_InsertedRows_total{job=\"clickhouse\"}[5m])", "refId": "A", "legendFormat": "rows/s" }]
+    },
+    {
+      "title": "CH — Active Parts & Merges",
+      "type": "timeseries",
+      "gridPos": { "h": 7, "w": 8, "x": 16, "y": 44 },
+      "datasource": { "uid": "prometheus", "type": "prometheus" },
       "targets": [
-        {
-          "expr": "rate(sent_bytes_total[5m])",
-          "refId": "A",
-          "legendFormat": "{{service}}"
-        }
+        { "expr": "ClickHouseMetrics_PartsActive{job=\"clickhouse\"}", "refId": "A", "legendFormat": "active parts" },
+        { "expr": "ClickHouseMetrics_Merge{job=\"clickhouse\"}", "refId": "B", "legendFormat": "running merges" }
+      ]
+    },
+    {
+      "title": "CH — Memory & Disk I/O",
+      "type": "timeseries",
+      "gridPos": { "h": 7, "w": 12, "x": 0, "y": 51 },
+      "datasource": { "uid": "prometheus", "type": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "bytes" }, "overrides": [] },
+      "targets": [
+        { "expr": "ClickHouseMetrics_MemoryTracking{job=\"clickhouse\"}", "refId": "A", "legendFormat": "memory" }
+      ]
+    },
+    {
+      "title": "CH — Failed Queries/s",
+      "type": "timeseries",
+      "gridPos": { "h": 7, "w": 12, "x": 12, "y": 51 },
+      "datasource": { "uid": "prometheus", "type": "prometheus" },
+      "fieldConfig": { "defaults": { "color": { "mode": "fixed", "fixedColor": "red" } }, "overrides": [] },
+      "targets": [
+        { "expr": "rate(ClickHouseProfileEvents_FailedQuery_total{job=\"clickhouse\"}[5m])", "refId": "A", "legendFormat": "failed queries/s" }
       ]
     },
     {
       "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 40
-      },
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 58 },
       "title": "PCI Log Sanity Check",
       "type": "row"
     },
     {
       "title": "PCI Log Lines (via selected Loki)",
-      "description": "Count of log lines with compliance_scope=pci. Flip the Loki datasource variable to test: PCI should show >0, Non-PCI should show 0.",
+      "description": "Count of log lines with compliance_scope=pci. Flip the Loki datasource variable to test.",
       "type": "stat",
-      "gridPos": {
-        "h": 6,
-        "w": 6,
-        "x": 0,
-        "y": 41
-      },
-      "datasource": {
-        "uid": "$loki",
-        "type": "loki"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "thresholds": {
-            "steps": [
-              {
-                "value": 0,
-                "color": "green"
-              },
-              {
-                "value": 1,
-                "color": "orange"
-              }
-            ]
-          },
-          "mappings": [
-            {
-              "type": "value",
-              "options": {
-                "0": {
-                  "text": "0 (FILTERED \u2713)",
-                  "color": "green"
-                }
-              }
-            }
-          ]
-        },
-        "overrides": []
-      },
-      "targets": [
-        {
-          "expr": "count_over_time({compliance_scope=\"pci\"}[$__range])",
-          "refId": "A",
-          "instant": true,
-          "legendFormat": "pci logs"
-        }
-      ]
+      "gridPos": { "h": 6, "w": 6, "x": 0, "y": 59 },
+      "datasource": { "uid": "$loki", "type": "loki" },
+      "fieldConfig": { "defaults": { "unit": "short", "thresholds": { "steps": [{ "value": 0, "color": "green" }, { "value": 1, "color": "orange" }] }, "mappings": [{ "type": "value", "options": { "0": { "text": "0 (FILTERED ✓)", "color": "green" } } }] }, "overrides": [] },
+      "targets": [{ "expr": "count_over_time({compliance_scope=\"pci\"}[$__range])", "refId": "A", "instant": true }]
     },
     {
-      "title": "Non-PCI Log Lines (via selected Loki)",
+      "title": "Non-PCI Log Lines",
       "description": "Count of log lines without PCI scope. Should be visible on both Loki datasources.",
       "type": "stat",
-      "gridPos": {
-        "h": 6,
-        "w": 6,
-        "x": 6,
-        "y": 41
-      },
-      "datasource": {
-        "uid": "$loki",
-        "type": "loki"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "color": {
-            "mode": "fixed",
-            "fixedColor": "green"
-          }
-        },
-        "overrides": []
-      },
-      "targets": [
-        {
-          "expr": "count_over_time({compliance_scope!=\"pci\",compliance_scope!=\"\"}[$__range])",
-          "refId": "A",
-          "instant": true,
-          "legendFormat": "non-pci logs"
-        }
-      ]
+      "gridPos": { "h": 6, "w": 6, "x": 6, "y": 59 },
+      "datasource": { "uid": "$loki", "type": "loki" },
+      "fieldConfig": { "defaults": { "unit": "short", "color": { "mode": "fixed", "fixedColor": "green" } }, "overrides": [] },
+      "targets": [{ "expr": "count_over_time({compliance_scope!=\"pci\",compliance_scope!=\"\"}[$__range])", "refId": "A", "instant": true }]
     },
     {
       "title": "PCI Filter Status",
-      "description": "Shows PASS if the selected Loki datasource correctly hides PCI logs. Switch the Loki dropdown to verify.",
+      "description": "PASS if selected Loki datasource correctly hides PCI logs.",
       "type": "stat",
-      "gridPos": {
-        "h": 6,
-        "w": 6,
-        "x": 12,
-        "y": 41
-      },
-      "datasource": {
-        "uid": "$loki",
-        "type": "loki"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "mappings": [
-            {
-              "type": "range",
-              "options": {
-                "from": 1,
-                "to": 999999999,
-                "result": {
-                  "text": "PCI LOGS VISIBLE \u26a0\ufe0f",
-                  "color": "orange"
-                }
-              }
-            },
-            {
-              "type": "value",
-              "options": {
-                "0": {
-                  "text": "PCI LOGS HIDDEN \u2713",
-                  "color": "green"
-                }
-              }
-            }
-          ]
-        },
-        "overrides": []
-      },
-      "targets": [
-        {
-          "expr": "count_over_time({compliance_scope=\"pci\"}[$__range])",
-          "refId": "A",
-          "instant": true
-        }
-      ]
+      "gridPos": { "h": 6, "w": 6, "x": 12, "y": 59 },
+      "datasource": { "uid": "$loki", "type": "loki" },
+      "fieldConfig": { "defaults": { "mappings": [{ "type": "range", "options": { "from": 1, "to": 999999999, "result": { "text": "PCI LOGS VISIBLE ⚠️", "color": "orange" } } }, { "type": "value", "options": { "0": { "text": "PCI LOGS HIDDEN ✓", "color": "green" } } }] }, "overrides": [] },
+      "targets": [{ "expr": "count_over_time({compliance_scope=\"pci\"}[$__range])", "refId": "A", "instant": true }]
     },
     {
       "title": "Logs by compliance_scope",
-      "description": "Distribution of log lines by compliance_scope. On Non-PCI Loki, 'pci' should not appear.",
+      "description": "Distribution of log lines by compliance_scope.",
       "type": "piechart",
-      "gridPos": {
-        "h": 6,
-        "w": 6,
-        "x": 18,
-        "y": 41
-      },
-      "datasource": {
-        "uid": "$loki",
-        "type": "loki"
-      },
-      "targets": [
-        {
-          "expr": "sum by (compliance_scope) (count_over_time({compliance_scope!=\"\"}[$__range]))",
-          "refId": "A",
-          "instant": true,
-          "legendFormat": "{{compliance_scope}}"
-        }
-      ],
-      "options": {
-        "legend": {
-          "displayMode": "table",
-          "placement": "right",
-          "values": [
-            "value",
-            "percent"
-          ]
-        }
-      }
-    },
-    {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 47
-      },
-      "title": "ClickHouse",
-      "type": "row"
-    },
-    {
-      "title": "ClickHouse \u2014 Queries/s",
-      "type": "timeseries",
-      "gridPos": {
-        "h": 7,
-        "w": 8,
-        "x": 0,
-        "y": 48
-      },
-      "datasource": {
-        "uid": "prometheus",
-        "type": "prometheus"
-      },
-      "targets": [
-        {
-          "expr": "rate(ClickHouseProfileEvents_Query_total{service_name=\"clickhouse\"}[5m])",
-          "refId": "A",
-          "legendFormat": "queries/s"
-        }
-      ]
-    },
-    {
-      "title": "ClickHouse \u2014 Inserted Rows/s",
-      "type": "timeseries",
-      "gridPos": {
-        "h": 7,
-        "w": 8,
-        "x": 8,
-        "y": 48
-      },
-      "datasource": {
-        "uid": "prometheus",
-        "type": "prometheus"
-      },
-      "targets": [
-        {
-          "expr": "rate(ClickHouseProfileEvents_InsertedRows_total{service_name=\"clickhouse\"}[5m])",
-          "refId": "A",
-          "legendFormat": "rows/s"
-        }
-      ]
-    },
-    {
-      "title": "ClickHouse \u2014 Memory Tracking",
-      "type": "timeseries",
-      "gridPos": {
-        "h": 7,
-        "w": 8,
-        "x": 16,
-        "y": 48
-      },
-      "datasource": {
-        "uid": "prometheus",
-        "type": "prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "bytes"
-        },
-        "overrides": []
-      },
-      "targets": [
-        {
-          "expr": "ClickHouseMetrics_MemoryTracking{service_name=\"clickhouse\"}",
-          "refId": "A",
-          "legendFormat": "memory"
-        }
-      ]
+      "gridPos": { "h": 6, "w": 6, "x": 18, "y": 59 },
+      "datasource": { "uid": "$loki", "type": "loki" },
+      "targets": [{ "expr": "sum by (compliance_scope) (count_over_time({compliance_scope!=\"\"}[$__range]))", "refId": "A", "instant": true, "legendFormat": "{{compliance_scope}}" }],
+      "options": { "legend": { "displayMode": "table", "placement": "right", "values": ["value", "percent"] } }
     }
   ],
   "schemaVersion": 39,
-  "tags": [
-    "monitoring",
-    "meta",
-    "observability"
-  ],
+  "tags": ["monitoring", "meta", "observability", "gigapipe", "otel", "clickhouse"],
   "templating": {
     "list": [
       {
-        "current": {
-          "selected": true,
-          "text": "All",
-          "value": "$__all"
-        },
-        "datasource": {
-          "uid": "prometheus",
-          "type": "prometheus"
-        },
+        "current": { "selected": true, "text": "All", "value": "$__all" },
+        "datasource": { "uid": "prometheus", "type": "prometheus" },
         "definition": "label_values(up, job)",
         "hide": 0,
         "includeAll": true,
@@ -711,22 +308,28 @@
         "multi": true,
         "name": "job",
         "options": [],
-        "query": {
-          "qryType": 1,
-          "query": "label_values(up, job)"
-        },
+        "query": { "qryType": 1, "query": "label_values(up, job)" },
         "refresh": 2,
-        "regex": "",
-        "skipUrlSync": false,
         "sort": 1,
         "type": "query"
       },
       {
-        "current": {
-          "selected": true,
-          "text": "Loki (PCI)",
-          "value": "loki-pci"
-        },
+        "current": { "selected": true, "text": "All", "value": "$__all" },
+        "datasource": { "uid": "prometheus", "type": "prometheus" },
+        "definition": "label_values(sent_rows_total, job)",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Gigapipe Instance",
+        "multi": true,
+        "name": "instance",
+        "options": [],
+        "query": { "qryType": 1, "query": "label_values(sent_rows_total, job)" },
+        "refresh": 2,
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "current": { "selected": true, "text": "Loki (PCI)", "value": "loki-pci" },
         "hide": 0,
         "includeAll": false,
         "label": "Loki",
@@ -734,18 +337,12 @@
         "name": "loki",
         "options": [],
         "query": "loki",
-        "queryValue": "",
         "refresh": 1,
-        "regex": "",
-        "skipUrlSync": false,
         "type": "datasource"
       }
     ]
   },
-  "time": {
-    "from": "now-1h",
-    "to": "now"
-  },
-  "title": "Monitoring Meta",
+  "time": { "from": "now-1h", "to": "now" },
+  "title": "Observability Stack",
   "uid": "monitoring-meta"
 }
