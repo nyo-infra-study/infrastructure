@@ -144,9 +144,40 @@
         }
       ],
       "options": {
-        "showSearchFilter": true,
-        "showRowNumbers": true,
-        "pageSize": 25
+        "searchEnabled": true,
+        "searchHighlightingEnabled": true,
+        "searchPosition": "top-right",
+        "rowNumbersEnabled": true,
+        "scrollingEnabled": true,
+        "columnStylesConfig": [
+          {
+            "label": "CPU",
+            "nameOrRegex": "CPU (cores)",
+            "activeStyle": "metric",
+            "enabled": true,
+            "order": 0,
+            "align": "default",
+            "metricStyle": {
+              "alias": "",
+              "thresholds": [],
+              "colors": [],
+              "decimals": "4",
+              "scaledDecimals": null,
+              "unitFormat": "short",
+              "ignoreNullValues": true
+            },
+            "dateStyle": { "dateFormat": "YYYY-MM-DD HH:mm:ss" },
+            "hiddenStyle": {},
+            "stringStyle": {
+              "clickThrough": "",
+              "clickThroughSanitize": true,
+              "clickThroughOpenNewTab": true,
+              "clickThroughCustomTarget": "",
+              "splitByPattern": "",
+              "mappingType": 1
+            }
+          }
+        ]
       }
     }
   ],

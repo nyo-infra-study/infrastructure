@@ -363,7 +363,7 @@
       "datasource": { "uid": "prometheus", "type": "prometheus" },
       "targets": [
         {
-          "expr": "{__name__=~\"ClickHouseMetrics_.+\",job=\"clickhouse\"}",
+          "expr": "{__name__=~\"ClickHouseMetrics_.+\",job=\"clickhouse\"} > 0",
           "refId": "A",
           "instant": true,
           "format": "table"
@@ -380,8 +380,40 @@
       ],
       "options": {
         "showSearchFilter": true,
-        "showRowNumbers": true,
-        "pageSize": 25
+        "searchEnabled": true,
+        "searchHighlightingEnabled": true,
+        "searchPosition": "top-right",
+        "rowNumbersEnabled": true,
+        "scrollingEnabled": true,
+        "columnStylesConfig": [
+          {
+            "label": "Value",
+            "nameOrRegex": "Value",
+            "activeStyle": "metric",
+            "enabled": true,
+            "order": 0,
+            "align": "default",
+            "metricStyle": {
+              "alias": "",
+              "thresholds": [],
+              "colors": [],
+              "decimals": "0",
+              "scaledDecimals": null,
+              "unitFormat": "short",
+              "ignoreNullValues": true
+            },
+            "dateStyle": { "dateFormat": "YYYY-MM-DD HH:mm:ss" },
+            "hiddenStyle": {},
+            "stringStyle": {
+              "clickThrough": "",
+              "clickThroughSanitize": true,
+              "clickThroughOpenNewTab": true,
+              "clickThroughCustomTarget": "",
+              "splitByPattern": "",
+              "mappingType": 1
+            }
+          }
+        ]
       }
     }
   ],
