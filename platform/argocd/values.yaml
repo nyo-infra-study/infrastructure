@@ -74,7 +74,7 @@ repoServer:
   # Repo-server becomes unresponsive during heavy Helm rendering / git ops.
   livenessProbe:
     httpGet:
-      path: /healthz?full=true
+      path: /healthz?full=false
       port: metrics
     initialDelaySeconds: 30
     periodSeconds: 30
