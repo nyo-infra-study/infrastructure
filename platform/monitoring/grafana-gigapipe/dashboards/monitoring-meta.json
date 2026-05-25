@@ -11,25 +11,33 @@
     },
     {
       "title": "Data Volume by Signal",
-      "description": "Proportional view of data flowing through the pipeline by signal type. Biggest block = biggest talker.",
+      "description": "Namespace (big box) → Service (small box inside). Size = bytes written.",
       "type": "marcusolsson-treemap-panel",
       "gridPos": { "h": 8, "w": 12, "x": 0, "y": 1 },
       "datasource": { "uid": "prometheus", "type": "prometheus" },
       "targets": [
-        { "expr": "sum by (service) (rate(sent_bytes_total{job=~\"$instance\"}[$__rate_interval]))", "refId": "A", "instant": true, "legendFormat": "{{service}}", "format": "table" }
+        { "expr": "sum by (namespace, service) (sent_bytes_total{job=~\"$instance\"})", "refId": "A", "instant": true, "legendFormat": "{{namespace}}/{{service}}", "format": "table" }
       ],
-      "fieldConfig": { "defaults": { "unit": "Bps" }, "overrides": [] },
+      "fieldConfig": { "defaults": { "unit": "bytes" }, "overrides": [] },
       "options": {
         "tiling": "treemapSquarify",
-        "textField": "service",
-        "sizeField": "Value"
+        "textField": "label",
+        "sizeField": "Value",
+        "separator": "/"
       },
       "transformations": [
         {
           "id": "organize",
           "options": {
-            "excludeByName": { "Time": true },
+            "excludeByName": { "Time": true, "namespace": true, "service": true },
             "renameByName": {}
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "(.+)",
+            "renamePattern": "$1"
           }
         }
       ]
