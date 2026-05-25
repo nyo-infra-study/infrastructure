@@ -56,7 +56,10 @@ datasources:
         jsonData:
           tracesToLogsV2:
             datasourceUid: loki-pci
-            filterByTraceID: true
+            filterByTraceID: false
+            filterBySpanID: false
+            customQuery: true
+            query: '{service_name="${__span.tags.service.name}"} | trace_id = `${__span.traceId}`'
           tracesToMetrics:
             datasourceUid: prometheus
           nodeGraph:
