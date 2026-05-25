@@ -58,8 +58,11 @@ datasources:
             datasourceUid: loki-pci
             filterByTraceID: false
             filterBySpanID: false
-            customQuery: true
-            query: '{service_name="${__span.tags.service.name}"} | trace_id = `${__span.traceId}`'
+            spanStartTimeShift: "-5m"
+            spanEndTimeShift: "5m"
+            tags:
+              - key: service.name
+                value: service_name
           tracesToMetrics:
             datasourceUid: prometheus
           nodeGraph:
