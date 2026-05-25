@@ -11,13 +11,13 @@
     },
     {
       "title": "Metrics Flow: Receiver → Gigapipe",
-      "description": "How metric data flows from each Prometheus scrape target through the OTel Collector to Gigapipe.",
+      "description": "How metric data flows from each Prometheus scrape target through the OTel Collector to Gigapipe. Each band width = data volume.",
       "type": "netsage-sankey-panel",
       "gridPos": { "h": 12, "w": 24, "x": 0, "y": 1 },
       "datasource": { "uid": "prometheus", "type": "prometheus" },
       "targets": [
         {
-          "expr": "sum by (receiver) (otelcol_receiver_accepted_metric_points_total{service_name=\"otel-collector\"})",
+          "expr": "label_replace(sum by (receiver) (rate(otelcol_receiver_accepted_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval])), \"target\", \"gigapipe\", \"\", \"\")",
           "refId": "A",
           "instant": true,
           "legendFormat": "{{receiver}}",
@@ -34,29 +34,6 @@
               "receiver": "source",
               "Value": "value"
             }
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "mode": "binary",
-            "alias": "target",
-            "reduce": {
-              "reducer": "count"
-            },
-            "replaceFields": false,
-            "binary": {
-              "left": "source",
-              "operator": "+",
-              "right": "source"
-            }
-          }
-        },
-        {
-          "id": "addFieldFromCalculation",
-          "options": {
-            "mode": "reduceRow",
-            "reduce": { "reducer": "count" }
           }
         }
       ],
