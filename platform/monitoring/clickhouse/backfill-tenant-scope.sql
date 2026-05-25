@@ -1,8 +1,8 @@
 -- ============================================================
 -- Backfill tenant_scope for unmapped rows
 -- ============================================================
--- Run periodically (every 5 min) to fix rows that were inserted
--- before their fingerprint appeared in the dictionary.
+-- Run periodically (every 2 min via CronJob) to fix rows that were
+-- inserted before their fingerprint appeared in the mapping table.
 --
 -- Usage (CronJob or manual):
 --   kubectl exec -n monitoring dev-monitoring-clickhouse-0 -- \
@@ -16,10 +16,17 @@
 
 -- Only update rows where:
 -- 1. tenant_scope is empty (wasn't resolved at insert time)
--- 2. The fingerprint now exists in the mapping table (dictionary has it)
+-- 2. The fingerprint now exists in the mapping table
 ALTER TABLE otel.samples_v3
-  UPDATE tenant_scope = dictGetOrDefault('otel.fingerprint_scope_dict', 'tenant_scope', fingerprint, '')
+  UPDATE tenant_scope = (
+    SELECT tenant_scope
+    FROM otel.fingerprint_tenant_map
+    WHERE fingerprint = otel.samples_v3.fingerprint
+    LIMIT 1
+  )
   WHERE tenant_scope = ''
-    AND dictHas('otel.fingerprint_scope_dict', fingerprint);
+    AND fingerprint IN (
+      SELECT fingerprint FROM otel.fingerprint_tenant_map WHERE tenant_scope != ''
+    );
 
 SELECT 'Backfill mutation submitted (runs asynchronously).';

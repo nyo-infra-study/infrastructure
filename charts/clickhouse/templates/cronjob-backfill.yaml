@@ -28,13 +28,7 @@ spec:
                     --port=9000 \
                     --user=default \
                     --password={{ .Values.auth.defaultPassword }} \
-                    --query="SYSTEM RELOAD DICTIONARY IF EXISTS otel.fingerprint_scope_dict" && \
-                  clickhouse-client \
-                    --host={{ .Release.Name }} \
-                    --port=9000 \
-                    --user=default \
-                    --password={{ .Values.auth.defaultPassword }} \
-                    --query="ALTER TABLE otel.samples_v3 UPDATE tenant_scope = dictGetOrDefault('otel.fingerprint_scope_dict', 'tenant_scope', fingerprint, '') WHERE tenant_scope = '' AND dictHas('otel.fingerprint_scope_dict', fingerprint)"
+                    --query="ALTER TABLE otel.samples_v3 UPDATE tenant_scope = (SELECT tenant_scope FROM otel.fingerprint_tenant_map WHERE fingerprint = otel.samples_v3.fingerprint LIMIT 1) WHERE tenant_scope = '' AND fingerprint IN (SELECT fingerprint FROM otel.fingerprint_tenant_map WHERE tenant_scope != '')"
               resources:
                 requests:
                   cpu: 10m

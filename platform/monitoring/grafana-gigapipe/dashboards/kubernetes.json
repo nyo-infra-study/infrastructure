@@ -122,13 +122,13 @@
     },
     {
       "title": "Pod List",
-      "description": "All pods with status, namespace, and node. Use the search box to filter by pod name.",
+      "description": "All pods with CPU usage. Use the search box to filter by pod name.",
       "type": "briangann-datatable-panel",
       "gridPos": { "h": 10, "w": 24, "x": 0, "y": 40 },
       "datasource": { "uid": "prometheus", "type": "prometheus" },
       "targets": [
         {
-          "expr": "kube_pod_info{namespace=~\"$namespace\"}",
+          "expr": "sum by (pod, namespace) (rate(container_cpu_usage_seconds_total{namespace=~\"$namespace\",container!=\"\",container!=\"POD\"}[5m]))",
           "refId": "A",
           "instant": true,
           "format": "table"
@@ -138,8 +138,8 @@
         {
           "id": "organize",
           "options": {
-            "excludeByName": { "Time": true, "Value": true, "__name__": true, "job": true, "instance": true },
-            "renameByName": { "pod": "Pod", "namespace": "Namespace", "node": "Node", "host_ip": "Host IP", "pod_ip": "Pod IP", "uid": "UID" }
+            "excludeByName": { "Time": true },
+            "renameByName": { "pod": "Pod", "namespace": "Namespace", "Value": "CPU (cores)" }
           }
         }
       ],

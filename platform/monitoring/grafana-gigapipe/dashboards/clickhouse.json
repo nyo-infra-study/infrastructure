@@ -352,18 +352,18 @@
     {
       "collapsed": false,
       "gridPos": { "h": 1, "w": 24, "x": 0, "y": 53 },
-      "title": "Table Inventory (searchable)",
+      "title": "Active Queries (searchable)",
       "type": "row"
     },
     {
-      "title": "Table Sizes",
-      "description": "All ClickHouse tables with size and row count. Use the search box to find a specific table.",
+      "title": "ClickHouse Metrics Overview",
+      "description": "All ClickHouse metrics with current values. Use the search box to find a specific metric.",
       "type": "briangann-datatable-panel",
       "gridPos": { "h": 10, "w": 24, "x": 0, "y": 54 },
       "datasource": { "uid": "prometheus", "type": "prometheus" },
       "targets": [
         {
-          "expr": "ClickHouseAsyncMetrics_NumberOfBytesOfMergeTreeTable{job=\"clickhouse\"}",
+          "expr": "{__name__=~\"ClickHouseMetrics_.+\",job=\"clickhouse\"}",
           "refId": "A",
           "instant": true,
           "format": "table"
@@ -373,8 +373,8 @@
         {
           "id": "organize",
           "options": {
-            "excludeByName": { "Time": true, "__name__": true, "job": true, "instance": true },
-            "renameByName": { "table": "Table", "Value": "Size (bytes)" }
+            "excludeByName": { "Time": true, "job": true, "instance": true },
+            "renameByName": { "__name__": "Metric", "Value": "Value" }
           }
         }
       ],
