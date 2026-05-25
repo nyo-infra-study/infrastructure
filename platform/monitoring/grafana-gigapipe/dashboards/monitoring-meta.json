@@ -1,360 +1,1705 @@
 {
-  "annotations": { "list": [] },
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
   "editable": true,
+  "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
+  "id": 5,
+  "links": [],
   "panels": [
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "panels": [],
       "title": "Pipeline Overview",
       "type": "row"
     },
     {
-      "title": "Data Volume by Signal",
-      "description": "Namespace (big box) → Service (small box inside). Size = bytes written.",
-      "type": "marcusolsson-treemap-panel",
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 1 },
-      "datasource": { "uid": "prometheus", "type": "prometheus" },
-      "targets": [
-        { "expr": "sum by (namespace, service) (sent_bytes_total{job=~\"$instance\"})", "refId": "A", "instant": true, "legendFormat": "{{namespace}}/{{service}}", "format": "table" }
-      ],
-      "fieldConfig": { "defaults": { "unit": "bytes" }, "overrides": [] },
-      "options": {
-        "tiling": "treemapSquarify",
-        "textField": "label",
-        "sizeField": "Value",
-        "separator": "/"
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
       },
-      "transformations": [
-        {
-          "id": "organize",
-          "options": {
-            "excludeByName": { "Time": true, "namespace": true, "service": true },
-            "renameByName": {}
-          }
-        },
-        {
-          "id": "renameByRegex",
-          "options": {
-            "regex": "(.+)",
-            "renamePattern": "$1"
-          }
-        }
-      ]
-    },
-    {
-      "title": "Component Health",
-      "description": "At-a-glance health of all observability components. Green = healthy, Red = down.",
-      "type": "grafana-polystat-panel",
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 1 },
-      "datasource": { "uid": "prometheus", "type": "prometheus" },
-      "targets": [
-        { "expr": "up{job=~\"otel-collector|clickhouse|gigapipe.*\"}", "refId": "A", "instant": true, "legendFormat": "{{job}}" }
-      ],
+      "description": "Namespace (big box) → Service (small box inside). Size = bytes written.",
       "fieldConfig": {
         "defaults": {
-          "thresholds": { "steps": [{ "value": 0, "color": "red" }, { "value": 1, "color": "green" }] }
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "percentage",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "#EAB839",
+                "value": 10
+              },
+              {
+                "color": "#6ED0E0",
+                "value": 20
+              },
+              {
+                "color": "#EF843C",
+                "value": 30
+              },
+              {
+                "color": "#E24D42",
+                "value": 40
+              }
+            ]
+          },
+          "unit": "bytes"
         },
         "overrides": []
-      }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 1
+      },
+      "id": 2,
+      "options": {
+        "colorByField": "Value",
+        "groupByField": "namespace",
+        "labelFields": [
+          "Value"
+        ],
+        "separator": "/",
+        "sizeField": "Value",
+        "textField": "service",
+        "tiling": "treemapSquarify"
+      },
+      "pluginVersion": "2.1.1",
+      "targets": [
+        {
+          "editorMode": "code",
+          "expr": "sum by (namespace, service) (sent_bytes_total{job=~\"$instance\"})",
+          "format": "table",
+          "instant": true,
+          "legendFormat": "{{service}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Data Volume by Signal",
+      "type": "marcusolsson-treemap-panel"
     },
     {
-      "title": "① Scraped (raw/s)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "description": "At-a-glance health of all observability components. Green = healthy, Red = down.",
+      "fieldConfig": {
+        "defaults": {
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 1
+      },
+      "id": 3,
+      "options": {
+        "autoSizeColumns": true,
+        "autoSizePolygons": true,
+        "autoSizeRows": true,
+        "compositeConfig": {
+          "animationSpeed": "1500",
+          "composites": [],
+          "enabled": true
+        },
+        "compositeGlobalAliasingEnabled": false,
+        "ellipseCharacters": 18,
+        "ellipseEnabled": false,
+        "globalAutoScaleFonts": true,
+        "globalClickthrough": "",
+        "globalClickthroughCustomTarget": "",
+        "globalClickthroughCustomTargetEnabled": false,
+        "globalClickthroughNewTabEnabled": true,
+        "globalClickthroughSanitizedEnabled": true,
+        "globalCompositeValueFontSize": 14,
+        "globalDecimals": 2,
+        "globalDisplayMode": "all",
+        "globalDisplayTextTriggeredEmpty": "OK",
+        "globalFillColor": "rgba(10, 85, 161, 1)",
+        "globalGradientsEnabled": true,
+        "globalLabelFontSize": 12,
+        "globalOperator": "mean",
+        "globalPolygonBorderColor": "rgba(0, 0, 0, 0)",
+        "globalPolygonBorderSize": 2,
+        "globalPolygonSize": "25",
+        "globalRegexPattern": "",
+        "globalShape": "hexagon_pointed_top",
+        "globalShowTimestampEnabled": false,
+        "globalShowTimestampFontSize": 12,
+        "globalShowTimestampFormat": "YYYY-MM-DD HH:mm:ss",
+        "globalShowTimestampPosition": "below_value",
+        "globalShowTimestampYOffset": 0,
+        "globalShowTooltipColumnHeadersEnabled": true,
+        "globalShowValueEnabled": true,
+        "globalTextFontAutoColorEnabled": true,
+        "globalTextFontColor": "#000000",
+        "globalTextFontFamily": "Roboto",
+        "globalThresholdsConfig": [],
+        "globalTooltipsEnabled": true,
+        "globalTooltipsFontFamily": "Roboto",
+        "globalTooltipsShowTimestampEnabled": true,
+        "globalTooltipsShowValueEnabled": true,
+        "globalUnitFormat": "short",
+        "globalValueFontSize": 14,
+        "layoutDisplayLimit": 100,
+        "layoutNumColumns": 8,
+        "layoutNumRows": 8,
+        "overrideConfig": {
+          "overrides": []
+        },
+        "sortByDirection": 1,
+        "sortByField": "name",
+        "tooltipDisplayMode": "all",
+        "tooltipDisplayTextTriggeredEmpty": "OK",
+        "tooltipPrimarySortByField": "thresholdLevel",
+        "tooltipPrimarySortDirection": 1,
+        "tooltipSecondarySortByField": "value",
+        "tooltipSecondarySortDirection": 1
+      },
+      "pluginVersion": "2.1.16",
+      "targets": [
+        {
+          "expr": "up{job=~\"otel-collector|clickhouse|gigapipe.*\"}",
+          "instant": true,
+          "legendFormat": "{{job}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Component Health",
+      "type": "grafana-polystat-panel"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
       "description": "Total samples scraped from all targets per second. BEFORE filtering.",
-      "type": "stat",
-      "gridPos": { "h": 4, "w": 4, "x": 0, "y": 9 },
-      "datasource": { "uid": "prometheus", "type": "prometheus" },
-      "fieldConfig": { "defaults": { "unit": "short", "color": { "mode": "fixed", "fixedColor": "yellow" } }, "overrides": [] },
-      "targets": [{ "expr": "sum(scrape_samples_scraped{job=~\"$job\"})", "refId": "A", "instant": true }]
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "yellow",
+            "mode": "fixed"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 0,
+        "y": 9
+      },
+      "id": 4,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "expr": "sum(scrape_samples_scraped{job=~\"$job\"})",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "title": "① Scraped (raw/s)",
+      "type": "stat"
     },
     {
-      "title": "② Stored (rate/s)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
       "description": "Metric points exported by OTel Collector to Gigapipe per second. AFTER filtering.",
-      "type": "stat",
-      "gridPos": { "h": 4, "w": 4, "x": 4, "y": 9 },
-      "datasource": { "uid": "prometheus", "type": "prometheus" },
-      "fieldConfig": { "defaults": { "unit": "short", "color": { "mode": "fixed", "fixedColor": "green" } }, "overrides": [] },
-      "targets": [{ "expr": "sum(rate(otelcol_exporter_sent_metric_points_total{service_name=\"otel-collector\"}[5m]))", "refId": "A", "instant": true }]
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "green",
+            "mode": "fixed"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 4,
+        "y": 9
+      },
+      "id": 5,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "expr": "sum(rate(otelcol_exporter_sent_metric_points_total{service_name=\"otel-collector\"}[5m]))",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "title": "② Stored (rate/s)",
+      "type": "stat"
     },
     {
-      "title": "③ Queried (queries/s)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
       "description": "ClickHouse SELECT queries per second.",
-      "type": "stat",
-      "gridPos": { "h": 4, "w": 4, "x": 8, "y": 9 },
-      "datasource": { "uid": "prometheus", "type": "prometheus" },
-      "fieldConfig": { "defaults": { "unit": "short", "color": { "mode": "fixed", "fixedColor": "blue" } }, "overrides": [] },
-      "targets": [{ "expr": "rate(ClickHouseProfileEvents_SelectQuery_total{service_name=\"clickhouse\"}[5m])", "refId": "A", "instant": true }]
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "blue",
+            "mode": "fixed"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 8,
+        "y": 9
+      },
+      "id": 6,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "expr": "rate(ClickHouseProfileEvents_SelectQuery_total{service_name=\"clickhouse\"}[5m])",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "title": "③ Queried (queries/s)",
+      "type": "stat"
     },
     {
-      "title": "Filter Efficiency",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
       "description": "Percentage of scraped data dropped by filters. Higher = more aggressive filtering.",
-      "type": "gauge",
-      "gridPos": { "h": 4, "w": 4, "x": 12, "y": 9 },
-      "datasource": { "uid": "prometheus", "type": "prometheus" },
-      "fieldConfig": { "defaults": { "unit": "percentunit", "min": 0, "max": 1, "thresholds": { "steps": [{ "value": 0, "color": "red" }, { "value": 0.5, "color": "yellow" }, { "value": 0.8, "color": "green" }] } }, "overrides": [] },
-      "targets": [{ "expr": "1 - (sum(rate(otelcol_exporter_sent_metric_points_total{service_name=\"otel-collector\"}[5m])) / sum(rate(otelcol_processor_incoming_items_total{service_name=\"otel-collector\"}[5m])))", "refId": "A", "instant": true }]
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "max": 1,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": 0
+              },
+              {
+                "color": "yellow",
+                "value": 0.5
+              },
+              {
+                "color": "green",
+                "value": 0.8
+              }
+            ]
+          },
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 12,
+        "y": 9
+      },
+      "id": 7,
+      "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto"
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "expr": "1 - (sum(rate(otelcol_exporter_sent_metric_points_total{service_name=\"otel-collector\"}[5m])) / sum(rate(otelcol_processor_incoming_items_total{service_name=\"otel-collector\"}[5m])))",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Filter Efficiency",
+      "type": "gauge"
     },
     {
-      "title": "CH Active Parts",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
       "description": "ClickHouse active parts count. High = merge pressure.",
-      "type": "stat",
-      "gridPos": { "h": 4, "w": 4, "x": 16, "y": 9 },
-      "datasource": { "uid": "prometheus", "type": "prometheus" },
-      "fieldConfig": { "defaults": { "unit": "short", "thresholds": { "steps": [{ "value": 0, "color": "green" }, { "value": 500, "color": "yellow" }, { "value": 1000, "color": "red" }] } }, "overrides": [] },
-      "targets": [{ "expr": "ClickHouseMetrics_PartsActive{job=\"clickhouse\"}", "refId": "A", "instant": true }]
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "yellow",
+                "value": 500
+              },
+              {
+                "color": "red",
+                "value": 1000
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 16,
+        "y": 9
+      },
+      "id": 8,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "expr": "ClickHouseMetrics_PartsActive{job=\"clickhouse\"}",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "title": "CH Active Parts",
+      "type": "stat"
     },
     {
-      "title": "CH Memory",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
       "description": "ClickHouse memory tracking.",
-      "type": "stat",
-      "gridPos": { "h": 4, "w": 4, "x": 20, "y": 9 },
-      "datasource": { "uid": "prometheus", "type": "prometheus" },
-      "fieldConfig": { "defaults": { "unit": "bytes", "thresholds": { "steps": [{ "value": 0, "color": "green" }, { "value": 1073741824, "color": "yellow" }, { "value": 2147483648, "color": "red" }] } }, "overrides": [] },
-      "targets": [{ "expr": "ClickHouseMetrics_MemoryTracking{job=\"clickhouse\"}", "refId": "A", "instant": true }]
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "yellow",
+                "value": 1073741824
+              },
+              {
+                "color": "red",
+                "value": 2147483648
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 20,
+        "y": 9
+      },
+      "id": 9,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "expr": "ClickHouseMetrics_MemoryTracking{job=\"clickhouse\"}",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "title": "CH Memory",
+      "type": "stat"
     },
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 13 },
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 13
+      },
+      "id": 10,
+      "panels": [],
       "title": "OTel Collector",
       "type": "row"
     },
     {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 0,
+        "y": 14
+      },
+      "id": 11,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "expr": "rate(otelcol_exporter_sent_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval])",
+          "legendFormat": "metrics/s",
+          "refId": "A"
+        },
+        {
+          "expr": "rate(otelcol_exporter_sent_log_records_total{service_name=\"otel-collector\"}[$__rate_interval])",
+          "legendFormat": "logs/s",
+          "refId": "B"
+        },
+        {
+          "expr": "rate(otelcol_exporter_sent_spans_total{service_name=\"otel-collector\"}[$__rate_interval])",
+          "legendFormat": "spans/s",
+          "refId": "C"
+        }
+      ],
       "title": "OTel — Exported by Signal (rate/s)",
-      "type": "timeseries",
-      "gridPos": { "h": 7, "w": 12, "x": 0, "y": 14 },
-      "datasource": { "uid": "prometheus", "type": "prometheus" },
-      "targets": [
-        { "expr": "rate(otelcol_exporter_sent_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval])", "refId": "A", "legendFormat": "metrics/s" },
-        { "expr": "rate(otelcol_exporter_sent_log_records_total{service_name=\"otel-collector\"}[$__rate_interval])", "refId": "B", "legendFormat": "logs/s" },
-        { "expr": "rate(otelcol_exporter_sent_spans_total{service_name=\"otel-collector\"}[$__rate_interval])", "refId": "C", "legendFormat": "spans/s" }
-      ]
+      "type": "timeseries"
     },
     {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "red",
+            "mode": "fixed"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 12,
+        "y": 14
+      },
+      "id": 12,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "expr": "rate(otelcol_exporter_send_failed_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval])",
+          "legendFormat": "failed metrics",
+          "refId": "A"
+        },
+        {
+          "expr": "rate(otelcol_exporter_send_failed_log_records_total{service_name=\"otel-collector\"}[$__rate_interval])",
+          "legendFormat": "failed logs",
+          "refId": "B"
+        },
+        {
+          "expr": "rate(otelcol_exporter_send_failed_spans_total{service_name=\"otel-collector\"}[$__rate_interval])",
+          "legendFormat": "failed spans",
+          "refId": "C"
+        }
+      ],
       "title": "OTel — Failed & Dropped (rate/s)",
-      "type": "timeseries",
-      "gridPos": { "h": 7, "w": 12, "x": 12, "y": 14 },
-      "datasource": { "uid": "prometheus", "type": "prometheus" },
-      "fieldConfig": { "defaults": { "color": { "mode": "fixed", "fixedColor": "red" } }, "overrides": [] },
-      "targets": [
-        { "expr": "rate(otelcol_exporter_send_failed_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval])", "refId": "A", "legendFormat": "failed metrics" },
-        { "expr": "rate(otelcol_exporter_send_failed_log_records_total{service_name=\"otel-collector\"}[$__rate_interval])", "refId": "B", "legendFormat": "failed logs" },
-        { "expr": "rate(otelcol_exporter_send_failed_spans_total{service_name=\"otel-collector\"}[$__rate_interval])", "refId": "C", "legendFormat": "failed spans" }
-      ]
+      "type": "timeseries"
     },
     {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 0,
+        "y": 21
+      },
+      "id": 13,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "expr": "otelcol_exporter_queue_size{service_name=\"otel-collector\"}",
+          "legendFormat": "queue {{exporter}}",
+          "refId": "A"
+        },
+        {
+          "expr": "otelcol_exporter_queue_capacity{service_name=\"otel-collector\"}",
+          "legendFormat": "capacity {{exporter}}",
+          "refId": "B"
+        }
+      ],
       "title": "OTel — Queue Size & Capacity",
-      "type": "timeseries",
-      "gridPos": { "h": 7, "w": 8, "x": 0, "y": 21 },
-      "datasource": { "uid": "prometheus", "type": "prometheus" },
-      "targets": [
-        { "expr": "otelcol_exporter_queue_size{service_name=\"otel-collector\"}", "refId": "A", "legendFormat": "queue {{exporter}}" },
-        { "expr": "otelcol_exporter_queue_capacity{service_name=\"otel-collector\"}", "refId": "B", "legendFormat": "capacity {{exporter}}" }
-      ]
+      "type": "timeseries"
     },
     {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 8,
+        "y": 21
+      },
+      "id": 14,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "expr": "rate(otelcol_processor_incoming_items_total{service_name=\"otel-collector\"}[$__rate_interval])",
+          "legendFormat": "in {{processor}}",
+          "refId": "A"
+        },
+        {
+          "expr": "rate(otelcol_processor_outgoing_items_total{service_name=\"otel-collector\"}[$__rate_interval])",
+          "legendFormat": "out {{processor}}",
+          "refId": "B"
+        }
+      ],
       "title": "OTel — Processor In vs Out",
-      "type": "timeseries",
-      "gridPos": { "h": 7, "w": 8, "x": 8, "y": 21 },
-      "datasource": { "uid": "prometheus", "type": "prometheus" },
-      "targets": [
-        { "expr": "rate(otelcol_processor_incoming_items_total{service_name=\"otel-collector\"}[$__rate_interval])", "refId": "A", "legendFormat": "in {{processor}}" },
-        { "expr": "rate(otelcol_processor_outgoing_items_total{service_name=\"otel-collector\"}[$__rate_interval])", "refId": "B", "legendFormat": "out {{processor}}" }
-      ]
+      "type": "timeseries"
     },
     {
-      "title": "OTel — Memory & CPU",
-      "type": "timeseries",
-      "gridPos": { "h": 7, "w": 8, "x": 16, "y": 21 },
-      "datasource": { "uid": "prometheus", "type": "prometheus" },
-      "fieldConfig": { "defaults": { "unit": "bytes" }, "overrides": [{ "matcher": { "id": "byName", "options": "CPU" }, "properties": [{ "id": "unit", "value": "percentunit" }, { "id": "custom.axisPlacement", "value": "right" }] }] },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "CPU"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percentunit"
+              },
+              {
+                "id": "custom.axisPlacement",
+                "value": "right"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 16,
+        "y": 21
+      },
+      "id": 15,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.3.1",
       "targets": [
-        { "expr": "otelcol_process_memory_rss_bytes{service_name=\"otel-collector\"}", "refId": "A", "legendFormat": "RSS" },
-        { "expr": "rate(otelcol_process_cpu_seconds_total{service_name=\"otel-collector\"}[$__rate_interval])", "refId": "B", "legendFormat": "CPU" }
-      ]
+        {
+          "expr": "otelcol_process_memory_rss_bytes{service_name=\"otel-collector\"}",
+          "legendFormat": "RSS",
+          "refId": "A"
+        },
+        {
+          "expr": "rate(otelcol_process_cpu_seconds_total{service_name=\"otel-collector\"}[$__rate_interval])",
+          "legendFormat": "CPU",
+          "refId": "B"
+        }
+      ],
+      "title": "OTel — Memory & CPU",
+      "type": "timeseries"
     },
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 28 },
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 28
+      },
+      "id": 16,
+      "panels": [],
       "title": "Gigapipe",
       "type": "row"
     },
     {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 0,
+        "y": 29
+      },
+      "id": 17,
+      "options": {},
+      "targets": [
+        {
+          "expr": "rate(sent_rows_total{job=~\"$instance\"}[$__rate_interval])",
+          "legendFormat": "{{service}}",
+          "refId": "A"
+        }
+      ],
       "title": "Gigapipe — Rows Written/s by Signal",
-      "type": "timeseries",
-      "gridPos": { "h": 7, "w": 12, "x": 0, "y": 29 },
-      "datasource": { "uid": "prometheus", "type": "prometheus" },
-      "targets": [{ "expr": "rate(sent_rows_total{job=~\"$instance\"}[$__rate_interval])", "refId": "A", "legendFormat": "{{service}}" }]
+      "type": "timeseries"
     },
     {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "Bps"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 12,
+        "y": 29
+      },
+      "id": 18,
+      "options": {},
+      "targets": [
+        {
+          "expr": "rate(sent_bytes_total{job=~\"$instance\"}[$__rate_interval])",
+          "legendFormat": "{{service}}",
+          "refId": "A"
+        }
+      ],
       "title": "Gigapipe — Bytes Written/s by Signal",
-      "type": "timeseries",
-      "gridPos": { "h": 7, "w": 12, "x": 12, "y": 29 },
-      "datasource": { "uid": "prometheus", "type": "prometheus" },
-      "fieldConfig": { "defaults": { "unit": "Bps" }, "overrides": [] },
-      "targets": [{ "expr": "rate(sent_bytes_total{job=~\"$instance\"}[$__rate_interval])", "refId": "A", "legendFormat": "{{service}}" }]
+      "type": "timeseries"
     },
     {
-      "title": "Gigapipe — Send Time (ms)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
       "description": "Time spent sending batch to ClickHouse.",
-      "type": "timeseries",
-      "gridPos": { "h": 7, "w": 8, "x": 0, "y": 36 },
-      "datasource": { "uid": "prometheus", "type": "prometheus" },
-      "fieldConfig": { "defaults": { "unit": "ms" }, "overrides": [] },
-      "targets": [{ "expr": "rate(send_time_ms_sum{job=~\"$instance\"}[$__rate_interval]) / rate(send_time_ms_count{job=~\"$instance\"}[$__rate_interval])", "refId": "A", "legendFormat": "avg send time" }]
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 0,
+        "y": 36
+      },
+      "id": 19,
+      "options": {},
+      "targets": [
+        {
+          "expr": "rate(send_time_ms_sum{job=~\"$instance\"}[$__rate_interval]) / rate(send_time_ms_count{job=~\"$instance\"}[$__rate_interval])",
+          "legendFormat": "avg send time",
+          "refId": "A"
+        }
+      ],
+      "title": "Gigapipe — Send Time (ms)",
+      "type": "timeseries"
     },
     {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 8,
+        "y": 36
+      },
+      "id": 20,
+      "options": {},
+      "targets": [
+        {
+          "expr": "process_resident_memory_bytes{job=~\"$instance\"}",
+          "legendFormat": "{{job}}",
+          "refId": "A"
+        }
+      ],
       "title": "Gigapipe — Memory (RSS)",
-      "type": "timeseries",
-      "gridPos": { "h": 7, "w": 8, "x": 8, "y": 36 },
-      "datasource": { "uid": "prometheus", "type": "prometheus" },
-      "fieldConfig": { "defaults": { "unit": "bytes" }, "overrides": [] },
-      "targets": [{ "expr": "process_resident_memory_bytes{job=~\"$instance\"}", "refId": "A", "legendFormat": "{{job}}" }]
+      "type": "timeseries"
     },
     {
-      "title": "Gigapipe — Connection Resets",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
       "description": "Connection reset by peer errors.",
-      "type": "timeseries",
-      "gridPos": { "h": 7, "w": 8, "x": 16, "y": 36 },
-      "datasource": { "uid": "prometheus", "type": "prometheus" },
-      "fieldConfig": { "defaults": { "color": { "mode": "fixed", "fixedColor": "red" } }, "overrides": [] },
-      "targets": [{ "expr": "rate(connection_reset_by_peer_count_total{job=~\"$instance\"}[$__rate_interval])", "refId": "A", "legendFormat": "resets/s" }]
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "red",
+            "mode": "fixed"
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 16,
+        "y": 36
+      },
+      "id": 21,
+      "options": {},
+      "targets": [
+        {
+          "expr": "rate(connection_reset_by_peer_count_total{job=~\"$instance\"}[$__rate_interval])",
+          "legendFormat": "resets/s",
+          "refId": "A"
+        }
+      ],
+      "title": "Gigapipe — Connection Resets",
+      "type": "timeseries"
     },
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 43 },
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 43
+      },
+      "id": 22,
+      "panels": [],
       "title": "ClickHouse (Summary)",
       "type": "row"
     },
     {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 0,
+        "y": 44
+      },
+      "id": 23,
+      "options": {},
+      "targets": [
+        {
+          "expr": "rate(ClickHouseProfileEvents_SelectQuery_total{job=\"clickhouse\"}[5m])",
+          "legendFormat": "selects/s",
+          "refId": "A"
+        },
+        {
+          "expr": "rate(ClickHouseProfileEvents_InsertQuery_total{job=\"clickhouse\"}[5m])",
+          "legendFormat": "inserts/s",
+          "refId": "B"
+        }
+      ],
       "title": "CH — Queries/s",
-      "type": "timeseries",
-      "gridPos": { "h": 7, "w": 8, "x": 0, "y": 44 },
-      "datasource": { "uid": "prometheus", "type": "prometheus" },
-      "targets": [
-        { "expr": "rate(ClickHouseProfileEvents_SelectQuery_total{job=\"clickhouse\"}[5m])", "refId": "A", "legendFormat": "selects/s" },
-        { "expr": "rate(ClickHouseProfileEvents_InsertQuery_total{job=\"clickhouse\"}[5m])", "refId": "B", "legendFormat": "inserts/s" }
-      ]
+      "type": "timeseries"
     },
     {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 8,
+        "y": 44
+      },
+      "id": 24,
+      "options": {},
+      "targets": [
+        {
+          "expr": "rate(ClickHouseProfileEvents_InsertedRows_total{job=\"clickhouse\"}[5m])",
+          "legendFormat": "rows/s",
+          "refId": "A"
+        }
+      ],
       "title": "CH — Inserted Rows/s",
-      "type": "timeseries",
-      "gridPos": { "h": 7, "w": 8, "x": 8, "y": 44 },
-      "datasource": { "uid": "prometheus", "type": "prometheus" },
-      "targets": [{ "expr": "rate(ClickHouseProfileEvents_InsertedRows_total{job=\"clickhouse\"}[5m])", "refId": "A", "legendFormat": "rows/s" }]
+      "type": "timeseries"
     },
     {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 16,
+        "y": 44
+      },
+      "id": 25,
+      "options": {},
+      "targets": [
+        {
+          "expr": "ClickHouseMetrics_PartsActive{job=\"clickhouse\"}",
+          "legendFormat": "active parts",
+          "refId": "A"
+        },
+        {
+          "expr": "ClickHouseMetrics_Merge{job=\"clickhouse\"}",
+          "legendFormat": "running merges",
+          "refId": "B"
+        }
+      ],
       "title": "CH — Active Parts & Merges",
-      "type": "timeseries",
-      "gridPos": { "h": 7, "w": 8, "x": 16, "y": 44 },
-      "datasource": { "uid": "prometheus", "type": "prometheus" },
-      "targets": [
-        { "expr": "ClickHouseMetrics_PartsActive{job=\"clickhouse\"}", "refId": "A", "legendFormat": "active parts" },
-        { "expr": "ClickHouseMetrics_Merge{job=\"clickhouse\"}", "refId": "B", "legendFormat": "running merges" }
-      ]
+      "type": "timeseries"
     },
     {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 0,
+        "y": 51
+      },
+      "id": 26,
+      "options": {},
+      "targets": [
+        {
+          "expr": "ClickHouseMetrics_MemoryTracking{job=\"clickhouse\"}",
+          "legendFormat": "memory",
+          "refId": "A"
+        }
+      ],
       "title": "CH — Memory & Disk I/O",
-      "type": "timeseries",
-      "gridPos": { "h": 7, "w": 12, "x": 0, "y": 51 },
-      "datasource": { "uid": "prometheus", "type": "prometheus" },
-      "fieldConfig": { "defaults": { "unit": "bytes" }, "overrides": [] },
-      "targets": [
-        { "expr": "ClickHouseMetrics_MemoryTracking{job=\"clickhouse\"}", "refId": "A", "legendFormat": "memory" }
-      ]
+      "type": "timeseries"
     },
     {
-      "title": "CH — Failed Queries/s",
-      "type": "timeseries",
-      "gridPos": { "h": 7, "w": 12, "x": 12, "y": 51 },
-      "datasource": { "uid": "prometheus", "type": "prometheus" },
-      "fieldConfig": { "defaults": { "color": { "mode": "fixed", "fixedColor": "red" } }, "overrides": [] },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "red",
+            "mode": "fixed"
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 12,
+        "y": 51
+      },
+      "id": 27,
+      "options": {},
       "targets": [
-        { "expr": "rate(ClickHouseProfileEvents_FailedQuery_total{job=\"clickhouse\"}[5m])", "refId": "A", "legendFormat": "failed queries/s" }
-      ]
+        {
+          "expr": "rate(ClickHouseProfileEvents_FailedQuery_total{job=\"clickhouse\"}[5m])",
+          "legendFormat": "failed queries/s",
+          "refId": "A"
+        }
+      ],
+      "title": "CH — Failed Queries/s",
+      "type": "timeseries"
     },
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 58 },
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 58
+      },
+      "id": 28,
+      "panels": [],
       "title": "PCI Log Sanity Check",
       "type": "row"
     },
     {
-      "title": "PCI Log Lines (via selected Loki)",
+      "datasource": {
+        "type": "loki",
+        "uid": "$loki"
+      },
       "description": "Count of log lines with compliance_scope=pci. Flip the Loki datasource variable to test.",
-      "type": "stat",
-      "gridPos": { "h": 6, "w": 6, "x": 0, "y": 59 },
-      "datasource": { "uid": "$loki", "type": "loki" },
-      "fieldConfig": { "defaults": { "unit": "short", "thresholds": { "steps": [{ "value": 0, "color": "green" }, { "value": 1, "color": "orange" }] }, "mappings": [{ "type": "value", "options": { "0": { "text": "0 (FILTERED ✓)", "color": "green" } } }] }, "overrides": [] },
-      "targets": [{ "expr": "count_over_time({compliance_scope=\"pci\"}[$__range])", "refId": "A", "instant": true }]
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            {
+              "options": {
+                "0": {
+                  "color": "green",
+                  "text": "0 (FILTERED ✓)"
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "thresholds": {
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "orange",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 0,
+        "y": 59
+      },
+      "id": 29,
+      "options": {},
+      "targets": [
+        {
+          "expr": "count_over_time({compliance_scope=\"pci\"}[$__range])",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "title": "PCI Log Lines (via selected Loki)",
+      "type": "stat"
     },
     {
-      "title": "Non-PCI Log Lines",
+      "datasource": {
+        "type": "loki",
+        "uid": "$loki"
+      },
       "description": "Count of log lines without PCI scope. Should be visible on both Loki datasources.",
-      "type": "stat",
-      "gridPos": { "h": 6, "w": 6, "x": 6, "y": 59 },
-      "datasource": { "uid": "$loki", "type": "loki" },
-      "fieldConfig": { "defaults": { "unit": "short", "color": { "mode": "fixed", "fixedColor": "green" } }, "overrides": [] },
-      "targets": [{ "expr": "count_over_time({compliance_scope!=\"pci\",compliance_scope!=\"\"}[$__range])", "refId": "A", "instant": true }]
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "green",
+            "mode": "fixed"
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 6,
+        "y": 59
+      },
+      "id": 30,
+      "options": {},
+      "targets": [
+        {
+          "expr": "count_over_time({compliance_scope!=\"pci\",compliance_scope!=\"\"}[$__range])",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Non-PCI Log Lines",
+      "type": "stat"
     },
     {
-      "title": "PCI Filter Status",
+      "datasource": {
+        "type": "loki",
+        "uid": "$loki"
+      },
       "description": "PASS if selected Loki datasource correctly hides PCI logs.",
-      "type": "stat",
-      "gridPos": { "h": 6, "w": 6, "x": 12, "y": 59 },
-      "datasource": { "uid": "$loki", "type": "loki" },
-      "fieldConfig": { "defaults": { "mappings": [{ "type": "range", "options": { "from": 1, "to": 999999999, "result": { "text": "PCI LOGS VISIBLE ⚠️", "color": "orange" } } }, { "type": "value", "options": { "0": { "text": "PCI LOGS HIDDEN ✓", "color": "green" } } }] }, "overrides": [] },
-      "targets": [{ "expr": "count_over_time({compliance_scope=\"pci\"}[$__range])", "refId": "A", "instant": true }]
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            {
+              "options": {
+                "from": 1,
+                "result": {
+                  "color": "orange",
+                  "text": "PCI LOGS VISIBLE ⚠️"
+                },
+                "to": 999999999
+              },
+              "type": "range"
+            },
+            {
+              "options": {
+                "0": {
+                  "color": "green",
+                  "text": "PCI LOGS HIDDEN ✓"
+                }
+              },
+              "type": "value"
+            }
+          ]
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 12,
+        "y": 59
+      },
+      "id": 31,
+      "options": {},
+      "targets": [
+        {
+          "expr": "count_over_time({compliance_scope=\"pci\"}[$__range])",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "title": "PCI Filter Status",
+      "type": "stat"
     },
     {
-      "title": "Logs by compliance_scope",
+      "datasource": {
+        "type": "loki",
+        "uid": "$loki"
+      },
       "description": "Distribution of log lines by compliance_scope.",
-      "type": "piechart",
-      "gridPos": { "h": 6, "w": 6, "x": 18, "y": 59 },
-      "datasource": { "uid": "$loki", "type": "loki" },
-      "targets": [{ "expr": "sum by (compliance_scope) (count_over_time({compliance_scope!=\"\"}[$__range]))", "refId": "A", "instant": true, "legendFormat": "{{compliance_scope}}" }],
-      "options": { "legend": { "displayMode": "table", "placement": "right", "values": ["value", "percent"] } }
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 18,
+        "y": 59
+      },
+      "id": 32,
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "values": [
+            "value",
+            "percent"
+          ]
+        }
+      },
+      "targets": [
+        {
+          "expr": "sum by (compliance_scope) (count_over_time({compliance_scope!=\"\"}[$__range]))",
+          "instant": true,
+          "legendFormat": "{{compliance_scope}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Logs by compliance_scope",
+      "type": "piechart"
     }
   ],
-  "schemaVersion": 39,
-  "tags": ["monitoring", "meta", "observability", "gigapipe", "otel", "clickhouse"],
+  "preload": false,
+  "refresh": "",
+  "schemaVersion": 42,
+  "tags": [
+    "monitoring",
+    "meta",
+    "observability",
+    "gigapipe",
+    "otel",
+    "clickhouse"
+  ],
   "templating": {
     "list": [
       {
-        "current": { "selected": true, "text": "All", "value": "$__all" },
-        "datasource": { "uid": "prometheus", "type": "prometheus" },
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
         "definition": "label_values(up, job)",
-        "hide": 0,
         "includeAll": true,
         "label": "Job",
         "multi": true,
         "name": "job",
         "options": [],
-        "query": { "qryType": 1, "query": "label_values(up, job)" },
+        "query": {
+          "qryType": 1,
+          "query": "label_values(up, job)"
+        },
         "refresh": 2,
         "sort": 1,
         "type": "query"
       },
       {
-        "current": { "selected": true, "text": "All", "value": "$__all" },
-        "datasource": { "uid": "prometheus", "type": "prometheus" },
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
         "definition": "label_values(sent_rows_total, job)",
-        "hide": 0,
         "includeAll": true,
         "label": "Gigapipe Instance",
         "multi": true,
         "name": "instance",
         "options": [],
-        "query": { "qryType": 1, "query": "label_values(sent_rows_total, job)" },
+        "query": {
+          "qryType": 1,
+          "query": "label_values(sent_rows_total, job)"
+        },
         "refresh": 2,
         "sort": 1,
         "type": "query"
       },
       {
-        "current": { "selected": true, "text": "Loki (PCI)", "value": "loki-pci" },
-        "hide": 0,
+        "current": {
+          "text": "Loki (PCI)",
+          "value": "loki-pci"
+        },
         "includeAll": false,
         "label": "Loki",
-        "multi": false,
         "name": "loki",
         "options": [],
         "query": "loki",
@@ -363,7 +1708,13 @@
       }
     ]
   },
-  "time": { "from": "now-1h", "to": "now" },
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "",
   "title": "Observability Stack",
-  "uid": "monitoring-meta"
+  "uid": "monitoring-meta",
+  "version": 4
 }

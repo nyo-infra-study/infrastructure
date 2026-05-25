@@ -12,18 +12,18 @@
       "type": "row"
     },
     {
-      "title": "Total Disk Usage",
-      "description": "Total bytes on disk across all tables in the otel database.",
+      "title": "Total Data Size",
+      "description": "Actual compressed data stored in all MergeTree tables (user data, not filesystem).",
       "type": "stat",
       "gridPos": { "h": 5, "w": 4, "x": 0, "y": 1 },
       "datasource": { "uid": "prometheus", "type": "prometheus" },
       "fieldConfig": { "defaults": { "unit": "bytes", "color": { "mode": "fixed", "fixedColor": "blue" } }, "overrides": [] },
       "targets": [
         {
-          "expr": "sum(ClickHouseAsyncMetrics_DiskUsed_default{job=\"clickhouse\"})",
+          "expr": "ClickHouseAsyncMetrics_TotalBytesOfMergeTreeTables{job=\"clickhouse\"} - ClickHouseAsyncMetrics_TotalBytesOfMergeTreeTablesSystem{job=\"clickhouse\"}",
           "refId": "A",
           "instant": true,
-          "legendFormat": "disk usage"
+          "legendFormat": "data size"
         }
       ]
     },
@@ -76,16 +76,21 @@
       ]
     },
     {
-      "title": "Disk Usage Over Time",
+      "title": "Data Size Over Time",
       "type": "timeseries",
       "gridPos": { "h": 7, "w": 12, "x": 0, "y": 6 },
       "datasource": { "uid": "prometheus", "type": "prometheus" },
       "fieldConfig": { "defaults": { "unit": "bytes" }, "overrides": [] },
       "targets": [
         {
-          "expr": "ClickHouseAsyncMetrics_DiskUsed_default{job=\"clickhouse\"}",
+          "expr": "ClickHouseAsyncMetrics_TotalBytesOfMergeTreeTables{job=\"clickhouse\"} - ClickHouseAsyncMetrics_TotalBytesOfMergeTreeTablesSystem{job=\"clickhouse\"}",
           "refId": "A",
-          "legendFormat": "data bytes"
+          "legendFormat": "user data"
+        },
+        {
+          "expr": "ClickHouseAsyncMetrics_TotalBytesOfMergeTreeTablesSystem{job=\"clickhouse\"}",
+          "refId": "B",
+          "legendFormat": "system data"
         }
       ]
     },
