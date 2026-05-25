@@ -56,7 +56,7 @@ datasources:
         jsonData:
           tracesToLogsV2:
             datasourceUid: loki-pci
-            filterByTraceID: false
+            filterByTraceID: true
             filterBySpanID: false
             spanStartTimeShift: "-5m"
             spanEndTimeShift: "5m"
