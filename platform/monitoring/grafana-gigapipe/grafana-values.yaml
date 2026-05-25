@@ -101,6 +101,12 @@ datasources:
 testFramework:
   enabled: false
 
+# ── Plugins ──
+plugins:
+  - marcusolsson-treemap-panel
+  - netsage-sankey-panel
+  - grafana-polystat-panel
+
 # Admin password (local dev)
 adminPassword: admin
 
