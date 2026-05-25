@@ -58,8 +58,25 @@ controller:
       servicePort: 8082
 
 repoServer:
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: "1"
+      memory: 512Mi
   metrics:
     enabled: true
     service:
       type: ClusterIP
       servicePort: 8084
+  # Fix: default liveness probe timeout (1s) is too aggressive.
+  # Repo-server becomes unresponsive during heavy Helm rendering / git ops.
+  livenessProbe:
+    httpGet:
+      path: /healthz?full=true
+      port: metrics
+    initialDelaySeconds: 30
+    periodSeconds: 30
+    timeoutSeconds: 5
+    failureThreshold: 5
