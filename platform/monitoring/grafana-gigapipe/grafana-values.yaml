@@ -109,9 +109,10 @@ testFramework:
 
 # ── Plugins ──
 plugins:
-  - marcusolsson-treemap-panel
-  - netsage-sankey-panel
-  - grafana-polystat-panel
+  - marcusolsson-treemap-panel 2.1.1
+  - netsage-sankey-panel 1.1.4
+  - grafana-polystat-panel 2.1.16
+  - briangann-datatable-panel 2.0.2
 
 # Admin password (local dev)
 adminPassword: admin

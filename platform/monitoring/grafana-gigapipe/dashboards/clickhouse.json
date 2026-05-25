@@ -348,6 +348,41 @@
           "legendFormat": "wait µs/s"
         }
       ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 53 },
+      "title": "Table Inventory (searchable)",
+      "type": "row"
+    },
+    {
+      "title": "Table Sizes",
+      "description": "All ClickHouse tables with size and row count. Use the search box to find a specific table.",
+      "type": "briangann-datatable-panel",
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 54 },
+      "datasource": { "uid": "prometheus", "type": "prometheus" },
+      "targets": [
+        {
+          "expr": "ClickHouseAsyncMetrics_NumberOfBytesOfMergeTreeTable{job=\"clickhouse\"}",
+          "refId": "A",
+          "instant": true,
+          "format": "table"
+        }
+      ],
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": { "Time": true, "__name__": true, "job": true, "instance": true },
+            "renameByName": { "table": "Table", "Value": "Size (bytes)" }
+          }
+        }
+      ],
+      "options": {
+        "showSearchFilter": true,
+        "showRowNumbers": true,
+        "pageSize": 25
+      }
     }
   ],
   "schemaVersion": 39,

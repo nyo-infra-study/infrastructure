@@ -113,6 +113,41 @@
       "gridPos": { "h": 7, "w": 24, "x": 0, "y": 32 },
       "datasource": { "uid": "prometheus", "type": "prometheus" },
       "targets": [{ "expr": "increase(kube_pod_container_status_restarts_total{namespace=~\"$namespace\"}[$__rate_interval])", "refId": "A", "legendFormat": "{{namespace}}/{{pod}}/{{container}}" }]
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 39 },
+      "title": "Pod Inventory (searchable)",
+      "type": "row"
+    },
+    {
+      "title": "Pod List",
+      "description": "All pods with status, namespace, and node. Use the search box to filter by pod name.",
+      "type": "briangann-datatable-panel",
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 40 },
+      "datasource": { "uid": "prometheus", "type": "prometheus" },
+      "targets": [
+        {
+          "expr": "kube_pod_info{namespace=~\"$namespace\"}",
+          "refId": "A",
+          "instant": true,
+          "format": "table"
+        }
+      ],
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": { "Time": true, "Value": true, "__name__": true, "job": true, "instance": true },
+            "renameByName": { "pod": "Pod", "namespace": "Namespace", "node": "Node", "host_ip": "Host IP", "pod_ip": "Pod IP", "uid": "UID" }
+          }
+        }
+      ],
+      "options": {
+        "showSearchFilter": true,
+        "showRowNumbers": true,
+        "pageSize": 25
+      }
     }
   ],
   "schemaVersion": 39,
