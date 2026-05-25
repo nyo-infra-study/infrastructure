@@ -41,3 +41,10 @@ configMapGenerator:
       labels:
         grafana_dashboard: "1"
       disableNameSuffixHash: true
+  - name: grafana-dashboard-pipeline-flow
+    files:
+      - pipeline-flow.json
+    options:
+      labels:
+        grafana_dashboard: "1"
+      disableNameSuffixHash: true
