@@ -26,6 +26,7 @@ spec:
           - $values/platform/monitoring/collector/receivers-apps.yaml
           - $values/platform/monitoring/collector/receivers-logs.yaml
           - $values/platform/monitoring/collector/processors.yaml
+          - $values/platform/monitoring/collector/connectors.yaml
           - $values/platform/monitoring/collector/exporters.yaml
           - $values/platform/monitoring/collector/pipelines.yaml
     - repoURL: https://github.com/nyo-infra-study/infrastructure.git

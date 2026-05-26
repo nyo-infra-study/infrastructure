@@ -72,7 +72,13 @@ config:
       traces:
         receivers: [otlp]
         processors: [memory_limiter, k8sattributes, resource/app-enforce, filter/traces, batch]
-        exporters: [otlphttp/gigapipe-traces]
+        exporters: [otlphttp/gigapipe-traces, spanmetrics]
+
+      # ── Span metrics (Service Graph) ──
+      metrics/spanmetrics:
+        receivers: [spanmetrics]
+        processors: [memory_limiter, batch]
+        exporters: [prometheusremotewrite/gigapipe]
 
       # ── Logs from OTLP (app instrumentation) ──
       logs:

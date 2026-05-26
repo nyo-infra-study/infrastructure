@@ -65,6 +65,8 @@ datasources:
                 value: service_name
           tracesToMetrics:
             datasourceUid: prometheus
+          serviceMap:
+            datasourceUid: prometheus
           nodeGraph:
             enabled: true
 

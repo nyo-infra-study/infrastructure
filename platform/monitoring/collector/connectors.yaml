@@ -1,0 +1,19 @@
+# ============================================================
+# Connectors
+# ============================================================
+# spanmetrics: Generates RED metrics from traces for Service Graph.
+# Acts as an exporter in the traces pipeline and a receiver
+# in a metrics pipeline.
+# ============================================================
+config:
+  connectors:
+    spanmetrics:
+      histogram:
+        explicit:
+          buckets: [5ms, 10ms, 25ms, 50ms, 100ms, 250ms, 500ms, 1s, 2.5s, 5s, 10s]
+      dimensions:
+        - name: http.method
+        - name: http.status_code
+      dimensions_cache_size: 1000
+      aggregation_temporality: "AGGREGATION_TEMPORALITY_CUMULATIVE"
+      metrics_flush_interval: 15s
