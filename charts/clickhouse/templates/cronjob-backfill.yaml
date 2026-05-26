@@ -28,7 +28,7 @@ spec:
                     --port=9000 \
                     --user=default \
                     --password={{ .Values.auth.defaultPassword }} \
-                    --query="SYSTEM RELOAD DICTIONARY IF EXISTS otel.fingerprint_scope_dict" && \
+                    --query="SYSTEM RELOAD DICTIONARY otel.fingerprint_scope_dict" && \
                   clickhouse-client \
                     --host={{ .Release.Name }} \
                     --port=9000 \

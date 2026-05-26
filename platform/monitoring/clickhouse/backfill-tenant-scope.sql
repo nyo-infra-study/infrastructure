@@ -15,7 +15,7 @@
 -- ============================================================
 
 -- Refresh the dictionary to pick up latest fingerprint mappings
-SYSTEM RELOAD DICTIONARY IF EXISTS otel.fingerprint_scope_dict;
+SYSTEM RELOAD DICTIONARY otel.fingerprint_scope_dict;
 
 -- Only update rows where:
 -- 1. tenant_scope is empty (wasn't resolved at insert time)
