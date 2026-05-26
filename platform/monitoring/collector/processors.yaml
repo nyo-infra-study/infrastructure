@@ -155,6 +155,24 @@ config:
         log_record:
           - 'resource.attributes["k8s.namespace.name"] == "kube-system"'
 
+    # ── Filter traces: drop health check spans ──
+    filter/traces:
+      error_mode: ignore
+      traces:
+        span:
+          - 'attributes["http.route"] == "/healthz"'
+          - 'attributes["http.route"] == "/readyz"'
+          - 'attributes["http.route"] == "/livez"'
+          - 'attributes["http.target"] == "/healthz"'
+          - 'attributes["http.target"] == "/readyz"'
+          - 'attributes["http.target"] == "/livez"'
+          - 'attributes["url.path"] == "/healthz"'
+          - 'attributes["url.path"] == "/readyz"'
+          - 'attributes["url.path"] == "/livez"'
+          - 'attributes["http.route"] == "/health"'
+          - 'attributes["http.target"] == "/health"'
+          - 'attributes["url.path"] == "/health"'
+
     # ── Drop noisy / low-value metrics (for app OTLP metrics) ──
     filter/metrics:
       error_mode: ignore

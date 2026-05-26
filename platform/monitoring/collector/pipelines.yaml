@@ -71,7 +71,7 @@ config:
       # ── Traces ──
       traces:
         receivers: [otlp]
-        processors: [memory_limiter, k8sattributes, resource/app-enforce, batch]
+        processors: [memory_limiter, k8sattributes, resource/app-enforce, filter/traces, batch]
         exporters: [otlphttp/gigapipe-traces]
 
       # ── Logs from OTLP (app instrumentation) ──
