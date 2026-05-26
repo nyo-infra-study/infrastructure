@@ -160,18 +160,18 @@ config:
       error_mode: ignore
       traces:
         span:
-          - 'attributes["http.route"] == "/healthz"'
-          - 'attributes["http.route"] == "/readyz"'
-          - 'attributes["http.route"] == "/livez"'
-          - 'attributes["http.target"] == "/healthz"'
-          - 'attributes["http.target"] == "/readyz"'
-          - 'attributes["http.target"] == "/livez"'
-          - 'attributes["url.path"] == "/healthz"'
-          - 'attributes["url.path"] == "/readyz"'
-          - 'attributes["url.path"] == "/livez"'
-          - 'attributes["http.route"] == "/health"'
-          - 'attributes["http.target"] == "/health"'
-          - 'attributes["url.path"] == "/health"'
+          - 'IsMatch(attributes["http.route"], ".*/health.*")'
+          - 'IsMatch(attributes["http.route"], ".*/readyz.*")'
+          - 'IsMatch(attributes["http.route"], ".*/livez.*")'
+          - 'IsMatch(attributes["http.target"], ".*/health.*")'
+          - 'IsMatch(attributes["http.target"], ".*/readyz.*")'
+          - 'IsMatch(attributes["http.target"], ".*/livez.*")'
+          - 'IsMatch(attributes["url.path"], ".*/health.*")'
+          - 'IsMatch(attributes["url.path"], ".*/readyz.*")'
+          - 'IsMatch(attributes["url.path"], ".*/livez.*")'
+          - 'IsMatch(name, ".*health.*")'
+          - 'IsMatch(name, ".*readyz.*")'
+          - 'IsMatch(name, ".*livez.*")'
 
     # ── Drop noisy / low-value metrics (for app OTLP metrics) ──
     filter/metrics:
