@@ -60,6 +60,17 @@ spec:
               -- MV to keep mapping updated
               CREATE MATERIALIZED VIEW IF NOT EXISTS otel.fingerprint_tenant_map_mv TO otel.fingerprint_tenant_map AS SELECT fingerprint, JSONExtractString(labels, 'compliance_scope') AS tenant_scope FROM otel.time_series WHERE JSONExtractString(labels, 'compliance_scope') != '';
 
+              -- Dictionary for fast fingerprint → tenant_scope lookup (used by backfill CronJob)
+              CREATE DICTIONARY IF NOT EXISTS otel.fingerprint_scope_dict
+              (
+                  fingerprint UInt64,
+                  tenant_scope String
+              )
+              PRIMARY KEY fingerprint
+              SOURCE(CLICKHOUSE(TABLE 'fingerprint_tenant_map' DB 'otel'))
+              LAYOUT(HASHED())
+              LIFETIME(MIN 30 MAX 60);
+
               -- Add tenant_scope to data tables
               ALTER TABLE otel.samples_v3 ADD COLUMN IF NOT EXISTS tenant_scope LowCardinality(String) DEFAULT '';
               ALTER TABLE otel.metrics_15s ADD COLUMN IF NOT EXISTS tenant_scope LowCardinality(String) DEFAULT '';
