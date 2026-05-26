@@ -1,19 +1,32 @@
 # ============================================================
 # Connectors
 # ============================================================
-# spanmetrics: Generates RED metrics from traces for Service Graph.
-# Acts as an exporter in the traces pipeline and a receiver
+# spanmetrics: Generates RED metrics (rate/error/duration) from traces.
+# servicegraph: Generates service-to-service relationship metrics
+#               for Grafana's Service Graph view.
+#
+# Both act as exporters in the traces pipeline and receivers
 # in a metrics pipeline.
 # ============================================================
 config:
   connectors:
     spanmetrics:
+      namespace: traces.spanmetrics
       histogram:
+        unit: "s"
         explicit:
-          buckets: [5ms, 10ms, 25ms, 50ms, 100ms, 250ms, 500ms, 1s, 2.5s, 5s, 10s]
+          buckets: [0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10]
       dimensions:
         - name: http.method
         - name: http.status_code
       dimensions_cache_size: 1000
       aggregation_temporality: "AGGREGATION_TEMPORALITY_CUMULATIVE"
       metrics_flush_interval: 15s
+
+    servicegraph:
+      latency_histogram_buckets: [0.1, 0.25, 0.5, 1, 2.5, 5, 10]
+      dimensions:
+        - service.namespace
+      store:
+        ttl: 10s
+        max_items: 1000
