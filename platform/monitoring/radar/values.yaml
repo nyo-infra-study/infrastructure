@@ -1,7 +1,7 @@
 # ============================================================
 # Radar by Skyhook — Kubernetes Visibility UI (Local Dev)
 # ============================================================
-# Chart: https://github.com/skyhook-io/helm-charts (skyhook/radar v1.5.10)
+# Chart: https://github.com/skyhook-io/helm-charts (skyhook/radar v1.7.1)
 # Docs:  https://radarhq.io/docs
 #
 # UI accessible at: http://radar.localhost:9000
@@ -15,6 +15,7 @@ replicaCount: 1
 
 image:
   repository: ghcr.io/skyhook-io/radar
+  tag: "1.7.1"
   pullPolicy: IfNotPresent
 
 # --- Service ---

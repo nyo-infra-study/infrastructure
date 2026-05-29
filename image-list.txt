@@ -79,7 +79,7 @@ quay.io/prometheus/node-exporter:v1.8.2
 # victoriametrics/victoria-metrics:v1.142.0
 
 # --- Radar (platform/monitoring/radar/values.yaml) ---
-ghcr.io/skyhook-io/radar:1.5.10
+ghcr.io/skyhook-io/radar:1.7.1
 
 # --- Gigapipe (charts/gigapipe — writer + reader) ---
 ghcr.io/metrico/gigapipe:v4.1.6

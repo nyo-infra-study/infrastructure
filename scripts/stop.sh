@@ -74,6 +74,10 @@ if [ "$PRUNE_ALL" = true ]; then
     else
         echo "⚠️  colima not found, skipping."
     fi
+
+    log_step "Pruning Docker (all images, build cache, volumes)"
+    run "docker system prune -a --volumes -f || true"
+    echo "Docker fully pruned. All images, build cache, and volumes removed."
 elif [ "$PRUNE" = true ]; then
     log_step "Stopping Colima (frees CPU/memory, data preserved)"
     if command -v colima &> /dev/null; then
@@ -86,6 +90,11 @@ elif [ "$PRUNE" = true ]; then
     else
         echo "⚠️  colima not found, skipping."
     fi
+
+    log_step "Pruning Docker (dangling images only — tagged images cached)"
+    run "docker image prune -f || true"
+    run "docker builder prune -f || true"
+    echo "Dangling images + build cache removed. Tagged images preserved for faster next start."
 fi
 
 log_step "Done!"
