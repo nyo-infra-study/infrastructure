@@ -193,12 +193,13 @@ config:
           - 'name == "scrape_series_added"'
           - 'name == "up"'
 
-    # ── Keep only useful cAdvisor + KSM metrics (allowlist approach) ──
+    # ── Keep only useful cAdvisor + KSM metrics (safety net — primary filtering at scrape) ──
     filter/infra-allow:
       error_mode: ignore
       metrics:
-        metric:
-          - 'not(IsMatch(name, "container_cpu_usage_seconds_total") or IsMatch(name, "container_memory_usage_bytes") or IsMatch(name, "container_memory_working_set_bytes") or IsMatch(name, "container_oom_events_total") or IsMatch(name, "container_cpu_cfs_throttled_periods_total") or IsMatch(name, "container_cpu_cfs_periods_total") or IsMatch(name, "kube_pod_container_resource_requests") or IsMatch(name, "kube_pod_container_resource_limits") or IsMatch(name, "kube_pod_container_status_restarts_total") or IsMatch(name, "kube_pod_container_status_last_terminated_reason") or IsMatch(name, "kube_pod_status_phase") or IsMatch(name, "kube_container_status_waiting_reason") or IsMatch(name, "kube_pod_info") or IsMatch(name, "kube_node_status_allocatable") or IsMatch(name, "kube_node_status_capacity") or IsMatch(name, "kube_node_info") or IsMatch(name, "kube_namespace_status_phase") or IsMatch(name, "kube_deployment_status_replicas") or IsMatch(name, "kube_deployment_spec_replicas") or IsMatch(name, "kube_statefulset_status_replicas") or IsMatch(name, "kube_statefulset_replicas") or IsMatch(name, "kube_daemonset_status.*"))'
+        datapoint:
+          # Drop any remaining empty-container cAdvisor metrics that slip through
+          - 'IsMatch(metric.name, "container_.*") and resource.attributes["container"] == ""'
 
     # ── Drop noisy kubelet metrics (apiserver/etcd histograms — 42K+ series) ──
     filter/kubelet:
@@ -222,15 +223,11 @@ config:
           - 'IsMatch(name, "scheduler_event_handling_duration.*")'
           - 'IsMatch(name, "apiserver_admission_controller_admission.*")'
 
-    # ── Drop noisy ArgoCD gRPC metrics (1900+ series) ──
+    # ── ArgoCD filter (safety net — primary filtering at scrape) ──
     filter/argocd:
       error_mode: ignore
       metrics:
         metric:
-          - 'IsMatch(name, "grpc_server_handled_total")'
-          - 'IsMatch(name, "grpc_server_started_total")'
-          - 'IsMatch(name, "grpc_server_msg_sent_total")'
-          - 'IsMatch(name, "grpc_server_msg_received_total")'
-          - 'IsMatch(name, "go_gc_heap_allocs_by_size_bytes.*")'
-          - 'IsMatch(name, "go_gc_heap_frees_by_size_bytes.*")'
-          - 'IsMatch(name, "go_gc_duration_seconds.*")'
+          # Drop any Go runtime/process metrics that slip through
+          - 'IsMatch(name, "go_.*")'
+          - 'IsMatch(name, "process_.*")'

@@ -37,6 +37,20 @@ config:
                 regex: (.+)
                 target_label: __metrics_path__
                 replacement: /api/v1/nodes/$${1}/proxy/metrics/cadvisor
+            # Drop at scrape time — only keep what dashboards actually use
+            metric_relabel_configs:
+              # Allowlist: keep only these metrics
+              - source_labels: [__name__]
+                regex: '(container_cpu_usage_seconds_total|container_memory_working_set_bytes|container_oom_events_total|container_cpu_cfs_throttled_periods_total|container_cpu_cfs_periods_total)'
+                action: keep
+              # Drop pause/sandbox containers (empty container label)
+              - source_labels: [container]
+                regex: '^$'
+                action: drop
+              # Drop kube-system namespace (noisy, not actionable)
+              - source_labels: [namespace]
+                regex: 'kube-system'
+                action: drop
 
     # ── Kubelet metrics (node-level resource usage) ──
     prometheus/kubelet:
@@ -83,6 +97,11 @@ config:
             scrape_interval: 30s
             static_configs:
               - targets: ['dev-monitoring-ksm-kube-state-metrics.monitoring.svc.cluster.local:8080']
+            # Drop at scrape time — only keep metrics used by dashboards
+            metric_relabel_configs:
+              - source_labels: [__name__]
+                regex: '(kube_pod_container_resource_requests|kube_pod_container_resource_limits|kube_pod_container_status_restarts_total|kube_pod_container_status_last_terminated_reason|kube_pod_status_phase|kube_container_status_waiting_reason|kube_node_status_allocatable|kube_node_status_capacity|kube_namespace_status_phase|kube_deployment_status_replicas|kube_deployment_spec_replicas|kube_statefulset_status_replicas|kube_statefulset_replicas|kube_daemonset_status_number_ready|kube_daemonset_status_desired_number_scheduled)'
+                action: keep
 
     # ── CoreDNS metrics (DNS request rates, latency, errors, cache) ──
     prometheus/coredns:

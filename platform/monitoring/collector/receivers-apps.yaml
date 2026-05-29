@@ -57,15 +57,28 @@ config:
               - targets: ['argocd-server-metrics.argocd.svc.cluster.local:8083']
                 labels:
                   namespace: argocd
+            # Drop at scrape time — only keep sync/health essentials
+            metric_relabel_configs:
+              - source_labels: [__name__]
+                regex: '(argocd_app_info|argocd_app_sync_total|argocd_app_health_status|argocd_app_reconcile_count|argocd_app_reconcile_bucket|argocd_git_request_total|argocd_git_request_duration_seconds_bucket|argocd_cluster_info|argocd_cluster_api_resource_objects|argocd_redis_request_total)'
+                action: keep
           - job_name: 'argocd-repo-server-metrics'
             scrape_interval: 30s
             static_configs:
               - targets: ['argocd-repo-server-metrics.argocd.svc.cluster.local:8084']
                 labels:
                   namespace: argocd
+            metric_relabel_configs:
+              - source_labels: [__name__]
+                regex: '(argocd_app_info|argocd_app_sync_total|argocd_app_health_status|argocd_app_reconcile_count|argocd_app_reconcile_bucket|argocd_git_request_total|argocd_git_request_duration_seconds_bucket|argocd_cluster_info|argocd_cluster_api_resource_objects|argocd_redis_request_total)'
+                action: keep
           - job_name: 'argocd-metrics'
             scrape_interval: 30s
             static_configs:
               - targets: ['argocd-application-controller-metrics.argocd.svc.cluster.local:8082']
                 labels:
                   namespace: argocd
+            metric_relabel_configs:
+              - source_labels: [__name__]
+                regex: '(argocd_app_info|argocd_app_sync_total|argocd_app_health_status|argocd_app_reconcile_count|argocd_app_reconcile_bucket|argocd_git_request_total|argocd_git_request_duration_seconds_bucket|argocd_cluster_info|argocd_cluster_api_resource_objects|argocd_redis_request_total)'
+                action: keep
