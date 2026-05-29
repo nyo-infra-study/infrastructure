@@ -23,6 +23,11 @@ config:
               - targets: ['{{ .Values.global.endpoints.clickhouse.host }}:9363']
                 labels:
                   namespace: monitoring
+            # Drop at scrape time — keep only query/insert/memory/replication essentials
+            metric_relabel_configs:
+              - source_labels: [__name__]
+                regex: '(ClickHouseMetrics_Query|ClickHouseMetrics_Merge|ClickHouseMetrics_MemoryTracking|ClickHouseMetrics_ReplicatedSend|ClickHouseMetrics_ReplicatedFetch|ClickHouseProfileEvents_InsertedRows|ClickHouseProfileEvents_InsertedBytes|ClickHouseProfileEvents_SelectedRows|ClickHouseProfileEvents_SelectedBytes|ClickHouseProfileEvents_FailedQuery|ClickHouseProfileEvents_QueryTimeMicroseconds|ClickHouseProfileEvents_MergedRows|ClickHouseProfileEvents_MergedUncompressedBytes|ClickHouseAsyncMetrics_MaxPartCountForPartition|ClickHouseAsyncMetrics_TotalRowsOfMergeTreeTables|ClickHouseAsyncMetrics_TotalBytesOfMergeTreeTables|ClickHouseMetrics_TCPConnection|ClickHouseMetrics_HTTPConnection)'
+                action: keep
 
     # ── Gigapipe self-metrics ──
     prometheus/gigapipe:

@@ -74,11 +74,11 @@ config:
                 regex: (.+)
                 target_label: __metrics_path__
                 replacement: /api/v1/nodes/$${1}/proxy/metrics
-            # Drop noisy metrics at scrape time (before they enter the pipeline)
+            # Drop at scrape time — keep only useful kubelet metrics
             metric_relabel_configs:
               - source_labels: [__name__]
-                regex: '(apiserver_request_duration|apiserver_request_sli|apiserver_request_body_size|apiserver_response_sizes|apiserver_watch_cache|apiserver_watch_events|apiserver_flowcontrol|etcd_request_duration|scheduler_plugin_execution|storage_operation_duration|kubelet_runtime_operations_duration|workqueue_queue_duration|workqueue_work_duration|rest_client_request_duration|scheduler_event_handling|apiserver_admission_controller|apiserver_request_total|apiserver_current_inflight|etcd_requests_total|lasso_controller|kubernetes_feature).*'
-                action: drop
+                regex: '(kubelet_running_pods|kubelet_running_containers|kubelet_node_name|kubelet_volume_stats_available_bytes|kubelet_volume_stats_capacity_bytes|kubelet_volume_stats_used_bytes|kubelet_pod_start_duration_seconds_count|kubelet_pod_start_duration_seconds_bucket|kubelet_pleg_relist_duration_seconds_bucket|kubelet_pleg_relist_duration_seconds_count|volume_manager_total_volumes)'
+                action: keep
 
     # ── Node Exporter (hardware/OS metrics — disk, network, CPU) ──
     prometheus/node-exporter:
@@ -88,6 +88,11 @@ config:
             scrape_interval: 30s
             static_configs:
               - targets: ['dev-monitoring-node-exporter-prometheus-node-exporter.monitoring.svc.cluster.local:9100']
+            # Drop at scrape time — keep only CPU/memory/disk/network essentials
+            metric_relabel_configs:
+              - source_labels: [__name__]
+                regex: '(node_cpu_seconds_total|node_memory_MemTotal_bytes|node_memory_MemAvailable_bytes|node_memory_Buffers_bytes|node_memory_Cached_bytes|node_memory_MemFree_bytes|node_filesystem_avail_bytes|node_filesystem_size_bytes|node_filesystem_files|node_filesystem_files_free|node_disk_read_bytes_total|node_disk_written_bytes_total|node_disk_io_time_seconds_total|node_network_receive_bytes_total|node_network_transmit_bytes_total|node_network_receive_errs_total|node_network_transmit_errs_total|node_load1|node_load5|node_load15|node_uname_info|node_boot_time_seconds)'
+                action: keep
 
     # ── KSM (resource requests/limits to compare against actual usage) ──
     prometheus/ksm:

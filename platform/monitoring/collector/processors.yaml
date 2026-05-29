@@ -201,27 +201,13 @@ config:
           # Drop any remaining empty-container cAdvisor metrics that slip through
           - 'IsMatch(metric.name, "container_.*") and resource.attributes["container"] == ""'
 
-    # ── Drop noisy kubelet metrics (apiserver/etcd histograms — 42K+ series) ──
+    # ── Kubelet filter (safety net — primary filtering at scrape) ──
     filter/kubelet:
       error_mode: ignore
       metrics:
         metric:
-          - 'IsMatch(name, "apiserver_request_duration_seconds.*")'
-          - 'IsMatch(name, "apiserver_request_sli_duration_seconds.*")'
-          - 'IsMatch(name, "apiserver_request_body_size_bytes.*")'
-          - 'IsMatch(name, "apiserver_response_sizes.*")'
-          - 'IsMatch(name, "apiserver_watch_cache_read_wait.*")'
-          - 'IsMatch(name, "apiserver_watch_events_sizes.*")'
-          - 'IsMatch(name, "apiserver_flowcontrol.*")'
-          - 'IsMatch(name, "etcd_request_duration_seconds.*")'
-          - 'IsMatch(name, "scheduler_plugin_execution_duration.*")'
-          - 'IsMatch(name, "storage_operation_duration_seconds.*")'
-          - 'IsMatch(name, "kubelet_runtime_operations_duration.*")'
-          - 'IsMatch(name, "workqueue_queue_duration_seconds.*")'
-          - 'IsMatch(name, "workqueue_work_duration_seconds.*")'
-          - 'IsMatch(name, "rest_client_request_duration_seconds.*")'
-          - 'IsMatch(name, "scheduler_event_handling_duration.*")'
-          - 'IsMatch(name, "apiserver_admission_controller_admission.*")'
+          - 'IsMatch(name, "go_.*")'
+          - 'IsMatch(name, "process_.*")'
 
     # ── ArgoCD filter (safety net — primary filtering at scrape) ──
     filter/argocd:
