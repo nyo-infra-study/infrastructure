@@ -1,8 +1,10 @@
 # ============================================================
 # Service Pipelines
 # ============================================================
-# All signals → Gigapipe Writer (LGTM-compatible APIs)
-# Gigapipe handles batching and writes to ClickHouse.
+# Metrics → VictoriaMetrics (via vmagent)
+# Logs    → VictoriaLogs
+# Traces  → disabled (no VictoriaTraces yet — uncomment Gigapipe
+#            exporter above if you need traces)
 # ============================================================
 config:
   service:
@@ -16,78 +18,78 @@ config:
       metrics/self:
         receivers: [prometheus/self]
         processors: [memory_limiter, resource/self, resource/infra-scope, batch]
-        exporters: [prometheusremotewrite/gigapipe]
+        exporters: [prometheusremotewrite/victoriametrics]
       metrics/cadvisor:
         receivers: [prometheus/cadvisor]
         processors: [memory_limiter, resource/cadvisor, resource/infra-scope, filter/infra-allow, batch]
-        exporters: [prometheusremotewrite/gigapipe]
+        exporters: [prometheusremotewrite/victoriametrics]
       metrics/kubelet:
         receivers: [prometheus/kubelet]
         processors: [memory_limiter, resource/kubelet, resource/infra-scope, filter/kubelet, batch]
-        exporters: [prometheusremotewrite/gigapipe]
+        exporters: [prometheusremotewrite/victoriametrics]
       metrics/node-exporter:
         receivers: [prometheus/node-exporter]
         processors: [memory_limiter, resource/node-exporter, resource/infra-scope, batch]
-        exporters: [prometheusremotewrite/gigapipe]
+        exporters: [prometheusremotewrite/victoriametrics]
       metrics/ksm:
         receivers: [prometheus/ksm]
         processors: [memory_limiter, resource/ksm, resource/infra-scope, filter/infra-allow, batch]
-        exporters: [prometheusremotewrite/gigapipe]
+        exporters: [prometheusremotewrite/victoriametrics]
       metrics/coredns:
         receivers: [prometheus/coredns]
         processors: [memory_limiter, resource/coredns, resource/infra-scope, batch]
-        exporters: [prometheusremotewrite/gigapipe]
+        exporters: [prometheusremotewrite/victoriametrics]
 
       # ── Blackbox probes (disabled — enable with monitoring-blackbox-exporter.yaml) ──
       # metrics/blackbox:
       #   receivers: [prometheus/blackbox]
       #   processors: [memory_limiter, resource/blackbox, resource/infra-scope, batch]
-      #   exporters: [prometheusremotewrite/gigapipe]
+      #   exporters: [prometheusremotewrite/victoriametrics]
 
       # ── ArgoCD metrics ──
       metrics/argocd:
         receivers: [prometheus/argocd]
         processors: [memory_limiter, resource/argocd, resource/infra-scope, filter/argocd, batch]
-        exporters: [prometheusremotewrite/gigapipe]
+        exporters: [prometheusremotewrite/victoriametrics]
 
-      # ── ClickHouse metrics ──
-      metrics/clickhouse:
-        receivers: [prometheus/clickhouse]
-        processors: [memory_limiter, resource/infra-scope, batch]
-        exporters: [prometheusremotewrite/gigapipe]
+      # ── ClickHouse metrics (keep if ClickHouse is still running for other purposes) ──
+      # metrics/clickhouse:
+      #   receivers: [prometheus/clickhouse]
+      #   processors: [memory_limiter, resource/infra-scope, batch]
+      #   exporters: [prometheusremotewrite/victoriametrics]
 
-      # ── Gigapipe self-metrics ──
-      metrics/gigapipe:
-        receivers: [prometheus/gigapipe]
-        processors: [memory_limiter, resource/infra-scope, batch]
-        exporters: [prometheusremotewrite/gigapipe]
+      # ── Gigapipe self-metrics (disabled — Gigapipe not running) ──
+      # metrics/gigapipe:
+      #   receivers: [prometheus/gigapipe]
+      #   processors: [memory_limiter, resource/infra-scope, batch]
+      #   exporters: [prometheusremotewrite/victoriametrics]
 
       # ── App metrics from OTLP ──
       metrics:
         receivers: [otlp]
         processors: [memory_limiter, k8sattributes, resource/app-enforce, filter/metrics, batch]
-        exporters: [prometheusremotewrite/gigapipe]
+        exporters: [prometheusremotewrite/victoriametrics]
 
-      # ── Traces ──
-      traces:
-        receivers: [otlp]
-        processors: [memory_limiter, k8sattributes, resource/app-enforce, filter/traces, batch]
-        exporters: [otlphttp/gigapipe-traces, spanmetrics, servicegraph]
-
-      # ── Span metrics (RED metrics from traces) ──
-      metrics/spanmetrics:
-        receivers: [spanmetrics, servicegraph]
-        processors: [memory_limiter, batch]
-        exporters: [prometheusremotewrite/gigapipe]
+      # ── Traces (disabled — no VictoriaTraces) ──
+      # Uncomment and switch exporter to re-enable traces:
+      # traces:
+      #   receivers: [otlp]
+      #   processors: [memory_limiter, k8sattributes, resource/app-enforce, filter/traces, batch]
+      #   exporters: [otlphttp/gigapipe-traces, spanmetrics, servicegraph]
+      #
+      # metrics/spanmetrics:
+      #   receivers: [spanmetrics, servicegraph]
+      #   processors: [memory_limiter, batch]
+      #   exporters: [prometheusremotewrite/victoriametrics]
 
       # ── Logs from OTLP (app instrumentation) ──
       logs:
         receivers: [otlp]
         processors: [memory_limiter, k8sattributes, resource/app-enforce, batch]
-        exporters: [otlphttp/gigapipe]
+        exporters: [otlphttp/victorialogs]
 
       # ── Logs from pod files (all namespaces except kube-system) ──
       logs/filelog:
         receivers: [filelog]
         processors: [memory_limiter, k8sattributes, resource/logs-scope, filter/logs, batch]
-        exporters: [otlphttp/gigapipe]
+        exporters: [otlphttp/victorialogs]

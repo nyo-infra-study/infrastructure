@@ -60,3 +60,21 @@ global:
 
     # ── Pyroscope-compatible profiling (via Gigapipe) ──
     pyroscope: "http://dev-monitoring-gigapipe-writer.monitoring.svc.cluster.local:3100"
+
+    # ── VictoriaMetrics Stack (Cluster Mode) ──
+    victoriametrics:
+      # vminsert — write endpoint (Prometheus remote_write compatible)
+      write: "http://dev-vm-victoria-metrics-cluster-vminsert.monitoring.svc.cluster.local:8480/insert/0/prometheus/api/v1/write"
+      # vmselect — read endpoint (PromQL/MetricsQL)
+      read: "http://dev-vm-victoria-metrics-cluster-vmselect.monitoring.svc.cluster.local:8481/select/0/prometheus"
+      # vmagent — accepts remote_write from OTel Collector
+      agent: "http://dev-vmagent-victoria-metrics-agent.monitoring.svc.cluster.local:8429"
+      agent_write: "http://dev-vmagent-victoria-metrics-agent.monitoring.svc.cluster.local:8429/api/v1/write"
+
+    # ── VictoriaLogs ──
+    victorialogs:
+      server: "http://dev-vlogs-victoria-logs-single-server.monitoring.svc.cluster.local:9428"
+      # Loki-compatible push endpoint
+      loki_push: "http://dev-vlogs-victoria-logs-single-server.monitoring.svc.cluster.local:9428/insert/loki/api/v1/push"
+      # OTLP logs endpoint
+      otlp: "http://dev-vlogs-victoria-logs-single-server.monitoring.svc.cluster.local:9428/insert/opentelemetry/v1/logs"

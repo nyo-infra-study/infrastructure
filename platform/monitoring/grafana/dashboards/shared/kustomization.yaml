@@ -3,8 +3,7 @@ kind: Kustomization
 
 namespace: monitoring
 
-# Generate ConfigMaps from dashboard JSON files
-# Each ConfigMap gets the label grafana_dashboard=1 for sidecar pickup
+# Backend-agnostic dashboards (PromQL-based, work with any metrics backend)
 configMapGenerator:
   - name: grafana-dashboard-argocd
     files:
@@ -13,23 +12,9 @@ configMapGenerator:
       labels:
         grafana_dashboard: "1"
       disableNameSuffixHash: true
-  - name: grafana-dashboard-clickhouse
-    files:
-      - clickhouse.json
-    options:
-      labels:
-        grafana_dashboard: "1"
-      disableNameSuffixHash: true
   - name: grafana-dashboard-kubernetes
     files:
       - kubernetes.json
-    options:
-      labels:
-        grafana_dashboard: "1"
-      disableNameSuffixHash: true
-  - name: grafana-dashboard-monitoring-meta
-    files:
-      - monitoring-meta.json
     options:
       labels:
         grafana_dashboard: "1"

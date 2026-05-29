@@ -1,14 +1,14 @@
-# VPA Policy for Grafana (Gigapipe backend)
+# VPA Policy for Grafana
 apiVersion: autoscaling.k8s.io/v1
 kind: VerticalPodAutoscaler
 metadata:
-  name: vpa-grafana-gigapipe
+  name: vpa-grafana
   namespace: monitoring
 spec:
   targetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: dev-grafana-gigapipe
+    name: dev-grafana
   updatePolicy:
     updateMode: Auto
   resourcePolicy:
@@ -18,5 +18,5 @@ spec:
           cpu: 10m
           memory: 128Mi
         maxAllowed:
-          cpu: 300m
+          cpu: 500m
           memory: 512Mi

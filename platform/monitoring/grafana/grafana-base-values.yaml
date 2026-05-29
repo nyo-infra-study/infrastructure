@@ -1,0 +1,70 @@
+# ============================================================
+# Grafana — Base Configuration
+# ============================================================
+# Chart: grafana/grafana v10.5.15
+# UI: http://grafana.localhost
+# Default login: admin / admin
+#
+# This file contains shared Grafana settings (resources, ingress,
+# sidecar, plugins). Datasource config is in separate files —
+# enable ONE backend at a time:
+#
+#   - datasources-gigapipe.yaml     (Gigapipe/ClickHouse backend)
+#   - datasources-victoriametrics.yaml (VictoriaMetrics backend)
+#   - datasources-lgtm.yaml         (Prometheus + Loki + Tempo)
+#
+# Install example:
+#   helm upgrade --install dev-grafana grafana/grafana \
+#     -n monitoring \
+#     -f grafana-base-values.yaml \
+#     -f datasources-victoriametrics.yaml
+# ============================================================
+
+replicas: 1
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 256Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+ingress:
+  enabled: true
+  ingressClassName: traefik
+  hosts:
+    - grafana.localhost
+
+# Disable test framework
+testFramework:
+  enabled: false
+
+# Admin password (local dev — override via secret in production)
+adminPassword: admin
+
+# ── Plugins ──
+# Backend-specific plugins are in the datasource files.
+# Shared visualization plugins go here.
+plugins:
+  - marcusolsson-treemap-panel 2.1.1
+  - netsage-sankey-panel 1.1.4
+  - grafana-polystat-panel 2.1.16
+  - briangann-datatable-panel 2.0.2
+
+# ── Dashboard Provisioning (auto-loaded from ConfigMaps) ──
+sidecar:
+  dashboards:
+    enabled: true
+    label: grafana_dashboard
+    labelValue: "1"
+    folder: /tmp/dashboards
+    provider:
+      allowUiUpdates: true
+  resources:
+    requests:
+      cpu: 5m
+      memory: 32Mi
+    limits:
+      cpu: 100m
+      memory: 128Mi

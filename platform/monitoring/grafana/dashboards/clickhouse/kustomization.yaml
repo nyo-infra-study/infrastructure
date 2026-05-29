@@ -1,0 +1,49 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: monitoring
+
+# ClickHouse-native dashboards (use grafana-clickhouse-datasource plugin)
+configMapGenerator:
+  - name: grafana-dashboard-backend-server
+    files:
+      - backend-server.json
+    options:
+      labels:
+        grafana_dashboard: "1"
+      disableNameSuffixHash: true
+  - name: grafana-dashboard-clickhouse-cluster-analysis
+    files:
+      - clickhouse---cluster-analysis.json
+    options:
+      labels:
+        grafana_dashboard: "1"
+      disableNameSuffixHash: true
+  - name: grafana-dashboard-clickhouse-data-analysis
+    files:
+      - clickhouse---data-analysis.json
+    options:
+      labels:
+        grafana_dashboard: "1"
+      disableNameSuffixHash: true
+  - name: grafana-dashboard-clickhouse-query-analysis
+    files:
+      - clickhouse---query-analysis.json
+    options:
+      labels:
+        grafana_dashboard: "1"
+      disableNameSuffixHash: true
+  - name: grafana-dashboard-infrastructure-overview
+    files:
+      - infrastructure-overview.json
+    options:
+      labels:
+        grafana_dashboard: "1"
+      disableNameSuffixHash: true
+  - name: grafana-dashboard-simple-clickhouse-otel
+    files:
+      - simple-clickhouse-otel-dashboard.json
+    options:
+      labels:
+        grafana_dashboard: "1"
+      disableNameSuffixHash: true

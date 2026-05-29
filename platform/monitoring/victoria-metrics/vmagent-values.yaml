@@ -1,0 +1,186 @@
+# ============================================================
+# vmagent — Metrics Collection Agent (Production)
+# ============================================================
+# Chart: vm/victoria-metrics-agent
+# Repo: https://victoriametrics.github.io/helm-charts/
+#
+# vmagent scrapes Kubernetes targets and accepts remote_write
+# from OTel Collector, then forwards to VictoriaMetrics cluster.
+#
+# Receive endpoint:
+#   http://dev-vmagent-victoria-metrics-agent:8429/api/v1/write
+#
+# Features:
+#   - On-disk persistent queue (survives restarts)
+#   - Automatic retry with backoff
+#   - Stream aggregation capable
+#   - Deduplication of scraped data
+# ============================================================
+
+# StatefulSet for persistent buffer
+statefulset:
+  enabled: true
+
+replicaCount: 2
+
+# Forward to vminsert (cluster mode)
+remoteWriteUrls:
+  - http://dev-vm-victoria-metrics-cluster-vminsert.monitoring.svc.cluster.local:8480/insert/0/prometheus/api/v1/write
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: "1"
+    memory: 1Gi
+
+# Persistent buffer — prevents data loss on restart/crash
+persistence:
+  enabled: true
+  size: 5Gi
+  storageClass: ""
+
+extraArgs:
+  # Prometheus naming for OTLP metrics
+  opentelemetry.usePrometheusNaming: "true"
+  # On-disk buffer path
+  remoteWrite.tmpDataPath: /vmagent-remotewrite-data
+  # Retry settings
+  remoteWrite.maxDiskUsagePerURL: "4GiB"
+  remoteWrite.queues: "8"
+  # Dedup interval (match cluster setting)
+  dedup.minScrapeInterval: "30s"
+  # Promscrape tuning
+  promscrape.maxScrapeSize: "64MB"
+  promscrape.streamParse: "true"
+  promscrape.suppressDuplicateScrapeTargetErrors: "true"
+
+# HPA
+horizontalPodAutoscaler:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 4
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+
+# Pod disruption budget
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1
+
+serviceMonitor:
+  enabled: true
+
+# ── Kubernetes Service Discovery ──
+config:
+  global:
+    scrape_interval: 30s
+    scrape_timeout: 10s
+    external_labels:
+      cluster: dev
+
+  scrape_configs:
+    # Scrape kubelet metrics
+    - job_name: "kubelet"
+      scheme: https
+      tls_config:
+        ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        insecure_skip_verify: true
+      bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+      kubernetes_sd_configs:
+        - role: node
+      relabel_configs:
+        - action: labelmap
+          regex: __meta_kubernetes_node_label_(.+)
+        - target_label: __address__
+          replacement: kubernetes.default.svc:443
+        - source_labels: [__meta_kubernetes_node_name]
+          regex: (.+)
+          target_label: __metrics_path__
+          replacement: /api/v1/nodes/$1/proxy/metrics
+
+    # Scrape cAdvisor (container metrics)
+    - job_name: "cadvisor"
+      scheme: https
+      tls_config:
+        ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        insecure_skip_verify: true
+      bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+      kubernetes_sd_configs:
+        - role: node
+      relabel_configs:
+        - action: labelmap
+          regex: __meta_kubernetes_node_label_(.+)
+        - target_label: __address__
+          replacement: kubernetes.default.svc:443
+        - source_labels: [__meta_kubernetes_node_name]
+          regex: (.+)
+          target_label: __metrics_path__
+          replacement: /api/v1/nodes/$1/proxy/metrics/cadvisor
+
+    # Scrape kube-state-metrics
+    - job_name: "kube-state-metrics"
+      kubernetes_sd_configs:
+        - role: service
+      relabel_configs:
+        - source_labels: [__meta_kubernetes_service_label_app_kubernetes_io_name]
+          regex: kube-state-metrics
+          action: keep
+
+    # Scrape pods with prometheus.io annotations
+    - job_name: "kubernetes-pods"
+      kubernetes_sd_configs:
+        - role: pod
+      relabel_configs:
+        - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+          action: keep
+          regex: "true"
+        - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scheme]
+          action: replace
+          target_label: __scheme__
+          regex: (https?)
+        - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+          action: replace
+          target_label: __metrics_path__
+          regex: (.+)
+        - source_labels:
+            [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
+          action: replace
+          regex: ([^:]+)(?::\d+)?;(\d+)
+          replacement: $1:$2
+          target_label: __address__
+        - action: labelmap
+          regex: __meta_kubernetes_pod_label_(.+)
+        - source_labels: [__meta_kubernetes_namespace]
+          action: replace
+          target_label: namespace
+        - source_labels: [__meta_kubernetes_pod_name]
+          action: replace
+          target_label: pod
+
+    # Scrape services with prometheus.io annotations
+    - job_name: "kubernetes-services"
+      kubernetes_sd_configs:
+        - role: service
+      relabel_configs:
+        - source_labels: [__meta_kubernetes_service_annotation_prometheus_io_scrape]
+          action: keep
+          regex: "true"
+        - source_labels:
+            [__address__, __meta_kubernetes_service_annotation_prometheus_io_port]
+          action: replace
+          regex: ([^:]+)(?::\d+)?;(\d+)
+          replacement: $1:$2
+          target_label: __address__
+        - source_labels: [__meta_kubernetes_namespace]
+          action: replace
+          target_label: namespace
+        - source_labels: [__meta_kubernetes_service_name]
+          action: replace
+          target_label: service

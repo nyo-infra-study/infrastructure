@@ -1,0 +1,63 @@
+# ============================================================
+# VictoriaLogs Single — Log Database (Production)
+# ============================================================
+# Chart: vm/victoria-logs-single
+# Repo: https://victoriametrics.github.io/helm-charts/
+#
+# Single-node mode — handles moderate log volumes efficiently.
+# VictoriaLogs achieves 30× less RAM and 15× less disk than
+# Elasticsearch for the same workload.
+#
+# Ingest endpoints:
+#   OTLP:       :9428/insert/opentelemetry/v1/logs
+#   Loki push:  :9428/insert/loki/api/v1/push
+#   JSON lines: :9428/insert/jsonline
+#   Syslog:     :9428/insert/syslog
+#
+# Query endpoint:
+#   LogsQL:     :9428/select/logsql/query
+# ============================================================
+
+server:
+  # Retention
+  retentionPeriod: 30d
+
+  resources:
+    requests:
+      cpu: 200m
+      memory: 512Mi
+    limits:
+      cpu: "2"
+      memory: 4Gi
+
+  # Persistent storage
+  persistentVolume:
+    enabled: true
+    size: 50Gi
+    storageClass: ""  # Use cluster default
+
+  extraArgs:
+    # Disk space safety — stop accepting logs before disk is full
+    retention.maxDiskSpaceUsageBytes: "45GiB"
+    # Memory limit for in-flight data
+    memory.allowedPercent: "80"
+    # Concurrent query limit
+    search.maxConcurrentRequests: "8"
+
+  service:
+    type: ClusterIP
+    servicePort: 9428
+
+  serviceMonitor:
+    enabled: true
+
+  # Anti-affinity: prefer different nodes
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchLabels:
+                app: victoria-logs-single
+            topologyKey: kubernetes.io/hostname

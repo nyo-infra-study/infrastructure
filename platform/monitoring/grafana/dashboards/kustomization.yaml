@@ -1,0 +1,27 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# ============================================================
+# Dashboard Sets
+# ============================================================
+# Comment/uncomment to flip which dashboards are deployed.
+# "shared" is always on — backend-agnostic PromQL dashboards.
+#
+# Pick the set that matches your active datasource backend:
+#   - gigapipe/    → Gigapipe (Loki/Tempo/Prometheus UIDs)
+#   - clickhouse/  → ClickHouse native (grafana-clickhouse-datasource)
+#   - (future) victoriametrics/ → VictoriaMetrics-specific dashboards
+# ============================================================
+
+resources:
+  # Always included — works with any Prometheus-compatible backend
+  - shared/
+
+  # ── Gigapipe backend dashboards ──
+  # - gigapipe/
+
+  # ── ClickHouse native dashboards ──
+  # - clickhouse/
+
+  # ── VictoriaMetrics dashboards (add when available) ──
+  # - victoriametrics/

@@ -1,0 +1,155 @@
+# ============================================================
+# VictoriaMetrics Cluster — Metrics TSDB (Production)
+# ============================================================
+# Chart: vm/victoria-metrics-cluster
+# Repo: https://victoriametrics.github.io/helm-charts/
+#
+# Cluster mode: vminsert (stateless) → vmstorage (stateful) ← vmselect (stateless)
+#
+# Endpoints (via vmauth):
+#   Write: http://dev-vm-vmauth.monitoring.svc.cluster.local:8427/api/v1/write
+#   Read:  http://dev-vm-vmauth.monitoring.svc.cluster.local:8427
+#
+# Direct (bypass vmauth):
+#   Write: http://dev-vm-victoria-metrics-cluster-vminsert.monitoring.svc.cluster.local:8480/insert/0/prometheus/api/v1/write
+#   Read:  http://dev-vm-victoria-metrics-cluster-vmselect.monitoring.svc.cluster.local:8481/select/0/prometheus
+# ============================================================
+
+# ── vminsert (stateless write nodes) ──
+vminsert:
+  replicaCount: 2
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: "1"
+      memory: 1Gi
+
+  extraArgs:
+    # Replication factor: write each sample to N storage nodes
+    # Set to 2 for HA (tolerates 1 vmstorage failure)
+    replicationFactor: "2"
+    # Max concurrent inserts per storage node
+    maxConcurrentInserts: "16"
+
+  # HPA for write spikes
+  horizontalPodAutoscaler:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 4
+    metrics:
+      - type: Resource
+        resource:
+          name: cpu
+          target:
+            type: Utilization
+            averageUtilization: 70
+
+  # Pod disruption budget
+  podDisruptionBudget:
+    enabled: true
+    minAvailable: 1
+
+  serviceMonitor:
+    enabled: true
+
+# ── vmstorage (stateful data nodes) ──
+vmstorage:
+  replicaCount: 2
+
+  resources:
+    requests:
+      cpu: 200m
+      memory: 512Mi
+    limits:
+      cpu: "2"
+      memory: 4Gi
+
+  extraArgs:
+    # Retention period
+    retentionPeriod: "90d"
+    # Deduplication (handles vmagent retries + replication)
+    dedup.minScrapeInterval: "30s"
+    # Search settings
+    search.maxConcurrentRequests: "16"
+    # Snapshotting for backups
+    snapshotAuthKey: ""
+
+  persistentVolume:
+    enabled: true
+    size: 50Gi
+    storageClass: ""  # Use cluster default
+
+  # Pod disruption budget — never evict all storage nodes
+  podDisruptionBudget:
+    enabled: true
+    minAvailable: 1
+
+  serviceMonitor:
+    enabled: true
+
+  # Anti-affinity: spread storage nodes across hosts
+  topologySpreadConstraints:
+    - maxSkew: 1
+      topologyKey: kubernetes.io/hostname
+      whenUnsatisfiable: DoNotSchedule
+      labelSelector:
+        matchLabels:
+          app.kubernetes.io/name: victoria-metrics-cluster
+          app.kubernetes.io/component: vmstorage
+
+# ── vmselect (stateless query nodes) ──
+vmselect:
+  replicaCount: 2
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: "2"
+      memory: 2Gi
+
+  extraArgs:
+    # Deduplication on read (required when replicationFactor > 1)
+    dedup.minScrapeInterval: "30s"
+    # Query limits
+    search.maxConcurrentRequests: "16"
+    search.maxQueueDuration: "30s"
+    # Cache
+    search.cacheTimestampOffset: "5m"
+
+  # HPA for query spikes
+  horizontalPodAutoscaler:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 4
+    metrics:
+      - type: Resource
+        resource:
+          name: cpu
+          target:
+            type: Utilization
+            averageUtilization: 70
+
+  # Pod disruption budget
+  podDisruptionBudget:
+    enabled: true
+    minAvailable: 1
+
+  serviceMonitor:
+    enabled: true
+
+  # Cache dir for query results
+  cacheMountPath: /cache
+  persistentVolume:
+    enabled: false
+  extraVolumes:
+    - name: cache
+      emptyDir:
+        sizeLimit: 2Gi
+  extraVolumeMounts:
+    - name: cache
+      mountPath: /cache

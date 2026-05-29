@@ -1,28 +1,15 @@
 # ============================================================
-# Grafana — Observability UI (Local Dev)
+# Grafana Datasources — LGTM Backend (Prometheus + Loki + Tempo)
 # ============================================================
-# Chart: grafana/grafana v10.5.15
-# UI: http://grafana.localhost
-# Default login: admin / admin
+# Use with: -f grafana-base-values.yaml -f datasources-lgtm.yaml
+#
+# Datasources:
+#   - Prometheus → dev-lgtm-prometheus-server
+#   - Loki       → dev-lgtm-loki
+#   - Tempo      → dev-lgtm-tempo
+#   - Pyroscope  → dev-pyroscope
 # ============================================================
 
-replicas: 1
-
-resources:
-  requests:
-    cpu: 10m
-    memory: 194Mi
-  limits:
-    cpu: 200m
-    memory: 384Mi
-
-ingress:
-  enabled: true
-  ingressClassName: traefik
-  hosts:
-    - grafana.localhost
-
-# Pre-configure data sources (Loki, Tempo, Prometheus)
 datasources:
   datasources.yaml:
     apiVersion: 1
@@ -37,6 +24,7 @@ datasources:
           exemplarTraceIdDestinations:
             - datasourceUid: tempo
               name: trace_id
+
       - name: Loki
         type: loki
         uid: loki
@@ -48,6 +36,7 @@ datasources:
               matcherRegex: '"trace_id":"(\w+)"'
               name: trace_id
               url: '$${__value.raw}'
+
       - name: Tempo
         type: tempo
         uid: tempo
@@ -79,15 +68,9 @@ datasources:
             datasourceUid: prometheus
           nodeGraph:
             enabled: true
+
       - name: Pyroscope
         type: grafana-pyroscope-datasource
         uid: pyroscope
         url: http://dev-pyroscope.monitoring.svc.cluster.local:4040
         access: proxy
-
-# Disable test framework
-testFramework:
-  enabled: false
-
-# Admin password (local dev)
-adminPassword: admin

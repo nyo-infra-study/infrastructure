@@ -1,0 +1,21 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: monitoring
+
+# Gigapipe-specific dashboards (use Gigapipe/Loki/Tempo datasource UIDs)
+configMapGenerator:
+  - name: grafana-dashboard-clickhouse
+    files:
+      - clickhouse.json
+    options:
+      labels:
+        grafana_dashboard: "1"
+      disableNameSuffixHash: true
+  - name: grafana-dashboard-monitoring-meta
+    files:
+      - monitoring-meta.json
+    options:
+      labels:
+        grafana_dashboard: "1"
+      disableNameSuffixHash: true

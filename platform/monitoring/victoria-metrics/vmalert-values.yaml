@@ -1,0 +1,139 @@
+# ============================================================
+# vmalert — Alerting & Recording Rules (Production)
+# ============================================================
+# Chart: vm/victoria-metrics-alert
+# Repo: https://victoriametrics.github.io/helm-charts/
+#
+# Evaluates alerting and recording rules against VictoriaMetrics.
+# Writes recording rule results back to the cluster.
+# Sends firing alerts to Alertmanager.
+# ============================================================
+
+server:
+  replicaCount: 2
+
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+  # Read from vmselect
+  datasource:
+    url: http://dev-vm-victoria-metrics-cluster-vmselect.monitoring.svc.cluster.local:8481/select/0/prometheus
+
+  # Write recording rule results to vminsert
+  remoteWrite:
+    url: http://dev-vm-victoria-metrics-cluster-vminsert.monitoring.svc.cluster.local:8480/insert/0/prometheus/api/v1/write
+
+  # Read back alert state on restart
+  remoteRead:
+    url: http://dev-vm-victoria-metrics-cluster-vmselect.monitoring.svc.cluster.local:8481/select/0/prometheus
+
+  # Alertmanager (uncomment when deployed)
+  # notifiers:
+  #   - url: http://alertmanager.monitoring.svc.cluster.local:9093
+
+  extraArgs:
+    evaluationInterval: "30s"
+    # HA: deduplicate alerts across replicas
+    remoteWrite.disablePathAppend: "true"
+
+  # Pod disruption budget
+  podDisruptionBudget:
+    enabled: true
+    minAvailable: 1
+
+  serviceMonitor:
+    enabled: true
+
+  # Alerting rules
+  config:
+    alerts:
+      groups:
+        - name: vm-cluster-health
+          interval: 30s
+          rules:
+            - alert: VmstorageDown
+              expr: up{job=~".*vmstorage.*"} == 0
+              for: 2m
+              labels:
+                severity: critical
+              annotations:
+                summary: "vmstorage {{ $labels.instance }} is down"
+                description: "vmstorage node has been unreachable for 2 minutes."
+
+            - alert: VminsertHighErrorRate
+              expr: |
+                rate(vm_http_request_errors_total{job=~".*vminsert.*"}[5m]) > 0.05
+              for: 5m
+              labels:
+                severity: warning
+              annotations:
+                summary: "vminsert error rate > 5%"
+                description: "vminsert is returning errors on {{ $labels.instance }}."
+
+            - alert: TooHighChurnRate
+              expr: |
+                (
+                  sum(rate(vm_new_timeseries_created_total[5m]))
+                  /
+                  sum(rate(vm_rows_inserted_total[5m]))
+                ) > 0.1
+              for: 15m
+              labels:
+                severity: warning
+              annotations:
+                summary: "High time series churn rate (>10%)"
+                description: "More than 10% of inserted rows create new time series. Check for high-cardinality labels."
+
+            - alert: VmstorageHighDiskUsage
+              expr: |
+                (
+                  vm_data_size_bytes{job=~".*vmstorage.*"}
+                  /
+                  vm_available_disk_space_bytes{job=~".*vmstorage.*"}
+                ) > 0.8
+              for: 10m
+              labels:
+                severity: warning
+              annotations:
+                summary: "vmstorage disk usage > 80%"
+                description: "Storage node {{ $labels.instance }} is running low on disk space."
+
+            - alert: VmselectSlowQueries
+              expr: |
+                histogram_quantile(0.99, rate(vm_request_duration_seconds_bucket{job=~".*vmselect.*"}[5m])) > 10
+              for: 10m
+              labels:
+                severity: warning
+              annotations:
+                summary: "vmselect p99 query latency > 10s"
+                description: "Queries are slow on {{ $labels.instance }}. Consider adding vmselect replicas or optimizing queries."
+
+        - name: victorialogs-health
+          interval: 30s
+          rules:
+            - alert: VictoriaLogsDown
+              expr: up{job=~".*victoria-logs.*"} == 0
+              for: 2m
+              labels:
+                severity: critical
+              annotations:
+                summary: "VictoriaLogs is down"
+                description: "VictoriaLogs has been unreachable for 2 minutes."
+
+            - alert: VictoriaLogsHighDiskUsage
+              expr: |
+                (
+                  vl_data_size_bytes
+                  /
+                  vl_available_disk_space_bytes
+                ) > 0.8
+              for: 10m
+              labels:
+                severity: warning
+              annotations:
+                summary: "VictoriaLogs disk usage > 80%"

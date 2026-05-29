@@ -1,0 +1,46 @@
+# ============================================================
+# Grafana Datasources — VictoriaMetrics Backend
+# ============================================================
+# Use with: -f grafana-base-values.yaml -f datasources-victoriametrics.yaml
+#
+# Datasources:
+#   - VictoriaMetrics (Prometheus type) → metrics via MetricsQL/PromQL
+#   - VictoriaLogs (custom plugin)      → logs via LogsQL
+#
+# VictoriaMetrics is fully PromQL-compatible, so we use the
+# built-in Prometheus datasource type. The VictoriaMetrics
+# datasource plugin adds MetricsQL autocomplete + WITH templates.
+# ============================================================
+
+# Backend-specific plugins
+plugins:
+  - victoriametrics-logs-datasource
+  - victoriametrics-metrics-datasource
+
+datasources:
+  datasources.yaml:
+    apiVersion: 1
+    datasources:
+      # ── Metrics (VictoriaMetrics cluster via vmselect) ──
+      - name: "VictoriaMetrics"
+        type: prometheus
+        uid: victoriametrics
+        url: http://dev-vm-victoria-metrics-cluster-vmselect.monitoring.svc.cluster.local:8481/select/0/prometheus
+        isDefault: true
+        access: proxy
+        jsonData:
+          timeInterval: "30s"
+          httpMethod: POST
+          # Exemplar correlation (uncomment when traces backend is available)
+          # exemplarTraceIdDestinations:
+          #   - datasourceUid: tempo
+          #     name: trace_id
+
+      # ── Logs (VictoriaLogs via custom plugin) ──
+      - name: "VictoriaLogs"
+        type: victoriametrics-logs-datasource
+        uid: victorialogs
+        url: http://dev-vlogs-victoria-logs-single-server.monitoring.svc.cluster.local:9428
+        access: proxy
+        jsonData:
+          maxLines: 1000
