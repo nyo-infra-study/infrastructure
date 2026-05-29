@@ -209,11 +209,8 @@ config:
           - 'IsMatch(name, "go_.*")'
           - 'IsMatch(name, "process_.*")'
 
-    # ── ArgoCD filter (safety net — primary filtering at scrape) ──
+    # ── ArgoCD filter (no-op — all filtering done at scrape level) ──
     filter/argocd:
       error_mode: ignore
       metrics:
-        metric:
-          # Drop any Go runtime/process metrics that slip through
-          - 'IsMatch(name, "go_.*")'
-          - 'IsMatch(name, "process_.*")'
+        metric: []
