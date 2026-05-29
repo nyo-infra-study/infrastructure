@@ -1,40 +1,39 @@
 # ============================================================
 # Exporters
 # ============================================================
-# Metrics → VictoriaMetrics (via vmagent)
-# Logs    → VictoriaLogs (OTLP HTTP)
-# Traces  → (disabled — no VictoriaTraces yet)
+# All signals → Gigapipe Writer (LGTM-compatible APIs)
+# Gigapipe batches and writes to ClickHouse internally.
 #
 # Endpoints templated from: platform/monitoring/common-values.yaml
 # (loaded via $values in the ArgoCD Application)
 # ============================================================
 config:
   exporters:
-    # Metrics → vmagent → VictoriaMetrics cluster
-    prometheusremotewrite/victoriametrics:
-      endpoint: "{{ .Values.global.endpoints.victoriametrics.agent_write }}"
-      tls:
-        insecure: true
-      resource_to_telemetry_conversion:
-        enabled: true
+    # Traces → Gigapipe (Tempo-compatible HTTP endpoint)
+    otlphttp/gigapipe-traces:
+      endpoint: "{{ .Values.global.endpoints.gigapipe.writer }}"
 
-    # Logs → VictoriaLogs (OTLP HTTP endpoint)
-    otlphttp/victorialogs:
-      endpoint: "{{ .Values.global.endpoints.victorialogs.server }}"
-      tls:
-        insecure: true
+    # Logs → Gigapipe (OTLP HTTP)
+    otlphttp/gigapipe:
+      endpoint: "{{ .Values.global.endpoints.gigapipe.writer }}"
 
-    # ── Gigapipe exporters (disabled) ──
-    # Uncomment to switch back to Gigapipe:
+    # Metrics → Gigapipe (Prometheus remote write)
+    prometheusremotewrite/gigapipe:
+      endpoint: "{{ .Values.global.endpoints.gigapipe.writer }}/api/prom/remote/write"
+
+    # ── VictoriaMetrics exporters (disabled) ──
+    # Uncomment to switch to VictoriaMetrics:
     #
-    # # Traces → Gigapipe (Tempo-compatible HTTP endpoint)
-    # otlphttp/gigapipe-traces:
-    #   endpoint: "{{ .Values.global.endpoints.gigapipe.writer }}"
+    # # Metrics → vmagent → VictoriaMetrics cluster
+    # prometheusremotewrite/victoriametrics:
+    #   endpoint: "{{ .Values.global.endpoints.victoriametrics.agent_write }}"
+    #   tls:
+    #     insecure: true
+    #   resource_to_telemetry_conversion:
+    #     enabled: true
     #
-    # # Logs → Gigapipe (OTLP HTTP)
-    # otlphttp/gigapipe:
-    #   endpoint: "{{ .Values.global.endpoints.gigapipe.writer }}"
-    #
-    # # Metrics → Gigapipe (Prometheus remote write)
-    # prometheusremotewrite/gigapipe:
-    #   endpoint: "{{ .Values.global.endpoints.gigapipe.writer }}/api/prom/remote/write"
+    # # Logs → VictoriaLogs (OTLP HTTP endpoint)
+    # otlphttp/victorialogs:
+    #   endpoint: "{{ .Values.global.endpoints.victorialogs.server }}"
+    #   tls:
+    #     insecure: true

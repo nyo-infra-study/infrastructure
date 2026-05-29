@@ -18,7 +18,7 @@ resources:
   - shared/
 
   # ── Gigapipe backend dashboards ──
-  # - gigapipe/
+  - gigapipe/
 
   # ── ClickHouse native dashboards ──
   # - clickhouse/
