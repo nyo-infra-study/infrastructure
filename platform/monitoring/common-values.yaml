@@ -27,7 +27,7 @@
 #   - apps/dev/4-apps/backend-server.yaml (via chart values) ✅
 #
 #   Hardcoded (manual find-and-replace):
-#   - platform/monitoring/grafana-gigapipe/grafana-values.yaml
+#   - platform/monitoring/grafana/grafana-base-values.yaml
 #   - platform/monitoring/pyroscope/values.yaml (Alloy config block)
 #   - platform/monitoring/collector/receivers-blackbox.yaml
 #   - platform/monitoring/collector/receivers-infra.yaml
@@ -56,7 +56,7 @@ global:
       http_port: "8123"
 
     # ── Grafana (UI) ──
-    grafana: "http://dev-grafana-gigapipe.monitoring.svc.cluster.local:80"
+    grafana: "http://dev-grafana.monitoring.svc.cluster.local:80"
 
     # ── Pyroscope-compatible profiling (via Gigapipe) ──
     pyroscope: "http://dev-monitoring-gigapipe-writer.monitoring.svc.cluster.local:3100"

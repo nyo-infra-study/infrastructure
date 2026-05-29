@@ -1,8 +1,8 @@
 # ============================================================
-# Grafana — Gigapipe Backend
+# Grafana — Unified (backend-agnostic)
 # ============================================================
-# Standard Loki/Prometheus/Tempo datasources pointing to Gigapipe.
-# No special plugins needed — Gigapipe speaks native LGTM APIs.
+# Base config + datasource overlay. Currently using Gigapipe backend.
+# To switch backend, change the datasource valueFile below.
 # UI: http://grafana.localhost
 # ============================================================
 apiVersion: argoproj.io/v1alpha1
@@ -10,7 +10,7 @@ kind: Application
 metadata:
   annotations:
     argocd.argoproj.io/sync-wave: "1"
-  name: dev-grafana-gigapipe
+  name: dev-grafana
   namespace: argocd
   finalizers:
     - resources-finalizer.argocd.argoproj.io
@@ -24,16 +24,17 @@ spec:
       repoURL: https://grafana.github.io/helm-charts
       targetRevision: 10.5.15
       helm:
-        releaseName: dev-grafana-gigapipe
+        releaseName: dev-grafana
         valueFiles:
-          - $values/platform/monitoring/grafana-gigapipe/grafana-values.yaml
+          - $values/platform/monitoring/grafana/grafana-base-values.yaml
+          - $values/platform/monitoring/grafana/datasources-gigapipe.yaml
     - repoURL: https://github.com/nyo-infra-study/infrastructure.git
       targetRevision: main
-      path: platform/monitoring/grafana-gigapipe/dashboards
+      path: platform/monitoring/grafana/dashboards
       kustomize: {}
     - repoURL: https://github.com/nyo-infra-study/infrastructure.git
       targetRevision: main
-      path: platform/monitoring/grafana-gigapipe
+      path: platform/monitoring/grafana
       directory:
         include: 'vpa.yaml'
     - repoURL: https://github.com/nyo-infra-study/infrastructure.git
