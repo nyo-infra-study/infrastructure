@@ -23,7 +23,7 @@ docker.io/bitnamilegacy/postgresql:16-debian-12
 skimpjr/backend-server:latest
 
 # --- Web Frontend (charts/web-frontend/values.yaml + apps/dev) ---
-skimpjr/web-frontend:dev
+skimpjr/web-frontend:latest
 
 # --- OneUptime core (DISABLED — too heavy for local dev) ---
 # docker.io/oneuptime/app:10.0.94
