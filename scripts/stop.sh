@@ -61,20 +61,73 @@ if [ -z "$DOCKER_RUNTIME" ]; then
     fi
 fi
 
-# --- Teardown ---
-log_step "Deleting k3d Cluster (dev)"
-run "k3d cluster delete dev || true"
+# --- Helper: check if Docker daemon is reachable ---
+docker_available() {
+    docker info >/dev/null 2>&1
+}
 
-log_step "Removing k3d Docker volumes"
-K3D_VOLUMES=$(docker volume ls -q --filter name=k3d-dev 2>/dev/null || true)
-if [ -n "$K3D_VOLUMES" ]; then
-    run "docker volume rm $K3D_VOLUMES"
-    echo "Removed k3d volumes: $K3D_VOLUMES"
+# --- Helper: ensure Colima is running (macOS only) ---
+ensure_docker_running() {
+    if docker_available; then
+        return 0
+    fi
+
+    if [ "$DOCKER_RUNTIME" = "colima" ] && command -v colima &> /dev/null; then
+        echo "Docker daemon not reachable. Starting Colima temporarily for cleanup..."
+        colima start >/dev/null 2>&1 || true
+        # Give Docker a moment to become available
+        for i in $(seq 1 10); do
+            if docker_available; then
+                return 0
+            fi
+            sleep 1
+        done
+        echo "⚠️  Could not start Docker daemon. Skipping Docker cleanup commands."
+        return 1
+    fi
+
+    echo "⚠️  Docker daemon not reachable. Skipping Docker cleanup commands."
+    return 1
+}
+
+# --- Teardown ---
+
+# Ensure Docker is available before running any Docker/k3d commands
+DOCKER_READY=false
+if ensure_docker_running; then
+    DOCKER_READY=true
+fi
+
+if [ "$DOCKER_READY" = true ]; then
+    log_step "Deleting k3d Cluster (dev)"
+    run "k3d cluster delete dev || true"
+
+    log_step "Removing k3d Docker volumes"
+    K3D_VOLUMES=$(docker volume ls -q --filter name=k3d-dev 2>/dev/null || true)
+    if [ -n "$K3D_VOLUMES" ]; then
+        run "docker volume rm $K3D_VOLUMES"
+        echo "Removed k3d volumes: $K3D_VOLUMES"
+    else
+        echo "No k3d volumes found."
+    fi
 else
-    echo "No k3d volumes found."
+    log_step "Deleting k3d Cluster (dev)"
+    echo "⚠️  Docker not available — skipping (cluster likely already gone)."
+    log_step "Removing k3d Docker volumes"
+    echo "⚠️  Docker not available — skipping."
 fi
 
 if [ "$PRUNE_ALL" = true ]; then
+    # Prune Docker BEFORE destroying Colima (needs the daemon alive)
+    if [ "$DOCKER_READY" = true ]; then
+        log_step "Pruning Docker (all images, build cache, volumes)"
+        run "docker system prune -a --volumes -f || true"
+        echo "Docker fully pruned. All images, build cache, and volumes removed."
+    else
+        log_step "Pruning Docker (all images, build cache, volumes)"
+        echo "⚠️  Docker not available — skipping prune (Colima VM deletion will wipe data anyway)."
+    fi
+
     log_step "Deleting Colima VM (removes all data)"
     if command -v colima &> /dev/null; then
         run "colima stop || true"
@@ -83,11 +136,18 @@ if [ "$PRUNE_ALL" = true ]; then
     else
         echo "⚠️  colima not found, skipping."
     fi
-
-    log_step "Pruning Docker (all images, build cache, volumes)"
-    run "docker system prune -a --volumes -f || true"
-    echo "Docker fully pruned. All images, build cache, and volumes removed."
 elif [ "$PRUNE" = true ]; then
+    # Prune Docker BEFORE stopping Colima (needs the daemon alive)
+    if [ "$DOCKER_READY" = true ]; then
+        log_step "Pruning Docker (dangling images only — tagged images cached)"
+        run "docker image prune -f || true"
+        run "docker builder prune -f || true"
+        echo "Dangling images + build cache removed. Tagged images preserved for faster next start."
+    else
+        log_step "Pruning Docker (dangling images only — tagged images cached)"
+        echo "⚠️  Docker not available — skipping prune."
+    fi
+
     log_step "Stopping Colima (frees CPU/memory, data preserved)"
     if command -v colima &> /dev/null; then
         if colima status >/dev/null 2>&1; then
@@ -99,11 +159,6 @@ elif [ "$PRUNE" = true ]; then
     else
         echo "⚠️  colima not found, skipping."
     fi
-
-    log_step "Pruning Docker (dangling images only — tagged images cached)"
-    run "docker image prune -f || true"
-    run "docker builder prune -f || true"
-    echo "Dangling images + build cache removed. Tagged images preserved for faster next start."
 fi
 
 log_step "Done!"
