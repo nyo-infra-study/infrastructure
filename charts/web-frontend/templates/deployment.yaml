@@ -17,6 +17,9 @@ spec:
     metadata:
       labels:
         app: {{ .Release.Name }}  # Pod label (must match selector)
+      annotations:
+        # Nginx stub_status available at /nginx_status for monitoring
+        prometheus.io/scrape: "false"
     spec:
       automountServiceAccountToken: false
       containers:
@@ -38,6 +41,23 @@ spec:
           # Container port (Nginx web server listens here)
           ports:
             - containerPort: {{ .Values.containerPort }}  # Port 80 for HTTP
+          
+          # Liveness Probe: Restarts pod if Nginx is dead
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: {{ .Values.containerPort }}
+            initialDelaySeconds: 3
+            periodSeconds: 10
+          
+          # Readiness Probe: Removes pod from Service if backend is unreachable
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: {{ .Values.containerPort }}
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            failureThreshold: 3
           
           # Writable volumes for Nginx (needed with readOnlyRootFilesystem)
           volumeMounts:
