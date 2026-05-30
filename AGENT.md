@@ -66,8 +66,49 @@ The cluster uses a single load balancer on **port 9000**:
 - **ArgoCD UI**: `http://localhost:9000/argocd`
 - **Grafana**: `http://localhost:9000/grafana`
 
-## 7. Common Troubleshooting
+## 7. Scripts & Tools
+
+| Script | Purpose |
+| :----- | :------ |
+| `scripts/run.sh` | Start the k3d cluster |
+| `scripts/stop.sh` | Stop the k3d cluster |
+| `scripts/dashboard-tool.py` | Manipulate Grafana dashboard JSON (replace datasources, jobs, list panels/queries) |
+| `scripts/validate-dashboard-filters.py` | **Validate that metrics used in enabled dashboards are not dropped by collector filters** |
+
+### validate-dashboard-filters.py
+
+Prevents silent dashboard breakage by cross-referencing dashboard PromQL queries against the `metric_relabel_configs` allowlists in the OTel Collector receiver configs.
+
+```bash
+# Basic run — checks shared/ + gigapipe/ dashboards against receivers-infra + receivers-apps
+python3 scripts/validate-dashboard-filters.py
+
+# Verbose — show all metrics and their pass/block status
+python3 scripts/validate-dashboard-filters.py --verbose
+
+# JSON output (for CI)
+python3 scripts/validate-dashboard-filters.py --json
+
+# List all parsed filter rules
+python3 scripts/validate-dashboard-filters.py --list-filters
+
+# Custom paths
+python3 scripts/validate-dashboard-filters.py \
+  --dashboards platform/monitoring/grafana/dashboards/shared/ \
+  --receivers platform/monitoring/collector/receivers-infra.yaml
+```
+
+**When to run**: After editing any dashboard JSON or any `metric_relabel_configs` in the collector receiver YAML files. Exit code 1 means a dashboard metric would be dropped.
+
+**How it works**:
+1. Extracts metric names from PromQL `expr` fields in dashboard JSON files.
+2. Parses `metric_relabel_configs` with `action: keep` from receiver YAML files.
+3. Maps metrics to their source receiver by prefix (e.g. `container_*` → cAdvisor, `kube_*` → KSM).
+4. Reports any metric that has an applicable filter but doesn't match the keep regex.
+
+## 8. Common Troubleshooting
 
 - **Database "No such host"**: Use `backend-db-primary` (Write) or `backend-db-read` (Read).
 - **Image Pull Error**: Ensure `allowInsecureImages: true` is set for Bitnami legacy images.
 - **ArgoCD OutOfSync**: Check `ignoreDifferences` in Application manifest if it fights with dynamic fields (e.g., PVCs).
+- **Dashboard shows "No data"**: Run `python3 scripts/validate-dashboard-filters.py` to check if the metric is being dropped by a collector filter.
