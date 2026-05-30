@@ -58,7 +58,9 @@ spec:
             hosts:
               - host: localhost
                 paths:
-                  - path: /web # Root path - all non-/api requests go here
+                  - path: /web
+                    pathType: ImplementationSpecific
+                  - path: /api
                     pathType: ImplementationSpecific
 
     - repoURL: https://github.com/nyo-infra-study/infrastructure.git
