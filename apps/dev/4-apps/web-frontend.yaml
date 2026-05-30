@@ -31,7 +31,7 @@ spec:
         replicaCount: 1 # Single replica for local playground
 
         image:
-          tag: "dev" # Always use latest dev build from main branch
+          tag: "latest" # Always use latest build from main branch
           pullPolicy: Always # Force pull latest image on every deployment
 
         containerPort: 8080 # Go server listens on port 8080 inside container
