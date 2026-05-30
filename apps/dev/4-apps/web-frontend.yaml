@@ -17,38 +17,53 @@ metadata:
 spec:
   project: default
 
-  # SOURCE: Points to the Helm chart in Git
-  source:
-    repoURL: https://github.com/nyo-infra-study/infrastructure.git
-    targetRevision: main # Watch the main branch
-    path: charts/web-frontend # Helm chart location
+  # SOURCE: Points to the Helm chart in Git (multi-source for shared values)
+  sources:
+    - repoURL: https://github.com/nyo-infra-study/infrastructure.git
+      targetRevision: main
+      path: charts/web-frontend
 
-    helm:
-      releaseName: dev-web-frontend
+      helm:
+        releaseName: dev-web-frontend
+        valueFiles:
+          - $values/platform/monitoring/common-values.yaml
 
-      # VALUES OVERRIDES: Dev-specific configuration
-      valuesObject:
-        replicaCount: 1 # Single replica for local playground
+        # VALUES OVERRIDES: Dev-specific configuration
+        valuesObject:
+          replicaCount: 1 # Single replica for local playground
 
-        image:
-          tag: "latest" # Always use latest build from main branch
-          pullPolicy: Always # Force pull latest image on every deployment
+          image:
+            tag: "latest" # Always use latest build from main branch
+            pullPolicy: Always # Force pull latest image on every deployment
 
-        containerPort: 8080 # Go server listens on port 8080 inside container
+          containerPort: 8080 # Go server listens on port 8080 inside container
 
-        # Kubernetes Service configuration
-        service:
-          port: 9092 # External port for accessing frontend service
+          # Kubernetes Service configuration
+          service:
+            port: 9092 # External port for accessing frontend service
 
-        # Ingress: Makes frontend accessible from outside cluster
-        ingress:
-          enabled: true
-          className: traefik # Use Traefik ingress controller (k3d default)
-          hosts:
-            - host: localhost
-              paths:
-                - path: /web # Root path - all non-/api requests go here
-                  pathType: ImplementationSpecific
+          # Monitoring config (endpoints resolved from common-values.yaml → global.endpoints)
+          monitoring:
+            otel:
+              serviceName: "web-frontend"
+              serviceNamespace: "dev"
+              serviceVersion: "latest"
+              deploymentEnvironment: "dev"
+              insecure: "true"
+
+          # Ingress: Makes frontend accessible from outside cluster
+          ingress:
+            enabled: true
+            className: traefik # Use Traefik ingress controller (k3d default)
+            hosts:
+              - host: localhost
+                paths:
+                  - path: /web # Root path - all non-/api requests go here
+                    pathType: ImplementationSpecific
+
+    - repoURL: https://github.com/nyo-infra-study/infrastructure.git
+      targetRevision: main
+      ref: values
 
   # DESTINATION: Deploy to dev namespace in local cluster
   destination:

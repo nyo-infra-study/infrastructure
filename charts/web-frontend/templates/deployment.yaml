@@ -13,10 +13,16 @@ spec:
     metadata:
       labels:
         app: {{ .Release.Name }}
+        app.kubernetes.io/name: {{ .Release.Name }}
+        app.kubernetes.io/version: {{ .Values.image.tag | quote }}
+        app.kubernetes.io/component: "frontend"
       annotations:
         prometheus.io/scrape: "true"
         prometheus.io/port: "{{ .Values.containerPort }}"
         prometheus.io/path: "/metrics"
+        resource.opentelemetry.io/service.name: {{ .Values.monitoring.otel.serviceName | default .Release.Name }}
+        resource.opentelemetry.io/service.version: {{ .Values.image.tag | quote }}
+        resource.opentelemetry.io/deployment.environment: {{ .Values.monitoring.otel.deploymentEnvironment | default "dev" | quote }}
     spec:
       automountServiceAccountToken: false
       securityContext:
@@ -47,6 +53,25 @@ spec:
               value: "http://dev-backend-server.dev.svc.cluster.local:9091"
             - name: READY_PROBES
               value: ""  # No upstream dependency checks — frontend serves static files independently
+            {{- $otelEndpoint := .Values.monitoring.otel.endpoint | default (printf "http://%s" (index .Values.global "endpoints" "otel" "grpc" | default "")) }}
+            {{- if $otelEndpoint }}
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: {{ $otelEndpoint | quote }}
+            - name: OTEL_SERVICE_NAME
+              value: {{ .Values.monitoring.otel.serviceName | default .Release.Name | quote }}
+            - name: OTEL_SERVICE_NAMESPACE
+              value: {{ .Values.monitoring.otel.serviceNamespace | quote }}
+            - name: OTEL_SERVICE_VERSION
+              value: {{ .Values.monitoring.otel.serviceVersion | default .Values.image.tag | quote }}
+            - name: OTEL_DEPLOYMENT_ENVIRONMENT
+              value: {{ .Values.monitoring.otel.deploymentEnvironment | quote }}
+            {{- if .Values.monitoring.otel.resourceAttributes }}
+            - name: OTEL_RESOURCE_ATTRIBUTES
+              value: {{ .Values.monitoring.otel.resourceAttributes | quote }}
+            {{- end }}
+            - name: OTEL_EXPORTER_OTLP_INSECURE
+              value: {{ .Values.monitoring.otel.insecure | default "true" | quote }}
+            {{- end }}
           livenessProbe:
             httpGet:
               path: /healthz

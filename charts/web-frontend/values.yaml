@@ -64,3 +64,15 @@ podSecurityContext:
   runAsUser: 10001
   runAsGroup: 10001
   fsGroup: 10001
+
+# Monitoring configuration (OTel tracing/metrics)
+# Endpoints resolved from platform/monitoring/common-values.yaml via $values ref
+monitoring:
+  otel:
+    endpoint: ""
+    serviceName: ""
+    serviceNamespace: "dev"
+    serviceVersion: "latest"
+    deploymentEnvironment: "dev"
+    resourceAttributes: ""
+    insecure: "true"
