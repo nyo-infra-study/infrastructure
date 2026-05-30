@@ -67,7 +67,7 @@ spec:
                   tenant_scope String
               )
               PRIMARY KEY fingerprint
-              SOURCE(CLICKHOUSE(TABLE 'fingerprint_tenant_map' DB 'otel'))
+              SOURCE(CLICKHOUSE(TABLE 'fingerprint_tenant_map' DB 'otel' USER 'default' PASSWORD '{{ .Values.auth.defaultPassword }}'))
               LAYOUT(HASHED())
               LIFETIME(MIN 30 MAX 60);
 
