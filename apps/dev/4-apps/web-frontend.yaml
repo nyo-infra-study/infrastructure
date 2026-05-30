@@ -34,7 +34,7 @@ spec:
           tag: "dev" # Always use latest dev build from main branch
           pullPolicy: Always # Force pull latest image on every deployment
 
-        containerPort: 80 # Nginx listens on port 80 inside container
+        containerPort: 8080 # Go server listens on port 8080 inside container
 
         # Kubernetes Service configuration
         service:

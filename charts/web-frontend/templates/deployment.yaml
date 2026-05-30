@@ -5,77 +5,58 @@ metadata:
   labels:
     app: {{ .Release.Name }}
 spec:
-  replicas: {{ .Values.replicaCount }}  # Number of pods (from values)
-  
-  # Selector: Which pods this Deployment manages
+  replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app: {{ .Release.Name }}  # Must match template.metadata.labels
-  
-  # Template: Blueprint for each pod
+      app: {{ .Release.Name }}
   template:
     metadata:
       labels:
-        app: {{ .Release.Name }}  # Pod label (must match selector)
+        app: {{ .Release.Name }}
       annotations:
-        # Nginx stub_status available at /nginx_status for monitoring
-        prometheus.io/scrape: "false"
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "{{ .Values.containerPort }}"
+        prometheus.io/path: "/metrics"
     spec:
       automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: {{ .Values.podSecurityContext.runAsUser }}
+        runAsGroup: {{ .Values.podSecurityContext.runAsGroup }}
+        fsGroup: {{ .Values.podSecurityContext.fsGroup }}
       containers:
         - name: {{ .Release.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           securityContext:
             allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
             capabilities:
               drop:
                 - ALL
-              add:
-                - NET_BIND_SERVICE
-                - SETGID
-                - SETUID
-                - CHOWN
-                - DAC_OVERRIDE
-          
-          # Container port (Nginx web server listens here)
           ports:
-            - containerPort: {{ .Values.containerPort }}  # Port 80 for HTTP
-          
-          # Liveness Probe: Restarts pod if Nginx is dead
+            - containerPort: {{ .Values.containerPort }}
+          env:
+            - name: PORT
+              value: "{{ .Values.containerPort }}"
+            - name: BASE_PATH
+              value: "/web"
+            - name: STATIC_DIR
+              value: "/app/static"
+            - name: BACKEND_URL
+              value: "http://dev-backend-server.dev.svc.cluster.local:9000"
           livenessProbe:
             httpGet:
               path: /healthz
               port: {{ .Values.containerPort }}
-            initialDelaySeconds: 3
+            initialDelaySeconds: 2
             periodSeconds: 10
-          
-          # Readiness Probe: Removes pod from Service if backend is unreachable
           readinessProbe:
             httpGet:
               path: /readyz
               port: {{ .Values.containerPort }}
-            initialDelaySeconds: 5
+            initialDelaySeconds: 3
             periodSeconds: 5
             failureThreshold: 3
-          
-          # Writable volumes for Nginx (needed with readOnlyRootFilesystem)
-          volumeMounts:
-            - name: nginx-cache
-              mountPath: /var/cache/nginx
-            - name: nginx-run
-              mountPath: /var/run
-            - name: nginx-tmp
-              mountPath: /tmp
-          
-          # Resource limits (CPU/Memory)
-          # Frontend typically needs less than backend (static files)
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-      volumes:
-        - name: nginx-cache
-          emptyDir: {}
-        - name: nginx-run
-          emptyDir: {}
-        - name: nginx-tmp
-          emptyDir: {}

@@ -34,8 +34,8 @@ service:
   type: ClusterIP # Internal service (not exposed outside cluster)
   port: 80 # Default port (Nginx listens on 80)
 
-# Port the Nginx server listens on inside the container
-containerPort: 80
+# Port the Go server listens on inside the container
+containerPort: 8080
 
 # Ingress configuration for external access
 ingress:
@@ -60,8 +60,7 @@ resources:
     memory: 32Mi # Guaranteed 32 megabytes
 
 # Pod security context
-# Nginx default user is 101 (nginx)
 podSecurityContext:
-  runAsUser: 101
-  runAsGroup: 101
-  fsGroup: 101
+  runAsUser: 10001
+  runAsGroup: 10001
+  fsGroup: 10001
