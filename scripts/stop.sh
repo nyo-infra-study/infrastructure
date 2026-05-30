@@ -65,6 +65,15 @@ fi
 log_step "Deleting k3d Cluster (dev)"
 run "k3d cluster delete dev || true"
 
+log_step "Removing k3d Docker volumes"
+K3D_VOLUMES=$(docker volume ls -q --filter name=k3d-dev 2>/dev/null || true)
+if [ -n "$K3D_VOLUMES" ]; then
+    run "docker volume rm $K3D_VOLUMES"
+    echo "Removed k3d volumes: $K3D_VOLUMES"
+else
+    echo "No k3d volumes found."
+fi
+
 if [ "$PRUNE_ALL" = true ]; then
     log_step "Deleting Colima VM (removes all data)"
     if command -v colima &> /dev/null; then
