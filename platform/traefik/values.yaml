@@ -88,10 +88,12 @@ metrics:
     entryPoint: metrics
 
 # --- Tracing (OTLP → OTel Collector) ---
-# sampleRate: 1 means Traefik traces all requests and participates in
-# propagated traces. Noisy standalone traces are filtered at the collector.
+# sampleRate: 0 means Traefik won't START new traces, but will still
+# PROPAGATE trace context from incoming requests (traceparent header).
+# To see Traefik in traces, add browser-side OTel instrumentation (React SDK)
+# which sends traceparent → Traefik propagates → full chain visible.
 tracing:
-  sampleRate: 1
+  sampleRate: 0
   addInternals: true
   capturedRequestHeaders:
     - Host
