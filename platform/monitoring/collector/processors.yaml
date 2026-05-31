@@ -173,8 +173,9 @@ config:
           - 'IsMatch(name, ".*readyz.*")'
           - 'IsMatch(name, ".*livez.*")'
 
-    # ── Rename Traefik service.name to include the target host ──
-    # Changes "traefik" → "traefik/app.localhost" so traces are identifiable
+    # ── Enrich Traefik span names with the target host ──
+    # Changes span name from "PATCH" → "PATCH api.localhost/api/data"
+    # so you can tell which service was hit from the trace list
     transform/traefik-service-name:
       error_mode: ignore
       trace_statements:
@@ -182,7 +183,8 @@ config:
           conditions:
             - resource.attributes["service.name"] == "traefik"
           statements:
-            - set(resource.attributes["service.name"], Concat([resource.attributes["service.name"], "/", attributes["http.request.header.host"]], "")) where attributes["http.request.header.host"] != nil
+            - set(name, Concat([name, " ", attributes["http.request.header.host"], attributes["url.path"]], "")) where attributes["http.request.header.host"] != nil and attributes["url.path"] != nil
+            - set(name, Concat([name, " ", attributes["http.request.header.host"]], "")) where attributes["http.request.header.host"] != nil and attributes["url.path"] == nil
 
     # ── Drop noisy / low-value metrics (for app OTLP metrics) ──
     filter/metrics:
