@@ -155,10 +155,9 @@ config:
         log_record:
           - 'resource.attributes["k8s.namespace.name"] == "kube-system"'
           # Drop health/readiness probe logs — still visible via kubectl logs but not stored in Loki
-          # Body is a string containing the JSON log line from the app
-          - 'IsMatch(Stringify(body), ".*healthz.*")'
-          - 'IsMatch(Stringify(body), ".*readyz.*")'
-          - 'IsMatch(Stringify(body), ".*\\\\/ping.*")'
+          # These match the JSON body string from backend-server structured logs
+          - 'body != nil and IsMatch(body, ".*healthz.*")'
+          - 'body != nil and IsMatch(body, ".*readyz.*")'
 
     # ── Filter traces: drop health check spans and Traefik-initiated noise ──
     filter/traces:
