@@ -186,6 +186,12 @@ config:
           - 'resource.attributes["service.name"] == "traefik" and IsMatch(attributes["http.request.header.host"], "traefik\\.localhost")'
           # radar.localhost — Radar UI: topology polling, resource browser fetches
           - 'resource.attributes["service.name"] == "traefik" and IsMatch(attributes["http.request.header.host"], "radar\\.localhost")'
+          # Static assets served by web-frontend (JS, CSS, images, fonts) — no OTel instrumentation on file server
+          - 'resource.attributes["service.name"] == "traefik" and IsMatch(attributes["url.path"], ".*\\.(js|css|svg|ico|png|jpg|woff2?|map|txt)$")'
+          # Root page load and vite HMR — static HTML served without instrumentation
+          - 'resource.attributes["service.name"] == "traefik" and attributes["url.path"] == "/"'
+          - 'resource.attributes["service.name"] == "traefik" and IsMatch(attributes["url.path"], "^/assets/.*")'
+          - 'resource.attributes["service.name"] == "traefik" and IsMatch(attributes["url.path"], "^/vite\\..*")'
 
     # ── Enrich Traefik span names with the target host ──
     # Kept for reference but not used in pipeline (sampleRate: 0 handles noise)

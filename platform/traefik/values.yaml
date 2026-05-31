@@ -75,6 +75,12 @@ logs:
     level: INFO
   access:
     enabled: true
+    format: json
+    fields:
+      headers:
+        defaultMode: drop
+        names:
+          Host: keep
 
 # --- Metrics (for OTel scraping) ---
 metrics:
