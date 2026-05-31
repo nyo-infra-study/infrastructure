@@ -173,6 +173,19 @@ config:
           - 'IsMatch(name, ".*readyz.*")'
           - 'IsMatch(name, ".*livez.*")'
           - 'IsMatch(attributes["url.path"], "/ping")'
+          # ── Drop Traefik traces for uninstrumented platform UIs ──
+          # These produce single-span traces with no downstream context.
+          # Reason: Grafana, ArgoCD, Radar, and Traefik dashboard don't have
+          # OTel SDK instrumentation — tracing them adds noise with zero value.
+          #
+          # grafana.localhost — Grafana UI: datasource queries, dashboard loads, tag-value lookups
+          - 'resource.attributes["service.name"] == "traefik" and IsMatch(attributes["http.request.header.host"], "grafana\\.localhost")'
+          # argocd.localhost — ArgoCD UI: app sync polling, resource tree fetches
+          - 'resource.attributes["service.name"] == "traefik" and IsMatch(attributes["http.request.header.host"], "argocd\\.localhost")'
+          # traefik.localhost — Traefik dashboard: router/service/middleware API calls
+          - 'resource.attributes["service.name"] == "traefik" and IsMatch(attributes["http.request.header.host"], "traefik\\.localhost")'
+          # radar.localhost — Radar UI: topology polling, resource browser fetches
+          - 'resource.attributes["service.name"] == "traefik" and IsMatch(attributes["http.request.header.host"], "radar\\.localhost")'
 
     # ── Enrich Traefik span names with the target host ──
     # Kept for reference but not used in pipeline (sampleRate: 0 handles noise)
