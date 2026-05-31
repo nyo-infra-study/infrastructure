@@ -92,7 +92,7 @@ metrics:
 # propagated traces. Noisy standalone traces are filtered at the collector.
 tracing:
   sampleRate: 1
-  addInternals: false
+  addInternals: true
   capturedRequestHeaders:
     - Host
     - X-Forwarded-For

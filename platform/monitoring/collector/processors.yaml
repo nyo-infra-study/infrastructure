@@ -177,15 +177,16 @@ config:
           # These produce single-span traces with no downstream context.
           # Reason: Grafana, ArgoCD, Radar, and Traefik dashboard don't have
           # OTel SDK instrumentation — tracing them adds noise with zero value.
+          # Filter uses url.path attribute which exists on ReverseProxy (child) spans.
           #
           # grafana.localhost — Grafana UI: datasource queries, dashboard loads, tag-value lookups
-          - 'resource.attributes["service.name"] == "traefik" and IsMatch(attributes["http.request.header.host"], "grafana\\.localhost")'
+          - 'resource.attributes["service.name"] == "traefik" and IsMatch(attributes["router_name"], ".*grafana.*")'
           # argocd.localhost — ArgoCD UI: app sync polling, resource tree fetches
-          - 'resource.attributes["service.name"] == "traefik" and IsMatch(attributes["http.request.header.host"], "argocd\\.localhost")'
+          - 'resource.attributes["service.name"] == "traefik" and IsMatch(attributes["router_name"], ".*argocd.*")'
           # traefik.localhost — Traefik dashboard: router/service/middleware API calls
-          - 'resource.attributes["service.name"] == "traefik" and IsMatch(attributes["http.request.header.host"], "traefik\\.localhost")'
+          - 'resource.attributes["service.name"] == "traefik" and IsMatch(attributes["router_name"], ".*traefik-dashboard.*")'
           # radar.localhost — Radar UI: topology polling, resource browser fetches
-          - 'resource.attributes["service.name"] == "traefik" and IsMatch(attributes["http.request.header.host"], "radar\\.localhost")'
+          - 'resource.attributes["service.name"] == "traefik" and IsMatch(attributes["router_name"], ".*radar.*")'
           # Static assets served by web-frontend (JS, CSS, images, fonts) — no OTel instrumentation on file server
           - 'resource.attributes["service.name"] == "traefik" and IsMatch(attributes["url.path"], ".*\\.(js|css|svg|ico|png|jpg|woff2?|map|txt)$")'
           # Root page load and vite HMR — static HTML served without instrumentation
