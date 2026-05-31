@@ -80,3 +80,11 @@ logs:
 metrics:
   prometheus:
     entryPoint: metrics
+
+# --- Tracing (OTLP → OTel Collector) ---
+tracing:
+  otlp:
+    enabled: true
+    grpc:
+      endpoint: "dev-monitoring-otel-opentelemetry-collector.monitoring.svc.cluster.local:4317"
+      insecure: true
