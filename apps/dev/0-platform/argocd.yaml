@@ -6,9 +6,10 @@ metadata:
   annotations:
     argocd.argoproj.io/sync-wave: "0"
   name: argocd
-
-
   namespace: argocd
+  labels:
+    environment: dev
+    domain: platform
 spec:
   project: default
 

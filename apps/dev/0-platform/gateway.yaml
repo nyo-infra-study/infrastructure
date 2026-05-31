@@ -12,6 +12,9 @@ metadata:
     argocd.argoproj.io/sync-wave: "0"  # After Traefik (-1), before apps
   name: gateway-routes
   namespace: argocd
+  labels:
+    environment: dev
+    domain: platform
 spec:
   project: default
   source:

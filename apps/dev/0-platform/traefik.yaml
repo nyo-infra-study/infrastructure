@@ -14,6 +14,9 @@ metadata:
     argocd.argoproj.io/sync-wave: "-1"  # Before ArgoCD self-management
   name: traefik
   namespace: argocd
+  labels:
+    environment: dev
+    domain: platform
 spec:
   project: default
   sources:
