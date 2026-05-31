@@ -174,17 +174,8 @@ config:
           - 'IsMatch(name, ".*livez.*")'
 
     # ── Enrich Traefik span names with the target host ──
-    # Changes span name from "PATCH" → "PATCH api.localhost/api/data"
-    # so you can tell which service was hit from the trace list
-    transform/traefik-service-name:
-      error_mode: ignore
-      trace_statements:
-        - context: span
-          conditions:
-            - resource.attributes["service.name"] == "traefik"
-          statements:
-            - set(name, Concat([name, " ", attributes["http.request.header.host"], attributes["url.path"]], "")) where attributes["http.request.header.host"] != nil and attributes["url.path"] != nil
-            - set(name, Concat([name, " ", attributes["http.request.header.host"]], "")) where attributes["http.request.header.host"] != nil and attributes["url.path"] == nil
+    # Kept for reference but not used in pipeline (sampleRate: 0 handles noise)
+    # transform/traefik-service-name: ...
 
     # ── Drop noisy / low-value metrics (for app OTLP metrics) ──
     filter/metrics:

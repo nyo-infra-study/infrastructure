@@ -82,8 +82,12 @@ metrics:
     entryPoint: metrics
 
 # --- Tracing (OTLP → OTel Collector) ---
+# sampleRate: 0 means Traefik won't START new traces, but will still
+# PROPAGATE trace context from incoming requests (traceparent header).
+# This eliminates noise from probes/polling while keeping full app traces.
 tracing:
-  addInternals: true
+  sampleRate: 0
+  addInternals: false
   capturedRequestHeaders:
     - Host
     - X-Forwarded-For
