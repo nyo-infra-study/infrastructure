@@ -6,16 +6,21 @@ metadata:
   name: grafana
   namespace: monitoring
 spec:
-  parentRefs:
-    - name: traefik-gateway
-      namespace: traefik
   hostnames:
     - grafana.localhost
+  parentRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: traefik-gateway
+      namespace: traefik
   rules:
-    - matches:
+    - backendRefs:
+        - group: ""
+          kind: Service
+          name: dev-grafana
+          port: 80
+          weight: 1
+      matches:
         - path:
             type: PathPrefix
             value: /
-      backendRefs:
-        - name: dev-grafana
-          port: 80
