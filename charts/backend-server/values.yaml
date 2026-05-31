@@ -53,18 +53,27 @@ monitoring:
   pyroscope:
     url: ""
 
-# Ingress configuration for external access
+# Ingress configuration (LEGACY — kept for backward compatibility)
 ingress:
-  enabled: false # Disabled by default (enable in apps/dev/)
-  className: "" # Ingress controller class (e.g., "traefik")
-  annotations: {} # Custom annotations for ingress controller
-  stripPrefixes: [] # Traefik middleware: remove path prefixes
-  tls: [] # TLS/SSL configuration (for HTTPS)
+  enabled: false
+  className: ""
+  annotations: {}
+  stripPrefixes: []
+  tls: []
   hosts:
-    - host: chart-example.local # Placeholder hostname
+    - host: chart-example.local
       paths:
         - path: /
           pathType: ImplementationSpecific
+
+# HTTPRoute configuration (Gateway API — preferred)
+httpRoute:
+  enabled: false  # Enable in apps/dev/
+  gatewayRef:
+    name: main-gateway
+    namespace: traefik
+  hostnames:
+    - api.localhost
 
 # Resource limits and requests (CPU/Memory)
 # Limits: Maximum resources the pod can use

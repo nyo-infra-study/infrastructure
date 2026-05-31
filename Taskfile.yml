@@ -101,6 +101,7 @@ tasks:
         # Endpoints
         gum style --bold --foreground 255 "  🔗 Endpoints"
         echo "     ArgoCD    → $(gum style --foreground 75 'http://argocd.localhost')"
+        echo "     Traefik   → $(gum style --foreground 75 'http://traefik.localhost')"
         echo "     Frontend  → $(gum style --foreground 75 'http://app.localhost')"
         echo "     Backend   → $(gum style --foreground 75 'http://api.localhost')"
         echo "     Grafana   → $(gum style --foreground 75 'http://grafana.localhost') (admin/admin)"
@@ -270,6 +271,9 @@ tasks:
   open:argocd:
     desc: "🌐 Open ArgoCD"
     cmds: [open http://argocd.localhost]
+  open:traefik:
+    desc: "🌐 Open Traefik Dashboard"
+    cmds: [open http://traefik.localhost]
   open:radar:
     desc: "🌐 Open Radar"
     cmds: [open http://radar.localhost]

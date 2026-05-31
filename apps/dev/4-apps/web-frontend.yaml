@@ -51,15 +51,16 @@ spec:
               deploymentEnvironment: "dev"
               insecure: "true"
 
-          # Ingress: Makes frontend accessible from outside cluster
+          # HTTPRoute: Makes frontend accessible via Gateway API
           ingress:
+            enabled: false  # Legacy ingress disabled
+          httpRoute:
             enabled: true
-            className: traefik # Use Traefik ingress controller (k3d default)
-            hosts:
-              - host: app.localhost
-                paths:
-                  - path: /
-                    pathType: Prefix
+            gatewayRef:
+              name: main-gateway
+              namespace: traefik
+            hostnames:
+              - app.localhost
 
     - repoURL: https://github.com/nyo-infra-study/infrastructure.git
       targetRevision: main

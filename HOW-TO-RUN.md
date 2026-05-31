@@ -98,7 +98,7 @@ colima start --cpu 4 --memory 8
 If you don't have the cluster yet, create it:
 
 ```bash
-k3d cluster create dev --port "80:80@loadbalancer"
+k3d cluster create dev --port "80:80@loadbalancer" --k3s-arg "--disable=traefik@server:0"
 ```
 
 If you already created the cluster and just need to start it again:

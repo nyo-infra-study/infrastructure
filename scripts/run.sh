@@ -109,11 +109,14 @@ fi
 log_step "Recreating k3d Cluster"
 run "k3d cluster delete dev || true"
 sleep 10
-run "k3d cluster create dev --port '80:80@loadbalancer'"
+run "k3d cluster create dev --port '80:80@loadbalancer' --k3s-arg '--disable=traefik@server:0'"
 printf "${C_DIM}  Waiting for API server to stabilize...${C_RESET}\n"
 sleep 20
 run "kubectl wait --for=condition=Ready nodes --all --timeout=60s"
 run "kubectl wait --for=jsonpath='{.metadata.name}'=default serviceaccount/default --timeout=60s"
+
+log_step "Installing Gateway API CRDs"
+run "kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.2.1/standard-install.yaml"
 
 log_step "Pre-caching container images"
 IMAGE_LIST="$REPO_ROOT/image-list.txt"
@@ -218,7 +221,19 @@ run "kubectl rollout status deployment/local-path-provisioner -n kube-system --t
 log_step "Installing ArgoCD"
 run "helm repo add argo https://argoproj.github.io/argo-helm"
 run "helm repo add cowboysysop https://cowboysysop.github.io/charts"
+run "helm repo add traefik https://traefik.github.io/charts"
 run "helm repo update"
+
+log_step "Installing Traefik (Gateway API-enabled)"
+run "helm install traefik traefik/traefik \
+  --namespace traefik \
+  --create-namespace \
+  -f '$REPO_ROOT/platform/traefik/values.yaml' \
+  --wait"
+
+log_step "Deploying Gateway"
+run "kubectl apply -f '$REPO_ROOT/platform/gateway/gateway.yaml'"
+run "kubectl apply -f '$REPO_ROOT/platform/gateway/traefik-dashboard-route.yaml'"
 
 ARGOCD_CHART_VERSION=$(grep 'targetRevision:' "$REPO_ROOT/apps/dev/0-platform/argocd.yaml" | head -1 | awk '{print $2}')
 printf "${C_DIM}  Chart version: %s${C_RESET}\n" "$ARGOCD_CHART_VERSION"
@@ -232,6 +247,9 @@ run "helm install argocd argo/argo-cd \
 log_step "Waiting for ArgoCD"
 run "kubectl wait --for=condition=available deployment/argocd-server -n argocd --timeout=300s"
 run "kubectl -n argocd rollout status deployment argocd-server"
+
+log_step "Exposing ArgoCD via Gateway API"
+run "kubectl apply -f '$REPO_ROOT/platform/gateway/argocd-route.yaml'"
 
 log_step "Configuring Secrets"
 run "kubectl create namespace argo || true"
@@ -276,6 +294,7 @@ run "kubectl wait --for=condition=ready pod -l app.kubernetes.io/component=appli
 log_step "Done! Cluster is ready."
 echo ""
 printf "${C_GREEN}  ArgoCD UI:    http://argocd.localhost${C_RESET}\n"
+printf "${C_GREEN}  Traefik:      http://traefik.localhost${C_RESET}\n"
 printf "${C_GREEN}  Frontend:     http://app.localhost${C_RESET}\n"
 printf "${C_GREEN}  Backend API:  http://api.localhost${C_RESET}\n"
 printf "${C_GREEN}  Radar:        http://radar.localhost${C_RESET}\n"

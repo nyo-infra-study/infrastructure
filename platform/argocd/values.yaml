@@ -16,7 +16,7 @@
 #
 # WHY THESE SETTINGS?
 # - server.insecure: Allows HTTP access (no TLS for local development)
-# - ingress: Enables external access via Traefik Ingress Controller (host-based routing)
+# - ingress disabled: We use Gateway API HTTPRoute instead (platform/gateway/)
 # ============================================================
 
 configs:
@@ -36,15 +36,9 @@ server:
       type: ClusterIP
       servicePort: 8083
 
-  # Ingress configuration for external access (host-based routing)
+  # Ingress disabled — we use Gateway API HTTPRoute (see platform/gateway/argocd-route.yaml)
   ingress:
-    enabled: true # Enable Ingress (vs port-forward)
-    ingressClassName: traefik # Use Traefik controller (k3d default)
-    annotations: {} # Optional Ingress annotations
-    hostname: argocd.localhost # Host-based routing (http://argocd.localhost)
-    path: / # Root path
-    pathType: Prefix # Match all paths
-    tls: false # Disable TLS (use HTTP not HTTPS)
+    enabled: false
 
 controller:
   metrics:

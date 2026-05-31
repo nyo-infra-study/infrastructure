@@ -61,13 +61,14 @@ spec:
             port: 9091
 
           ingress:
+            enabled: false  # Legacy ingress disabled
+          httpRoute:
             enabled: true
-            className: traefik
-            hosts:
-              - host: api.localhost
-                paths:
-                  - path: /
-                    pathType: Prefix
+            gatewayRef:
+              name: main-gateway
+              namespace: traefik
+            hostnames:
+              - api.localhost
 
     - repoURL: https://github.com/nyo-infra-study/infrastructure.git
       targetRevision: main

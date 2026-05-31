@@ -34,7 +34,7 @@ Unlike standard K8s setups, we do **not** build locally or `kubectl apply` apps 
 | **GitOps**      | ArgoCD         | Managed via "App of Apps" pattern (`bootstrap/dev.yaml`). |
 | **CI / Builds** | Argo Workflows | Templates in `argo-workflows/`.                           |
 | **Triggers**    | Argo Events    | Sensors/Sources in `argo-events/`.                        |
-| **Ingress**     | Traefik        | Default k3d ingress.                                      |
+| **Ingress**     | Traefik        | Gateway API (HTTPRoute). Installed via Helm (k3d built-in disabled). |
 | **Database**    | PostgreSQL     | Bitnami chart (`bitnamilegacy` repo).                     |
 | **Observability** | Grafana Hub | Loki (logs), Mimir (metrics), Tempo (traces), Pyroscope.  |
 
@@ -46,7 +46,10 @@ Unlike standard K8s setups, we do **not** build locally or `kubectl apply` apps 
 | **Modify Helm Templates**         | `charts/<service>/templates/`                                     |
 | **Change Build Logic**            | `argo-workflows/frontend-build-template.yaml`                     |
 | **Add New Microservice**          | 1. Create Chart (`charts/new`), 2. Add App (`apps/dev/new.yaml`). |
-| **Platform Config (ArgoCD/Grafana)** | `platform/<service>/values.yaml`                                  |
+| **Add/Change Routing (HTTPRoute)**| App charts: `charts/<svc>/templates/httproute.yaml`. Platform: `platform/gateway/` |
+| **Change Gateway Config**         | `platform/gateway/gateway.yaml` (listeners, allowed namespaces)   |
+| **Change Traefik Config**         | `platform/traefik/values.yaml`                                    |
+| **Platform Config (ArgoCD/Grafana)** | `platform/<service>/values.yaml`                               |
 
 ## 5. Observability (O11y Stack)
 

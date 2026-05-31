@@ -95,19 +95,30 @@ See [HOW-TO-RUN.md](./HOW-TO-RUN.md) for detailed step-by-step instructions.
 ### Quick Start
 
 ```bash
-# 1. Create local cluster
-k3d cluster create dev --port "80:80@loadbalancer"
+# 1. Create local cluster (disables built-in Traefik — we install our own)
+k3d cluster create dev --port "80:80@loadbalancer" --k3s-arg "--disable=traefik@server:0"
 
-# 2. Install ArgoCD
+# 2. Install Gateway API CRDs + Traefik
+kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.2.1/standard-install.yaml
+helm repo add traefik https://traefik.github.io/charts
+helm install traefik traefik/traefik -n traefik --create-namespace -f platform/traefik/values.yaml --wait
+
+# 3. Deploy the Gateway
+kubectl apply -f platform/gateway/gateway.yaml
+
+# 4. Install ArgoCD
 helm repo add argo https://argoproj.github.io/argo-helm
 helm install argocd argo/argo-cd \
   --namespace argocd --create-namespace \
   -f platform/argocd/values.yaml
 
-# 3. Bootstrap everything (only manual step needed)
+# 5. Expose ArgoCD via HTTPRoute
+kubectl apply -f platform/gateway/argocd-route.yaml
+
+# 6. Bootstrap everything (only manual step needed)
 kubectl apply -f bootstrap/dev.yaml
 
-# 4. Access (all use host-based routing on port 80)
+# 7. Access (all use host-based routing via Gateway API)
 # ArgoCD:  http://argocd.localhost (admin/password)
 # Frontend: http://app.localhost
 # Backend: http://api.localhost

@@ -1,0 +1,34 @@
+# ============================================================
+# Centralized Gateway — Single Entry Point for All Traffic
+# ============================================================
+# This is the PLATFORM TEAM's resource. It defines:
+# - Which ports to listen on (80, 443)
+# - Which namespaces can attach HTTPRoutes
+# - Which hostnames are allowed
+#
+# App teams create HTTPRoutes that reference this Gateway.
+# The Gateway controls what's allowed; HTTPRoutes control where traffic goes.
+#
+# Hierarchy:
+#   GatewayClass (created by Traefik Helm chart)
+#     └── Gateway (this file — platform team)
+#           └── HTTPRoute (per app — app teams)
+# ============================================================
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: main-gateway
+  namespace: traefik
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+spec:
+  gatewayClassName: traefik
+
+  listeners:
+    # HTTP listener — accepts traffic on port 80
+    - name: http
+      protocol: HTTP
+      port: 80
+      allowedRoutes:
+        namespaces:
+          from: All  # Any namespace can attach HTTPRoutes

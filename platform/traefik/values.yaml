@@ -1,0 +1,76 @@
+# ============================================================
+# Traefik — Ingress Controller + Gateway API Provider
+# ============================================================
+# Chart: traefik/traefik (latest)
+# Docs: https://doc.traefik.io/traefik/
+#
+# We install Traefik manually (instead of k3d's built-in) to:
+# 1. Enable the Kubernetes Gateway API provider
+# 2. Control the version and configuration
+# 3. Allow cross-namespace HTTPRoute references
+#
+# The built-in k3d Traefik is disabled via:
+#   --k3s-arg "--disable=traefik@server:0"
+# ============================================================
+
+# --- Entrypoints ---
+ports:
+  web:
+    port: 8000
+    exposedPort: 80
+    protocol: TCP
+  websecure:
+    port: 8443
+    exposedPort: 443
+    protocol: TCP
+
+# --- Service (LoadBalancer for k3d port mapping) ---
+service:
+  type: LoadBalancer
+
+# --- Providers ---
+providers:
+  kubernetesGateway:
+    enabled: true
+  # Keep CRD provider for backward compat (IngressRoute still works)
+  kubernetesCRD:
+    enabled: true
+    allowCrossNamespace: true
+  kubernetesIngress:
+    enabled: true  # Keep enabled for backward compat with existing Ingress resources
+
+# --- Gateway ---
+# Traefik Helm chart can auto-create a Gateway resource
+gateway:
+  enabled: false  # We manage our own Gateway in platform/gateway/
+
+# --- Dashboard ---
+ingressRoute:
+  dashboard:
+    enabled: false  # We expose via HTTPRoute instead
+
+# --- API (required for dashboard) ---
+api:
+  dashboard: true
+  insecure: true  # Allow HTTP access (no TLS for local dev)
+
+# --- Resources ---
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 300m
+    memory: 256Mi
+
+# --- Logs ---
+logs:
+  general:
+    level: INFO
+  access:
+    enabled: true
+
+# --- Metrics (for OTel scraping) ---
+metrics:
+  prometheus:
+    entryPoint: metrics

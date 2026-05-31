@@ -1,0 +1,19 @@
+# HTTPRoute for Traefik Dashboard
+# Exposes the Traefik dashboard at http://traefik.localhost
+# The dashboard API is served on Traefik's internal "traefik" entrypoint (port 9000).
+# We use an IngressRoute (Traefik CRD) here because the dashboard is served
+# by Traefik itself — it can't route to its own API via Gateway API backendRef.
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: traefik-dashboard
+  namespace: traefik
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: Host(`traefik.localhost`)
+      kind: Rule
+      services:
+        - name: api@internal
+          kind: TraefikService

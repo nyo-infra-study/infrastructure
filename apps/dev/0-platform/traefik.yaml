@@ -1,0 +1,39 @@
+# ============================================================
+# Traefik — Gateway API-enabled Ingress Controller
+# ============================================================
+# Replaces k3d's built-in Traefik with a managed installation
+# that supports the Kubernetes Gateway API.
+#
+# The built-in Traefik is disabled in scripts/run.sh via:
+#   --k3s-arg "--disable=traefik@server:0"
+# ============================================================
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"  # Before ArgoCD self-management
+  name: traefik
+  namespace: argocd
+spec:
+  project: default
+  sources:
+    - chart: traefik
+      repoURL: https://traefik.github.io/charts
+      targetRevision: 34.5.0
+      helm:
+        releaseName: traefik
+        valueFiles:
+          - $values/platform/traefik/values.yaml
+    - repoURL: https://github.com/nyo-infra-study/infrastructure.git
+      targetRevision: main
+      ref: values
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: traefik
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true

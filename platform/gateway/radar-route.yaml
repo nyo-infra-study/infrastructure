@@ -1,0 +1,21 @@
+# HTTPRoute for Radar
+# Exposes Radar at http://radar.localhost
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: radar
+  namespace: monitoring
+spec:
+  parentRefs:
+    - name: main-gateway
+      namespace: traefik
+  hostnames:
+    - radar.localhost
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: dev-monitoring-radar
+          port: 9280

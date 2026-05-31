@@ -16,6 +16,9 @@
 # --- k3d / local-path provisioner ---
 busybox:latest
 
+# --- Traefik (platform/traefik/values.yaml — Gateway API controller) ---
+docker.io/traefik:v3.4
+
 # --- Backend DB (charts/backend-db/values.yaml) ---
 docker.io/bitnamilegacy/postgresql:16-debian-12
 
