@@ -155,7 +155,7 @@ config:
         log_record:
           - 'resource.attributes["k8s.namespace.name"] == "kube-system"'
 
-    # ── Filter traces: drop health check spans ──
+    # ── Filter traces: drop health check spans and Traefik platform noise ──
     filter/traces:
       error_mode: ignore
       traces:
@@ -172,6 +172,7 @@ config:
           - 'IsMatch(name, ".*health.*")'
           - 'IsMatch(name, ".*readyz.*")'
           - 'IsMatch(name, ".*livez.*")'
+          - 'IsMatch(attributes["url.path"], "/ping")'
 
     # ── Enrich Traefik span names with the target host ──
     # Kept for reference but not used in pipeline (sampleRate: 0 handles noise)
