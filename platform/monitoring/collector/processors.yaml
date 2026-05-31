@@ -155,7 +155,7 @@ config:
         log_record:
           - 'resource.attributes["k8s.namespace.name"] == "kube-system"'
 
-    # ── Filter traces: drop health check spans and Traefik platform noise ──
+    # ── Filter traces: drop health check spans and Traefik-initiated noise ──
     filter/traces:
       error_mode: ignore
       traces:
