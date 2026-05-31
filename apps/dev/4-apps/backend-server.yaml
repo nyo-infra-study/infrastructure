@@ -61,7 +61,13 @@ spec:
             port: 9091
 
           ingress:
-            enabled: false  # API traffic now routed through web-frontend reverse proxy
+            enabled: true
+            className: traefik
+            hosts:
+              - host: api.localhost
+                paths:
+                  - path: /
+                    pathType: Prefix
 
     - repoURL: https://github.com/nyo-infra-study/infrastructure.git
       targetRevision: main

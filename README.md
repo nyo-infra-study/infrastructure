@@ -96,7 +96,7 @@ See [HOW-TO-RUN.md](./HOW-TO-RUN.md) for detailed step-by-step instructions.
 
 ```bash
 # 1. Create local cluster
-k3d cluster create dev --port "9000:80@loadbalancer"
+k3d cluster create dev --port "80:80@loadbalancer"
 
 # 2. Install ArgoCD
 helm repo add argo https://argoproj.github.io/argo-helm
@@ -107,10 +107,12 @@ helm install argocd argo/argo-cd \
 # 3. Bootstrap everything (only manual step needed)
 kubectl apply -f bootstrap/dev.yaml
 
-# 4. Access
-# ArgoCD:  http://localhost:9000/argocd (admin/password)
-# Grafana: http://grafana.localhost:9000 (admin/admin)
-# Radar:   http://radar.localhost:9000
+# 4. Access (all use host-based routing on port 80)
+# ArgoCD:  http://argocd.localhost (admin/password)
+# Frontend: http://app.localhost
+# Backend: http://api.localhost
+# Grafana: http://grafana.localhost (admin/admin)
+# Radar:   http://radar.localhost
 ```
 
 ## 🔄 Development Workflow

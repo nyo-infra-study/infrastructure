@@ -4,7 +4,7 @@
 # Chart: https://github.com/skyhook-io/helm-charts (skyhook/radar v1.7.1)
 # Docs:  https://radarhq.io/docs
 #
-# UI accessible at: http://radar.localhost:9000
+# UI accessible at: http://radar.localhost
 #
 # Features: Topology visualization, resource browser, event timeline,
 # Helm management, GitOps (ArgoCD/FluxCD), traffic maps, cluster audit,

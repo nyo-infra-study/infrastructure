@@ -4,7 +4,7 @@
 # Chart: https://github.com/SigNoz/charts (signoz/signoz v0.121.0)
 # Docs:  https://signoz.io/docs/install/argocd/
 #
-# UI accessible at: http://signoz.localhost:9000
+# UI accessible at: http://signoz.localhost
 # SigNoz OTel Collector (from within cluster):
 #   gRPC: dev-monitoring-signoz-otel-collector.monitoring.svc.cluster.local:4317
 #   HTTP: dev-monitoring-signoz-otel-collector.monitoring.svc.cluster.local:4318
@@ -68,7 +68,7 @@ signoz:
   persistence:
     enabled: true
     size: 1Gi
-  # SigNoz UI at http://signoz.localhost:9000
+  # SigNoz UI at http://signoz.localhost
   ingress:
     enabled: true
     className: traefik

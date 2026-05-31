@@ -109,7 +109,7 @@ fi
 log_step "Recreating k3d Cluster"
 run "k3d cluster delete dev || true"
 sleep 10
-run "k3d cluster create dev --port '9000:80@loadbalancer' --port '80:80@loadbalancer'"
+run "k3d cluster create dev --port '80:80@loadbalancer'"
 printf "${C_DIM}  Waiting for API server to stabilize...${C_RESET}\n"
 sleep 20
 run "kubectl wait --for=condition=Ready nodes --all --timeout=60s"
@@ -275,9 +275,9 @@ run "kubectl wait --for=condition=ready pod -l app.kubernetes.io/component=appli
 
 log_step "Done! Cluster is ready."
 echo ""
-printf "${C_GREEN}  ArgoCD UI:    http://localhost:9000/argocd${C_RESET}\n"
-printf "${C_GREEN}  Frontend:     http://localhost:9000/web${C_RESET}\n"
-printf "${C_GREEN}  Backend API:  http://localhost:9000/api${C_RESET}\n"
+printf "${C_GREEN}  ArgoCD UI:    http://argocd.localhost${C_RESET}\n"
+printf "${C_GREEN}  Frontend:     http://app.localhost${C_RESET}\n"
+printf "${C_GREEN}  Backend API:  http://api.localhost${C_RESET}\n"
 printf "${C_GREEN}  Radar:        http://radar.localhost${C_RESET}\n"
 printf "${C_GREEN}  Grafana:      http://grafana.localhost (admin/admin)${C_RESET}\n"
 echo ""

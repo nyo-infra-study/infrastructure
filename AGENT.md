@@ -30,7 +30,7 @@ Unlike standard K8s setups, we do **not** build locally or `kubectl apply` apps 
 
 | Component       | Tool           | Notes                                                     |
 | :-------------- | :------------- | :-------------------------------------------------------- |
-| **Cluster**     | k3d            | Exposed on `localhost:9000`.                              |
+| **Cluster**     | k3d            | Exposed on `localhost:80` (host-based routing). |
 | **GitOps**      | ArgoCD         | Managed via "App of Apps" pattern (`bootstrap/dev.yaml`). |
 | **CI / Builds** | Argo Workflows | Templates in `argo-workflows/`.                           |
 | **Triggers**    | Argo Events    | Sensors/Sources in `argo-events/`.                        |
@@ -51,7 +51,7 @@ Unlike standard K8s setups, we do **not** build locally or `kubectl apply` apps 
 ## 5. Observability (O11y Stack)
 
 - **Logs/Metrics/Traces**: Do NOT rely solely on `kubectl`. Use **Grafana**.
-- **URL**: `http://localhost:9000/grafana`
+- **URL**: `http://grafana.localhost`
 - **Credentials**:
   - User: `admin`
   - Password: See `grafana-auth` secret (or `P5F8lxHPhr58CLlCzFRTpr2iUoxjb2YieWnFBHLY`).
@@ -59,12 +59,15 @@ Unlike standard K8s setups, we do **not** build locally or `kubectl apply` apps 
 
 ## 6. Access Points
 
-The cluster uses a single load balancer on **port 9000**:
+The cluster uses a single load balancer on **port 80** with host-based routing:
 
-- **Frontend**: `http://localhost:9000/`
-- **Backend API**: `http://localhost:9000/api`
-- **ArgoCD UI**: `http://localhost:9000/argocd`
-- **Grafana**: `http://localhost:9000/grafana`
+- **Frontend**: `http://app.localhost`
+- **Backend API**: `http://api.localhost`
+- **ArgoCD UI**: `http://argocd.localhost`
+- **Grafana**: `http://grafana.localhost`
+- **Radar**: `http://radar.localhost`
+
+All `.localhost` domains resolve to `127.0.0.1` automatically on macOS — no `/etc/hosts` editing needed.
 
 ## 7. Scripts & Tools
 

@@ -46,7 +46,7 @@ spec:
             - name: PORT
               value: "{{ .Values.containerPort }}"
             - name: BASE_PATH
-              value: "/web"
+              value: "/"
             - name: STATIC_DIR
               value: "/app/static"
             - name: BACKEND_URL

@@ -98,7 +98,7 @@ colima start --cpu 4 --memory 8
 If you don't have the cluster yet, create it:
 
 ```bash
-k3d cluster create dev --port "9000:80@loadbalancer"
+k3d cluster create dev --port "80:80@loadbalancer"
 ```
 
 If you already created the cluster and just need to start it again:
@@ -329,7 +329,7 @@ docker push YOUR_DOCKERHUB_USERNAME/backend-server:latest
 
 ### Access ArgoCD UI
 
-Open [http://localhost:9000/argocd](http://localhost:9000/argocd)
+Open [http://argocd.localhost](http://argocd.localhost)
 
 - **Username**: `admin`
 - **Password**: `password` (Hard-set in Helm values)
@@ -350,27 +350,32 @@ kubectl apply -f bootstrap/dev.yaml
 
 ## 9. Access the Apps (via Ingress)
 
-Because we created the cluster with `--port "9000:80@loadbalancer"`, k3d automatically routes traffic from your machine's port **9000** to the cluster's Ingress Controller.
+Because we created the cluster with `--port "80:80@loadbalancer"`, k3d automatically routes traffic from your machine's port **80** to the cluster's Ingress Controller (Traefik). All services use **host-based routing** on `.localhost` domains, which resolve to `127.0.0.1` automatically on macOS.
 
-You do **not** need to use `kubectl port-forward` anymore.
+You do **not** need to use `kubectl port-forward` or edit `/etc/hosts`.
 
-- **Frontend**: [http://localhost:9000/](http://localhost:9000/)
-- **Backend API**: [http://localhost:9000/api](http://localhost:9000/api)
-- **ArgoCD UI**: [http://localhost:9000/argocd](http://localhost:9000/argocd)
+- **Frontend**: [http://app.localhost](http://app.localhost)
+- **Backend API**: [http://api.localhost](http://api.localhost)
+- **ArgoCD UI**: [http://argocd.localhost](http://argocd.localhost)
+- **Grafana**: [http://grafana.localhost](http://grafana.localhost)
+- **Radar**: [http://radar.localhost](http://radar.localhost)
 - **Argo Workflows UI**: Access via port-forward:
   ```bash
   kubectl -n argo port-forward deployment/argo-server 2746:2746
   # Open: https://localhost:2746
   ```
 
-### ℹ️ Understanding Ports
+### ℹ️ Understanding the Network
 
-You might notice in the configuration that we set:
+All services share a single IP (`127.0.0.1` port `80`) and are differentiated by their `Host` header. Traefik reads the hostname from each HTTP request and routes to the correct Kubernetes Service:
 
-- **Backend Service**: Port 9091
-- **Frontend Service**: Port 9092
-
-These are **internal** ports used only inside the cluster (e.g., Ingress talking to the Service). Externally, you always access both apps through the single entry point (Load Balancer) on port **9000**.
+| Hostname | Service | Internal Port |
+|----------|---------|---------------|
+| `app.localhost` | web-frontend | 9092 |
+| `api.localhost` | backend-server | 9091 |
+| `argocd.localhost` | argocd-server | 443 |
+| `grafana.localhost` | grafana | 80 |
+| `radar.localhost` | radar | 9280 |
 
 ---
 
@@ -669,7 +674,7 @@ We use a comprehensive observability stack (Grafana, Loki, Mimir, Tempo, Pyrosco
 
 ### Access Grafana
 
-**URL:** [http://localhost:9000/grafana](http://localhost:9000/grafana)
+**URL:** [http://grafana.localhost](http://grafana.localhost)
 
 1.  **Create the admin secret (One-time setup):**
 

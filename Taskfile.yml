@@ -100,9 +100,9 @@ tasks:
 
         # Endpoints
         gum style --bold --foreground 255 "  🔗 Endpoints"
-        echo "     ArgoCD    → $(gum style --foreground 75 'http://localhost:9000/argocd')"
-        echo "     Frontend  → $(gum style --foreground 75 'http://localhost:9000/web')"
-        echo "     Backend   → $(gum style --foreground 75 'http://localhost:9000/api')"
+        echo "     ArgoCD    → $(gum style --foreground 75 'http://argocd.localhost')"
+        echo "     Frontend  → $(gum style --foreground 75 'http://app.localhost')"
+        echo "     Backend   → $(gum style --foreground 75 'http://api.localhost')"
         echo "     Grafana   → $(gum style --foreground 75 'http://grafana.localhost') (admin/admin)"
         echo "     Radar     → $(gum style --foreground 75 'http://radar.localhost')"
         echo ""
@@ -269,7 +269,7 @@ tasks:
     cmds: [open http://grafana.localhost]
   open:argocd:
     desc: "🌐 Open ArgoCD"
-    cmds: [open http://localhost:9000/argocd]
+    cmds: [open http://argocd.localhost]
   open:radar:
     desc: "🌐 Open Radar"
     cmds: [open http://radar.localhost]
@@ -281,4 +281,4 @@ tasks:
     cmds: [open http://opensearch.localhost]
   open:app:
     desc: "🌐 Open web app"
-    cmds: [open http://localhost:9000/web]
+    cmds: [open http://app.localhost]

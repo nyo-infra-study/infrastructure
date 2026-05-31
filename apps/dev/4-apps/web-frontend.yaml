@@ -56,12 +56,10 @@ spec:
             enabled: true
             className: traefik # Use Traefik ingress controller (k3d default)
             hosts:
-              - host: localhost
+              - host: app.localhost
                 paths:
-                  - path: /web
-                    pathType: ImplementationSpecific
-                  - path: /api
-                    pathType: ImplementationSpecific
+                  - path: /
+                    pathType: Prefix
 
     - repoURL: https://github.com/nyo-infra-study/infrastructure.git
       targetRevision: main
