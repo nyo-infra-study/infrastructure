@@ -116,7 +116,7 @@ run "kubectl wait --for=condition=Ready nodes --all --timeout=60s"
 run "kubectl wait --for=jsonpath='{.metadata.name}'=default serviceaccount/default --timeout=60s"
 
 log_step "Installing Gateway API CRDs"
-run "kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.3.0/experimental-install.yaml --server-side"
+run "kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.5.1/experimental-install.yaml --server-side"
 
 log_step "Pre-caching container images"
 IMAGE_LIST="$REPO_ROOT/image-list.txt"
