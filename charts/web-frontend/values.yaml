@@ -53,7 +53,7 @@ ingress:
 httpRoute:
   enabled: false  # Enable in apps/dev/
   gatewayRef:
-    name: main-gateway
+    name: traefik-gateway
     namespace: traefik
   hostnames:
     - app.localhost

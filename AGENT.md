@@ -47,7 +47,7 @@ Unlike standard K8s setups, we do **not** build locally or `kubectl apply` apps 
 | **Change Build Logic**            | `argo-workflows/frontend-build-template.yaml`                     |
 | **Add New Microservice**          | 1. Create Chart (`charts/new`), 2. Add App (`apps/dev/new.yaml`). |
 | **Add/Change Routing (HTTPRoute)**| App charts: `charts/<svc>/templates/httproute.yaml`. Platform: `platform/gateway/` |
-| **Change Gateway Config**         | `platform/gateway/gateway.yaml` (listeners, allowed namespaces)   |
+| **Change Gateway Config**         | `platform/traefik/values.yaml` (gateway.listeners, namespacePolicy)   |
 | **Change Traefik Config**         | `platform/traefik/values.yaml`                                    |
 | **Platform Config (ArgoCD/Grafana)** | `platform/<service>/values.yaml`                               |
 

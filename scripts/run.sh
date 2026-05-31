@@ -116,7 +116,7 @@ run "kubectl wait --for=condition=Ready nodes --all --timeout=60s"
 run "kubectl wait --for=jsonpath='{.metadata.name}'=default serviceaccount/default --timeout=60s"
 
 log_step "Installing Gateway API CRDs"
-run "kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.2.1/standard-install.yaml"
+run "kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.3.0/experimental-install.yaml --server-side"
 
 log_step "Pre-caching container images"
 IMAGE_LIST="$REPO_ROOT/image-list.txt"
@@ -231,8 +231,9 @@ run "helm install traefik traefik/traefik \
   -f '$REPO_ROOT/platform/traefik/values.yaml' \
   --wait"
 
-log_step "Deploying Gateway"
-run "kubectl apply -f '$REPO_ROOT/platform/gateway/gateway.yaml'"
+log_step "Deploying Gateway & Routes"
+printf "${C_DIM}  Waiting for Gateway to be accepted...${C_RESET}\n"
+sleep 10
 run "kubectl apply -f '$REPO_ROOT/platform/gateway/traefik-dashboard-route.yaml'"
 
 ARGOCD_CHART_VERSION=$(grep 'targetRevision:' "$REPO_ROOT/apps/dev/0-platform/argocd.yaml" | head -1 | awk '{print $2}')

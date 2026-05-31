@@ -19,16 +19,16 @@ All services share a single IP address (`127.0.0.1` port `80`) using the **Kuber
                                  │
                                  ▼
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                     Gateway: main-gateway                                    │
-│              (Centralized entry point — platform team)                       │
+│                     Gateway: traefik-gateway                                 │
+│              (Centralized entry point — managed by Traefik chart)            │
 │                                                                             │
 │  Listeners:                                                                 │
-│    - name: http                                                             │
+│    - name: web                                                              │
 │      port: 80                                                               │
 │      protocol: HTTP                                                         │
 │      allowedRoutes: All namespaces                                          │
 │                                                                             │
-│  Location: platform/gateway/gateway.yaml                                    │
+│  Location: Traefik Helm chart (platform/traefik/values.yaml)                │
 └────────────────────────────────┬────────────────────────────────────────────┘
                                  │
               ┌──────────────────┼──────────────────────────────┐
@@ -43,10 +43,10 @@ All services share a single IP address (`127.0.0.1` port `80`) using the **Kuber
               │                  │                              │
               ▼                  ▼                              ▼
 ┌──────────────────┐  ┌──────────────────┐  ┌──────────────────────────────┐
-│  HTTPRoute       │  │  HTTPRoute       │  │  HTTPRoute                   │
-│  grafana.localhost│  │  radar.localhost │  │  (future services...)        │
-│  → dev-grafana   │  │  → radar         │  │                              │
-│  ns: monitoring  │  │  ns: monitoring  │  │                              │
+│  HTTPRoute       │  │  HTTPRoute       │  │  IngressRoute (CRD)          │
+│  grafana.localhost│  │  radar.localhost │  │  traefik.localhost            │
+│  → dev-grafana   │  │  → radar         │  │  → api@internal (dashboard)  │
+│  ns: monitoring  │  │  ns: monitoring  │  │  ns: traefik                 │
 └──────────────────┘  └──────────────────┘  └──────────────────────────────┘
 ```
 
@@ -80,16 +80,17 @@ spec:
 ### Layer 2: Gateway (Platform Team)
 
 ```yaml
-# platform/gateway/gateway.yaml
+# Managed by Traefik Helm chart via platform/traefik/values.yaml
+# gateway.listeners.web.namespacePolicy.from = All
 apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
 metadata:
-  name: main-gateway
+  name: traefik-gateway
   namespace: traefik
 spec:
   gatewayClassName: traefik
   listeners:
-    - name: http
+    - name: web
       protocol: HTTP
       port: 80
       allowedRoutes:
@@ -97,8 +98,8 @@ spec:
           from: All
 ```
 
-**Who manages it**: Platform/infra team
-**What it defines**: Entry point configuration, which namespaces can attach routes, TLS policies
+**Who manages it**: Traefik Helm chart (configured in `platform/traefik/values.yaml`)
+**What it defines**: Entry point configuration, which namespaces can attach routes
 
 ### Layer 3: HTTPRoute (App Teams)
 
@@ -111,7 +112,7 @@ metadata:
   namespace: dev
 spec:
   parentRefs:
-    - name: main-gateway
+    - name: traefik-gateway
       namespace: traefik
   hostnames:
     - app.localhost
@@ -132,13 +133,14 @@ spec:
 
 ## Current Service Map
 
-| Hostname | HTTPRoute Location | Backend Service | Namespace |
-|----------|-------------------|-----------------|-----------|
-| `app.localhost` | `charts/web-frontend/templates/httproute.yaml` | dev-web-frontend:9092 | dev |
-| `api.localhost` | `charts/backend-server/templates/httproute.yaml` | dev-backend-server:9091 | dev |
-| `argocd.localhost` | `platform/gateway/argocd-route.yaml` | argocd-server:80 | argocd |
-| `grafana.localhost` | `platform/gateway/grafana-route.yaml` | dev-grafana:80 | monitoring |
-| `radar.localhost` | `platform/gateway/radar-route.yaml` | dev-monitoring-radar:9280 | monitoring |
+| Hostname | Route Type | Location | Backend Service | Namespace |
+|----------|-----------|----------|-----------------|-----------|
+| `app.localhost` | HTTPRoute | `charts/web-frontend/templates/httproute.yaml` | dev-web-frontend:9092 | dev |
+| `api.localhost` | HTTPRoute | `charts/backend-server/templates/httproute.yaml` | dev-backend-server:9091 | dev |
+| `argocd.localhost` | HTTPRoute | `platform/gateway/argocd-route.yaml` | argocd-server:80 | argocd |
+| `grafana.localhost` | HTTPRoute | `platform/gateway/grafana-route.yaml` | dev-grafana:80 | monitoring |
+| `radar.localhost` | HTTPRoute | `platform/gateway/radar-route.yaml` | dev-monitoring-radar:9280 | monitoring |
+| `traefik.localhost` | IngressRoute | `platform/gateway/traefik-dashboard-route.yaml` | api@internal | traefik |
 
 ---
 
@@ -178,7 +180,7 @@ spec:
 httpRoute:
   enabled: false
   gatewayRef:
-    name: main-gateway
+    name: traefik-gateway
     namespace: traefik
   hostnames:
     - my-service.localhost
@@ -239,7 +241,7 @@ Differences from local:
 
 ```bash
 # Check if Gateway is accepted
-kubectl get gateway main-gateway -n traefik
+kubectl get gateway traefik-gateway -n traefik
 
 # Check HTTPRoute status (should show "Accepted: True")
 kubectl get httproute -A
@@ -265,8 +267,7 @@ sudo lsof -i :80
 
 The Gateway must allow routes from the target namespace:
 ```yaml
-# In gateway.yaml
-allowedRoutes:
-  namespaces:
-    from: All  # or use Selector for fine-grained control
+# In platform/traefik/values.yaml → gateway.listeners.web
+namespacePolicy:
+  from: All  # or use Selector for fine-grained control
 ```

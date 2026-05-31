@@ -65,7 +65,7 @@ spec:
           httpRoute:
             enabled: true
             gatewayRef:
-              name: main-gateway
+              name: traefik-gateway
               namespace: traefik
             hostnames:
               - api.localhost

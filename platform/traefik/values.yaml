@@ -40,9 +40,15 @@ providers:
     enabled: true  # Keep enabled for backward compat with existing Ingress resources
 
 # --- Gateway ---
-# Traefik Helm chart can auto-create a Gateway resource
+# Let the Traefik Helm chart create and manage the Gateway resource
 gateway:
-  enabled: false  # We manage our own Gateway in platform/gateway/
+  enabled: true
+  listeners:
+    web:
+      port: 8000
+      protocol: HTTP
+      namespacePolicy:
+        from: All  # Allow HTTPRoutes from all namespaces
 
 # --- Dashboard ---
 ingressRoute:
