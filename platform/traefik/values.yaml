@@ -83,6 +83,10 @@ metrics:
 
 # --- Tracing (OTLP → OTel Collector) ---
 tracing:
+  addInternals: true
+  capturedRequestHeaders:
+    - Host
+    - X-Forwarded-For
   otlp:
     enabled: true
     grpc:
