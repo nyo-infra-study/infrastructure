@@ -13,7 +13,7 @@
       "title": "Request Rate",
       "type": "stat",
       "gridPos": { "h": 4, "w": 4, "x": 0, "y": 1 },
-      "datasource": { "uid": "prometheus", "type": "prometheus" },
+      "datasource": { "uid": "$ds_prometheus", "type": "prometheus" },
       "fieldConfig": { "defaults": { "unit": "reqps", "color": { "mode": "fixed", "fixedColor": "blue" } }, "overrides": [] },
       "targets": [{ "expr": "sum(rate(traefik_entrypoint_requests_total{entrypoint=~\"$entrypoint\"}[$__rate_interval]))", "refId": "A", "instant": true }]
     },
@@ -21,7 +21,7 @@
       "title": "Error Rate (4xx+5xx)",
       "type": "stat",
       "gridPos": { "h": 4, "w": 4, "x": 4, "y": 1 },
-      "datasource": { "uid": "prometheus", "type": "prometheus" },
+      "datasource": { "uid": "$ds_prometheus", "type": "prometheus" },
       "fieldConfig": { "defaults": { "unit": "reqps", "thresholds": { "steps": [{ "value": 0, "color": "green" }, { "value": 0.5, "color": "yellow" }, { "value": 5, "color": "red" }] } }, "overrides": [] },
       "targets": [{ "expr": "sum(rate(traefik_entrypoint_requests_total{entrypoint=~\"$entrypoint\",code=~\"4..|5..\"}[$__rate_interval]))", "refId": "A", "instant": true }]
     },
@@ -29,7 +29,7 @@
       "title": "P50 Latency",
       "type": "stat",
       "gridPos": { "h": 4, "w": 4, "x": 8, "y": 1 },
-      "datasource": { "uid": "prometheus", "type": "prometheus" },
+      "datasource": { "uid": "$ds_prometheus", "type": "prometheus" },
       "fieldConfig": { "defaults": { "unit": "s", "color": { "mode": "fixed", "fixedColor": "purple" } }, "overrides": [] },
       "targets": [{ "expr": "histogram_quantile(0.50, sum(rate(traefik_entrypoint_request_duration_seconds_bucket{entrypoint=~\"$entrypoint\"}[$__rate_interval])) by (le))", "refId": "A", "instant": true }]
     },
@@ -37,7 +37,7 @@
       "title": "P95 Latency",
       "type": "stat",
       "gridPos": { "h": 4, "w": 4, "x": 12, "y": 1 },
-      "datasource": { "uid": "prometheus", "type": "prometheus" },
+      "datasource": { "uid": "$ds_prometheus", "type": "prometheus" },
       "fieldConfig": { "defaults": { "unit": "s", "thresholds": { "steps": [{ "value": 0, "color": "green" }, { "value": 0.5, "color": "yellow" }, { "value": 2, "color": "red" }] } }, "overrides": [] },
       "targets": [{ "expr": "histogram_quantile(0.95, sum(rate(traefik_entrypoint_request_duration_seconds_bucket{entrypoint=~\"$entrypoint\"}[$__rate_interval])) by (le))", "refId": "A", "instant": true }]
     },
@@ -45,7 +45,7 @@
       "title": "P99 Latency",
       "type": "stat",
       "gridPos": { "h": 4, "w": 4, "x": 16, "y": 1 },
-      "datasource": { "uid": "prometheus", "type": "prometheus" },
+      "datasource": { "uid": "$ds_prometheus", "type": "prometheus" },
       "fieldConfig": { "defaults": { "unit": "s", "thresholds": { "steps": [{ "value": 0, "color": "green" }, { "value": 1, "color": "yellow" }, { "value": 5, "color": "red" }] } }, "overrides": [] },
       "targets": [{ "expr": "histogram_quantile(0.99, sum(rate(traefik_entrypoint_request_duration_seconds_bucket{entrypoint=~\"$entrypoint\"}[$__rate_interval])) by (le))", "refId": "A", "instant": true }]
     },
@@ -53,7 +53,7 @@
       "title": "Open Connections",
       "type": "stat",
       "gridPos": { "h": 4, "w": 4, "x": 20, "y": 1 },
-      "datasource": { "uid": "prometheus", "type": "prometheus" },
+      "datasource": { "uid": "$ds_prometheus", "type": "prometheus" },
       "fieldConfig": { "defaults": { "unit": "short", "color": { "mode": "fixed", "fixedColor": "orange" } }, "overrides": [] },
       "targets": [{ "expr": "sum(traefik_entrypoint_open_connections{entrypoint=~\"$entrypoint\"})", "refId": "A", "instant": true }]
     },
@@ -61,7 +61,7 @@
       "title": "Request Rate by Entrypoint",
       "type": "timeseries",
       "gridPos": { "h": 8, "w": 12, "x": 0, "y": 5 },
-      "datasource": { "uid": "prometheus", "type": "prometheus" },
+      "datasource": { "uid": "$ds_prometheus", "type": "prometheus" },
       "fieldConfig": { "defaults": { "unit": "reqps", "custom": { "fillOpacity": 15 } }, "overrides": [] },
       "targets": [{ "expr": "sum by (entrypoint, method) (rate(traefik_entrypoint_requests_total{entrypoint=~\"$entrypoint\"}[$__rate_interval]))", "refId": "A", "legendFormat": "{{entrypoint}} {{method}}" }],
       "options": { "legend": { "displayMode": "table", "placement": "right" } }
@@ -70,7 +70,7 @@
       "title": "Latency Heatmap (Entrypoint)",
       "type": "heatmap",
       "gridPos": { "h": 8, "w": 12, "x": 12, "y": 5 },
-      "datasource": { "uid": "prometheus", "type": "prometheus" },
+      "datasource": { "uid": "$ds_prometheus", "type": "prometheus" },
       "targets": [{ "expr": "sum(increase(traefik_entrypoint_request_duration_seconds_bucket{entrypoint=~\"$entrypoint\"}[$__rate_interval])) by (le)", "refId": "A", "format": "heatmap", "legendFormat": "{{le}}" }],
       "options": { "yAxis": { "unit": "s" }, "color": { "scheme": "Spectral", "reverse": true } }
     },
@@ -84,7 +84,7 @@
       "title": "Request Rate by Service",
       "type": "timeseries",
       "gridPos": { "h": 8, "w": 12, "x": 0, "y": 14 },
-      "datasource": { "uid": "prometheus", "type": "prometheus" },
+      "datasource": { "uid": "$ds_prometheus", "type": "prometheus" },
       "fieldConfig": { "defaults": { "unit": "reqps", "custom": { "fillOpacity": 10 } }, "overrides": [] },
       "targets": [{ "expr": "sum by (service) (rate(traefik_service_requests_total[$__rate_interval]))", "refId": "A", "legendFormat": "{{service}}" }],
       "options": { "legend": { "displayMode": "table", "placement": "right", "sortBy": "Last *", "sortDesc": true } }
@@ -93,7 +93,7 @@
       "title": "Service Error Rate (4xx+5xx)",
       "type": "timeseries",
       "gridPos": { "h": 8, "w": 12, "x": 12, "y": 14 },
-      "datasource": { "uid": "prometheus", "type": "prometheus" },
+      "datasource": { "uid": "$ds_prometheus", "type": "prometheus" },
       "fieldConfig": { "defaults": { "unit": "reqps", "custom": { "fillOpacity": 10 } }, "overrides": [] },
       "targets": [
         { "expr": "sum by (service) (rate(traefik_service_requests_total{code=~\"4..\"}[$__rate_interval]))", "refId": "A", "legendFormat": "{{service}} 4xx" },
@@ -105,7 +105,7 @@
       "title": "Service P95 Latency",
       "type": "timeseries",
       "gridPos": { "h": 8, "w": 12, "x": 0, "y": 22 },
-      "datasource": { "uid": "prometheus", "type": "prometheus" },
+      "datasource": { "uid": "$ds_prometheus", "type": "prometheus" },
       "fieldConfig": { "defaults": { "unit": "s", "custom": { "fillOpacity": 5 } }, "overrides": [] },
       "targets": [{ "expr": "histogram_quantile(0.95, sum by (service, le) (rate(traefik_service_request_duration_seconds_bucket[$__rate_interval])))", "refId": "A", "legendFormat": "{{service}}" }],
       "options": { "legend": { "displayMode": "table", "placement": "right", "sortBy": "Last *", "sortDesc": true } }
@@ -114,7 +114,7 @@
       "title": "Service Retries",
       "type": "timeseries",
       "gridPos": { "h": 8, "w": 12, "x": 12, "y": 22 },
-      "datasource": { "uid": "prometheus", "type": "prometheus" },
+      "datasource": { "uid": "$ds_prometheus", "type": "prometheus" },
       "fieldConfig": { "defaults": { "unit": "short", "custom": { "fillOpacity": 10 } }, "overrides": [] },
       "targets": [{ "expr": "sum by (service) (rate(traefik_service_retries_total[$__rate_interval]))", "refId": "A", "legendFormat": "{{service}}" }],
       "options": { "legend": { "displayMode": "table", "placement": "right" } }
@@ -122,14 +122,65 @@
     {
       "collapsed": false,
       "gridPos": { "h": 1, "w": 24, "x": 0, "y": 30 },
+      "title": "Slow Traces (> 500ms)",
+      "type": "row"
+    },
+    {
+      "title": "Slow Traces",
+      "type": "table",
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 31 },
+      "datasource": { "uid": "$ds_tempo", "type": "tempo" },
+      "targets": [{
+        "queryType": "traceql",
+        "refId": "A",
+        "query": "{duration > 500ms}",
+        "limit": 20,
+        "tableType": "traces"
+      }],
+      "options": {
+        "showHeader": true,
+        "sortBy": [{ "displayName": "Duration", "desc": true }]
+      },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "Duration" }, "properties": [{ "id": "unit", "value": "ms" }] }
+        ]
+      }
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 39 },
+      "title": "Traefik Access Logs",
+      "type": "row"
+    },
+    {
+      "title": "Access Logs (Traefik)",
+      "type": "logs",
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 40 },
+      "datasource": { "uid": "$ds_loki", "type": "loki" },
+      "targets": [{ "expr": "{k8s_namespace_name=\"traefik\"} | json", "refId": "A" }],
+      "options": {
+        "showTime": true,
+        "showLabels": false,
+        "showCommonLabels": false,
+        "wrapLogMessage": true,
+        "enableLogDetails": true,
+        "sortOrder": "Descending",
+        "dedupStrategy": "none"
+      }
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 48 },
       "title": "CoreDNS",
       "type": "row"
     },
     {
       "title": "DNS Request Rate",
       "type": "timeseries",
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 31 },
-      "datasource": { "uid": "prometheus", "type": "prometheus" },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 49 },
+      "datasource": { "uid": "$ds_prometheus", "type": "prometheus" },
       "fieldConfig": { "defaults": { "unit": "reqps", "custom": { "fillOpacity": 15 } }, "overrides": [] },
       "targets": [{ "expr": "sum by (type) (rate(coredns_dns_requests_total[$__rate_interval]))", "refId": "A", "legendFormat": "{{type}}" }],
       "options": { "legend": { "displayMode": "list", "placement": "bottom" } }
@@ -137,8 +188,8 @@
     {
       "title": "DNS Response Codes",
       "type": "timeseries",
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 31 },
-      "datasource": { "uid": "prometheus", "type": "prometheus" },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 49 },
+      "datasource": { "uid": "$ds_prometheus", "type": "prometheus" },
       "fieldConfig": { "defaults": { "unit": "reqps", "custom": { "fillOpacity": 15 } }, "overrides": [] },
       "targets": [{ "expr": "sum by (rcode) (rate(coredns_dns_responses_total[$__rate_interval]))", "refId": "A", "legendFormat": "{{rcode}}" }],
       "options": { "legend": { "displayMode": "list", "placement": "bottom" } }
@@ -146,8 +197,8 @@
     {
       "title": "DNS Latency (P50 / P95 / P99)",
       "type": "timeseries",
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 39 },
-      "datasource": { "uid": "prometheus", "type": "prometheus" },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 57 },
+      "datasource": { "uid": "$ds_prometheus", "type": "prometheus" },
       "fieldConfig": { "defaults": { "unit": "s", "custom": { "fillOpacity": 5 } }, "overrides": [] },
       "targets": [
         { "expr": "histogram_quantile(0.50, sum(rate(coredns_dns_request_duration_seconds_bucket[$__rate_interval])) by (le))", "refId": "A", "legendFormat": "p50" },
@@ -159,23 +210,23 @@
     {
       "title": "DNS Cache Hit Rate",
       "type": "timeseries",
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 39 },
-      "datasource": { "uid": "prometheus", "type": "prometheus" },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 57 },
+      "datasource": { "uid": "$ds_prometheus", "type": "prometheus" },
       "fieldConfig": { "defaults": { "unit": "percentunit", "min": 0, "max": 1, "custom": { "fillOpacity": 15 } }, "overrides": [] },
       "targets": [{ "expr": "sum(rate(coredns_cache_hits_total[$__rate_interval])) / (sum(rate(coredns_cache_hits_total[$__rate_interval])) + sum(rate(coredns_cache_misses_total[$__rate_interval])))", "refId": "A", "legendFormat": "cache hit rate" }],
       "options": { "legend": { "displayMode": "list", "placement": "bottom" } }
     },
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 47 },
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 65 },
       "title": "Node Network I/O",
       "type": "row"
     },
     {
       "title": "Network Throughput (Receive / Transmit)",
       "type": "timeseries",
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 48 },
-      "datasource": { "uid": "prometheus", "type": "prometheus" },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 66 },
+      "datasource": { "uid": "$ds_prometheus", "type": "prometheus" },
       "fieldConfig": { "defaults": { "unit": "Bps", "custom": { "fillOpacity": 15 } }, "overrides": [] },
       "targets": [
         { "expr": "sum(rate(node_network_receive_bytes_total{device!~\"lo|veth.*|cali.*|flannel.*\"}[$__rate_interval]))", "refId": "A", "legendFormat": "receive" },
@@ -186,8 +237,8 @@
     {
       "title": "Network Errors",
       "type": "timeseries",
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 48 },
-      "datasource": { "uid": "prometheus", "type": "prometheus" },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 66 },
+      "datasource": { "uid": "$ds_prometheus", "type": "prometheus" },
       "fieldConfig": { "defaults": { "unit": "short", "custom": { "fillOpacity": 10 } }, "overrides": [] },
       "targets": [
         { "expr": "sum(rate(node_network_receive_errs_total{device!~\"lo|veth.*|cali.*|flannel.*\"}[$__rate_interval]))", "refId": "A", "legendFormat": "rx errors" },
@@ -201,9 +252,30 @@
   "templating": {
     "list": [
       {
+        "name": "ds_prometheus",
+        "type": "datasource",
+        "query": "prometheus",
+        "current": { "text": "Prometheus", "value": "prometheus" },
+        "label": "Prometheus"
+      },
+      {
+        "name": "ds_tempo",
+        "type": "datasource",
+        "query": "tempo",
+        "current": { "text": "Tempo", "value": "tempo" },
+        "label": "Tempo"
+      },
+      {
+        "name": "ds_loki",
+        "type": "datasource",
+        "query": "loki",
+        "current": { "text": "Loki (PCI)", "value": "loki-pci" },
+        "label": "Loki"
+      },
+      {
         "name": "entrypoint",
         "type": "query",
-        "datasource": { "uid": "prometheus", "type": "prometheus" },
+        "datasource": { "uid": "$ds_prometheus", "type": "prometheus" },
         "query": "label_values(traefik_entrypoint_requests_total, entrypoint)",
         "multi": true,
         "includeAll": true,
