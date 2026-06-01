@@ -816,44 +816,19 @@
       },
       "fieldConfig": {
         "defaults": {
+          "unit": "percentunit",
+          "min": 0,
+          "max": 1,
           "color": {
             "mode": "palette-classic"
           },
           "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "showValues": false,
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
+            "fillOpacity": 15,
+            "lineWidth": 2,
             "thresholdsStyle": {
-              "mode": "off"
+              "mode": "line"
             }
           },
-          "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -862,8 +837,12 @@
                 "value": 0
               },
               {
+                "color": "yellow",
+                "value": 0.7
+              },
+              {
                 "color": "red",
-                "value": 80
+                "value": 0.9
               }
             ]
           }
@@ -879,31 +858,23 @@
       "id": 13,
       "options": {
         "legend": {
-          "calcs": [],
           "displayMode": "list",
           "placement": "bottom",
           "showLegend": true
         },
         "tooltip": {
-          "hideZeros": false,
           "mode": "single",
           "sort": "none"
         }
       },
-      "pluginVersion": "12.3.1",
       "targets": [
         {
-          "expr": "otelcol_exporter_queue_size{service_name=\"otel-collector\"}",
-          "legendFormat": "queue {{exporter}}",
+          "expr": "otelcol_exporter_queue_size{service_name=\"otel-collector\"} / otelcol_exporter_queue_capacity{service_name=\"otel-collector\"}",
+          "legendFormat": "{{exporter}}",
           "refId": "A"
-        },
-        {
-          "expr": "otelcol_exporter_queue_capacity{service_name=\"otel-collector\"}",
-          "legendFormat": "capacity {{exporter}}",
-          "refId": "B"
         }
       ],
-      "title": "OTel \u2014 Queue Size & Capacity",
+      "title": "OTel \u2014 Queue Usage %",
       "type": "timeseries"
     },
     {

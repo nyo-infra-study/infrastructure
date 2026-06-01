@@ -593,5 +593,6 @@
   },
   "title": "Traces & Services",
   "uid": "traces-services",
-  "refresh": "10s"
+  "refresh": "10s",
+  "version": 1
 }

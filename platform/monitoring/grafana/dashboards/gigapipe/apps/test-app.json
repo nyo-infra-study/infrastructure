@@ -826,5 +826,6 @@
   },
   "title": "Service: test-app",
   "uid": "service-test-app",
-  "refresh": "10s"
+  "refresh": "10s",
+  "version": 1
 }
