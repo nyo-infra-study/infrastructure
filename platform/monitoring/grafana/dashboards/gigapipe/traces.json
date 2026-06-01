@@ -164,7 +164,7 @@
       "type": "logs",
       "gridPos": { "h": 10, "w": 24, "x": 0, "y": 48 },
       "datasource": { "uid": "$ds_loki", "type": "loki" },
-      "targets": [{ "expr": "{service_name=~\"$service\"} | json", "refId": "A" }],
+      "targets": [{ "expr": "{service_name=~\"$service\"}", "refId": "A" }],
       "options": {
         "showTime": true,
         "showLabels": false,
