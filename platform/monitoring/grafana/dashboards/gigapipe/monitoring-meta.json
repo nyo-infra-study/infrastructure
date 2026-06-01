@@ -869,7 +869,7 @@
       },
       "targets": [
         {
-          "expr": "otelcol_exporter_queue_size{service_name=\"otel-collector\"} / otelcol_exporter_queue_capacity{service_name=\"otel-collector\"}",
+          "expr": "max by (exporter) (otelcol_exporter_queue_size{service_name=\"otel-collector\"} / otelcol_exporter_queue_capacity{service_name=\"otel-collector\"})",
           "legendFormat": "{{exporter}}",
           "refId": "A"
         }
