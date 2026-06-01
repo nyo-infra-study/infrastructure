@@ -26,3 +26,10 @@ configMapGenerator:
       labels:
         grafana_dashboard: "1"
       disableNameSuffixHash: true
+  - name: grafana-dashboard-service-test-app
+    files:
+      - apps/test-app.json
+    options:
+      labels:
+        grafana_dashboard: "1"
+      disableNameSuffixHash: true
