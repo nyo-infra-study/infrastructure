@@ -105,7 +105,7 @@
       },
       "fieldConfig": {
         "defaults": {
-          "unit": "ms",
+          "unit": "s",
           "color": {
             "mode": "fixed",
             "fixedColor": "purple"
@@ -115,7 +115,7 @@
       },
       "targets": [
         {
-          "expr": "histogram_quantile(0.50, sum(rate(traces_spanmetrics_duration_milliseconds_bucket{service_name=~\"$service\"}[$__rate_interval])) by (le))",
+          "expr": "histogram_quantile(0.50, sum(rate(traces_spanmetrics_duration_seconds_bucket{service_name=~\"$service\"}[$__rate_interval])) by (le))",
           "refId": "A",
           "instant": true
         }
@@ -136,7 +136,7 @@
       },
       "fieldConfig": {
         "defaults": {
-          "unit": "ms",
+          "unit": "s",
           "thresholds": {
             "steps": [
               {
@@ -158,7 +158,7 @@
       },
       "targets": [
         {
-          "expr": "histogram_quantile(0.95, sum(rate(traces_spanmetrics_duration_milliseconds_bucket{service_name=~\"$service\"}[$__rate_interval])) by (le))",
+          "expr": "histogram_quantile(0.95, sum(rate(traces_spanmetrics_duration_seconds_bucket{service_name=~\"$service\"}[$__rate_interval])) by (le))",
           "refId": "A",
           "instant": true
         }
@@ -179,7 +179,7 @@
       },
       "fieldConfig": {
         "defaults": {
-          "unit": "ms",
+          "unit": "s",
           "thresholds": {
             "steps": [
               {
@@ -201,7 +201,7 @@
       },
       "targets": [
         {
-          "expr": "histogram_quantile(0.99, sum(rate(traces_spanmetrics_duration_milliseconds_bucket{service_name=~\"$service\"}[$__rate_interval])) by (le))",
+          "expr": "histogram_quantile(0.99, sum(rate(traces_spanmetrics_duration_seconds_bucket{service_name=~\"$service\"}[$__rate_interval])) by (le))",
           "refId": "A",
           "instant": true
         }
@@ -338,7 +338,7 @@
       },
       "fieldConfig": {
         "defaults": {
-          "unit": "ms",
+          "unit": "s",
           "custom": {
             "fillOpacity": 10
           }
@@ -347,7 +347,7 @@
       },
       "targets": [
         {
-          "expr": "histogram_quantile(0.95, sum by (service_name, le) (rate(traces_spanmetrics_duration_milliseconds_bucket{service_name=~\"$service\"}[$__rate_interval])))",
+          "expr": "histogram_quantile(0.95, sum by (service_name, le) (rate(traces_spanmetrics_duration_seconds_bucket{service_name=~\"$service\"}[$__rate_interval])))",
           "refId": "A",
           "legendFormat": "{{service_name}}"
         }
