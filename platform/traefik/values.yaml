@@ -87,20 +87,10 @@ metrics:
   prometheus:
     entryPoint: metrics
 
-# --- Tracing (OTLP → OTel Collector) ---
-# sampleRate: 1 — Traefik traces all requests. With browser-side OTel
-# instrumentation, the browser sends traceparent headers so Traefik
-# joins the existing trace (browser → traefik → app → backend → db).
-# Standalone Traefik traces (no traceparent) are filtered at the collector.
-tracing:
-  sampleRate: 1
-  addInternals: false
-  capturedRequestHeaders:
-    - Host
-    - X-Forwarded-For
-  otlp:
-    enabled: true
-    grpc:
-      enabled: true
-      endpoint: "dev-monitoring-otel-opentelemetry-collector.monitoring.svc.cluster.local:4317"
-      insecure: true
+# --- Tracing (disabled) ---
+# Traefik tracing is disabled — proxy latency is covered by Prometheus
+# metrics (traefik_service_request_duration_seconds). Browser OTel and
+# app SDKs provide full distributed traces without Traefik's spans.
+# Traefik still propagates traceparent/tracestate headers (W3C trace
+# context propagation works regardless of whether tracing is enabled).
+tracing: {}

@@ -179,11 +179,6 @@ config:
           - 'IsMatch(name, ".*readyz.*")'
           - 'IsMatch(name, ".*livez.*")'
           - 'IsMatch(attributes["url.path"], "/ping")'
-          # Drop Traefik root spans that have no parent (standalone traces).
-          # When browser OTel sends traceparent, Traefik joins the existing trace
-          # as a child span — those are kept. Only orphan Traefik roots (no
-          # traceparent from client = Traefik started the trace) are dropped.
-          - 'resource.attributes["service.name"] == "traefik" and parent_span_id == nil'
 
     # ── Drop noisy / low-value metrics (for app OTLP metrics) ──
     filter/metrics:
