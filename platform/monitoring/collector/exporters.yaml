@@ -20,6 +20,7 @@ config:
     # Metrics → Gigapipe (Prometheus remote write)
     prometheusremotewrite/gigapipe:
       endpoint: "{{ .Values.global.endpoints.gigapipe.writer }}/api/prom/remote/write"
+      add_metric_suffixes: false
 
     # ── VictoriaMetrics exporters (disabled) ──
     # Uncomment to switch to VictoriaMetrics:
