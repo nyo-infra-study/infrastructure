@@ -38,6 +38,12 @@ config:
         processors: [memory_limiter, resource/coredns, resource/infra-scope, batch]
         exporters: [prometheusremotewrite/gigapipe]
 
+      # ── Traefik metrics ──
+      metrics/traefik:
+        receivers: [prometheus/traefik]
+        processors: [memory_limiter, resource/traefik, resource/infra-scope, batch]
+        exporters: [prometheusremotewrite/gigapipe]
+
       # ── Blackbox probes (disabled — enable with monitoring-blackbox-exporter.yaml) ──
       # metrics/blackbox:
       #   receivers: [prometheus/blackbox]

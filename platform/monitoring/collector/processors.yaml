@@ -53,6 +53,12 @@ config:
           value: "coredns"
           action: upsert
 
+    resource/traefik:
+      attributes:
+        - key: service.name
+          value: "traefik"
+          action: upsert
+
     resource/argocd:
       attributes:
         - key: service.name
@@ -155,13 +161,7 @@ config:
         log_record:
           - 'resource.attributes["k8s.namespace.name"] == "kube-system"'
 
-    # ── Filter traces: drop health check spans and Traefik-initiated noise ──
-    # Traefik spans are dropped entirely — with addInternals: false, Traefik
-    # still creates root spans for every proxied request. When the browser has
-    # OTel instrumentation, the browser span is the real root and downstream
-    # services (web-frontend, backend-server) produce their own spans with the
-    # correct trace context. The Traefik spans just duplicate the top-level
-    # request without adding useful detail, so we drop them at ingestion.
+    # ── Filter traces: drop health check spans ──
     filter/traces:
       error_mode: ignore
       traces:
