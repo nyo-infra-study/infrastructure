@@ -15,8 +15,8 @@ spec:
     containerPolicies:
       - containerName: {{ .Release.Name }}
         minAllowed:
-          cpu: 5m
+          cpu: 1m
           memory: 8Mi
         maxAllowed:
-          cpu: 200m
-          memory: 128Mi
+          cpu: 100m
+          memory: 64Mi

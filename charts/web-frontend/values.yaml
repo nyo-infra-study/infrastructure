@@ -59,14 +59,14 @@ httpRoute:
     - app.localhost
 
 # Resource limits and requests (CPU/Memory)
-# Frontend typically needs less resources than backend (static files)
+# VPA manages these — initial values are starting points only
 resources:
   limits:
-    cpu: 100m # 100 millicores = 0.1 CPU cores
-    memory: 64Mi # 64 megabytes
+    cpu: 50m
+    memory: 64Mi
   requests:
-    cpu: 50m # Guaranteed 0.05 CPU cores
-    memory: 32Mi # Guaranteed 32 megabytes
+    cpu: 5m
+    memory: 16Mi
 
 # Pod security context
 podSecurityContext:
