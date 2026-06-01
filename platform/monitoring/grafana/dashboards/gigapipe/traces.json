@@ -107,12 +107,9 @@
       "gridPos": { "h": 10, "w": 24, "x": 0, "y": 26 },
       "datasource": { "uid": "tempo", "type": "tempo" },
       "targets": [{
-        "queryType": "traceqlSearch",
+        "queryType": "traceql",
         "refId": "A",
-        "filters": [
-          { "id": "service-name", "tag": "resource.service.name", "operator": "=~", "value": ["$service"], "scope": "resource" },
-          { "id": "min-duration", "tag": "duration", "operator": ">", "value": ["$min_duration"] }
-        ],
+        "query": "{resource.service.name=~\"${service:pipe}\" && duration > ${min_duration}}",
         "limit": 20
       }]
     },
@@ -128,12 +125,9 @@
       "gridPos": { "h": 10, "w": 24, "x": 0, "y": 37 },
       "datasource": { "uid": "tempo", "type": "tempo" },
       "targets": [{
-        "queryType": "traceqlSearch",
+        "queryType": "traceql",
         "refId": "A",
-        "filters": [
-          { "id": "service-name", "tag": "resource.service.name", "operator": "=~", "value": ["$service"], "scope": "resource" },
-          { "id": "status", "tag": "status", "operator": "=", "value": ["error"], "scope": "intrinsic" }
-        ],
+        "query": "{resource.service.name=~\"${service:pipe}\" && status=error}",
         "limit": 20
       }]
     },
