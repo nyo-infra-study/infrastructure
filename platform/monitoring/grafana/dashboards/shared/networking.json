@@ -50,12 +50,12 @@
       "targets": [{ "expr": "histogram_quantile(0.99, sum(rate(traefik_entrypoint_request_duration_seconds_bucket{entrypoint=~\"$entrypoint\"}[$__rate_interval])) by (le))", "refId": "A", "instant": true }]
     },
     {
-      "title": "Open Connections",
+      "title": "Avg Latency",
       "type": "stat",
       "gridPos": { "h": 4, "w": 4, "x": 20, "y": 1 },
       "datasource": { "uid": "$ds_prometheus", "type": "prometheus" },
-      "fieldConfig": { "defaults": { "unit": "short", "color": { "mode": "fixed", "fixedColor": "orange" } }, "overrides": [] },
-      "targets": [{ "expr": "sum(traefik_entrypoint_open_connections{entrypoint=~\"$entrypoint\"})", "refId": "A", "instant": true }]
+      "fieldConfig": { "defaults": { "unit": "s", "color": { "mode": "fixed", "fixedColor": "orange" } }, "overrides": [] },
+      "targets": [{ "expr": "sum(rate(traefik_entrypoint_request_duration_seconds_sum{entrypoint=~\"$entrypoint\"}[$__rate_interval])) / sum(rate(traefik_entrypoint_request_duration_seconds_count{entrypoint=~\"$entrypoint\"}[$__rate_interval]))", "refId": "A", "instant": true }]
     },
     {
       "title": "Request Rate by Entrypoint",
@@ -111,13 +111,13 @@
       "options": { "legend": { "displayMode": "table", "placement": "right", "sortBy": "Last *", "sortDesc": true } }
     },
     {
-      "title": "Service Retries",
+      "title": "Service Avg Latency",
       "type": "timeseries",
       "gridPos": { "h": 8, "w": 12, "x": 12, "y": 22 },
       "datasource": { "uid": "$ds_prometheus", "type": "prometheus" },
-      "fieldConfig": { "defaults": { "unit": "short", "custom": { "fillOpacity": 10 } }, "overrides": [] },
-      "targets": [{ "expr": "sum by (service) (rate(traefik_service_retries_total[$__rate_interval]))", "refId": "A", "legendFormat": "{{service}}" }],
-      "options": { "legend": { "displayMode": "table", "placement": "right" } }
+      "fieldConfig": { "defaults": { "unit": "s", "custom": { "fillOpacity": 10 } }, "overrides": [] },
+      "targets": [{ "expr": "sum by (service) (rate(traefik_service_request_duration_seconds_sum[$__rate_interval])) / sum by (service) (rate(traefik_service_request_duration_seconds_count[$__rate_interval]))", "refId": "A", "legendFormat": "{{service}}" }],
+      "options": { "legend": { "displayMode": "table", "placement": "right", "sortBy": "Last *", "sortDesc": true } }
     },
     {
       "collapsed": false,

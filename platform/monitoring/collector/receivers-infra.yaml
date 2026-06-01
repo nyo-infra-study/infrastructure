@@ -142,5 +142,5 @@ config:
                 regex: metrics
             metric_relabel_configs:
               - source_labels: [__name__]
-                regex: '(traefik_entrypoint_requests_total|traefik_entrypoint_request_duration_seconds_bucket|traefik_entrypoint_request_duration_seconds_count|traefik_entrypoint_request_duration_seconds_sum|traefik_entrypoint_open_connections|traefik_service_requests_total|traefik_service_request_duration_seconds_bucket|traefik_service_request_duration_seconds_count|traefik_service_request_duration_seconds_sum|traefik_service_open_connections|traefik_service_retries_total|traefik_router_requests_total|traefik_router_request_duration_seconds_bucket|traefik_router_request_duration_seconds_count|traefik_router_request_duration_seconds_sum|traefik_tls_certs_not_after)'
+                regex: '(traefik_entrypoint_requests_total|traefik_entrypoint_request_duration_seconds_bucket|traefik_entrypoint_request_duration_seconds_count|traefik_entrypoint_request_duration_seconds_sum|traefik_service_requests_total|traefik_service_request_duration_seconds_bucket|traefik_service_request_duration_seconds_count|traefik_service_request_duration_seconds_sum)'
                 action: keep
