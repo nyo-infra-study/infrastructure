@@ -30,24 +30,24 @@
       "type": "stat",
       "gridPos": { "h": 4, "w": 4, "x": 12, "y": 1 },
       "datasource": { "uid": "$ds_prometheus", "type": "prometheus" },
-      "fieldConfig": { "defaults": { "unit": "s", "color": { "mode": "fixed", "fixedColor": "purple" } }, "overrides": [] },
-      "targets": [{ "expr": "histogram_quantile(0.50, sum(rate(traces_spanmetrics_duration_seconds_bucket{service_name=~\"$service\"}[$__rate_interval])) by (le))", "refId": "A", "instant": true }]
+      "fieldConfig": { "defaults": { "unit": "ms", "color": { "mode": "fixed", "fixedColor": "purple" } }, "overrides": [] },
+      "targets": [{ "expr": "histogram_quantile(0.50, sum(rate(traces_spanmetrics_duration_milliseconds_bucket{service_name=~\"$service\"}[$__rate_interval])) by (le))", "refId": "A", "instant": true }]
     },
     {
       "title": "P95 Duration",
       "type": "stat",
       "gridPos": { "h": 4, "w": 4, "x": 16, "y": 1 },
       "datasource": { "uid": "$ds_prometheus", "type": "prometheus" },
-      "fieldConfig": { "defaults": { "unit": "s", "thresholds": { "steps": [{ "value": 0, "color": "green" }, { "value": 0.5, "color": "yellow" }, { "value": 2, "color": "red" }] } }, "overrides": [] },
-      "targets": [{ "expr": "histogram_quantile(0.95, sum(rate(traces_spanmetrics_duration_seconds_bucket{service_name=~\"$service\"}[$__rate_interval])) by (le))", "refId": "A", "instant": true }]
+      "fieldConfig": { "defaults": { "unit": "ms", "thresholds": { "steps": [{ "value": 0, "color": "green" }, { "value": 0.5, "color": "yellow" }, { "value": 2, "color": "red" }] } }, "overrides": [] },
+      "targets": [{ "expr": "histogram_quantile(0.95, sum(rate(traces_spanmetrics_duration_milliseconds_bucket{service_name=~\"$service\"}[$__rate_interval])) by (le))", "refId": "A", "instant": true }]
     },
     {
       "title": "P99 Duration",
       "type": "stat",
       "gridPos": { "h": 4, "w": 4, "x": 20, "y": 1 },
       "datasource": { "uid": "$ds_prometheus", "type": "prometheus" },
-      "fieldConfig": { "defaults": { "unit": "s", "thresholds": { "steps": [{ "value": 0, "color": "green" }, { "value": 1, "color": "yellow" }, { "value": 5, "color": "red" }] } }, "overrides": [] },
-      "targets": [{ "expr": "histogram_quantile(0.99, sum(rate(traces_spanmetrics_duration_seconds_bucket{service_name=~\"$service\"}[$__rate_interval])) by (le))", "refId": "A", "instant": true }]
+      "fieldConfig": { "defaults": { "unit": "ms", "thresholds": { "steps": [{ "value": 0, "color": "green" }, { "value": 1, "color": "yellow" }, { "value": 5, "color": "red" }] } }, "overrides": [] },
+      "targets": [{ "expr": "histogram_quantile(0.99, sum(rate(traces_spanmetrics_duration_milliseconds_bucket{service_name=~\"$service\"}[$__rate_interval])) by (le))", "refId": "A", "instant": true }]
     },
     {
       "collapsed": false,
@@ -91,8 +91,8 @@
       "type": "timeseries",
       "gridPos": { "h": 8, "w": 8, "x": 16, "y": 17 },
       "datasource": { "uid": "$ds_prometheus", "type": "prometheus" },
-      "fieldConfig": { "defaults": { "unit": "s", "custom": { "fillOpacity": 10 } }, "overrides": [] },
-      "targets": [{ "expr": "histogram_quantile(0.95, sum by (service_name, le) (rate(traces_spanmetrics_duration_seconds_bucket{service_name=~\"$service\"}[$__rate_interval])))", "refId": "A", "legendFormat": "{{service_name}}" }],
+      "fieldConfig": { "defaults": { "unit": "ms", "custom": { "fillOpacity": 10 } }, "overrides": [] },
+      "targets": [{ "expr": "histogram_quantile(0.95, sum by (service_name, le) (rate(traces_spanmetrics_duration_milliseconds_bucket{service_name=~\"$service\"}[$__rate_interval])))", "refId": "A", "legendFormat": "{{service_name}}" }],
       "options": { "legend": { "displayMode": "table", "placement": "right", "sortBy": "Last *", "sortDesc": true } }
     },
     {
