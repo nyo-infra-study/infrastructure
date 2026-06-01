@@ -1,5 +1,7 @@
 {
-  "annotations": { "list": [] },
+  "annotations": {
+    "list": []
+  },
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
@@ -7,18 +9,32 @@
   "panels": [
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
       "title": "Node Resources",
       "type": "row"
     },
     {
       "title": "CPU Usage (seconds/s)",
       "type": "timeseries",
-      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 1 },
-      "datasource": { "uid": "clickhouse-pci" },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 1
+      },
+      "datasource": {
+        "uid": "clickhouse-pci"
+      },
       "targets": [
         {
-          "datasource": { "uid": "clickhouse-pci" },
+          "datasource": {
+            "uid": "clickhouse-pci"
+          },
           "queryType": "sql",
           "rawSql": "SELECT\n  toStartOfInterval(TimeUnix, INTERVAL 30 second) AS time,\n  Attributes['cpu'] AS cpu,\n  Attributes['mode'] AS mode,\n  max(Value) AS value\nFROM otel.otel_metrics_sum\nWHERE ServiceName = 'node-exporter'\n  AND MetricName = 'node_cpu_seconds_total'\n  AND TimeUnix >= $__fromTime\n  AND TimeUnix <= $__toTime\nGROUP BY time, cpu, mode\nORDER BY time",
           "refId": "A"
@@ -28,11 +44,20 @@
     {
       "title": "Load Average (1m / 5m / 15m)",
       "type": "timeseries",
-      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 1 },
-      "datasource": { "uid": "clickhouse-pci" },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 1
+      },
+      "datasource": {
+        "uid": "clickhouse-pci"
+      },
       "targets": [
         {
-          "datasource": { "uid": "clickhouse-pci" },
+          "datasource": {
+            "uid": "clickhouse-pci"
+          },
           "queryType": "sql",
           "rawSql": "SELECT\n  toStartOfInterval(TimeUnix, INTERVAL 30 second) AS time,\n  MetricName,\n  avg(Value) AS value\nFROM otel.otel_metrics_gauge\nWHERE ServiceName = 'node-exporter'\n  AND MetricName IN ('node_load1', 'node_load5', 'node_load15')\n  AND TimeUnix >= $__fromTime\n  AND TimeUnix <= $__toTime\nGROUP BY time, MetricName\nORDER BY time",
           "refId": "A"
@@ -42,12 +67,26 @@
     {
       "title": "Memory (bytes)",
       "type": "timeseries",
-      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 1 },
-      "datasource": { "uid": "clickhouse-pci" },
-      "fieldConfig": { "defaults": { "unit": "bytes" }, "overrides": [] },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 1
+      },
+      "datasource": {
+        "uid": "clickhouse-pci"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
       "targets": [
         {
-          "datasource": { "uid": "clickhouse-pci" },
+          "datasource": {
+            "uid": "clickhouse-pci"
+          },
           "queryType": "sql",
           "rawSql": "SELECT\n  toStartOfInterval(TimeUnix, INTERVAL 30 second) AS time,\n  MetricName,\n  avg(Value) AS value\nFROM otel.otel_metrics_gauge\nWHERE ServiceName = 'node-exporter'\n  AND MetricName IN ('node_memory_Active_bytes', 'node_memory_Cached_bytes', 'node_memory_Buffers_bytes')\n  AND TimeUnix >= $__fromTime\n  AND TimeUnix <= $__toTime\nGROUP BY time, MetricName\nORDER BY time",
           "refId": "A"
@@ -57,12 +96,26 @@
     {
       "title": "Filesystem Available (bytes)",
       "type": "timeseries",
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 9 },
-      "datasource": { "uid": "clickhouse-pci" },
-      "fieldConfig": { "defaults": { "unit": "bytes" }, "overrides": [] },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 9
+      },
+      "datasource": {
+        "uid": "clickhouse-pci"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
       "targets": [
         {
-          "datasource": { "uid": "clickhouse-pci" },
+          "datasource": {
+            "uid": "clickhouse-pci"
+          },
           "queryType": "sql",
           "rawSql": "SELECT\n  toStartOfInterval(TimeUnix, INTERVAL 60 second) AS time,\n  Attributes['mountpoint'] AS mount,\n  avg(Value) AS available\nFROM otel.otel_metrics_gauge\nWHERE ServiceName = 'node-exporter'\n  AND MetricName = 'node_filesystem_avail_bytes'\n  AND Attributes['fstype'] NOT IN ('tmpfs', 'overlay')\n  AND TimeUnix >= $__fromTime\n  AND TimeUnix <= $__toTime\nGROUP BY time, mount\nORDER BY time",
           "refId": "A"
@@ -72,12 +125,26 @@
     {
       "title": "Network Received (bytes/s)",
       "type": "timeseries",
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 9 },
-      "datasource": { "uid": "clickhouse-pci" },
-      "fieldConfig": { "defaults": { "unit": "Bps" }, "overrides": [] },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 9
+      },
+      "datasource": {
+        "uid": "clickhouse-pci"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "Bps"
+        },
+        "overrides": []
+      },
       "targets": [
         {
-          "datasource": { "uid": "clickhouse-pci" },
+          "datasource": {
+            "uid": "clickhouse-pci"
+          },
           "queryType": "sql",
           "rawSql": "SELECT\n  toStartOfInterval(TimeUnix, INTERVAL 30 second) AS time,\n  Attributes['device'] AS device,\n  max(Value) AS bytes\nFROM otel.otel_metrics_sum\nWHERE ServiceName = 'node-exporter'\n  AND MetricName = 'node_network_receive_bytes_total'\n  AND Attributes['device'] NOT LIKE 'veth%'\n  AND TimeUnix >= $__fromTime\n  AND TimeUnix <= $__toTime\nGROUP BY time, device\nORDER BY time",
           "refId": "A"
@@ -86,18 +153,32 @@
     },
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 17 },
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 17
+      },
       "title": "Container Resources (cAdvisor)",
       "type": "row"
     },
     {
       "title": "Container CPU Usage (cores)",
       "type": "timeseries",
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 18 },
-      "datasource": { "uid": "clickhouse-pci" },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 18
+      },
+      "datasource": {
+        "uid": "clickhouse-pci"
+      },
       "targets": [
         {
-          "datasource": { "uid": "clickhouse-pci" },
+          "datasource": {
+            "uid": "clickhouse-pci"
+          },
           "queryType": "sql",
           "rawSql": "SELECT\n  toStartOfInterval(TimeUnix, INTERVAL 30 second) AS time,\n  Attributes['container'] AS container,\n  max(Value) AS cpu_seconds\nFROM otel.otel_metrics_sum\nWHERE ServiceName = 'kubernetes-cadvisor'\n  AND MetricName = 'container_cpu_usage_seconds_total'\n  AND Attributes['container'] != ''\n  AND TimeUnix >= $__fromTime\n  AND TimeUnix <= $__toTime\nGROUP BY time, container\nORDER BY time",
           "refId": "A"
@@ -107,12 +188,26 @@
     {
       "title": "Container Memory Working Set (bytes)",
       "type": "timeseries",
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 18 },
-      "datasource": { "uid": "clickhouse-pci" },
-      "fieldConfig": { "defaults": { "unit": "bytes" }, "overrides": [] },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 18
+      },
+      "datasource": {
+        "uid": "clickhouse-pci"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
       "targets": [
         {
-          "datasource": { "uid": "clickhouse-pci" },
+          "datasource": {
+            "uid": "clickhouse-pci"
+          },
           "queryType": "sql",
           "rawSql": "SELECT\n  toStartOfInterval(TimeUnix, INTERVAL 30 second) AS time,\n  Attributes['container'] AS container,\n  avg(Value) AS memory\nFROM otel.otel_metrics_gauge\nWHERE ServiceName = 'kubernetes-cadvisor'\n  AND MetricName = 'container_memory_working_set_bytes'\n  AND Attributes['container'] != ''\n  AND TimeUnix >= $__fromTime\n  AND TimeUnix <= $__toTime\nGROUP BY time, container\nORDER BY time",
           "refId": "A"
@@ -121,18 +216,32 @@
     },
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 26 },
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 26
+      },
       "title": "Kubernetes Workloads (KSM)",
       "type": "row"
     },
     {
       "title": "Pod Status",
       "type": "table",
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 27 },
-      "datasource": { "uid": "clickhouse-pci" },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 27
+      },
+      "datasource": {
+        "uid": "clickhouse-pci"
+      },
       "targets": [
         {
-          "datasource": { "uid": "clickhouse-pci" },
+          "datasource": {
+            "uid": "clickhouse-pci"
+          },
           "queryType": "sql",
           "rawSql": "SELECT\n  Attributes['namespace'] AS namespace,\n  Attributes['pod'] AS pod,\n  Attributes['phase'] AS phase,\n  max(Value) AS value\nFROM otel.otel_metrics_gauge\nWHERE ServiceName = 'kube-state-metrics'\n  AND MetricName = 'kube_pod_status_phase'\n  AND Value = 1\n  AND TimeUnix >= now() - INTERVAL 5 MINUTE\nGROUP BY namespace, pod, phase\nORDER BY namespace, pod",
           "refId": "A"
@@ -142,11 +251,20 @@
     {
       "title": "Deployment Replicas (desired vs ready)",
       "type": "table",
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 27 },
-      "datasource": { "uid": "clickhouse-pci" },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 27
+      },
+      "datasource": {
+        "uid": "clickhouse-pci"
+      },
       "targets": [
         {
-          "datasource": { "uid": "clickhouse-pci" },
+          "datasource": {
+            "uid": "clickhouse-pci"
+          },
           "queryType": "sql",
           "rawSql": "SELECT\n  Attributes['namespace'] AS namespace,\n  Attributes['deployment'] AS deployment,\n  MetricName,\n  max(Value) AS replicas\nFROM otel.otel_metrics_gauge\nWHERE ServiceName = 'kube-state-metrics'\n  AND MetricName IN ('kube_deployment_spec_replicas', 'kube_deployment_status_replicas_ready')\n  AND TimeUnix >= now() - INTERVAL 5 MINUTE\nGROUP BY namespace, deployment, MetricName\nORDER BY namespace, deployment",
           "refId": "A"
@@ -155,9 +273,20 @@
     }
   ],
   "schemaVersion": 39,
-  "tags": ["infrastructure", "node", "kubernetes", "clickhouse"],
-  "templating": { "list": [] },
-  "time": { "from": "now-1h", "to": "now" },
+  "tags": [
+    "infrastructure",
+    "node",
+    "kubernetes",
+    "clickhouse"
+  ],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
   "title": "Infrastructure Overview",
-  "uid": "infra-overview-otel"
+  "uid": "infra-overview-otel",
+  "refresh": "10s"
 }

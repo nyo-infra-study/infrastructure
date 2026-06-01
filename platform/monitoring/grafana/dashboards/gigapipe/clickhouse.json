@@ -7,7 +7,12 @@
   "panels": [
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
       "title": "Storage",
       "type": "row"
     },
@@ -15,9 +20,26 @@
       "title": "Total Data Size",
       "description": "Actual compressed data stored in all MergeTree tables (user data, not filesystem).",
       "type": "stat",
-      "gridPos": { "h": 5, "w": 4, "x": 0, "y": 1 },
-      "datasource": { "uid": "prometheus", "type": "prometheus" },
-      "fieldConfig": { "defaults": { "unit": "bytes", "color": { "mode": "fixed", "fixedColor": "blue" } }, "overrides": [] },
+      "gridPos": {
+        "h": 5,
+        "w": 4,
+        "x": 0,
+        "y": 1
+      },
+      "datasource": {
+        "uid": "prometheus",
+        "type": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "blue"
+          }
+        },
+        "overrides": []
+      },
       "targets": [
         {
           "expr": "ClickHouseAsyncMetrics_TotalBytesOfMergeTreeTables{job=\"clickhouse\"} - ClickHouseAsyncMetrics_TotalBytesOfMergeTreeTablesSystem{job=\"clickhouse\"}",
@@ -31,9 +53,26 @@
       "title": "Total Parts",
       "description": "Number of active data parts. High count may indicate merge pressure.",
       "type": "stat",
-      "gridPos": { "h": 5, "w": 4, "x": 4, "y": 1 },
-      "datasource": { "uid": "prometheus", "type": "prometheus" },
-      "fieldConfig": { "defaults": { "unit": "short", "color": { "mode": "fixed", "fixedColor": "purple" } }, "overrides": [] },
+      "gridPos": {
+        "h": 5,
+        "w": 4,
+        "x": 4,
+        "y": 1
+      },
+      "datasource": {
+        "uid": "prometheus",
+        "type": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "purple"
+          }
+        },
+        "overrides": []
+      },
       "targets": [
         {
           "expr": "ClickHouseMetrics_PartsActive{job=\"clickhouse\"}",
@@ -47,9 +86,26 @@
       "title": "Total Rows",
       "description": "Total rows stored across all tables.",
       "type": "stat",
-      "gridPos": { "h": 5, "w": 4, "x": 8, "y": 1 },
-      "datasource": { "uid": "prometheus", "type": "prometheus" },
-      "fieldConfig": { "defaults": { "unit": "short", "color": { "mode": "fixed", "fixedColor": "green" } }, "overrides": [] },
+      "gridPos": {
+        "h": 5,
+        "w": 4,
+        "x": 8,
+        "y": 1
+      },
+      "datasource": {
+        "uid": "prometheus",
+        "type": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "green"
+          }
+        },
+        "overrides": []
+      },
       "targets": [
         {
           "expr": "ClickHouseAsyncMetrics_TotalRowsOfMergeTreeTables{job=\"clickhouse\"}",
@@ -63,9 +119,38 @@
       "title": "Memory Tracking",
       "description": "Current memory used by ClickHouse server.",
       "type": "stat",
-      "gridPos": { "h": 5, "w": 4, "x": 12, "y": 1 },
-      "datasource": { "uid": "prometheus", "type": "prometheus" },
-      "fieldConfig": { "defaults": { "unit": "bytes", "thresholds": { "steps": [ { "value": 0, "color": "green" }, { "value": 1073741824, "color": "yellow" }, { "value": 2147483648, "color": "red" } ] } }, "overrides": [] },
+      "gridPos": {
+        "h": 5,
+        "w": 4,
+        "x": 12,
+        "y": 1
+      },
+      "datasource": {
+        "uid": "prometheus",
+        "type": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes",
+          "thresholds": {
+            "steps": [
+              {
+                "value": 0,
+                "color": "green"
+              },
+              {
+                "value": 1073741824,
+                "color": "yellow"
+              },
+              {
+                "value": 2147483648,
+                "color": "red"
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
       "targets": [
         {
           "expr": "ClickHouseMetrics_MemoryTracking{job=\"clickhouse\"}",
@@ -78,9 +163,22 @@
     {
       "title": "Data Size Over Time",
       "type": "timeseries",
-      "gridPos": { "h": 7, "w": 12, "x": 0, "y": 6 },
-      "datasource": { "uid": "prometheus", "type": "prometheus" },
-      "fieldConfig": { "defaults": { "unit": "bytes" }, "overrides": [] },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 0,
+        "y": 6
+      },
+      "datasource": {
+        "uid": "prometheus",
+        "type": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
       "targets": [
         {
           "expr": "ClickHouseAsyncMetrics_TotalBytesOfMergeTreeTables{job=\"clickhouse\"} - ClickHouseAsyncMetrics_TotalBytesOfMergeTreeTablesSystem{job=\"clickhouse\"}",
@@ -97,8 +195,16 @@
     {
       "title": "Active Parts Over Time",
       "type": "timeseries",
-      "gridPos": { "h": 7, "w": 12, "x": 12, "y": 6 },
-      "datasource": { "uid": "prometheus", "type": "prometheus" },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 12,
+        "y": 6
+      },
+      "datasource": {
+        "uid": "prometheus",
+        "type": "prometheus"
+      },
       "targets": [
         {
           "expr": "ClickHouseMetrics_PartsActive{job=\"clickhouse\"}",
@@ -109,15 +215,28 @@
     },
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 13 },
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 13
+      },
       "title": "Queries",
       "type": "row"
     },
     {
       "title": "Queries/s",
       "type": "timeseries",
-      "gridPos": { "h": 7, "w": 8, "x": 0, "y": 14 },
-      "datasource": { "uid": "prometheus", "type": "prometheus" },
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 0,
+        "y": 14
+      },
+      "datasource": {
+        "uid": "prometheus",
+        "type": "prometheus"
+      },
       "targets": [
         {
           "expr": "rate(ClickHouseProfileEvents_Query_total{job=\"clickhouse\"}[5m])",
@@ -139,9 +258,25 @@
     {
       "title": "Failed Queries/s",
       "type": "timeseries",
-      "gridPos": { "h": 7, "w": 8, "x": 8, "y": 14 },
-      "datasource": { "uid": "prometheus", "type": "prometheus" },
-      "fieldConfig": { "defaults": { "color": { "mode": "fixed", "fixedColor": "red" } }, "overrides": [] },
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 8,
+        "y": 14
+      },
+      "datasource": {
+        "uid": "prometheus",
+        "type": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "red"
+          }
+        },
+        "overrides": []
+      },
       "targets": [
         {
           "expr": "rate(ClickHouseProfileEvents_FailedQuery_total{job=\"clickhouse\"}[5m])",
@@ -163,9 +298,38 @@
     {
       "title": "Current Running Queries",
       "type": "stat",
-      "gridPos": { "h": 7, "w": 8, "x": 16, "y": 14 },
-      "datasource": { "uid": "prometheus", "type": "prometheus" },
-      "fieldConfig": { "defaults": { "unit": "short", "thresholds": { "steps": [ { "value": 0, "color": "green" }, { "value": 10, "color": "yellow" }, { "value": 50, "color": "red" } ] } }, "overrides": [] },
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 16,
+        "y": 14
+      },
+      "datasource": {
+        "uid": "prometheus",
+        "type": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "thresholds": {
+            "steps": [
+              {
+                "value": 0,
+                "color": "green"
+              },
+              {
+                "value": 10,
+                "color": "yellow"
+              },
+              {
+                "value": 50,
+                "color": "red"
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
       "targets": [
         {
           "expr": "ClickHouseMetrics_Query{job=\"clickhouse\"}",
@@ -177,15 +341,28 @@
     },
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 21 },
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 21
+      },
       "title": "Inserts",
       "type": "row"
     },
     {
       "title": "Inserted Rows/s",
       "type": "timeseries",
-      "gridPos": { "h": 7, "w": 12, "x": 0, "y": 22 },
-      "datasource": { "uid": "prometheus", "type": "prometheus" },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 0,
+        "y": 22
+      },
+      "datasource": {
+        "uid": "prometheus",
+        "type": "prometheus"
+      },
       "targets": [
         {
           "expr": "rate(ClickHouseProfileEvents_InsertedRows_total{job=\"clickhouse\"}[5m])",
@@ -197,9 +374,22 @@
     {
       "title": "Inserted Bytes/s",
       "type": "timeseries",
-      "gridPos": { "h": 7, "w": 12, "x": 12, "y": 22 },
-      "datasource": { "uid": "prometheus", "type": "prometheus" },
-      "fieldConfig": { "defaults": { "unit": "Bps" }, "overrides": [] },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 12,
+        "y": 22
+      },
+      "datasource": {
+        "uid": "prometheus",
+        "type": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "Bps"
+        },
+        "overrides": []
+      },
       "targets": [
         {
           "expr": "rate(ClickHouseProfileEvents_InsertedBytes_total{job=\"clickhouse\"}[5m])",
@@ -210,15 +400,28 @@
     },
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 29 },
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 29
+      },
       "title": "Merges & Background",
       "type": "row"
     },
     {
       "title": "Background Merges Running",
       "type": "timeseries",
-      "gridPos": { "h": 7, "w": 8, "x": 0, "y": 30 },
-      "datasource": { "uid": "prometheus", "type": "prometheus" },
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 0,
+        "y": 30
+      },
+      "datasource": {
+        "uid": "prometheus",
+        "type": "prometheus"
+      },
       "targets": [
         {
           "expr": "ClickHouseMetrics_Merge{job=\"clickhouse\"}",
@@ -230,8 +433,16 @@
     {
       "title": "Merged Rows/s",
       "type": "timeseries",
-      "gridPos": { "h": 7, "w": 8, "x": 8, "y": 30 },
-      "datasource": { "uid": "prometheus", "type": "prometheus" },
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 8,
+        "y": 30
+      },
+      "datasource": {
+        "uid": "prometheus",
+        "type": "prometheus"
+      },
       "targets": [
         {
           "expr": "rate(ClickHouseProfileEvents_MergedRows_total{job=\"clickhouse\"}[5m])",
@@ -243,9 +454,22 @@
     {
       "title": "Merged Bytes/s",
       "type": "timeseries",
-      "gridPos": { "h": 7, "w": 8, "x": 16, "y": 30 },
-      "datasource": { "uid": "prometheus", "type": "prometheus" },
-      "fieldConfig": { "defaults": { "unit": "Bps" }, "overrides": [] },
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 16,
+        "y": 30
+      },
+      "datasource": {
+        "uid": "prometheus",
+        "type": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "Bps"
+        },
+        "overrides": []
+      },
       "targets": [
         {
           "expr": "rate(ClickHouseProfileEvents_MergedUncompressedBytes_total{job=\"clickhouse\"}[5m])",
@@ -256,15 +480,28 @@
     },
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 37 },
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 37
+      },
       "title": "Connections & Resources",
       "type": "row"
     },
     {
       "title": "TCP Connections",
       "type": "timeseries",
-      "gridPos": { "h": 7, "w": 8, "x": 0, "y": 38 },
-      "datasource": { "uid": "prometheus", "type": "prometheus" },
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 0,
+        "y": 38
+      },
+      "datasource": {
+        "uid": "prometheus",
+        "type": "prometheus"
+      },
       "targets": [
         {
           "expr": "ClickHouseMetrics_TCPConnection{job=\"clickhouse\"}",
@@ -281,9 +518,22 @@
     {
       "title": "Memory Over Time",
       "type": "timeseries",
-      "gridPos": { "h": 7, "w": 8, "x": 8, "y": 38 },
-      "datasource": { "uid": "prometheus", "type": "prometheus" },
-      "fieldConfig": { "defaults": { "unit": "bytes" }, "overrides": [] },
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 8,
+        "y": 38
+      },
+      "datasource": {
+        "uid": "prometheus",
+        "type": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
       "targets": [
         {
           "expr": "ClickHouseMetrics_MemoryTracking{job=\"clickhouse\"}",
@@ -295,9 +545,22 @@
     {
       "title": "Read/Write Bytes/s (Disk I/O)",
       "type": "timeseries",
-      "gridPos": { "h": 7, "w": 8, "x": 16, "y": 38 },
-      "datasource": { "uid": "prometheus", "type": "prometheus" },
-      "fieldConfig": { "defaults": { "unit": "Bps" }, "overrides": [] },
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 16,
+        "y": 38
+      },
+      "datasource": {
+        "uid": "prometheus",
+        "type": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "Bps"
+        },
+        "overrides": []
+      },
       "targets": [
         {
           "expr": "rate(ClickHouseProfileEvents_ReadBufferFromFileDescriptorReadBytes_total{job=\"clickhouse\"}[5m])",
@@ -313,15 +576,28 @@
     },
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 45 },
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 45
+      },
       "title": "ZooKeeper / Keeper",
       "type": "row"
     },
     {
       "title": "ZooKeeper Requests/s",
       "type": "timeseries",
-      "gridPos": { "h": 7, "w": 12, "x": 0, "y": 46 },
-      "datasource": { "uid": "prometheus", "type": "prometheus" },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 0,
+        "y": 46
+      },
+      "datasource": {
+        "uid": "prometheus",
+        "type": "prometheus"
+      },
       "targets": [
         {
           "expr": "rate(ClickHouseProfileEvents_ZooKeeperTransactions_total{job=\"clickhouse\"}[5m])",
@@ -338,20 +614,38 @@
     {
       "title": "ZooKeeper Wait Time",
       "type": "timeseries",
-      "gridPos": { "h": 7, "w": 12, "x": 12, "y": 46 },
-      "datasource": { "uid": "prometheus", "type": "prometheus" },
-      "fieldConfig": { "defaults": { "unit": "µs" }, "overrides": [] },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 12,
+        "y": 46
+      },
+      "datasource": {
+        "uid": "prometheus",
+        "type": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "\u00b5s"
+        },
+        "overrides": []
+      },
       "targets": [
         {
           "expr": "rate(ClickHouseProfileEvents_ZooKeeperWaitMicroseconds_total{job=\"clickhouse\"}[5m])",
           "refId": "A",
-          "legendFormat": "wait µs/s"
+          "legendFormat": "wait \u00b5s/s"
         }
       ]
     },
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 53 },
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 53
+      },
       "title": "Active Queries (searchable)",
       "type": "row"
     },
@@ -359,8 +653,16 @@
       "title": "ClickHouse Metrics Overview",
       "description": "All ClickHouse metrics with current values. Use the search box to find a specific metric.",
       "type": "briangann-datatable-panel",
-      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 54 },
-      "datasource": { "uid": "prometheus", "type": "prometheus" },
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 54
+      },
+      "datasource": {
+        "uid": "prometheus",
+        "type": "prometheus"
+      },
       "targets": [
         {
           "expr": "{__name__=~\"ClickHouseMetrics_.+\",job=\"clickhouse\"} > 0",
@@ -373,8 +675,15 @@
         {
           "id": "organize",
           "options": {
-            "excludeByName": { "Time": true, "job": true, "instance": true },
-            "renameByName": { "__name__": "Metric", "Value": "Value" }
+            "excludeByName": {
+              "Time": true,
+              "job": true,
+              "instance": true
+            },
+            "renameByName": {
+              "__name__": "Metric",
+              "Value": "Value"
+            }
           }
         }
       ],
@@ -402,7 +711,9 @@
               "unitFormat": "short",
               "ignoreNullValues": true
             },
-            "dateStyle": { "dateFormat": "YYYY-MM-DD HH:mm:ss" },
+            "dateStyle": {
+              "dateFormat": "YYYY-MM-DD HH:mm:ss"
+            },
             "hiddenStyle": {},
             "stringStyle": {
               "clickThrough": "",
@@ -431,5 +742,6 @@
     "to": "now"
   },
   "title": "ClickHouse",
-  "uid": "clickhouse"
+  "uid": "clickhouse",
+  "refresh": "10s"
 }

@@ -1,20 +1,35 @@
 {
-  "annotations": { "list": [] },
+  "annotations": {
+    "list": []
+  },
   "editable": true,
   "graphTooltip": 1,
   "panels": [
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
-      "title": "OTel Pipeline Flow (Receiver → Exporter)",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "title": "OTel Pipeline Flow (Receiver \u2192 Exporter)",
       "type": "row"
     },
     {
-      "title": "Metrics Flow: Receiver → Gigapipe",
+      "title": "Metrics Flow: Receiver \u2192 Gigapipe",
       "description": "How metric data flows from each Prometheus scrape target through the OTel Collector to Gigapipe. Each band width = data volume.",
       "type": "netsage-sankey-panel",
-      "gridPos": { "h": 12, "w": 24, "x": 0, "y": 1 },
-      "datasource": { "uid": "prometheus", "type": "prometheus" },
+      "gridPos": {
+        "h": 12,
+        "w": 24,
+        "x": 0,
+        "y": 1
+      },
+      "datasource": {
+        "uid": "prometheus",
+        "type": "prometheus"
+      },
       "targets": [
         {
           "expr": "label_replace(sum by (receiver) (rate(otelcol_receiver_accepted_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval])), \"target\", \"gigapipe\", \"\", \"\")",
@@ -24,12 +39,19 @@
           "format": "table"
         }
       ],
-      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
       "transformations": [
         {
           "id": "organize",
           "options": {
-            "excludeByName": { "Time": true },
+            "excludeByName": {
+              "Time": true
+            },
             "renameByName": {
               "receiver": "source",
               "Value": "value"
@@ -43,7 +65,12 @@
     },
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 13 },
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 13
+      },
       "title": "Volume by Receiver (Metrics)",
       "type": "row"
     },
@@ -51,8 +78,16 @@
       "title": "Metrics Received by Source",
       "description": "Total metric points accepted per receiver. Shows which scrape targets produce the most data.",
       "type": "barchart",
-      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 14 },
-      "datasource": { "uid": "prometheus", "type": "prometheus" },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 14
+      },
+      "datasource": {
+        "uid": "prometheus",
+        "type": "prometheus"
+      },
       "targets": [
         {
           "expr": "sum by (receiver) (rate(otelcol_receiver_accepted_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval]))",
@@ -63,7 +98,12 @@
         }
       ],
       "fieldConfig": {
-        "defaults": { "unit": "short", "color": { "mode": "palette-classic" } },
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "palette-classic"
+          }
+        },
         "overrides": []
       },
       "options": {
@@ -76,62 +116,165 @@
         {
           "id": "organize",
           "options": {
-            "excludeByName": { "Time": true },
+            "excludeByName": {
+              "Time": true
+            },
             "renameByName": {}
           }
         },
         {
           "id": "sortBy",
           "options": {
-            "sort": [{ "field": "Value", "desc": true }]
+            "sort": [
+              {
+                "field": "Value",
+                "desc": true
+              }
+            ]
           }
         }
       ]
     },
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 22 },
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 22
+      },
       "title": "Volume by Signal Type",
       "type": "row"
     },
     {
       "title": "Logs Received vs Exported",
       "type": "stat",
-      "gridPos": { "h": 5, "w": 8, "x": 0, "y": 23 },
-      "datasource": { "uid": "prometheus", "type": "prometheus" },
-      "fieldConfig": { "defaults": { "unit": "short", "color": { "mode": "fixed", "fixedColor": "blue" } }, "overrides": [] },
+      "gridPos": {
+        "h": 5,
+        "w": 8,
+        "x": 0,
+        "y": 23
+      },
+      "datasource": {
+        "uid": "prometheus",
+        "type": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "blue"
+          }
+        },
+        "overrides": []
+      },
       "targets": [
-        { "expr": "sum(rate(otelcol_receiver_accepted_log_records_total{service_name=\"otel-collector\"}[$__rate_interval]))", "refId": "A", "instant": true, "legendFormat": "received/s" },
-        { "expr": "sum(rate(otelcol_exporter_sent_log_records_total{service_name=\"otel-collector\"}[$__rate_interval]))", "refId": "B", "instant": true, "legendFormat": "exported/s" }
+        {
+          "expr": "sum(rate(otelcol_receiver_accepted_log_records_total{service_name=\"otel-collector\"}[$__rate_interval]))",
+          "refId": "A",
+          "instant": true,
+          "legendFormat": "received/s"
+        },
+        {
+          "expr": "sum(rate(otelcol_exporter_sent_log_records_total{service_name=\"otel-collector\"}[$__rate_interval]))",
+          "refId": "B",
+          "instant": true,
+          "legendFormat": "exported/s"
+        }
       ]
     },
     {
       "title": "Metrics Received vs Exported",
       "type": "stat",
-      "gridPos": { "h": 5, "w": 8, "x": 8, "y": 23 },
-      "datasource": { "uid": "prometheus", "type": "prometheus" },
-      "fieldConfig": { "defaults": { "unit": "short", "color": { "mode": "fixed", "fixedColor": "green" } }, "overrides": [] },
+      "gridPos": {
+        "h": 5,
+        "w": 8,
+        "x": 8,
+        "y": 23
+      },
+      "datasource": {
+        "uid": "prometheus",
+        "type": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "green"
+          }
+        },
+        "overrides": []
+      },
       "targets": [
-        { "expr": "sum(rate(otelcol_receiver_accepted_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval]))", "refId": "A", "instant": true, "legendFormat": "received/s" },
-        { "expr": "sum(rate(otelcol_exporter_sent_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval]))", "refId": "B", "instant": true, "legendFormat": "exported/s" }
+        {
+          "expr": "sum(rate(otelcol_receiver_accepted_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval]))",
+          "refId": "A",
+          "instant": true,
+          "legendFormat": "received/s"
+        },
+        {
+          "expr": "sum(rate(otelcol_exporter_sent_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval]))",
+          "refId": "B",
+          "instant": true,
+          "legendFormat": "exported/s"
+        }
       ]
     },
     {
       "title": "Traces Received vs Exported",
       "type": "stat",
-      "gridPos": { "h": 5, "w": 8, "x": 16, "y": 23 },
-      "datasource": { "uid": "prometheus", "type": "prometheus" },
-      "fieldConfig": { "defaults": { "unit": "short", "color": { "mode": "fixed", "fixedColor": "purple" } }, "overrides": [] },
+      "gridPos": {
+        "h": 5,
+        "w": 8,
+        "x": 16,
+        "y": 23
+      },
+      "datasource": {
+        "uid": "prometheus",
+        "type": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "purple"
+          }
+        },
+        "overrides": []
+      },
       "targets": [
-        { "expr": "sum(rate(otelcol_receiver_accepted_spans_total{service_name=\"otel-collector\"}[$__rate_interval]))", "refId": "A", "instant": true, "legendFormat": "received/s" },
-        { "expr": "sum(rate(otelcol_exporter_sent_spans_total{service_name=\"otel-collector\"}[$__rate_interval]))", "refId": "B", "instant": true, "legendFormat": "exported/s" }
+        {
+          "expr": "sum(rate(otelcol_receiver_accepted_spans_total{service_name=\"otel-collector\"}[$__rate_interval]))",
+          "refId": "A",
+          "instant": true,
+          "legendFormat": "received/s"
+        },
+        {
+          "expr": "sum(rate(otelcol_exporter_sent_spans_total{service_name=\"otel-collector\"}[$__rate_interval]))",
+          "refId": "B",
+          "instant": true,
+          "legendFormat": "exported/s"
+        }
       ]
     }
   ],
   "schemaVersion": 39,
-  "tags": ["otel", "pipeline", "flow"],
-  "templating": { "list": [] },
-  "time": { "from": "now-1h", "to": "now" },
+  "tags": [
+    "otel",
+    "pipeline",
+    "flow"
+  ],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
   "title": "Pipeline Flow",
-  "uid": "pipeline-flow"
+  "uid": "pipeline-flow",
+  "refresh": "10s"
 }

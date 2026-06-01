@@ -522,7 +522,7 @@
                 "value": [
                   {
                     "title": "__value.raw",
-                    "url": "/d/8klBUGfVk/otel-traces?${__url_time_range}﻿&﻿${serviceName:queryparam}﻿&var-trace_id=${__value.raw}"
+                    "url": "/d/8klBUGfVk/otel-traces?${__url_time_range}\ufeff&\ufeff${serviceName:queryparam}\ufeff&var-trace_id=${__value.raw}"
                   }
                 ]
               }
@@ -543,7 +543,7 @@
                 "value": [
                   {
                     "title": "__value.raw",
-                    "url": "/d/8klBUGfVk/otel-traces?${__url_time_range}﻿&﻿${trace_id:queryparam}﻿&var-serviceName=${__value.raw}"
+                    "url": "/d/8klBUGfVk/otel-traces?${__url_time_range}\ufeff&\ufeff${trace_id:queryparam}\ufeff&var-serviceName=${__value.raw}"
                   }
                 ]
               }
@@ -922,7 +922,7 @@
     }
   ],
   "preload": false,
-  "refresh": "",
+  "refresh": "10s",
   "schemaVersion": 42,
   "tags": [],
   "templating": {

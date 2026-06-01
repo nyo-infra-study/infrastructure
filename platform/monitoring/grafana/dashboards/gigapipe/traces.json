@@ -1,170 +1,516 @@
 {
-  "annotations": { "list": [] },
+  "annotations": {
+    "list": []
+  },
   "editable": true,
   "graphTooltip": 1,
   "panels": [
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
       "title": "Service Overview",
       "type": "row"
     },
     {
       "title": "Request Rate (by service)",
       "type": "stat",
-      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 1 },
-      "datasource": { "uid": "$ds_prometheus", "type": "prometheus" },
-      "fieldConfig": { "defaults": { "unit": "reqps", "color": { "mode": "fixed", "fixedColor": "blue" } }, "overrides": [] },
-      "targets": [{ "expr": "sum(rate(traces_spanmetrics_calls_total{service_name=~\"$service\"}[$__rate_interval]))", "refId": "A", "instant": true }]
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 1
+      },
+      "datasource": {
+        "uid": "$ds_prometheus",
+        "type": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "blue"
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(traces_spanmetrics_calls_total{service_name=~\"$service\"}[$__rate_interval]))",
+          "refId": "A",
+          "instant": true
+        }
+      ]
     },
     {
       "title": "Error Rate",
       "type": "stat",
-      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 1 },
-      "datasource": { "uid": "$ds_prometheus", "type": "prometheus" },
-      "fieldConfig": { "defaults": { "unit": "reqps", "thresholds": { "steps": [{ "value": 0, "color": "green" }, { "value": 0.1, "color": "yellow" }, { "value": 1, "color": "red" }] } }, "overrides": [] },
-      "targets": [{ "expr": "sum(rate(traces_spanmetrics_calls_total{service_name=~\"$service\",status_code=\"STATUS_CODE_ERROR\"}[$__rate_interval]))", "refId": "A", "instant": true }]
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 6,
+        "y": 1
+      },
+      "datasource": {
+        "uid": "$ds_prometheus",
+        "type": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "thresholds": {
+            "steps": [
+              {
+                "value": 0,
+                "color": "green"
+              },
+              {
+                "value": 0.1,
+                "color": "yellow"
+              },
+              {
+                "value": 1,
+                "color": "red"
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(traces_spanmetrics_calls_total{service_name=~\"$service\",status_code=\"STATUS_CODE_ERROR\"}[$__rate_interval]))",
+          "refId": "A",
+          "instant": true
+        }
+      ]
     },
     {
       "title": "P50 Duration",
       "type": "stat",
-      "gridPos": { "h": 4, "w": 4, "x": 12, "y": 1 },
-      "datasource": { "uid": "$ds_prometheus", "type": "prometheus" },
-      "fieldConfig": { "defaults": { "unit": "ms", "color": { "mode": "fixed", "fixedColor": "purple" } }, "overrides": [] },
-      "targets": [{ "expr": "histogram_quantile(0.50, sum(rate(traces_spanmetrics_duration_milliseconds_bucket{service_name=~\"$service\"}[$__rate_interval])) by (le))", "refId": "A", "instant": true }]
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 12,
+        "y": 1
+      },
+      "datasource": {
+        "uid": "$ds_prometheus",
+        "type": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "purple"
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.50, sum(rate(traces_spanmetrics_duration_milliseconds_bucket{service_name=~\"$service\"}[$__rate_interval])) by (le))",
+          "refId": "A",
+          "instant": true
+        }
+      ]
     },
     {
       "title": "P95 Duration",
       "type": "stat",
-      "gridPos": { "h": 4, "w": 4, "x": 16, "y": 1 },
-      "datasource": { "uid": "$ds_prometheus", "type": "prometheus" },
-      "fieldConfig": { "defaults": { "unit": "ms", "thresholds": { "steps": [{ "value": 0, "color": "green" }, { "value": 0.5, "color": "yellow" }, { "value": 2, "color": "red" }] } }, "overrides": [] },
-      "targets": [{ "expr": "histogram_quantile(0.95, sum(rate(traces_spanmetrics_duration_milliseconds_bucket{service_name=~\"$service\"}[$__rate_interval])) by (le))", "refId": "A", "instant": true }]
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 16,
+        "y": 1
+      },
+      "datasource": {
+        "uid": "$ds_prometheus",
+        "type": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "thresholds": {
+            "steps": [
+              {
+                "value": 0,
+                "color": "green"
+              },
+              {
+                "value": 0.5,
+                "color": "yellow"
+              },
+              {
+                "value": 2,
+                "color": "red"
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(traces_spanmetrics_duration_milliseconds_bucket{service_name=~\"$service\"}[$__rate_interval])) by (le))",
+          "refId": "A",
+          "instant": true
+        }
+      ]
     },
     {
       "title": "P99 Duration",
       "type": "stat",
-      "gridPos": { "h": 4, "w": 4, "x": 20, "y": 1 },
-      "datasource": { "uid": "$ds_prometheus", "type": "prometheus" },
-      "fieldConfig": { "defaults": { "unit": "ms", "thresholds": { "steps": [{ "value": 0, "color": "green" }, { "value": 1, "color": "yellow" }, { "value": 5, "color": "red" }] } }, "overrides": [] },
-      "targets": [{ "expr": "histogram_quantile(0.99, sum(rate(traces_spanmetrics_duration_milliseconds_bucket{service_name=~\"$service\"}[$__rate_interval])) by (le))", "refId": "A", "instant": true }]
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 20,
+        "y": 1
+      },
+      "datasource": {
+        "uid": "$ds_prometheus",
+        "type": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "thresholds": {
+            "steps": [
+              {
+                "value": 0,
+                "color": "green"
+              },
+              {
+                "value": 1,
+                "color": "yellow"
+              },
+              {
+                "value": 5,
+                "color": "red"
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.99, sum(rate(traces_spanmetrics_duration_milliseconds_bucket{service_name=~\"$service\"}[$__rate_interval])) by (le))",
+          "refId": "A",
+          "instant": true
+        }
+      ]
     },
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 5 },
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 5
+      },
       "title": "Service Map",
       "type": "row"
     },
     {
       "title": "Service Graph",
       "type": "nodeGraph",
-      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 6 },
-      "datasource": { "uid": "$ds_tempo", "type": "tempo" },
-      "targets": [{ "queryType": "serviceMap", "refId": "A" }]
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 6
+      },
+      "datasource": {
+        "uid": "$ds_tempo",
+        "type": "tempo"
+      },
+      "targets": [
+        {
+          "queryType": "serviceMap",
+          "refId": "A"
+        }
+      ]
     },
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 16 },
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 16
+      },
       "title": "RED Metrics (Rate / Errors / Duration)",
       "type": "row"
     },
     {
       "title": "Request Rate by Service",
       "type": "timeseries",
-      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 17 },
-      "datasource": { "uid": "$ds_prometheus", "type": "prometheus" },
-      "fieldConfig": { "defaults": { "unit": "reqps", "custom": { "fillOpacity": 15 } }, "overrides": [] },
-      "targets": [{ "expr": "sum by (service_name) (rate(traces_spanmetrics_calls_total{service_name=~\"$service\"}[$__rate_interval]))", "refId": "A", "legendFormat": "{{service_name}}" }],
-      "options": { "legend": { "displayMode": "table", "placement": "right", "sortBy": "Last *", "sortDesc": true } }
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 17
+      },
+      "datasource": {
+        "uid": "$ds_prometheus",
+        "type": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "custom": {
+            "fillOpacity": 15
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "sum by (service_name) (rate(traces_spanmetrics_calls_total{service_name=~\"$service\"}[$__rate_interval]))",
+          "refId": "A",
+          "legendFormat": "{{service_name}}"
+        }
+      ],
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "sortBy": "Last *",
+          "sortDesc": true
+        }
+      }
     },
     {
       "title": "Error Rate by Service",
       "type": "timeseries",
-      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 17 },
-      "datasource": { "uid": "$ds_prometheus", "type": "prometheus" },
-      "fieldConfig": { "defaults": { "unit": "reqps", "custom": { "fillOpacity": 15 } }, "overrides": [] },
-      "targets": [{ "expr": "sum by (service_name) (rate(traces_spanmetrics_calls_total{service_name=~\"$service\",status_code=\"STATUS_CODE_ERROR\"}[$__rate_interval]))", "refId": "A", "legendFormat": "{{service_name}}" }],
-      "options": { "legend": { "displayMode": "table", "placement": "right" } }
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 17
+      },
+      "datasource": {
+        "uid": "$ds_prometheus",
+        "type": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "custom": {
+            "fillOpacity": 15
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "sum by (service_name) (rate(traces_spanmetrics_calls_total{service_name=~\"$service\",status_code=\"STATUS_CODE_ERROR\"}[$__rate_interval]))",
+          "refId": "A",
+          "legendFormat": "{{service_name}}"
+        }
+      ],
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "right"
+        }
+      }
     },
     {
       "title": "Duration P95 by Service",
       "type": "timeseries",
-      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 17 },
-      "datasource": { "uid": "$ds_prometheus", "type": "prometheus" },
-      "fieldConfig": { "defaults": { "unit": "ms", "custom": { "fillOpacity": 10 } }, "overrides": [] },
-      "targets": [{ "expr": "histogram_quantile(0.95, sum by (service_name, le) (rate(traces_spanmetrics_duration_milliseconds_bucket{service_name=~\"$service\"}[$__rate_interval])))", "refId": "A", "legendFormat": "{{service_name}}" }],
-      "options": { "legend": { "displayMode": "table", "placement": "right", "sortBy": "Last *", "sortDesc": true } }
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 17
+      },
+      "datasource": {
+        "uid": "$ds_prometheus",
+        "type": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "custom": {
+            "fillOpacity": 10
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum by (service_name, le) (rate(traces_spanmetrics_duration_milliseconds_bucket{service_name=~\"$service\"}[$__rate_interval])))",
+          "refId": "A",
+          "legendFormat": "{{service_name}}"
+        }
+      ],
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "sortBy": "Last *",
+          "sortDesc": true
+        }
+      }
     },
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 25 },
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 25
+      },
       "title": "Recent Traces",
       "type": "row"
     },
     {
       "title": "Recent Traces",
       "type": "table",
-      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 26 },
-      "datasource": { "uid": "$ds_tempo", "type": "tempo" },
-      "targets": [{
-        "queryType": "traceql",
-        "refId": "A",
-        "query": "{resource.service.name=~\"${service:pipe}\" && duration > ${min_duration}}",
-        "limit": 20,
-        "tableType": "traces"
-      }],
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 26
+      },
+      "datasource": {
+        "uid": "$ds_tempo",
+        "type": "tempo"
+      },
+      "targets": [
+        {
+          "queryType": "traceql",
+          "refId": "A",
+          "query": "{resource.service.name=~\"${service:pipe}\" && duration > ${min_duration}}",
+          "limit": 20,
+          "tableType": "traces"
+        }
+      ],
       "options": {
         "showHeader": true,
-        "sortBy": [{ "displayName": "Start time", "desc": true }]
+        "sortBy": [
+          {
+            "displayName": "Start time",
+            "desc": true
+          }
+        ]
       },
       "fieldConfig": {
         "defaults": {},
         "overrides": [
-          { "matcher": { "id": "byName", "options": "Duration" }, "properties": [{ "id": "unit", "value": "ms" }] }
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Duration"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "ms"
+              }
+            ]
+          }
         ]
       }
     },
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 36 },
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 36
+      },
       "title": "Error Traces",
       "type": "row"
     },
     {
       "title": "Error Traces",
       "type": "table",
-      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 37 },
-      "datasource": { "uid": "$ds_tempo", "type": "tempo" },
-      "targets": [{
-        "queryType": "traceql",
-        "refId": "A",
-        "query": "{resource.service.name=~\"${service:pipe}\" && .http.response.status_code=~\"4..|5..\"}",
-        "limit": 20,
-        "tableType": "traces"
-      }],
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 37
+      },
+      "datasource": {
+        "uid": "$ds_tempo",
+        "type": "tempo"
+      },
+      "targets": [
+        {
+          "queryType": "traceql",
+          "refId": "A",
+          "query": "{resource.service.name=~\"${service:pipe}\" && .http.response.status_code=~\"4..|5..\"}",
+          "limit": 20,
+          "tableType": "traces"
+        }
+      ],
       "options": {
         "showHeader": true,
-        "sortBy": [{ "displayName": "Start time", "desc": true }]
+        "sortBy": [
+          {
+            "displayName": "Start time",
+            "desc": true
+          }
+        ]
       },
       "fieldConfig": {
         "defaults": {},
         "overrides": [
-          { "matcher": { "id": "byName", "options": "Duration" }, "properties": [{ "id": "unit", "value": "ms" }] }
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Duration"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "ms"
+              }
+            ]
+          }
         ]
       }
     },
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 47 },
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 47
+      },
       "title": "Logs (from trace context)",
       "type": "row"
     },
     {
       "title": "Logs for Selected Service",
       "type": "logs",
-      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 48 },
-      "datasource": { "uid": "$ds_loki", "type": "loki" },
-      "targets": [{ "expr": "{service_name=~\"$service\"}", "refId": "A" }],
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 48
+      },
+      "datasource": {
+        "uid": "$ds_loki",
+        "type": "loki"
+      },
+      "targets": [
+        {
+          "expr": "{service_name=~\"$service\"}",
+          "refId": "A"
+        }
+      ],
       "options": {
         "showTime": true,
         "showLabels": false,
@@ -177,49 +523,75 @@
     }
   ],
   "schemaVersion": 39,
-  "tags": ["traces", "observability", "RED"],
+  "tags": [
+    "traces",
+    "observability",
+    "RED"
+  ],
   "templating": {
     "list": [
       {
         "name": "ds_prometheus",
         "type": "datasource",
         "query": "prometheus",
-        "current": { "text": "Prometheus", "value": "prometheus" },
+        "current": {
+          "text": "Prometheus",
+          "value": "prometheus"
+        },
         "label": "Prometheus"
       },
       {
         "name": "ds_tempo",
         "type": "datasource",
         "query": "tempo",
-        "current": { "text": "Tempo", "value": "tempo" },
+        "current": {
+          "text": "Tempo",
+          "value": "tempo"
+        },
         "label": "Tempo"
       },
       {
         "name": "ds_loki",
         "type": "datasource",
         "query": "loki",
-        "current": { "text": "Loki (PCI)", "value": "loki-pci" },
+        "current": {
+          "text": "Loki (PCI)",
+          "value": "loki-pci"
+        },
         "label": "Loki"
       },
       {
         "name": "service",
         "type": "query",
-        "datasource": { "uid": "$ds_prometheus", "type": "prometheus" },
+        "datasource": {
+          "uid": "$ds_prometheus",
+          "type": "prometheus"
+        },
         "query": "label_values(traces_spanmetrics_calls_total, service_name)",
         "multi": true,
         "includeAll": true,
-        "current": { "text": "All", "value": "$__all" },
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
         "refresh": 2
       },
       {
         "name": "min_duration",
         "type": "custom",
         "query": "0ms,10ms,50ms,100ms,250ms,500ms,1s,2s,5s",
-        "current": { "text": "0ms", "value": "0ms" }
+        "current": {
+          "text": "0ms",
+          "value": "0ms"
+        }
       }
     ]
   },
-  "time": { "from": "now-1h", "to": "now" },
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
   "title": "Traces & Services",
-  "uid": "traces-services"
+  "uid": "traces-services",
+  "refresh": "10s"
 }
