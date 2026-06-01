@@ -174,6 +174,34 @@ config:
           - 'IsMatch(name, ".*livez.*")'
           - 'IsMatch(attributes["url.path"], "/ping")'
 
+    # ── Tail sampling: drop Traefik-only traces with no downstream context ──
+    # Keeps traces that have spans from app services (browser → traefik → app).
+    # Drops shallow traces where Traefik is the only service (no traceparent from client,
+    # no propagation to downstream — just traefik + ReverseProxy noise).
+    tail_sampling:
+      decision_wait: 5s
+      num_traces: 2000
+      policies:
+        # Always keep traces that have spans from non-traefik services
+        - name: keep-app-traces
+          type: ottl_condition
+          ottl_condition:
+            error_mode: ignore
+            span:
+              - 'resource.attributes["service.name"] != "traefik"'
+        # Keep traces with enough depth (more than 2 spans = real propagation)
+        - name: keep-deep-traces
+          type: span_count
+          span_count:
+            min_spans: 3
+        # Drop everything else (shallow traefik-only traces)
+        - name: drop-traefik-shallow
+          type: ottl_condition
+          ottl_condition:
+            error_mode: ignore
+            span:
+              - 'resource.attributes["service.name"] == "traefik"'
+
     # ── Drop noisy / low-value metrics (for app OTLP metrics) ──
     filter/metrics:
       error_mode: ignore
