@@ -127,7 +127,7 @@
       "targets": [{
         "queryType": "traceql",
         "refId": "A",
-        "query": "{resource.service.name=~\"${service:pipe}\" && span:status=error}",
+        "query": "{resource.service.name=~\"${service:pipe}\" && .http.response.status_code=~\"4..|5..\"}",
         "limit": 20
       }]
     },
