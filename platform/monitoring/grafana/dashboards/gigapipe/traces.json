@@ -103,15 +103,27 @@
     },
     {
       "title": "Recent Traces",
-      "type": "traces",
+      "type": "table",
       "gridPos": { "h": 10, "w": 24, "x": 0, "y": 26 },
       "datasource": { "uid": "tempo", "type": "tempo" },
       "targets": [{
         "queryType": "traceql",
         "refId": "A",
         "query": "{resource.service.name=~\"${service:pipe}\" && duration > ${min_duration}}",
-        "limit": 20
-      }]
+        "limit": 20,
+        "tableType": "traces"
+      }],
+      "options": {
+        "showHeader": true,
+        "sortBy": [{ "displayName": "Start time", "desc": true }]
+      },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "Trace ID" }, "properties": [{ "id": "links", "value": [{ "title": "View trace", "url": "/explore?left=%7B%22datasource%22:%22tempo%22,%22queries%22:%5B%7B%22queryType%22:%22traceql%22,%22query%22:%22${__value.raw}%22%7D%5D%7D" }] }] },
+          { "matcher": { "id": "byName", "options": "Duration" }, "properties": [{ "id": "unit", "value": "ms" }] }
+        ]
+      }
     },
     {
       "collapsed": false,
@@ -121,15 +133,27 @@
     },
     {
       "title": "Error Traces",
-      "type": "traces",
+      "type": "table",
       "gridPos": { "h": 10, "w": 24, "x": 0, "y": 37 },
       "datasource": { "uid": "tempo", "type": "tempo" },
       "targets": [{
         "queryType": "traceql",
         "refId": "A",
         "query": "{resource.service.name=~\"${service:pipe}\" && .http.response.status_code=~\"4..|5..\"}",
-        "limit": 20
-      }]
+        "limit": 20,
+        "tableType": "traces"
+      }],
+      "options": {
+        "showHeader": true,
+        "sortBy": [{ "displayName": "Start time", "desc": true }]
+      },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "Trace ID" }, "properties": [{ "id": "links", "value": [{ "title": "View trace", "url": "/explore?left=%7B%22datasource%22:%22tempo%22,%22queries%22:%5B%7B%22queryType%22:%22traceql%22,%22query%22:%22${__value.raw}%22%7D%5D%7D" }] }] },
+          { "matcher": { "id": "byName", "options": "Duration" }, "properties": [{ "id": "unit", "value": "ms" }] }
+        ]
+      }
     },
     {
       "collapsed": false,
