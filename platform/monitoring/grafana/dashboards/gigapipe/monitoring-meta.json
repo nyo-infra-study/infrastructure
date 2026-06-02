@@ -4523,12 +4523,12 @@
       "pluginVersion": "12.3.1",
       "targets": [
         {
-          "expr": "rate(ClickHouseProfileEvents_FailedSelectQuery_total[\\])",
+          "expr": "rate(ClickHouseProfileEvents_FailedSelectQuery_total[$__rate_interval])",
           "refId": "A",
           "legendFormat": "failed selects/s"
         },
         {
-          "expr": "rate(ClickHouseProfileEvents_FailedInsertQuery_total[\\])",
+          "expr": "rate(ClickHouseProfileEvents_FailedInsertQuery_total[$__rate_interval])",
           "refId": "B",
           "legendFormat": "failed inserts/s"
         }
