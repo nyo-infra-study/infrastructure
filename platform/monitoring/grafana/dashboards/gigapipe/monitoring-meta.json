@@ -52,7 +52,7 @@
           "showLineNumbers": false,
           "showMiniMap": false
         },
-        "content": "#### Flow\n\nOTel Collector → Gigapipe Writer → ClickHouse\n\nGrafana ← Gigapipe Readers ← ClickHouse\n\n---\n\n#### Marks\n\n🟢 usage 🟡 request 🔴 limit\n\n⚠️ Red line = OOMKill (mem) or throttle (cpu)\n",
+        "content": "#### Flow\n\nOTel Collector \u2192 Gigapipe Writer \u2192 ClickHouse\n\nGrafana \u2190 Gigapipe Readers \u2190 ClickHouse\n\n---\n\n#### Marks\n\n\ud83d\udfe2 usage \ud83d\udfe1 request \ud83d\udd34 limit\n\n\u26a0\ufe0f Red line = OOMKill (mem) or throttle (cpu)\n",
         "mode": "markdown"
       },
       "pluginVersion": "12.3.1",
@@ -1617,7 +1617,7 @@
         "type": "prometheus",
         "uid": "prometheus"
       },
-      "description": "Namespace (big box) → Service (small box inside). Size = bytes written.",
+      "description": "Namespace (big box) \u2192 Service (small box inside). Size = bytes written.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1841,7 +1841,7 @@
           "refId": "A"
         }
       ],
-      "title": "① Scraped (raw/s)",
+      "title": "\u2460 Scraped (raw/s)",
       "type": "stat"
     },
     {
@@ -1906,7 +1906,7 @@
           "refId": "A"
         }
       ],
-      "title": "② Stored (rate/s)",
+      "title": "\u2461 Stored (rate/s)",
       "type": "stat"
     },
     {
@@ -1971,7 +1971,7 @@
           "refId": "A"
         }
       ],
-      "title": "③ Queried (queries/s)",
+      "title": "\u2462 Queried (queries/s)",
       "type": "stat"
     },
     {
@@ -2281,7 +2281,7 @@
           "refId": "C"
         }
       ],
-      "title": "OTel — Exported by Signal (rate/s)",
+      "title": "OTel \u2014 Exported by Signal (rate/s)",
       "type": "timeseries"
     },
     {
@@ -2384,7 +2384,7 @@
           "refId": "C"
         }
       ],
-      "title": "OTel — Failed & Dropped (rate/s)",
+      "title": "OTel \u2014 Failed & Dropped (rate/s)",
       "type": "timeseries"
     },
     {
@@ -2544,7 +2544,7 @@
           "refId": "C"
         }
       ],
-      "title": "OTel — Queue Usage %",
+      "title": "OTel \u2014 Queue Usage %",
       "type": "timeseries"
     },
     {
@@ -2640,7 +2640,7 @@
           "refId": "A"
         }
       ],
-      "title": "OTel — Data Dropped by Filter (rate/s)",
+      "title": "OTel \u2014 Data Dropped by Filter (rate/s)",
       "type": "timeseries"
     },
     {
@@ -2794,7 +2794,7 @@
           "refId": "C"
         }
       ],
-      "title": "OTel — CPU (usage / request / limit)",
+      "title": "OTel \u2014 CPU (usage / request / limit)",
       "type": "timeseries"
     },
     {
@@ -2948,7 +2948,7 @@
           "refId": "C"
         }
       ],
-      "title": "OTel — Memory (usage / request / limit)",
+      "title": "OTel \u2014 Memory (usage / request / limit)",
       "type": "timeseries"
     },
     {
@@ -3053,7 +3053,7 @@
           "refId": "A"
         }
       ],
-      "title": "Gigapipe — Rows Written/s by Signal",
+      "title": "Gigapipe \u2014 Rows Written/s by Signal",
       "type": "timeseries"
     },
     {
@@ -3146,7 +3146,7 @@
           "refId": "A"
         }
       ],
-      "title": "Gigapipe — Bytes Written/s by Signal",
+      "title": "Gigapipe \u2014 Bytes Written/s by Signal",
       "type": "timeseries"
     },
     {
@@ -3240,7 +3240,7 @@
           "refId": "A"
         }
       ],
-      "title": "Gigapipe — Send Time (ms)",
+      "title": "Gigapipe \u2014 Send Time (ms)",
       "type": "timeseries"
     },
     {
@@ -3333,7 +3333,7 @@
           "refId": "A"
         }
       ],
-      "title": "Gigapipe — Memory (RSS)",
+      "title": "Gigapipe \u2014 Memory (RSS)",
       "type": "timeseries"
     },
     {
@@ -3427,7 +3427,7 @@
           "refId": "A"
         }
       ],
-      "title": "Gigapipe — Connection Resets",
+      "title": "Gigapipe \u2014 Connection Resets",
       "type": "timeseries"
     },
     {
@@ -3581,7 +3581,7 @@
           "refId": "C"
         }
       ],
-      "title": "Writer — CPU (usage / request / limit)",
+      "title": "Writer \u2014 CPU (usage / request / limit)",
       "type": "timeseries"
     },
     {
@@ -3735,7 +3735,7 @@
           "refId": "C"
         }
       ],
-      "title": "Writer — Memory (usage / request / limit)",
+      "title": "Writer \u2014 Memory (usage / request / limit)",
       "type": "timeseries"
     },
     {
@@ -3889,7 +3889,7 @@
           "refId": "C"
         }
       ],
-      "title": "Readers — CPU (usage / request / limit)",
+      "title": "Readers \u2014 CPU (usage / request / limit)",
       "type": "timeseries"
     },
     {
@@ -4043,7 +4043,7 @@
           "refId": "C"
         }
       ],
-      "title": "Readers — Memory (usage / request / limit)",
+      "title": "Readers \u2014 Memory (usage / request / limit)",
       "type": "timeseries"
     },
     {
@@ -4153,7 +4153,7 @@
           "refId": "B"
         }
       ],
-      "title": "CH — Queries/s",
+      "title": "CH \u2014 Queries/s",
       "type": "timeseries"
     },
     {
@@ -4245,7 +4245,7 @@
           "refId": "A"
         }
       ],
-      "title": "CH — Inserted Rows/s",
+      "title": "CH \u2014 Inserted Rows/s",
       "type": "timeseries"
     },
     {
@@ -4342,7 +4342,7 @@
           "refId": "B"
         }
       ],
-      "title": "CH — Active Parts & Merges",
+      "title": "CH \u2014 Active Parts & Merges",
       "type": "timeseries"
     },
     {
@@ -4435,7 +4435,7 @@
           "refId": "A"
         }
       ],
-      "title": "CH — Memory & Disk I/O",
+      "title": "CH \u2014 Memory & Disk I/O",
       "type": "timeseries"
     },
     {
@@ -4523,12 +4523,17 @@
       "pluginVersion": "12.3.1",
       "targets": [
         {
-          "expr": "rate(ClickHouseProfileEvents_FailedQuery_total{job=\"clickhouse\"}[5m])",
-          "legendFormat": "failed queries/s",
-          "refId": "A"
+          "expr": "rate(ClickHouseProfileEvents_FailedSelectQuery_total[\\])",
+          "refId": "A",
+          "legendFormat": "failed selects/s"
+        },
+        {
+          "expr": "rate(ClickHouseProfileEvents_FailedInsertQuery_total[\\])",
+          "refId": "B",
+          "legendFormat": "failed inserts/s"
         }
       ],
-      "title": "CH — Failed Queries/s",
+      "title": "CH \u2014 Failed Queries/s",
       "type": "timeseries"
     },
     {
@@ -4549,7 +4554,7 @@
         "h": 6,
         "w": 12,
         "x": 0,
-        "y": 82
+        "y": 90
       },
       "id": 47,
       "options": {
@@ -4586,7 +4591,7 @@
         "h": 6,
         "w": 12,
         "x": 12,
-        "y": 82
+        "y": 90
       },
       "id": 48,
       "options": {
@@ -4611,7 +4616,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 88
+        "y": 96
       },
       "id": 28,
       "panels": [],
@@ -4631,7 +4636,7 @@
               "options": {
                 "0": {
                   "color": "green",
-                  "text": "0 (FILTERED ✓)"
+                  "text": "0 (FILTERED \u2713)"
                 }
               },
               "type": "value"
@@ -4657,7 +4662,7 @@
         "h": 6,
         "w": 6,
         "x": 0,
-        "y": 89
+        "y": 97
       },
       "id": 29,
       "options": {},
@@ -4691,7 +4696,7 @@
         "h": 6,
         "w": 6,
         "x": 6,
-        "y": 89
+        "y": 97
       },
       "id": 30,
       "options": {},
@@ -4719,7 +4724,7 @@
                 "from": 1,
                 "result": {
                   "color": "orange",
-                  "text": "PCI LOGS VISIBLE ⚠️"
+                  "text": "PCI LOGS VISIBLE \u26a0\ufe0f"
                 },
                 "to": 999999999
               },
@@ -4729,7 +4734,7 @@
               "options": {
                 "0": {
                   "color": "green",
-                  "text": "PCI LOGS HIDDEN ✓"
+                  "text": "PCI LOGS HIDDEN \u2713"
                 }
               },
               "type": "value"
@@ -4742,7 +4747,7 @@
         "h": 6,
         "w": 6,
         "x": 12,
-        "y": 89
+        "y": 97
       },
       "id": 31,
       "options": {},
@@ -4770,7 +4775,7 @@
         "h": 6,
         "w": 6,
         "x": 18,
-        "y": 89
+        "y": 97
       },
       "id": 32,
       "options": {
@@ -4793,6 +4798,73 @@
       ],
       "title": "Logs by compliance_scope",
       "type": "piechart"
+    },
+    {
+      "title": "CH \u2014 Recent Failed Queries",
+      "description": "Last 20 failed queries from system.query_log. Shows whether it was a SELECT or INSERT failure.",
+      "type": "table",
+      "id": 74,
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 82
+      },
+      "datasource": {
+        "type": "grafana-clickhouse-datasource",
+        "uid": "$ds_clickhouse"
+      },
+      "targets": [
+        {
+          "rawSql": "SELECT\n    event_time,\n    if(query_kind = 'Insert', 'INSERT', 'SELECT') AS type,\n    query_duration_ms,\n    read_rows,\n    splitByChar('\n', exception)[1] AS error,\n    substring(query, 1, 120) AS query_preview\nFROM system.query_log\nWHERE type = 'ExceptionWhileProcessing'\n    AND event_time >= now() - INTERVAL 1 HOUR\nORDER BY event_time DESC\nLIMIT 20",
+          "refId": "A",
+          "format": "table"
+        }
+      ],
+      "options": {
+        "showHeader": true
+      },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "query_duration_ms"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "ms"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "type"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 80
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "error"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 400
+              }
+            ]
+          }
+        ]
+      }
     }
   ],
   "preload": false,
@@ -4866,6 +4938,16 @@
         "query": "loki",
         "refresh": 1,
         "type": "datasource"
+      },
+      {
+        "name": "ds_clickhouse",
+        "type": "datasource",
+        "query": "grafana-clickhouse-datasource",
+        "current": {
+          "text": "ClickHouse",
+          "value": "clickhouse"
+        },
+        "label": "ClickHouse"
       }
     ]
   },
