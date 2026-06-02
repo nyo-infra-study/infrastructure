@@ -10,3 +10,5 @@
 
 # environment variables
 config.env
+
+.DS_Store
