@@ -18,12 +18,10 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
-  "id": 5,
+  "id": 7,
   "links": [],
   "panels": [
     {
-      "type": "row",
-      "title": "Summary",
       "collapsed": false,
       "gridPos": {
         "h": 1,
@@ -31,7 +29,1242 @@
         "x": 0,
         "y": 0
       },
-      "id": 34
+      "id": 34,
+      "panels": [],
+      "title": "Summary",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "request"
+            },
+            "properties": [
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "dash": [
+                    10,
+                    5
+                  ],
+                  "fill": "dash"
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "yellow",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "limit"
+            },
+            "properties": [
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "dash": [
+                    5,
+                    5
+                  ],
+                  "fill": "dash"
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 0,
+        "y": 1
+      },
+      "id": 49,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "expr": "sum(rate(container_cpu_usage_seconds_total{namespace=\"monitoring\",pod=~\".*otel.*\",container!=\"\"}[$__rate_interval]))",
+          "legendFormat": "usage",
+          "refId": "A"
+        },
+        {
+          "expr": "sum(kube_pod_container_resource_requests{namespace=\"monitoring\",pod=~\".*otel.*\",resource=\"cpu\"})",
+          "legendFormat": "request",
+          "refId": "B"
+        },
+        {
+          "expr": "sum(kube_pod_container_resource_limits{namespace=\"monitoring\",pod=~\".*otel.*\",resource=\"cpu\"})",
+          "legendFormat": "limit",
+          "refId": "C"
+        }
+      ],
+      "title": "OTel CPU",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "request"
+            },
+            "properties": [
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "dash": [
+                    10,
+                    5
+                  ],
+                  "fill": "dash"
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "yellow",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "limit"
+            },
+            "properties": [
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "dash": [
+                    5,
+                    5
+                  ],
+                  "fill": "dash"
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 6,
+        "y": 1
+      },
+      "id": 51,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "expr": "sum(rate(container_cpu_usage_seconds_total{namespace=\"monitoring\",pod=~\".*gigapipe.*\",container!=\"\"}[$__rate_interval]))",
+          "legendFormat": "usage",
+          "refId": "A"
+        },
+        {
+          "expr": "sum(kube_pod_container_resource_requests{namespace=\"monitoring\",pod=~\".*gigapipe.*\",resource=\"cpu\"})",
+          "legendFormat": "request",
+          "refId": "B"
+        },
+        {
+          "expr": "sum(kube_pod_container_resource_limits{namespace=\"monitoring\",pod=~\".*gigapipe.*\",resource=\"cpu\"})",
+          "legendFormat": "limit",
+          "refId": "C"
+        }
+      ],
+      "title": "Gigapipe CPU",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "request"
+            },
+            "properties": [
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "dash": [
+                    10,
+                    5
+                  ],
+                  "fill": "dash"
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "yellow",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "limit"
+            },
+            "properties": [
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "dash": [
+                    5,
+                    5
+                  ],
+                  "fill": "dash"
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 12,
+        "y": 1
+      },
+      "id": 53,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "expr": "sum(rate(container_cpu_usage_seconds_total{namespace=\"monitoring\",pod=~\".*clickhouse-0.*\",container!=\"\"}[$__rate_interval]))",
+          "legendFormat": "usage",
+          "refId": "A"
+        },
+        {
+          "expr": "sum(kube_pod_container_resource_requests{namespace=\"monitoring\",pod=~\".*clickhouse-0.*\",resource=\"cpu\"})",
+          "legendFormat": "request",
+          "refId": "B"
+        },
+        {
+          "expr": "sum(kube_pod_container_resource_limits{namespace=\"monitoring\",pod=~\".*clickhouse-0.*\",resource=\"cpu\"})",
+          "legendFormat": "limit",
+          "refId": "C"
+        }
+      ],
+      "title": "ClickHouse CPU",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "request"
+            },
+            "properties": [
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "dash": [
+                    10,
+                    5
+                  ],
+                  "fill": "dash"
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "yellow",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "limit"
+            },
+            "properties": [
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "dash": [
+                    5,
+                    5
+                  ],
+                  "fill": "dash"
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 18,
+        "y": 1
+      },
+      "id": 55,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "expr": "sum(rate(container_cpu_usage_seconds_total{namespace=\"monitoring\",pod=~\".*grafana.*\",container!=\"\"}[$__rate_interval]))",
+          "legendFormat": "usage",
+          "refId": "A"
+        },
+        {
+          "expr": "sum(kube_pod_container_resource_requests{namespace=\"monitoring\",pod=~\".*grafana.*\",resource=\"cpu\"})",
+          "legendFormat": "request",
+          "refId": "B"
+        },
+        {
+          "expr": "sum(kube_pod_container_resource_limits{namespace=\"monitoring\",pod=~\".*grafana.*\",resource=\"cpu\"})",
+          "legendFormat": "limit",
+          "refId": "C"
+        }
+      ],
+      "title": "Grafana CPU",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "request"
+            },
+            "properties": [
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "dash": [
+                    10,
+                    5
+                  ],
+                  "fill": "dash"
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "yellow",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "limit"
+            },
+            "properties": [
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "dash": [
+                    5,
+                    5
+                  ],
+                  "fill": "dash"
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 0,
+        "y": 6
+      },
+      "id": 50,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "expr": "sum(container_memory_working_set_bytes{namespace=\"monitoring\",pod=~\".*otel.*\",container!=\"\"})",
+          "legendFormat": "usage",
+          "refId": "A"
+        },
+        {
+          "expr": "sum(kube_pod_container_resource_requests{namespace=\"monitoring\",pod=~\".*otel.*\",resource=\"memory\"})",
+          "legendFormat": "request",
+          "refId": "B"
+        },
+        {
+          "expr": "sum(kube_pod_container_resource_limits{namespace=\"monitoring\",pod=~\".*otel.*\",resource=\"memory\"})",
+          "legendFormat": "limit",
+          "refId": "C"
+        }
+      ],
+      "title": "OTel Mem",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "request"
+            },
+            "properties": [
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "dash": [
+                    10,
+                    5
+                  ],
+                  "fill": "dash"
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "yellow",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "limit"
+            },
+            "properties": [
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "dash": [
+                    5,
+                    5
+                  ],
+                  "fill": "dash"
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 6,
+        "y": 6
+      },
+      "id": 52,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "expr": "sum(container_memory_working_set_bytes{namespace=\"monitoring\",pod=~\".*gigapipe.*\",container!=\"\"})",
+          "legendFormat": "usage",
+          "refId": "A"
+        },
+        {
+          "expr": "sum(kube_pod_container_resource_requests{namespace=\"monitoring\",pod=~\".*gigapipe.*\",resource=\"memory\"})",
+          "legendFormat": "request",
+          "refId": "B"
+        },
+        {
+          "expr": "sum(kube_pod_container_resource_limits{namespace=\"monitoring\",pod=~\".*gigapipe.*\",resource=\"memory\"})",
+          "legendFormat": "limit",
+          "refId": "C"
+        }
+      ],
+      "title": "Gigapipe Mem",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "request"
+            },
+            "properties": [
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "dash": [
+                    10,
+                    5
+                  ],
+                  "fill": "dash"
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "yellow",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "limit"
+            },
+            "properties": [
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "dash": [
+                    5,
+                    5
+                  ],
+                  "fill": "dash"
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 12,
+        "y": 6
+      },
+      "id": 54,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "expr": "sum(container_memory_working_set_bytes{namespace=\"monitoring\",pod=~\".*clickhouse-0.*\",container!=\"\"})",
+          "legendFormat": "usage",
+          "refId": "A"
+        },
+        {
+          "expr": "sum(kube_pod_container_resource_requests{namespace=\"monitoring\",pod=~\".*clickhouse-0.*\",resource=\"memory\"})",
+          "legendFormat": "request",
+          "refId": "B"
+        },
+        {
+          "expr": "sum(kube_pod_container_resource_limits{namespace=\"monitoring\",pod=~\".*clickhouse-0.*\",resource=\"memory\"})",
+          "legendFormat": "limit",
+          "refId": "C"
+        }
+      ],
+      "title": "ClickHouse Mem",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "request"
+            },
+            "properties": [
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "dash": [
+                    10,
+                    5
+                  ],
+                  "fill": "dash"
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "yellow",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "limit"
+            },
+            "properties": [
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "dash": [
+                    5,
+                    5
+                  ],
+                  "fill": "dash"
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 18,
+        "y": 6
+      },
+      "id": 56,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "expr": "sum(container_memory_working_set_bytes{namespace=\"monitoring\",pod=~\".*grafana.*\",container!=\"\"})",
+          "legendFormat": "usage",
+          "refId": "A"
+        },
+        {
+          "expr": "sum(kube_pod_container_resource_requests{namespace=\"monitoring\",pod=~\".*grafana.*\",resource=\"memory\"})",
+          "legendFormat": "request",
+          "refId": "B"
+        },
+        {
+          "expr": "sum(kube_pod_container_resource_limits{namespace=\"monitoring\",pod=~\".*grafana.*\",resource=\"memory\"})",
+          "legendFormat": "limit",
+          "refId": "C"
+        }
+      ],
+      "title": "Grafana Mem",
+      "type": "timeseries"
     },
     {
       "collapsed": false,
@@ -39,7 +1272,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 14
+        "y": 11
       },
       "id": 1,
       "panels": [],
@@ -91,7 +1324,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 15
+        "y": 12
       },
       "id": 2,
       "options": {
@@ -135,7 +1368,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 15
+        "y": 12
       },
       "id": 3,
       "options": {
@@ -247,7 +1480,7 @@
         "h": 4,
         "w": 4,
         "x": 0,
-        "y": 15
+        "y": 20
       },
       "id": 4,
       "options": {
@@ -271,8 +1504,8 @@
       "targets": [
         {
           "expr": "sum(scrape_samples_scraped{job=~\"$job\"})",
-          "refId": "A",
-          "range": true
+          "range": true,
+          "refId": "A"
         }
       ],
       "title": "\u2460 Scraped (raw/s)",
@@ -312,7 +1545,7 @@
         "h": 4,
         "w": 4,
         "x": 4,
-        "y": 15
+        "y": 20
       },
       "id": 5,
       "options": {
@@ -336,8 +1569,8 @@
       "targets": [
         {
           "expr": "sum(rate(otelcol_exporter_sent_metric_points_total{service_name=\"otel-collector\"}[5m]))",
-          "refId": "A",
-          "range": true
+          "range": true,
+          "refId": "A"
         }
       ],
       "title": "\u2461 Stored (rate/s)",
@@ -377,7 +1610,7 @@
         "h": 4,
         "w": 4,
         "x": 8,
-        "y": 15
+        "y": 20
       },
       "id": 6,
       "options": {
@@ -401,8 +1634,8 @@
       "targets": [
         {
           "expr": "rate(ClickHouseProfileEvents_SelectQuery_total{service_name=\"clickhouse\"}[5m])",
-          "refId": "A",
-          "range": true
+          "range": true,
+          "refId": "A"
         }
       ],
       "title": "\u2462 Queried (queries/s)",
@@ -444,7 +1677,7 @@
         "h": 4,
         "w": 4,
         "x": 12,
-        "y": 15
+        "y": 20
       },
       "id": 7,
       "options": {
@@ -466,8 +1699,8 @@
       "targets": [
         {
           "expr": "1 - (sum(rate(otelcol_exporter_sent_metric_points_total{service_name=\"otel-collector\"}[5m])) / sum(rate(otelcol_processor_incoming_items_total{service_name=\"otel-collector\"}[5m])))",
-          "refId": "A",
-          "range": true
+          "range": true,
+          "refId": "A"
         }
       ],
       "title": "Filter Efficiency",
@@ -507,7 +1740,7 @@
         "h": 4,
         "w": 4,
         "x": 16,
-        "y": 15
+        "y": 20
       },
       "id": 8,
       "options": {
@@ -531,8 +1764,8 @@
       "targets": [
         {
           "expr": "ClickHouseMetrics_PartsActive{job=\"clickhouse\"}",
-          "refId": "A",
-          "range": true
+          "range": true,
+          "refId": "A"
         }
       ],
       "title": "CH Active Parts",
@@ -572,7 +1805,7 @@
         "h": 4,
         "w": 4,
         "x": 20,
-        "y": 15
+        "y": 20
       },
       "id": 9,
       "options": {
@@ -596,8 +1829,8 @@
       "targets": [
         {
           "expr": "ClickHouseMetrics_MemoryTracking{job=\"clickhouse\"}",
-          "refId": "A",
-          "range": true
+          "range": true,
+          "refId": "A"
         }
       ],
       "title": "CH Memory",
@@ -609,7 +1842,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 23
+        "y": 24
       },
       "id": 10,
       "panels": [],
@@ -681,7 +1914,7 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 24
+        "y": 25
       },
       "id": 11,
       "options": {
@@ -784,7 +2017,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 24
+        "y": 25
       },
       "id": 12,
       "options": {
@@ -828,19 +2061,46 @@
       },
       "fieldConfig": {
         "defaults": {
-          "unit": "percentunit",
-          "min": 0,
-          "max": 1,
           "color": {
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
             "fillOpacity": 15,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
             "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
             "thresholdsStyle": {
               "mode": "line"
             }
           },
+          "mappings": [],
+          "max": 1,
+          "min": 0,
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -857,28 +2117,32 @@
                 "value": 0.9
               }
             ]
-          }
+          },
+          "unit": "percentunit"
         },
         "overrides": []
       },
       "gridPos": {
         "h": 7,
-        "w": 8,
+        "w": 12,
         "x": 0,
-        "y": 31
+        "y": 32
       },
       "id": 13,
       "options": {
         "legend": {
+          "calcs": [],
           "displayMode": "list",
           "placement": "bottom",
           "showLegend": true
         },
         "tooltip": {
+          "hideZeros": false,
           "mode": "single",
           "sort": "none"
         }
       },
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "expr": "max by (exporter) (otelcol_exporter_queue_size{service_name=\"otel-collector\"} / otelcol_exporter_queue_capacity{service_name=\"otel-collector\"})",
@@ -952,9 +2216,9 @@
       },
       "gridPos": {
         "h": 7,
-        "w": 8,
-        "x": 8,
-        "y": 31
+        "w": 12,
+        "x": 12,
+        "y": 32
       },
       "id": 14,
       "options": {
@@ -987,12 +2251,320 @@
       "type": "timeseries"
     },
     {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 15,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "request"
+            },
+            "properties": [
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "dash": [
+                    10,
+                    5
+                  ],
+                  "fill": "dash"
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "yellow",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "limit"
+            },
+            "properties": [
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "dash": [
+                    5,
+                    5
+                  ],
+                  "fill": "dash"
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 0,
+        "y": 39
+      },
+      "id": 57,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "expr": "sum(rate(container_cpu_usage_seconds_total{namespace=\"monitoring\",pod=~\".*otel.*\",container!=\"\"}[$__rate_interval]))",
+          "legendFormat": "usage",
+          "refId": "A"
+        },
+        {
+          "expr": "sum(kube_pod_container_resource_requests{namespace=\"monitoring\",pod=~\".*otel.*\",resource=\"cpu\"})",
+          "legendFormat": "request",
+          "refId": "B"
+        },
+        {
+          "expr": "sum(kube_pod_container_resource_limits{namespace=\"monitoring\",pod=~\".*otel.*\",resource=\"cpu\"})",
+          "legendFormat": "limit",
+          "refId": "C"
+        }
+      ],
+      "title": "OTel \u2014 CPU (usage / request / limit)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 15,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "request"
+            },
+            "properties": [
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "dash": [
+                    10,
+                    5
+                  ],
+                  "fill": "dash"
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "yellow",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "limit"
+            },
+            "properties": [
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "dash": [
+                    5,
+                    5
+                  ],
+                  "fill": "dash"
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 12,
+        "y": 39
+      },
+      "id": 58,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "expr": "sum(container_memory_working_set_bytes{namespace=\"monitoring\",pod=~\".*otel.*\",container!=\"\"})",
+          "legendFormat": "usage",
+          "refId": "A"
+        },
+        {
+          "expr": "sum(kube_pod_container_resource_requests{namespace=\"monitoring\",pod=~\".*otel.*\",resource=\"memory\"})",
+          "legendFormat": "request",
+          "refId": "B"
+        },
+        {
+          "expr": "sum(kube_pod_container_resource_limits{namespace=\"monitoring\",pod=~\".*otel.*\",resource=\"memory\"})",
+          "legendFormat": "limit",
+          "refId": "C"
+        }
+      ],
+      "title": "OTel \u2014 Memory (usage / request / limit)",
+      "type": "timeseries"
+    },
+    {
       "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 44
+        "y": 46
       },
       "id": 16,
       "panels": [],
@@ -1005,17 +2577,82 @@
         "uid": "prometheus"
       },
       "fieldConfig": {
-        "defaults": {},
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
         "overrides": []
       },
       "gridPos": {
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 45
+        "y": 47
       },
       "id": 17,
-      "options": {},
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "expr": "rate(sent_rows_total{job=~\"$instance\"}[$__rate_interval])",
@@ -1033,6 +2670,57 @@
       },
       "fieldConfig": {
         "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
           "unit": "Bps"
         },
         "overrides": []
@@ -1041,10 +2729,23 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 45
+        "y": 47
       },
       "id": 18,
-      "options": {},
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "expr": "rate(sent_bytes_total{job=~\"$instance\"}[$__rate_interval])",
@@ -1063,6 +2764,57 @@
       "description": "Time spent sending batch to ClickHouse.",
       "fieldConfig": {
         "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
           "unit": "ms"
         },
         "overrides": []
@@ -1071,10 +2823,23 @@
         "h": 7,
         "w": 8,
         "x": 0,
-        "y": 52
+        "y": 54
       },
       "id": 19,
-      "options": {},
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "expr": "rate(send_time_ms_sum{job=~\"$instance\"}[$__rate_interval]) / rate(send_time_ms_count{job=~\"$instance\"}[$__rate_interval])",
@@ -1092,6 +2857,57 @@
       },
       "fieldConfig": {
         "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
           "unit": "bytes"
         },
         "overrides": []
@@ -1100,10 +2916,23 @@
         "h": 7,
         "w": 8,
         "x": 8,
-        "y": 52
+        "y": 54
       },
       "id": 20,
-      "options": {},
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "expr": "process_resident_memory_bytes{job=~\"$instance\"}",
@@ -1125,6 +2954,54 @@
           "color": {
             "fixedColor": "red",
             "mode": "fixed"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
           }
         },
         "overrides": []
@@ -1133,10 +3010,23 @@
         "h": 7,
         "w": 8,
         "x": 16,
-        "y": 52
+        "y": 54
       },
       "id": 21,
-      "options": {},
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "expr": "rate(connection_reset_by_peer_count_total{job=~\"$instance\"}[$__rate_interval])",
@@ -1148,12 +3038,628 @@
       "type": "timeseries"
     },
     {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 15,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "request"
+            },
+            "properties": [
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "dash": [
+                    10,
+                    5
+                  ],
+                  "fill": "dash"
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "yellow",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "limit"
+            },
+            "properties": [
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "dash": [
+                    5,
+                    5
+                  ],
+                  "fill": "dash"
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 0,
+        "y": 61
+      },
+      "id": 59,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "expr": "sum(rate(container_cpu_usage_seconds_total{namespace=\"monitoring\",pod=~\".*gigapipe-writer.*\",container!=\"\"}[$__rate_interval]))",
+          "legendFormat": "usage",
+          "refId": "A"
+        },
+        {
+          "expr": "sum(kube_pod_container_resource_requests{namespace=\"monitoring\",pod=~\".*gigapipe-writer.*\",resource=\"cpu\"})",
+          "legendFormat": "request",
+          "refId": "B"
+        },
+        {
+          "expr": "sum(kube_pod_container_resource_limits{namespace=\"monitoring\",pod=~\".*gigapipe-writer.*\",resource=\"cpu\"})",
+          "legendFormat": "limit",
+          "refId": "C"
+        }
+      ],
+      "title": "Writer \u2014 CPU (usage / request / limit)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 15,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "request"
+            },
+            "properties": [
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "dash": [
+                    10,
+                    5
+                  ],
+                  "fill": "dash"
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "yellow",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "limit"
+            },
+            "properties": [
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "dash": [
+                    5,
+                    5
+                  ],
+                  "fill": "dash"
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 6,
+        "y": 61
+      },
+      "id": 60,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "expr": "sum(container_memory_working_set_bytes{namespace=\"monitoring\",pod=~\".*gigapipe-writer.*\",container!=\"\"})",
+          "legendFormat": "usage",
+          "refId": "A"
+        },
+        {
+          "expr": "sum(kube_pod_container_resource_requests{namespace=\"monitoring\",pod=~\".*gigapipe-writer.*\",resource=\"memory\"})",
+          "legendFormat": "request",
+          "refId": "B"
+        },
+        {
+          "expr": "sum(kube_pod_container_resource_limits{namespace=\"monitoring\",pod=~\".*gigapipe-writer.*\",resource=\"memory\"})",
+          "legendFormat": "limit",
+          "refId": "C"
+        }
+      ],
+      "title": "Writer \u2014 Memory (usage / request / limit)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 15,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "request"
+            },
+            "properties": [
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "dash": [
+                    10,
+                    5
+                  ],
+                  "fill": "dash"
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "yellow",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "limit"
+            },
+            "properties": [
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "dash": [
+                    5,
+                    5
+                  ],
+                  "fill": "dash"
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 12,
+        "y": 61
+      },
+      "id": 61,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "expr": "sum(rate(container_cpu_usage_seconds_total{namespace=\"monitoring\",pod=~\".*gigapipe-reader.*\",container!=\"\"}[$__rate_interval]))",
+          "legendFormat": "usage",
+          "refId": "A"
+        },
+        {
+          "expr": "sum(kube_pod_container_resource_requests{namespace=\"monitoring\",pod=~\".*gigapipe-reader.*\",resource=\"cpu\"})",
+          "legendFormat": "request",
+          "refId": "B"
+        },
+        {
+          "expr": "sum(kube_pod_container_resource_limits{namespace=\"monitoring\",pod=~\".*gigapipe-reader.*\",resource=\"cpu\"})",
+          "legendFormat": "limit",
+          "refId": "C"
+        }
+      ],
+      "title": "Readers \u2014 CPU (usage / request / limit)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 15,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "request"
+            },
+            "properties": [
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "dash": [
+                    10,
+                    5
+                  ],
+                  "fill": "dash"
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "yellow",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "limit"
+            },
+            "properties": [
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "dash": [
+                    5,
+                    5
+                  ],
+                  "fill": "dash"
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 18,
+        "y": 61
+      },
+      "id": 62,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "expr": "sum(container_memory_working_set_bytes{namespace=\"monitoring\",pod=~\".*gigapipe-reader.*\",container!=\"\"})",
+          "legendFormat": "usage",
+          "refId": "A"
+        },
+        {
+          "expr": "sum(kube_pod_container_resource_requests{namespace=\"monitoring\",pod=~\".*gigapipe-reader.*\",resource=\"memory\"})",
+          "legendFormat": "request",
+          "refId": "B"
+        },
+        {
+          "expr": "sum(kube_pod_container_resource_limits{namespace=\"monitoring\",pod=~\".*gigapipe-reader.*\",resource=\"memory\"})",
+          "legendFormat": "limit",
+          "refId": "C"
+        }
+      ],
+      "title": "Readers \u2014 Memory (usage / request / limit)",
+      "type": "timeseries"
+    },
+    {
       "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 65
+        "y": 67
       },
       "id": 22,
       "panels": [],
@@ -1166,17 +3672,82 @@
         "uid": "prometheus"
       },
       "fieldConfig": {
-        "defaults": {},
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
         "overrides": []
       },
       "gridPos": {
         "h": 7,
         "w": 8,
         "x": 0,
-        "y": 66
+        "y": 68
       },
       "id": 23,
-      "options": {},
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "expr": "rate(ClickHouseProfileEvents_SelectQuery_total{job=\"clickhouse\"}[5m])",
@@ -1198,17 +3769,82 @@
         "uid": "prometheus"
       },
       "fieldConfig": {
-        "defaults": {},
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
         "overrides": []
       },
       "gridPos": {
         "h": 7,
         "w": 8,
         "x": 8,
-        "y": 66
+        "y": 68
       },
       "id": 24,
-      "options": {},
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "expr": "rate(ClickHouseProfileEvents_InsertedRows_total{job=\"clickhouse\"}[5m])",
@@ -1225,17 +3861,82 @@
         "uid": "prometheus"
       },
       "fieldConfig": {
-        "defaults": {},
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
         "overrides": []
       },
       "gridPos": {
         "h": 7,
         "w": 8,
         "x": 16,
-        "y": 66
+        "y": 68
       },
       "id": 25,
-      "options": {},
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "expr": "ClickHouseMetrics_PartsActive{job=\"clickhouse\"}",
@@ -1258,6 +3959,57 @@
       },
       "fieldConfig": {
         "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
           "unit": "bytes"
         },
         "overrides": []
@@ -1266,10 +4018,23 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 73
+        "y": 75
       },
       "id": 26,
-      "options": {},
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "expr": "ClickHouseMetrics_MemoryTracking{job=\"clickhouse\"}",
@@ -1290,6 +4055,54 @@
           "color": {
             "fixedColor": "red",
             "mode": "fixed"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
           }
         },
         "overrides": []
@@ -1298,10 +4111,23 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 73
+        "y": 75
       },
       "id": 27,
-      "options": {},
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "expr": "rate(ClickHouseProfileEvents_FailedQuery_total{job=\"clickhouse\"}[5m])",
@@ -1313,78 +4139,78 @@
       "type": "timeseries"
     },
     {
-      "title": "CPU",
-      "type": "timeseries",
-      "id": 47,
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 15
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
       "gridPos": {
         "h": 6,
         "w": 12,
         "x": 0,
-        "y": 80
+        "y": 82
       },
-      "datasource": {
-        "uid": "prometheus",
-        "type": "prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "custom": {
-            "fillOpacity": 15
-          }
-        },
-        "overrides": []
+      "id": 47,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        }
       },
       "targets": [
         {
           "expr": "sum by (pod) (rate(container_cpu_usage_seconds_total{namespace=\"monitoring\",pod=~\".*clickhouse.*\",container!=\"\"}[$__rate_interval]))",
-          "refId": "A",
-          "legendFormat": "{{pod}}"
+          "legendFormat": "{{pod}}",
+          "refId": "A"
         }
       ],
-      "options": {
-        "legend": {
-          "displayMode": "list",
-          "placement": "bottom"
-        }
-      }
+      "title": "CPU",
+      "type": "timeseries"
     },
     {
-      "title": "Memory",
-      "type": "timeseries",
-      "id": 48,
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 15
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
       "gridPos": {
         "h": 6,
         "w": 12,
         "x": 12,
-        "y": 80
+        "y": 82
       },
-      "datasource": {
-        "uid": "prometheus",
-        "type": "prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "bytes",
-          "custom": {
-            "fillOpacity": 15
-          }
-        },
-        "overrides": []
-      },
-      "targets": [
-        {
-          "expr": "sum by (pod) (container_memory_working_set_bytes{namespace=\"monitoring\",pod=~\".*clickhouse.*\",container!=\"\"})",
-          "refId": "A",
-          "legendFormat": "{{pod}}"
-        }
-      ],
+      "id": 48,
       "options": {
         "legend": {
           "displayMode": "list",
           "placement": "bottom"
         }
-      }
+      },
+      "targets": [
+        {
+          "expr": "sum by (pod) (container_memory_working_set_bytes{namespace=\"monitoring\",pod=~\".*clickhouse.*\",container!=\"\"})",
+          "legendFormat": "{{pod}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Memory",
+      "type": "timeseries"
     },
     {
       "collapsed": false,
@@ -1392,7 +4218,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 86
+        "y": 88
       },
       "id": 28,
       "panels": [],
@@ -1438,15 +4264,15 @@
         "h": 6,
         "w": 6,
         "x": 0,
-        "y": 87
+        "y": 89
       },
       "id": 29,
       "options": {},
       "targets": [
         {
           "expr": "sum(count_over_time({compliance_scope=\"pci\"}[$__range]))",
-          "refId": "A",
-          "instant": true
+          "instant": true,
+          "refId": "A"
         }
       ],
       "title": "PCI Log Lines (via selected Loki)",
@@ -1472,15 +4298,15 @@
         "h": 6,
         "w": 6,
         "x": 6,
-        "y": 87
+        "y": 89
       },
       "id": 30,
       "options": {},
       "targets": [
         {
           "expr": "sum(count_over_time({compliance_scope!=\"pci\",compliance_scope!=\"\"}[$__range]))",
-          "refId": "A",
-          "instant": true
+          "instant": true,
+          "refId": "A"
         }
       ],
       "title": "Non-PCI Log Lines",
@@ -1523,15 +4349,15 @@
         "h": 6,
         "w": 6,
         "x": 12,
-        "y": 87
+        "y": 89
       },
       "id": 31,
       "options": {},
       "targets": [
         {
           "expr": "sum(count_over_time({compliance_scope=\"pci\"}[$__range]))",
-          "refId": "A",
-          "instant": true
+          "instant": true,
+          "refId": "A"
         }
       ],
       "title": "PCI Filter Status",
@@ -1551,7 +4377,7 @@
         "h": 6,
         "w": 6,
         "x": 18,
-        "y": 87
+        "y": 89
       },
       "id": 32,
       "options": {
@@ -1574,1386 +4400,6 @@
       ],
       "title": "Logs by compliance_scope",
       "type": "piechart"
-    },
-    {
-      "title": "OTel CPU",
-      "type": "timeseries",
-      "id": 49,
-      "gridPos": {
-        "h": 5,
-        "w": 6,
-        "x": 0,
-        "y": 1
-      },
-      "datasource": {
-        "uid": "prometheus",
-        "type": "prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "custom": {
-            "fillOpacity": 10,
-            "lineWidth": 1
-          }
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "request"
-            },
-            "properties": [
-              {
-                "id": "custom.lineStyle",
-                "value": {
-                  "fill": "dash",
-                  "dash": [
-                    10,
-                    5
-                  ]
-                }
-              },
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "yellow",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "limit"
-            },
-            "properties": [
-              {
-                "id": "custom.lineStyle",
-                "value": {
-                  "fill": "dash",
-                  "dash": [
-                    5,
-                    5
-                  ]
-                }
-              },
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "red",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          }
-        ]
-      },
-      "targets": [
-        {
-          "expr": "sum(rate(container_cpu_usage_seconds_total{namespace=\"monitoring\",pod=~\".*otel.*\",container!=\"\"}[$__rate_interval]))",
-          "refId": "A",
-          "legendFormat": "usage"
-        },
-        {
-          "expr": "sum(kube_pod_container_resource_requests{namespace=\"monitoring\",pod=~\".*otel.*\",resource=\"cpu\"})",
-          "refId": "B",
-          "legendFormat": "request"
-        },
-        {
-          "expr": "sum(kube_pod_container_resource_limits{namespace=\"monitoring\",pod=~\".*otel.*\",resource=\"cpu\"})",
-          "refId": "C",
-          "legendFormat": "limit"
-        }
-      ],
-      "options": {
-        "legend": {
-          "displayMode": "list",
-          "placement": "bottom"
-        }
-      }
-    },
-    {
-      "title": "OTel Mem",
-      "type": "timeseries",
-      "id": 50,
-      "gridPos": {
-        "h": 5,
-        "w": 6,
-        "x": 0,
-        "y": 6
-      },
-      "datasource": {
-        "uid": "prometheus",
-        "type": "prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "bytes",
-          "custom": {
-            "fillOpacity": 10,
-            "lineWidth": 1
-          }
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "request"
-            },
-            "properties": [
-              {
-                "id": "custom.lineStyle",
-                "value": {
-                  "fill": "dash",
-                  "dash": [
-                    10,
-                    5
-                  ]
-                }
-              },
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "yellow",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "limit"
-            },
-            "properties": [
-              {
-                "id": "custom.lineStyle",
-                "value": {
-                  "fill": "dash",
-                  "dash": [
-                    5,
-                    5
-                  ]
-                }
-              },
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "red",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          }
-        ]
-      },
-      "targets": [
-        {
-          "expr": "sum(container_memory_working_set_bytes{namespace=\"monitoring\",pod=~\".*otel.*\",container!=\"\"})",
-          "refId": "A",
-          "legendFormat": "usage"
-        },
-        {
-          "expr": "sum(kube_pod_container_resource_requests{namespace=\"monitoring\",pod=~\".*otel.*\",resource=\"memory\"})",
-          "refId": "B",
-          "legendFormat": "request"
-        },
-        {
-          "expr": "sum(kube_pod_container_resource_limits{namespace=\"monitoring\",pod=~\".*otel.*\",resource=\"memory\"})",
-          "refId": "C",
-          "legendFormat": "limit"
-        }
-      ],
-      "options": {
-        "legend": {
-          "displayMode": "list",
-          "placement": "bottom"
-        }
-      }
-    },
-    {
-      "title": "Gigapipe CPU",
-      "type": "timeseries",
-      "id": 51,
-      "gridPos": {
-        "h": 5,
-        "w": 6,
-        "x": 6,
-        "y": 1
-      },
-      "datasource": {
-        "uid": "prometheus",
-        "type": "prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "custom": {
-            "fillOpacity": 10,
-            "lineWidth": 1
-          }
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "request"
-            },
-            "properties": [
-              {
-                "id": "custom.lineStyle",
-                "value": {
-                  "fill": "dash",
-                  "dash": [
-                    10,
-                    5
-                  ]
-                }
-              },
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "yellow",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "limit"
-            },
-            "properties": [
-              {
-                "id": "custom.lineStyle",
-                "value": {
-                  "fill": "dash",
-                  "dash": [
-                    5,
-                    5
-                  ]
-                }
-              },
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "red",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          }
-        ]
-      },
-      "targets": [
-        {
-          "expr": "sum(rate(container_cpu_usage_seconds_total{namespace=\"monitoring\",pod=~\".*gigapipe.*\",container!=\"\"}[$__rate_interval]))",
-          "refId": "A",
-          "legendFormat": "usage"
-        },
-        {
-          "expr": "sum(kube_pod_container_resource_requests{namespace=\"monitoring\",pod=~\".*gigapipe.*\",resource=\"cpu\"})",
-          "refId": "B",
-          "legendFormat": "request"
-        },
-        {
-          "expr": "sum(kube_pod_container_resource_limits{namespace=\"monitoring\",pod=~\".*gigapipe.*\",resource=\"cpu\"})",
-          "refId": "C",
-          "legendFormat": "limit"
-        }
-      ],
-      "options": {
-        "legend": {
-          "displayMode": "list",
-          "placement": "bottom"
-        }
-      }
-    },
-    {
-      "title": "Gigapipe Mem",
-      "type": "timeseries",
-      "id": 52,
-      "gridPos": {
-        "h": 5,
-        "w": 6,
-        "x": 6,
-        "y": 6
-      },
-      "datasource": {
-        "uid": "prometheus",
-        "type": "prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "bytes",
-          "custom": {
-            "fillOpacity": 10,
-            "lineWidth": 1
-          }
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "request"
-            },
-            "properties": [
-              {
-                "id": "custom.lineStyle",
-                "value": {
-                  "fill": "dash",
-                  "dash": [
-                    10,
-                    5
-                  ]
-                }
-              },
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "yellow",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "limit"
-            },
-            "properties": [
-              {
-                "id": "custom.lineStyle",
-                "value": {
-                  "fill": "dash",
-                  "dash": [
-                    5,
-                    5
-                  ]
-                }
-              },
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "red",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          }
-        ]
-      },
-      "targets": [
-        {
-          "expr": "sum(container_memory_working_set_bytes{namespace=\"monitoring\",pod=~\".*gigapipe.*\",container!=\"\"})",
-          "refId": "A",
-          "legendFormat": "usage"
-        },
-        {
-          "expr": "sum(kube_pod_container_resource_requests{namespace=\"monitoring\",pod=~\".*gigapipe.*\",resource=\"memory\"})",
-          "refId": "B",
-          "legendFormat": "request"
-        },
-        {
-          "expr": "sum(kube_pod_container_resource_limits{namespace=\"monitoring\",pod=~\".*gigapipe.*\",resource=\"memory\"})",
-          "refId": "C",
-          "legendFormat": "limit"
-        }
-      ],
-      "options": {
-        "legend": {
-          "displayMode": "list",
-          "placement": "bottom"
-        }
-      }
-    },
-    {
-      "title": "ClickHouse CPU",
-      "type": "timeseries",
-      "id": 53,
-      "gridPos": {
-        "h": 5,
-        "w": 6,
-        "x": 12,
-        "y": 1
-      },
-      "datasource": {
-        "uid": "prometheus",
-        "type": "prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "custom": {
-            "fillOpacity": 10,
-            "lineWidth": 1
-          }
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "request"
-            },
-            "properties": [
-              {
-                "id": "custom.lineStyle",
-                "value": {
-                  "fill": "dash",
-                  "dash": [
-                    10,
-                    5
-                  ]
-                }
-              },
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "yellow",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "limit"
-            },
-            "properties": [
-              {
-                "id": "custom.lineStyle",
-                "value": {
-                  "fill": "dash",
-                  "dash": [
-                    5,
-                    5
-                  ]
-                }
-              },
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "red",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          }
-        ]
-      },
-      "targets": [
-        {
-          "expr": "sum(rate(container_cpu_usage_seconds_total{namespace=\"monitoring\",pod=~\".*clickhouse-0.*\",container!=\"\"}[$__rate_interval]))",
-          "refId": "A",
-          "legendFormat": "usage"
-        },
-        {
-          "expr": "sum(kube_pod_container_resource_requests{namespace=\"monitoring\",pod=~\".*clickhouse-0.*\",resource=\"cpu\"})",
-          "refId": "B",
-          "legendFormat": "request"
-        },
-        {
-          "expr": "sum(kube_pod_container_resource_limits{namespace=\"monitoring\",pod=~\".*clickhouse-0.*\",resource=\"cpu\"})",
-          "refId": "C",
-          "legendFormat": "limit"
-        }
-      ],
-      "options": {
-        "legend": {
-          "displayMode": "list",
-          "placement": "bottom"
-        }
-      }
-    },
-    {
-      "title": "ClickHouse Mem",
-      "type": "timeseries",
-      "id": 54,
-      "gridPos": {
-        "h": 5,
-        "w": 6,
-        "x": 12,
-        "y": 6
-      },
-      "datasource": {
-        "uid": "prometheus",
-        "type": "prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "bytes",
-          "custom": {
-            "fillOpacity": 10,
-            "lineWidth": 1
-          }
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "request"
-            },
-            "properties": [
-              {
-                "id": "custom.lineStyle",
-                "value": {
-                  "fill": "dash",
-                  "dash": [
-                    10,
-                    5
-                  ]
-                }
-              },
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "yellow",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "limit"
-            },
-            "properties": [
-              {
-                "id": "custom.lineStyle",
-                "value": {
-                  "fill": "dash",
-                  "dash": [
-                    5,
-                    5
-                  ]
-                }
-              },
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "red",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          }
-        ]
-      },
-      "targets": [
-        {
-          "expr": "sum(container_memory_working_set_bytes{namespace=\"monitoring\",pod=~\".*clickhouse-0.*\",container!=\"\"})",
-          "refId": "A",
-          "legendFormat": "usage"
-        },
-        {
-          "expr": "sum(kube_pod_container_resource_requests{namespace=\"monitoring\",pod=~\".*clickhouse-0.*\",resource=\"memory\"})",
-          "refId": "B",
-          "legendFormat": "request"
-        },
-        {
-          "expr": "sum(kube_pod_container_resource_limits{namespace=\"monitoring\",pod=~\".*clickhouse-0.*\",resource=\"memory\"})",
-          "refId": "C",
-          "legendFormat": "limit"
-        }
-      ],
-      "options": {
-        "legend": {
-          "displayMode": "list",
-          "placement": "bottom"
-        }
-      }
-    },
-    {
-      "title": "Grafana CPU",
-      "type": "timeseries",
-      "id": 55,
-      "gridPos": {
-        "h": 5,
-        "w": 6,
-        "x": 18,
-        "y": 1
-      },
-      "datasource": {
-        "uid": "prometheus",
-        "type": "prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "custom": {
-            "fillOpacity": 10,
-            "lineWidth": 1
-          }
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "request"
-            },
-            "properties": [
-              {
-                "id": "custom.lineStyle",
-                "value": {
-                  "fill": "dash",
-                  "dash": [
-                    10,
-                    5
-                  ]
-                }
-              },
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "yellow",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "limit"
-            },
-            "properties": [
-              {
-                "id": "custom.lineStyle",
-                "value": {
-                  "fill": "dash",
-                  "dash": [
-                    5,
-                    5
-                  ]
-                }
-              },
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "red",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          }
-        ]
-      },
-      "targets": [
-        {
-          "expr": "sum(rate(container_cpu_usage_seconds_total{namespace=\"monitoring\",pod=~\".*grafana.*\",container!=\"\"}[$__rate_interval]))",
-          "refId": "A",
-          "legendFormat": "usage"
-        },
-        {
-          "expr": "sum(kube_pod_container_resource_requests{namespace=\"monitoring\",pod=~\".*grafana.*\",resource=\"cpu\"})",
-          "refId": "B",
-          "legendFormat": "request"
-        },
-        {
-          "expr": "sum(kube_pod_container_resource_limits{namespace=\"monitoring\",pod=~\".*grafana.*\",resource=\"cpu\"})",
-          "refId": "C",
-          "legendFormat": "limit"
-        }
-      ],
-      "options": {
-        "legend": {
-          "displayMode": "list",
-          "placement": "bottom"
-        }
-      }
-    },
-    {
-      "title": "Grafana Mem",
-      "type": "timeseries",
-      "id": 56,
-      "gridPos": {
-        "h": 5,
-        "w": 6,
-        "x": 18,
-        "y": 6
-      },
-      "datasource": {
-        "uid": "prometheus",
-        "type": "prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "bytes",
-          "custom": {
-            "fillOpacity": 10,
-            "lineWidth": 1
-          }
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "request"
-            },
-            "properties": [
-              {
-                "id": "custom.lineStyle",
-                "value": {
-                  "fill": "dash",
-                  "dash": [
-                    10,
-                    5
-                  ]
-                }
-              },
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "yellow",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "limit"
-            },
-            "properties": [
-              {
-                "id": "custom.lineStyle",
-                "value": {
-                  "fill": "dash",
-                  "dash": [
-                    5,
-                    5
-                  ]
-                }
-              },
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "red",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          }
-        ]
-      },
-      "targets": [
-        {
-          "expr": "sum(container_memory_working_set_bytes{namespace=\"monitoring\",pod=~\".*grafana.*\",container!=\"\"})",
-          "refId": "A",
-          "legendFormat": "usage"
-        },
-        {
-          "expr": "sum(kube_pod_container_resource_requests{namespace=\"monitoring\",pod=~\".*grafana.*\",resource=\"memory\"})",
-          "refId": "B",
-          "legendFormat": "request"
-        },
-        {
-          "expr": "sum(kube_pod_container_resource_limits{namespace=\"monitoring\",pod=~\".*grafana.*\",resource=\"memory\"})",
-          "refId": "C",
-          "legendFormat": "limit"
-        }
-      ],
-      "options": {
-        "legend": {
-          "displayMode": "list",
-          "placement": "bottom"
-        }
-      }
-    },
-    {
-      "title": "OTel \u2014 CPU (usage / request / limit)",
-      "type": "timeseries",
-      "id": 57,
-      "gridPos": {
-        "h": 7,
-        "w": 12,
-        "x": 0,
-        "y": 38
-      },
-      "datasource": {
-        "uid": "prometheus",
-        "type": "prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "custom": {
-            "fillOpacity": 15
-          }
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "request"
-            },
-            "properties": [
-              {
-                "id": "custom.lineStyle",
-                "value": {
-                  "fill": "dash",
-                  "dash": [
-                    10,
-                    5
-                  ]
-                }
-              },
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "yellow",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "limit"
-            },
-            "properties": [
-              {
-                "id": "custom.lineStyle",
-                "value": {
-                  "fill": "dash",
-                  "dash": [
-                    5,
-                    5
-                  ]
-                }
-              },
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "red",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          }
-        ]
-      },
-      "targets": [
-        {
-          "expr": "sum(rate(container_cpu_usage_seconds_total{namespace=\"monitoring\",pod=~\".*otel.*\",container!=\"\"}[$__rate_interval]))",
-          "refId": "A",
-          "legendFormat": "usage"
-        },
-        {
-          "expr": "sum(kube_pod_container_resource_requests{namespace=\"monitoring\",pod=~\".*otel.*\",resource=\"cpu\"})",
-          "refId": "B",
-          "legendFormat": "request"
-        },
-        {
-          "expr": "sum(kube_pod_container_resource_limits{namespace=\"monitoring\",pod=~\".*otel.*\",resource=\"cpu\"})",
-          "refId": "C",
-          "legendFormat": "limit"
-        }
-      ],
-      "options": {
-        "legend": {
-          "displayMode": "list",
-          "placement": "bottom"
-        }
-      }
-    },
-    {
-      "title": "OTel \u2014 Memory (usage / request / limit)",
-      "type": "timeseries",
-      "id": 58,
-      "gridPos": {
-        "h": 7,
-        "w": 12,
-        "x": 12,
-        "y": 38
-      },
-      "datasource": {
-        "uid": "prometheus",
-        "type": "prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "bytes",
-          "custom": {
-            "fillOpacity": 15
-          }
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "request"
-            },
-            "properties": [
-              {
-                "id": "custom.lineStyle",
-                "value": {
-                  "fill": "dash",
-                  "dash": [
-                    10,
-                    5
-                  ]
-                }
-              },
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "yellow",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "limit"
-            },
-            "properties": [
-              {
-                "id": "custom.lineStyle",
-                "value": {
-                  "fill": "dash",
-                  "dash": [
-                    5,
-                    5
-                  ]
-                }
-              },
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "red",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          }
-        ]
-      },
-      "targets": [
-        {
-          "expr": "sum(container_memory_working_set_bytes{namespace=\"monitoring\",pod=~\".*otel.*\",container!=\"\"})",
-          "refId": "A",
-          "legendFormat": "usage"
-        },
-        {
-          "expr": "sum(kube_pod_container_resource_requests{namespace=\"monitoring\",pod=~\".*otel.*\",resource=\"memory\"})",
-          "refId": "B",
-          "legendFormat": "request"
-        },
-        {
-          "expr": "sum(kube_pod_container_resource_limits{namespace=\"monitoring\",pod=~\".*otel.*\",resource=\"memory\"})",
-          "refId": "C",
-          "legendFormat": "limit"
-        }
-      ],
-      "options": {
-        "legend": {
-          "displayMode": "list",
-          "placement": "bottom"
-        }
-      }
-    },
-    {
-      "title": "Writer \u2014 CPU (usage / request / limit)",
-      "type": "timeseries",
-      "id": 59,
-      "gridPos": {
-        "h": 6,
-        "w": 6,
-        "x": 0,
-        "y": 59
-      },
-      "datasource": {
-        "uid": "prometheus",
-        "type": "prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "custom": {
-            "fillOpacity": 15
-          }
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "request"
-            },
-            "properties": [
-              {
-                "id": "custom.lineStyle",
-                "value": {
-                  "fill": "dash",
-                  "dash": [
-                    10,
-                    5
-                  ]
-                }
-              },
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "yellow",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "limit"
-            },
-            "properties": [
-              {
-                "id": "custom.lineStyle",
-                "value": {
-                  "fill": "dash",
-                  "dash": [
-                    5,
-                    5
-                  ]
-                }
-              },
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "red",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          }
-        ]
-      },
-      "targets": [
-        {
-          "expr": "sum(rate(container_cpu_usage_seconds_total{namespace=\"monitoring\",pod=~\".*gigapipe-writer.*\",container!=\"\"}[]))",
-          "refId": "A",
-          "legendFormat": "usage"
-        },
-        {
-          "expr": "sum(kube_pod_container_resource_requests{namespace=\"monitoring\",pod=~\".*gigapipe-writer.*\",resource=\"cpu\"})",
-          "refId": "B",
-          "legendFormat": "request"
-        },
-        {
-          "expr": "sum(kube_pod_container_resource_limits{namespace=\"monitoring\",pod=~\".*gigapipe-writer.*\",resource=\"cpu\"})",
-          "refId": "C",
-          "legendFormat": "limit"
-        }
-      ],
-      "options": {
-        "legend": {
-          "displayMode": "list",
-          "placement": "bottom"
-        }
-      }
-    },
-    {
-      "title": "Writer \u2014 Memory (usage / request / limit)",
-      "type": "timeseries",
-      "id": 60,
-      "gridPos": {
-        "h": 6,
-        "w": 6,
-        "x": 6,
-        "y": 59
-      },
-      "datasource": {
-        "uid": "prometheus",
-        "type": "prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "bytes",
-          "custom": {
-            "fillOpacity": 15
-          }
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "request"
-            },
-            "properties": [
-              {
-                "id": "custom.lineStyle",
-                "value": {
-                  "fill": "dash",
-                  "dash": [
-                    10,
-                    5
-                  ]
-                }
-              },
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "yellow",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "limit"
-            },
-            "properties": [
-              {
-                "id": "custom.lineStyle",
-                "value": {
-                  "fill": "dash",
-                  "dash": [
-                    5,
-                    5
-                  ]
-                }
-              },
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "red",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          }
-        ]
-      },
-      "targets": [
-        {
-          "expr": "sum(container_memory_working_set_bytes{namespace=\"monitoring\",pod=~\".*gigapipe-writer.*\",container!=\"\"})",
-          "refId": "A",
-          "legendFormat": "usage"
-        },
-        {
-          "expr": "sum(kube_pod_container_resource_requests{namespace=\"monitoring\",pod=~\".*gigapipe-writer.*\",resource=\"memory\"})",
-          "refId": "B",
-          "legendFormat": "request"
-        },
-        {
-          "expr": "sum(kube_pod_container_resource_limits{namespace=\"monitoring\",pod=~\".*gigapipe-writer.*\",resource=\"memory\"})",
-          "refId": "C",
-          "legendFormat": "limit"
-        }
-      ],
-      "options": {
-        "legend": {
-          "displayMode": "list",
-          "placement": "bottom"
-        }
-      }
-    },
-    {
-      "title": "Readers \u2014 CPU (usage / request / limit)",
-      "type": "timeseries",
-      "id": 61,
-      "gridPos": {
-        "h": 6,
-        "w": 6,
-        "x": 12,
-        "y": 59
-      },
-      "datasource": {
-        "uid": "prometheus",
-        "type": "prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "custom": {
-            "fillOpacity": 15
-          }
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "request"
-            },
-            "properties": [
-              {
-                "id": "custom.lineStyle",
-                "value": {
-                  "fill": "dash",
-                  "dash": [
-                    10,
-                    5
-                  ]
-                }
-              },
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "yellow",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "limit"
-            },
-            "properties": [
-              {
-                "id": "custom.lineStyle",
-                "value": {
-                  "fill": "dash",
-                  "dash": [
-                    5,
-                    5
-                  ]
-                }
-              },
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "red",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          }
-        ]
-      },
-      "targets": [
-        {
-          "expr": "sum(rate(container_cpu_usage_seconds_total{namespace=\"monitoring\",pod=~\".*gigapipe-reader.*\",container!=\"\"}[]))",
-          "refId": "A",
-          "legendFormat": "usage"
-        },
-        {
-          "expr": "sum(kube_pod_container_resource_requests{namespace=\"monitoring\",pod=~\".*gigapipe-reader.*\",resource=\"cpu\"})",
-          "refId": "B",
-          "legendFormat": "request"
-        },
-        {
-          "expr": "sum(kube_pod_container_resource_limits{namespace=\"monitoring\",pod=~\".*gigapipe-reader.*\",resource=\"cpu\"})",
-          "refId": "C",
-          "legendFormat": "limit"
-        }
-      ],
-      "options": {
-        "legend": {
-          "displayMode": "list",
-          "placement": "bottom"
-        }
-      }
-    },
-    {
-      "title": "Readers \u2014 Memory (usage / request / limit)",
-      "type": "timeseries",
-      "id": 62,
-      "gridPos": {
-        "h": 6,
-        "w": 6,
-        "x": 18,
-        "y": 59
-      },
-      "datasource": {
-        "uid": "prometheus",
-        "type": "prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "bytes",
-          "custom": {
-            "fillOpacity": 15
-          }
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "request"
-            },
-            "properties": [
-              {
-                "id": "custom.lineStyle",
-                "value": {
-                  "fill": "dash",
-                  "dash": [
-                    10,
-                    5
-                  ]
-                }
-              },
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "yellow",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "limit"
-            },
-            "properties": [
-              {
-                "id": "custom.lineStyle",
-                "value": {
-                  "fill": "dash",
-                  "dash": [
-                    5,
-                    5
-                  ]
-                }
-              },
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "red",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          }
-        ]
-      },
-      "targets": [
-        {
-          "expr": "sum(container_memory_working_set_bytes{namespace=\"monitoring\",pod=~\".*gigapipe-reader.*\",container!=\"\"})",
-          "refId": "A",
-          "legendFormat": "usage"
-        },
-        {
-          "expr": "sum(kube_pod_container_resource_requests{namespace=\"monitoring\",pod=~\".*gigapipe-reader.*\",resource=\"memory\"})",
-          "refId": "B",
-          "legendFormat": "request"
-        },
-        {
-          "expr": "sum(kube_pod_container_resource_limits{namespace=\"monitoring\",pod=~\".*gigapipe-reader.*\",resource=\"memory\"})",
-          "refId": "C",
-          "legendFormat": "limit"
-        }
-      ],
-      "options": {
-        "legend": {
-          "displayMode": "list",
-          "placement": "bottom"
-        }
-      }
     }
   ],
   "preload": false,
@@ -3038,5 +4484,5 @@
   "timezone": "",
   "title": "Monitoring Stack",
   "uid": "monitoring-meta",
-  "version": 4
+  "version": 8
 }
