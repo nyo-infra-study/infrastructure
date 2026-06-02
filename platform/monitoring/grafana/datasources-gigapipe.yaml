@@ -91,3 +91,35 @@ datasources:
         uid: pyroscope
         url: http://dev-monitoring-gigapipe-reader-pci.monitoring.svc.cluster.local:3100
         access: proxy
+
+      # ── ClickHouse PCI (direct SQL — read-only, full access) ──
+      - name: "ClickHouse (PCI)"
+        type: grafana-clickhouse-datasource
+        uid: clickhouse-pci
+        access: proxy
+        jsonData:
+          host: dev-monitoring-clickhouse.monitoring.svc.cluster.local
+          port: 8123
+          protocol: http
+          username: user_all
+          defaultDatabase: otel
+          dialTimeout: "10"
+          queryTimeout: "60"
+        secureJsonData:
+          password: all_pass
+
+      # ── ClickHouse Non-PCI (direct SQL — read-only, PCI logs filtered) ──
+      - name: "ClickHouse (Non-PCI)"
+        type: grafana-clickhouse-datasource
+        uid: clickhouse-nonpci
+        access: proxy
+        jsonData:
+          host: dev-monitoring-clickhouse.monitoring.svc.cluster.local
+          port: 8123
+          protocol: http
+          username: user_nonpci
+          defaultDatabase: otel
+          dialTimeout: "10"
+          queryTimeout: "60"
+        secureJsonData:
+          password: nonpci_pass

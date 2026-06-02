@@ -4554,7 +4554,7 @@
         "h": 6,
         "w": 12,
         "x": 0,
-        "y": 90
+        "y": 98
       },
       "id": 47,
       "options": {
@@ -4591,7 +4591,7 @@
         "h": 6,
         "w": 12,
         "x": 12,
-        "y": 90
+        "y": 98
       },
       "id": 48,
       "options": {
@@ -4616,7 +4616,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 96
+        "y": 104
       },
       "id": 28,
       "panels": [],
@@ -4662,7 +4662,7 @@
         "h": 6,
         "w": 6,
         "x": 0,
-        "y": 97
+        "y": 105
       },
       "id": 29,
       "options": {},
@@ -4696,7 +4696,7 @@
         "h": 6,
         "w": 6,
         "x": 6,
-        "y": 97
+        "y": 105
       },
       "id": 30,
       "options": {},
@@ -4747,7 +4747,7 @@
         "h": 6,
         "w": 6,
         "x": 12,
-        "y": 97
+        "y": 105
       },
       "id": 31,
       "options": {},
@@ -4775,7 +4775,7 @@
         "h": 6,
         "w": 6,
         "x": 18,
-        "y": 97
+        "y": 105
       },
       "id": 32,
       "options": {
@@ -4801,7 +4801,7 @@
     },
     {
       "title": "CH \u2014 Recent Failed Queries",
-      "description": "Last 20 failed queries from system.query_log. Shows whether it was a SELECT or INSERT failure.",
+      "description": "Last 20 failed queries from system.query_log, categorized by INSERT/SELECT.",
       "type": "table",
       "id": 74,
       "gridPos": {
@@ -4812,11 +4812,11 @@
       },
       "datasource": {
         "type": "grafana-clickhouse-datasource",
-        "uid": "$ds_clickhouse"
+        "uid": "clickhouse-pci"
       },
       "targets": [
         {
-          "rawSql": "SELECT\n    event_time,\n    if(query_kind = 'Insert', 'INSERT', 'SELECT') AS type,\n    query_duration_ms,\n    read_rows,\n    splitByChar('\n', exception)[1] AS error,\n    substring(query, 1, 120) AS query_preview\nFROM system.query_log\nWHERE type = 'ExceptionWhileProcessing'\n    AND event_time >= now() - INTERVAL 1 HOUR\nORDER BY event_time DESC\nLIMIT 20",
+          "rawSql": "SELECT\n    event_time,\n    if(query_kind = 'Insert', 'INSERT', 'SELECT') AS type,\n    query_duration_ms,\n    read_rows,\n    splitByChar('\\n', exception)[1] AS error,\n    substring(query, 1, 120) AS query_preview\nFROM system.query_log\nWHERE type = 'ExceptionWhileProcessing'\n    AND event_time >= now() - INTERVAL 1 HOUR\nORDER BY event_time DESC\nLIMIT 20",
           "refId": "A",
           "format": "table"
         }
@@ -4938,16 +4938,6 @@
         "query": "loki",
         "refresh": 1,
         "type": "datasource"
-      },
-      {
-        "name": "ds_clickhouse",
-        "type": "datasource",
-        "query": "grafana-clickhouse-datasource",
-        "current": {
-          "text": "ClickHouse",
-          "value": "clickhouse"
-        },
-        "label": "ClickHouse"
       }
     ]
   },
