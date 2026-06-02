@@ -4812,7 +4812,7 @@
       },
       "datasource": {
         "type": "grafana-clickhouse-datasource",
-        "uid": "clickhouse-pci"
+        "uid": "$ds_clickhouse"
       },
       "targets": [
         {
@@ -4938,6 +4938,16 @@
         "query": "loki",
         "refresh": 1,
         "type": "datasource"
+      },
+      {
+        "name": "ds_clickhouse",
+        "type": "datasource",
+        "query": "grafana-clickhouse-datasource",
+        "current": {
+          "text": "ClickHouse (PCI)",
+          "value": "clickhouse-pci"
+        },
+        "label": "ClickHouse"
       }
     ]
   },

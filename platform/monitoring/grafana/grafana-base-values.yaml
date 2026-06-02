@@ -48,6 +48,7 @@ plugins:
   - netsage-sankey-panel 1.1.4
   - grafana-polystat-panel 2.1.16
   - briangann-datatable-panel 2.0.2
+  - grafana-clickhouse-datasource 4.17.0
 
 # ── Dashboard Provisioning (auto-loaded from ConfigMaps) ──
 sidecar:
