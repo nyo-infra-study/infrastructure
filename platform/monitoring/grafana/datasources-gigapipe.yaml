@@ -27,8 +27,8 @@ datasources:
         access: proxy
         jsonData:
           timeInterval: "15s"
-          queryTimeout: "60s"
           httpMethod: POST
+          timeout: 60
           exemplarTraceIdDestinations:
             - datasourceUid: tempo
               name: trace_id
@@ -40,7 +40,7 @@ datasources:
         url: http://dev-monitoring-gigapipe-reader-pci.monitoring.svc.cluster.local:3100
         access: proxy
         jsonData:
-          queryTimeout: "60s"
+          timeout: 60
           tracesToLogsV2:
             datasourceUid: loki-pci
             filterByTraceID: true
