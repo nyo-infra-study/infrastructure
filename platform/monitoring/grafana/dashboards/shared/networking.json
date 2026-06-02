@@ -43,7 +43,7 @@
         {
           "expr": "sum(rate(traefik_entrypoint_requests_total{entrypoint=~\"$entrypoint\"}[$__rate_interval]))",
           "refId": "A",
-          "instant": true
+          "range": true
         }
       ]
     },
@@ -86,7 +86,7 @@
         {
           "expr": "sum(rate(traefik_entrypoint_requests_total{entrypoint=~\"$entrypoint\",code=~\"4..|5..\"}[$__rate_interval]))",
           "refId": "A",
-          "instant": true
+          "range": true
         }
       ]
     },
@@ -117,7 +117,7 @@
         {
           "expr": "histogram_quantile(0.50, sum(rate(traefik_entrypoint_request_duration_seconds_bucket{entrypoint=~\"$entrypoint\"}[$__rate_interval])) by (le))",
           "refId": "A",
-          "instant": true
+          "range": true
         }
       ]
     },
@@ -160,7 +160,7 @@
         {
           "expr": "histogram_quantile(0.95, sum(rate(traefik_entrypoint_request_duration_seconds_bucket{entrypoint=~\"$entrypoint\"}[$__rate_interval])) by (le))",
           "refId": "A",
-          "instant": true
+          "range": true
         }
       ]
     },
@@ -203,7 +203,7 @@
         {
           "expr": "histogram_quantile(0.99, sum(rate(traefik_entrypoint_request_duration_seconds_bucket{entrypoint=~\"$entrypoint\"}[$__rate_interval])) by (le))",
           "refId": "A",
-          "instant": true
+          "range": true
         }
       ]
     },
@@ -234,7 +234,7 @@
         {
           "expr": "sum(rate(traefik_entrypoint_request_duration_seconds_sum{entrypoint=~\"$entrypoint\"}[$__rate_interval])) / sum(rate(traefik_entrypoint_request_duration_seconds_count{entrypoint=~\"$entrypoint\"}[$__rate_interval]))",
           "refId": "A",
-          "instant": true
+          "range": true
         }
       ]
     },

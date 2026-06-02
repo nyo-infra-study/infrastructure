@@ -43,7 +43,7 @@
         {
           "expr": "sum(rate(traces_spanmetrics_calls_total{service_name=\"$service\"}[$__rate_interval]))",
           "refId": "A",
-          "instant": true
+          "range": true
         }
       ]
     },
@@ -86,7 +86,7 @@
         {
           "expr": "sum(rate(traces_spanmetrics_calls_total{service_name=\"$service\",status_code=\"STATUS_CODE_ERROR\"}[$__rate_interval]))",
           "refId": "A",
-          "instant": true
+          "range": true
         }
       ]
     },
@@ -129,7 +129,7 @@
         {
           "expr": "sum(rate(traces_spanmetrics_calls_total{service_name=\"$service\",status_code=\"STATUS_CODE_ERROR\"}[$__rate_interval])) / sum(rate(traces_spanmetrics_calls_total{service_name=\"$service\"}[$__rate_interval]))",
           "refId": "A",
-          "instant": true
+          "range": true
         }
       ]
     },
@@ -160,7 +160,7 @@
         {
           "expr": "histogram_quantile(0.50, sum(rate(traces_spanmetrics_duration_seconds_bucket{service_name=\"$service\"}[$__rate_interval])) by (le))",
           "refId": "A",
-          "instant": true
+          "range": true
         }
       ]
     },
@@ -203,7 +203,7 @@
         {
           "expr": "histogram_quantile(0.95, sum(rate(traces_spanmetrics_duration_seconds_bucket{service_name=\"$service\"}[$__rate_interval])) by (le))",
           "refId": "A",
-          "instant": true
+          "range": true
         }
       ]
     },
@@ -246,7 +246,7 @@
         {
           "expr": "histogram_quantile(0.99, sum(rate(traces_spanmetrics_duration_seconds_bucket{service_name=\"$service\"}[$__rate_interval])) by (le))",
           "refId": "A",
-          "instant": true
+          "range": true
         }
       ]
     },
@@ -277,7 +277,7 @@
         {
           "expr": "count(kube_pod_status_phase{phase=\"Running\",pod=~\"$service.*\"})",
           "refId": "A",
-          "instant": true
+          "range": true
         }
       ]
     },
