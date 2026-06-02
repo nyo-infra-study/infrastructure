@@ -21,6 +21,10 @@ spec:
         app.kubernetes.io/instance: {{ .Release.Name }}
         app.kubernetes.io/component: writer
     spec:
+      initContainers:
+        - name: wait-for-clickhouse
+          image: busybox:1.36
+          command: ['sh', '-c', 'until nc -z {{ .Values.writer.clickhouse.server }} {{ .Values.writer.clickhouse.port }}; do echo "Waiting for ClickHouse..."; sleep 2; done']
       containers:
         - name: gigapipe
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"

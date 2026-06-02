@@ -21,6 +21,10 @@ spec:
         app.kubernetes.io/instance: {{ .Release.Name }}
         app.kubernetes.io/component: reader-pci
     spec:
+      initContainers:
+        - name: wait-for-clickhouse
+          image: busybox:1.36
+          command: ['sh', '-c', 'until nc -z {{ .Values.readerPci.clickhouse.server }} {{ .Values.readerPci.clickhouse.port }}; do echo "Waiting for ClickHouse..."; sleep 2; done']
       containers:
         - name: gigapipe
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -80,6 +84,10 @@ spec:
         app.kubernetes.io/instance: {{ .Release.Name }}
         app.kubernetes.io/component: reader-nonpci
     spec:
+      initContainers:
+        - name: wait-for-clickhouse
+          image: busybox:1.36
+          command: ['sh', '-c', 'until nc -z {{ .Values.readerNonpci.clickhouse.server }} {{ .Values.readerNonpci.clickhouse.port }}; do echo "Waiting for ClickHouse..."; sleep 2; done']
       containers:
         - name: gigapipe
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
