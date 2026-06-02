@@ -1822,72 +1822,30 @@
       },
       "id": 27,
       "panels": [],
-      "title": "Application List",
+      "title": "Problem Details",
       "type": "row"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "mappings": []
-        },
-        "overrides": []
-      },
+      "title": "Unhealthy / OutOfSync Apps",
+      "type": "table",
       "gridPos": {
-        "h": 21,
-        "w": 24,
+        "h": 7,
+        "w": 12,
         "x": 0,
         "y": 41
       },
-      "id": 28,
-      "options": {
-        "alignNumbersToRightEnabled": true,
-        "columnAliases": [],
-        "columnFiltersEnabled": false,
-        "columnSorting": [
-          {
-            "index": 0,
-            "order": "desc"
-          }
-        ],
-        "columnStylesConfig": [],
-        "columnWidthHints": [],
-        "compactRowsEnabled": true,
-        "datatablePagingType": "simple_numbers",
-        "emptyDataEnabled": true,
-        "emptyDataText": "",
-        "fontSizePercent": "100%",
-        "hoverEnabled": true,
-        "infoEnabled": true,
-        "lengthChangeEnabled": true,
-        "orderColumnEnabled": true,
-        "rowNumbersEnabled": true,
-        "rowsPerPage": 5,
-        "scroll": true,
-        "scrollingEnabled": true,
-        "searchEnabled": true,
-        "searchHighlightingEnabled": true,
-        "searchPosition": "top-right",
-        "stripedRowsEnabled": true,
-        "transformation": "timeseries-to-columns",
-        "transformationAggregations": [
-          "last"
-        ],
-        "wrapToFitEnabled": true
+      "datasource": {
+        "uid": "prometheus",
+        "type": "prometheus"
       },
-      "pluginVersion": "2.0.2",
       "targets": [
         {
-          "expr": "argocd_app_info",
+          "expr": "argocd_app_info{health_status!=\"Healthy\"} or argocd_app_info{sync_status=\"OutOfSync\"}",
+          "refId": "A",
           "format": "table",
-          "instant": true,
-          "refId": "A"
+          "range": true
         }
       ],
-      "title": "Applications",
       "transformations": [
         {
           "id": "organize",
@@ -1896,32 +1854,94 @@
               "Time": true,
               "Value": true,
               "__name__": true,
-              "autosync_enabled": true,
-              "dest_server": true,
-              "exported_namespace": true,
-              "instance": true,
               "job": true,
+              "instance": true,
+              "exported_namespace": true,
+              "dest_server": true,
               "namespace": true,
-              "repo": true
+              "autosync_enabled": true,
+              "repo": true,
+              "project": true
             },
             "indexByName": {
+              "name": 0,
               "dest_namespace": 1,
               "health_status": 2,
-              "name": 0,
-              "project": 4,
               "sync_status": 3
             },
             "renameByName": {
+              "name": "App",
               "dest_namespace": "Namespace",
               "health_status": "Health",
-              "name": "App",
-              "project": "Project",
               "sync_status": "Sync"
             }
           }
         }
       ],
-      "type": "briangann-datatable-panel"
+      "options": {
+        "showHeader": true,
+        "sortBy": [
+          {
+            "displayName": "Health",
+            "desc": true
+          }
+        ]
+      },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      }
+    },
+    {
+      "title": "Flapping Apps (>3 syncs in 15m)",
+      "type": "table",
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 12,
+        "y": 41
+      },
+      "datasource": {
+        "uid": "prometheus",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "topk(10, sum by (name) (increase(argocd_app_sync_total[15m])) > 3)",
+          "refId": "A",
+          "format": "table",
+          "instant": true
+        }
+      ],
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true
+            },
+            "renameByName": {
+              "name": "App",
+              "Value": "Syncs (15m)"
+            }
+          }
+        }
+      ],
+      "options": {
+        "showHeader": true,
+        "sortBy": [
+          {
+            "displayName": "Syncs (15m)",
+            "desc": true
+          }
+        ]
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      }
     }
   ],
   "preload": false,
