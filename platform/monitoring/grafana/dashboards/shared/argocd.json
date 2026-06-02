@@ -405,10 +405,10 @@
           },
           "expr": "sum(argocd_app_info{namespace=~\"$namespace\"})",
           "format": "time_series",
-          "instant": true,
           "intervalFactor": 1,
           "legendFormat": "",
-          "refId": "A"
+          "refId": "A",
+          "range": true
         }
       ],
       "title": "Operations",

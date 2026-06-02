@@ -173,14 +173,14 @@
         {
           "expr": "sum(rate(otelcol_receiver_accepted_log_records_total{service_name=\"otel-collector\"}[$__rate_interval]))",
           "refId": "A",
-          "instant": true,
-          "legendFormat": "received/s"
+          "legendFormat": "received/s",
+          "range": true
         },
         {
           "expr": "sum(rate(otelcol_exporter_sent_log_records_total{service_name=\"otel-collector\"}[$__rate_interval]))",
           "refId": "B",
-          "instant": true,
-          "legendFormat": "exported/s"
+          "legendFormat": "exported/s",
+          "range": true
         }
       ]
     },
@@ -211,14 +211,14 @@
         {
           "expr": "sum(rate(otelcol_receiver_accepted_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval]))",
           "refId": "A",
-          "instant": true,
-          "legendFormat": "received/s"
+          "legendFormat": "received/s",
+          "range": true
         },
         {
           "expr": "sum(rate(otelcol_exporter_sent_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval]))",
           "refId": "B",
-          "instant": true,
-          "legendFormat": "exported/s"
+          "legendFormat": "exported/s",
+          "range": true
         }
       ]
     },
@@ -249,14 +249,14 @@
         {
           "expr": "sum(rate(otelcol_receiver_accepted_spans_total{service_name=\"otel-collector\"}[$__rate_interval]))",
           "refId": "A",
-          "instant": true,
-          "legendFormat": "received/s"
+          "legendFormat": "received/s",
+          "range": true
         },
         {
           "expr": "sum(rate(otelcol_exporter_sent_spans_total{service_name=\"otel-collector\"}[$__rate_interval]))",
           "refId": "B",
-          "instant": true,
-          "legendFormat": "exported/s"
+          "legendFormat": "exported/s",
+          "range": true
         }
       ]
     }

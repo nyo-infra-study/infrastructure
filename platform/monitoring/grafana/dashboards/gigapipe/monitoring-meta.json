@@ -259,8 +259,8 @@
       "targets": [
         {
           "expr": "sum(scrape_samples_scraped{job=~\"$job\"})",
-          "instant": true,
-          "refId": "A"
+          "refId": "A",
+          "range": true
         }
       ],
       "title": "\u2460 Scraped (raw/s)",
@@ -324,8 +324,8 @@
       "targets": [
         {
           "expr": "sum(rate(otelcol_exporter_sent_metric_points_total{service_name=\"otel-collector\"}[5m]))",
-          "instant": true,
-          "refId": "A"
+          "refId": "A",
+          "range": true
         }
       ],
       "title": "\u2461 Stored (rate/s)",
@@ -389,8 +389,8 @@
       "targets": [
         {
           "expr": "rate(ClickHouseProfileEvents_SelectQuery_total{service_name=\"clickhouse\"}[5m])",
-          "instant": true,
-          "refId": "A"
+          "refId": "A",
+          "range": true
         }
       ],
       "title": "\u2462 Queried (queries/s)",
@@ -454,8 +454,8 @@
       "targets": [
         {
           "expr": "1 - (sum(rate(otelcol_exporter_sent_metric_points_total{service_name=\"otel-collector\"}[5m])) / sum(rate(otelcol_processor_incoming_items_total{service_name=\"otel-collector\"}[5m])))",
-          "instant": true,
-          "refId": "A"
+          "refId": "A",
+          "range": true
         }
       ],
       "title": "Filter Efficiency",
@@ -519,8 +519,8 @@
       "targets": [
         {
           "expr": "ClickHouseMetrics_PartsActive{job=\"clickhouse\"}",
-          "instant": true,
-          "refId": "A"
+          "refId": "A",
+          "range": true
         }
       ],
       "title": "CH Active Parts",
@@ -584,8 +584,8 @@
       "targets": [
         {
           "expr": "ClickHouseMetrics_MemoryTracking{job=\"clickhouse\"}",
-          "instant": true,
-          "refId": "A"
+          "refId": "A",
+          "range": true
         }
       ],
       "title": "CH Memory",
@@ -1474,8 +1474,8 @@
       "targets": [
         {
           "expr": "count_over_time({compliance_scope=\"pci\"}[$__range])",
-          "instant": true,
-          "refId": "A"
+          "refId": "A",
+          "range": true
         }
       ],
       "title": "PCI Log Lines (via selected Loki)",
@@ -1508,8 +1508,8 @@
       "targets": [
         {
           "expr": "count_over_time({compliance_scope!=\"pci\",compliance_scope!=\"\"}[$__range])",
-          "instant": true,
-          "refId": "A"
+          "refId": "A",
+          "range": true
         }
       ],
       "title": "Non-PCI Log Lines",
@@ -1559,8 +1559,8 @@
       "targets": [
         {
           "expr": "count_over_time({compliance_scope=\"pci\"}[$__range])",
-          "instant": true,
-          "refId": "A"
+          "refId": "A",
+          "range": true
         }
       ],
       "title": "PCI Filter Status",

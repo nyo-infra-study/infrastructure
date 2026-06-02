@@ -44,8 +44,8 @@
         {
           "expr": "ClickHouseAsyncMetrics_TotalBytesOfMergeTreeTables{job=\"clickhouse\"} - ClickHouseAsyncMetrics_TotalBytesOfMergeTreeTablesSystem{job=\"clickhouse\"}",
           "refId": "A",
-          "instant": true,
-          "legendFormat": "data size"
+          "legendFormat": "data size",
+          "range": true
         }
       ]
     },
@@ -77,8 +77,8 @@
         {
           "expr": "ClickHouseMetrics_PartsActive{job=\"clickhouse\"}",
           "refId": "A",
-          "instant": true,
-          "legendFormat": "active parts"
+          "legendFormat": "active parts",
+          "range": true
         }
       ]
     },
@@ -110,8 +110,8 @@
         {
           "expr": "ClickHouseAsyncMetrics_TotalRowsOfMergeTreeTables{job=\"clickhouse\"}",
           "refId": "A",
-          "instant": true,
-          "legendFormat": "rows"
+          "legendFormat": "rows",
+          "range": true
         }
       ]
     },
@@ -155,8 +155,8 @@
         {
           "expr": "ClickHouseMetrics_MemoryTracking{job=\"clickhouse\"}",
           "refId": "A",
-          "instant": true,
-          "legendFormat": "memory"
+          "legendFormat": "memory",
+          "range": true
         }
       ]
     },
@@ -334,8 +334,8 @@
         {
           "expr": "ClickHouseMetrics_Query{job=\"clickhouse\"}",
           "refId": "A",
-          "instant": true,
-          "legendFormat": "running"
+          "legendFormat": "running",
+          "range": true
         }
       ]
     },

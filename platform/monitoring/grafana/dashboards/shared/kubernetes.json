@@ -43,7 +43,7 @@
         {
           "expr": "sum(kube_pod_status_phase{phase=\"Running\",namespace=~\"$namespace\"})",
           "refId": "A",
-          "instant": true
+          "range": true
         }
       ]
     },
@@ -86,7 +86,7 @@
         {
           "expr": "sum(kube_pod_status_phase{phase=\"Pending\",namespace=~\"$namespace\"})",
           "refId": "A",
-          "instant": true
+          "range": true
         }
       ]
     },
@@ -129,7 +129,7 @@
         {
           "expr": "sum(increase(kube_pod_container_status_restarts_total{namespace=~\"$namespace\"}[1h]))",
           "refId": "A",
-          "instant": true
+          "range": true
         }
       ]
     },
@@ -168,7 +168,7 @@
         {
           "expr": "sum(increase(container_oom_events_total{namespace=~\"$namespace\"}[1h]))",
           "refId": "A",
-          "instant": true
+          "range": true
         }
       ]
     },
@@ -213,7 +213,7 @@
         {
           "expr": "sum(rate(node_cpu_seconds_total{mode!=\"idle\"}[$__rate_interval])) / sum(rate(node_cpu_seconds_total[$__rate_interval]))",
           "refId": "A",
-          "instant": true
+          "range": true
         }
       ]
     },
@@ -258,7 +258,7 @@
         {
           "expr": "1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)",
           "refId": "A",
-          "instant": true
+          "range": true
         }
       ]
     },
