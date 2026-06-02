@@ -1,76 +1,1050 @@
 {
-  "annotations": { "list": [] },
+  "annotations": {
+    "list": []
+  },
   "editable": true,
   "graphTooltip": 1,
   "refresh": "10s",
   "panels": [
-    { "collapsed": false, "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 }, "title": "Problems", "type": "row" },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "title": "Problems",
+      "type": "row"
+    },
     {
       "title": "Stuck OutOfSync (>5m)",
       "type": "stat",
-      "gridPos": { "h": 3, "w": 6, "x": 0, "y": 1 },
-      "datasource": { "uid": "prometheus", "type": "prometheus" },
-      "targets": [{ "expr": "count(argocd_app_info{sync_status=\"OutOfSync\"} offset 5m and argocd_app_info{sync_status=\"OutOfSync\"}) or vector(0)", "refId": "A", "instant": true }],
-      "fieldConfig": { "defaults": { "unit": "short", "thresholds": { "mode": "absolute", "steps": [{ "value": null, "color": "green" }, { "value": 1, "color": "yellow" }, { "value": 2, "color": "red" }] } }, "overrides": [] }
+      "gridPos": {
+        "h": 3,
+        "w": 6,
+        "x": 0,
+        "y": 1
+      },
+      "datasource": {
+        "uid": "prometheus",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "count(argocd_app_info{sync_status=\"OutOfSync\"} offset 5m and argocd_app_info{sync_status=\"OutOfSync\"}) or vector(0)",
+          "refId": "A",
+          "instant": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "green"
+              },
+              {
+                "value": 1,
+                "color": "yellow"
+              },
+              {
+                "value": 2,
+                "color": "red"
+              }
+            ]
+          }
+        },
+        "overrides": []
+      }
     },
     {
       "title": "Degraded Apps",
       "type": "stat",
-      "gridPos": { "h": 3, "w": 6, "x": 6, "y": 1 },
-      "datasource": { "uid": "prometheus", "type": "prometheus" },
-      "targets": [{ "expr": "count(argocd_app_info{health_status=\"Degraded\"}) or vector(0)", "refId": "A", "instant": true }],
-      "fieldConfig": { "defaults": { "unit": "short", "thresholds": { "mode": "absolute", "steps": [{ "value": null, "color": "green" }, { "value": 1, "color": "red" }] } }, "overrides": [] }
+      "gridPos": {
+        "h": 3,
+        "w": 6,
+        "x": 6,
+        "y": 1
+      },
+      "datasource": {
+        "uid": "prometheus",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "count(argocd_app_info{health_status=\"Degraded\"}) or vector(0)",
+          "refId": "A",
+          "instant": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "green"
+              },
+              {
+                "value": 1,
+                "color": "red"
+              }
+            ]
+          }
+        },
+        "overrides": []
+      }
     },
     {
       "title": "Flapping Apps",
       "type": "stat",
-      "gridPos": { "h": 3, "w": 6, "x": 12, "y": 1 },
-      "datasource": { "uid": "prometheus", "type": "prometheus" },
-      "targets": [{ "expr": "count(count by (name) (increase(argocd_app_sync_total[15m]) > 3)) or vector(0)", "refId": "A", "instant": true }],
-      "fieldConfig": { "defaults": { "unit": "short", "thresholds": { "mode": "absolute", "steps": [{ "value": null, "color": "green" }, { "value": 1, "color": "yellow" }, { "value": 3, "color": "red" }] } }, "overrides": [] }
+      "gridPos": {
+        "h": 3,
+        "w": 6,
+        "x": 12,
+        "y": 1
+      },
+      "datasource": {
+        "uid": "prometheus",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "count(count by (name) (increase(argocd_app_sync_total[15m]) > 3)) or vector(0)",
+          "refId": "A",
+          "instant": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "green"
+              },
+              {
+                "value": 1,
+                "color": "yellow"
+              },
+              {
+                "value": 3,
+                "color": "red"
+              }
+            ]
+          }
+        },
+        "overrides": []
+      }
     },
     {
       "title": "Slowest Reconcile",
       "type": "stat",
-      "gridPos": { "h": 3, "w": 6, "x": 18, "y": 1 },
-      "datasource": { "uid": "prometheus", "type": "prometheus" },
-      "targets": [{ "expr": "max(histogram_quantile(0.95, sum by (name, le) (rate(argocd_app_reconcile_bucket[$__rate_interval])))) or vector(0)", "refId": "A", "instant": true }],
-      "fieldConfig": { "defaults": { "unit": "s", "thresholds": { "mode": "absolute", "steps": [{ "value": null, "color": "green" }, { "value": 30, "color": "yellow" }, { "value": 120, "color": "red" }] } }, "overrides": [] }
+      "gridPos": {
+        "h": 3,
+        "w": 6,
+        "x": 18,
+        "y": 1
+      },
+      "datasource": {
+        "uid": "prometheus",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "max(histogram_quantile(0.95, sum by (name, le) (rate(argocd_app_reconcile_bucket[$__rate_interval])))) or vector(0)",
+          "refId": "A",
+          "instant": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "green"
+              },
+              {
+                "value": 30,
+                "color": "yellow"
+              },
+              {
+                "value": 120,
+                "color": "red"
+              }
+            ]
+          }
+        },
+        "overrides": []
+      }
     },
-
-    { "collapsed": false, "gridPos": { "h": 1, "w": 24, "x": 0, "y": 4 }, "title": "Overview", "type": "row" },
-    { "title": "Applications", "type": "stat", "gridPos": { "h": 3, "w": 4, "x": 0, "y": 5 }, "datasource": { "uid": "prometheus", "type": "prometheus" }, "fieldConfig": { "defaults": { "unit": "short", "color": { "mode": "fixed", "fixedColor": "blue" } }, "overrides": [] }, "targets": [{ "expr": "count(argocd_app_info)", "refId": "A", "range": true }] },
-    { "title": "Healthy", "type": "stat", "gridPos": { "h": 3, "w": 4, "x": 4, "y": 5 }, "datasource": { "uid": "prometheus", "type": "prometheus" }, "fieldConfig": { "defaults": { "unit": "short", "color": { "mode": "fixed", "fixedColor": "green" } }, "overrides": [] }, "targets": [{ "expr": "count(argocd_app_info{health_status=\"Healthy\"})", "refId": "A", "range": true }] },
-    { "title": "Degraded", "type": "stat", "gridPos": { "h": 3, "w": 4, "x": 8, "y": 5 }, "datasource": { "uid": "prometheus", "type": "prometheus" }, "fieldConfig": { "defaults": { "unit": "short", "thresholds": { "mode": "absolute", "steps": [{ "value": null, "color": "green" }, { "value": 1, "color": "red" }] } }, "overrides": [] }, "targets": [{ "expr": "count(argocd_app_info{health_status=\"Degraded\"}) or vector(0)", "refId": "A", "range": true }] },
-    { "title": "Synced", "type": "stat", "gridPos": { "h": 3, "w": 4, "x": 12, "y": 5 }, "datasource": { "uid": "prometheus", "type": "prometheus" }, "fieldConfig": { "defaults": { "unit": "short", "color": { "mode": "fixed", "fixedColor": "green" } }, "overrides": [] }, "targets": [{ "expr": "count(argocd_app_info{sync_status=\"Synced\"})", "refId": "A", "range": true }] },
-    { "title": "OutOfSync", "type": "stat", "gridPos": { "h": 3, "w": 4, "x": 16, "y": 5 }, "datasource": { "uid": "prometheus", "type": "prometheus" }, "fieldConfig": { "defaults": { "unit": "short", "thresholds": { "mode": "absolute", "steps": [{ "value": null, "color": "green" }, { "value": 1, "color": "yellow" }, { "value": 3, "color": "red" }] } }, "overrides": [] }, "targets": [{ "expr": "count(argocd_app_info{sync_status=\"OutOfSync\"}) or vector(0)", "refId": "A", "range": true }] },
-    { "title": "Clusters", "type": "stat", "gridPos": { "h": 3, "w": 4, "x": 20, "y": 5 }, "datasource": { "uid": "prometheus", "type": "prometheus" }, "fieldConfig": { "defaults": { "unit": "short", "color": { "mode": "fixed", "fixedColor": "purple" } }, "overrides": [] }, "targets": [{ "expr": "count(argocd_cluster_info)", "refId": "A", "range": true }] },
-
-    { "collapsed": false, "gridPos": { "h": 1, "w": 24, "x": 0, "y": 8 }, "title": "Health & Sync", "type": "row" },
-    { "title": "Health Status", "type": "timeseries", "gridPos": { "h": 7, "w": 12, "x": 0, "y": 9 }, "datasource": { "uid": "prometheus", "type": "prometheus" }, "fieldConfig": { "defaults": { "unit": "short", "custom": { "fillOpacity": 15, "stacking": { "mode": "normal" } } }, "overrides": [] }, "targets": [{ "expr": "count by (health_status) (argocd_app_info)", "refId": "A", "legendFormat": "{{health_status}}" }], "options": { "legend": { "displayMode": "table", "placement": "right" } } },
-    { "title": "Sync Status", "type": "timeseries", "gridPos": { "h": 7, "w": 12, "x": 12, "y": 9 }, "datasource": { "uid": "prometheus", "type": "prometheus" }, "fieldConfig": { "defaults": { "unit": "short", "custom": { "fillOpacity": 15, "stacking": { "mode": "normal" } } }, "overrides": [] }, "targets": [{ "expr": "count by (sync_status) (argocd_app_info)", "refId": "A", "legendFormat": "{{sync_status}}" }], "options": { "legend": { "displayMode": "table", "placement": "right" } } },
-
-    { "collapsed": false, "gridPos": { "h": 1, "w": 24, "x": 0, "y": 16 }, "title": "Reconciliation & Sync", "type": "row" },
-    { "title": "Reconciliation Rate", "type": "timeseries", "gridPos": { "h": 7, "w": 8, "x": 0, "y": 17 }, "datasource": { "uid": "prometheus", "type": "prometheus" }, "fieldConfig": { "defaults": { "unit": "ops", "custom": { "fillOpacity": 15 } }, "overrides": [] }, "targets": [{ "expr": "sum(rate(argocd_app_reconcile_count[$__rate_interval]))", "refId": "A", "legendFormat": "reconciliations/s" }], "options": { "legend": { "displayMode": "list", "placement": "bottom" } } },
-    { "title": "Reconciliation P95 Duration", "type": "timeseries", "gridPos": { "h": 7, "w": 8, "x": 8, "y": 17 }, "datasource": { "uid": "prometheus", "type": "prometheus" }, "fieldConfig": { "defaults": { "unit": "s", "custom": { "fillOpacity": 10 } }, "overrides": [] }, "targets": [{ "expr": "histogram_quantile(0.95, sum(rate(argocd_app_reconcile_bucket[$__rate_interval])) by (le))", "refId": "A", "legendFormat": "p95" }, { "expr": "histogram_quantile(0.50, sum(rate(argocd_app_reconcile_bucket[$__rate_interval])) by (le))", "refId": "B", "legendFormat": "p50" }], "options": { "legend": { "displayMode": "list", "placement": "bottom" } } },
-    { "title": "Syncs by Phase", "type": "timeseries", "gridPos": { "h": 7, "w": 8, "x": 16, "y": 17 }, "datasource": { "uid": "prometheus", "type": "prometheus" }, "fieldConfig": { "defaults": { "unit": "short", "custom": { "fillOpacity": 15 } }, "overrides": [] }, "targets": [{ "expr": "sum by (phase) (rate(argocd_app_sync_total[$__rate_interval]))", "refId": "A", "legendFormat": "{{phase}}" }], "options": { "legend": { "displayMode": "list", "placement": "bottom" } } },
-
-    { "collapsed": false, "gridPos": { "h": 1, "w": 24, "x": 0, "y": 24 }, "title": "Redis & Git", "type": "row" },
-    { "title": "Redis Requests (rate/s)", "type": "timeseries", "gridPos": { "h": 7, "w": 8, "x": 0, "y": 25 }, "datasource": { "uid": "prometheus", "type": "prometheus" }, "fieldConfig": { "defaults": { "unit": "ops", "custom": { "fillOpacity": 15 } }, "overrides": [] }, "targets": [{ "expr": "sum(rate(argocd_redis_request_total[$__rate_interval]))", "refId": "A", "legendFormat": "requests/s" }], "options": { "legend": { "displayMode": "list", "placement": "bottom" } } },
-    { "title": "Redis P95 Latency", "type": "timeseries", "gridPos": { "h": 7, "w": 8, "x": 8, "y": 25 }, "datasource": { "uid": "prometheus", "type": "prometheus" }, "fieldConfig": { "defaults": { "unit": "s", "custom": { "fillOpacity": 10 } }, "overrides": [] }, "targets": [{ "expr": "histogram_quantile(0.95, sum(rate(argocd_redis_request_duration_seconds_bucket[$__rate_interval])) by (le))", "refId": "A", "legendFormat": "p95" }, { "expr": "histogram_quantile(0.50, sum(rate(argocd_redis_request_duration_seconds_bucket[$__rate_interval])) by (le))", "refId": "B", "legendFormat": "p50" }], "options": { "legend": { "displayMode": "list", "placement": "bottom" } } },
-    { "title": "Git Requests (rate/s)", "type": "timeseries", "gridPos": { "h": 7, "w": 8, "x": 16, "y": 25 }, "datasource": { "uid": "prometheus", "type": "prometheus" }, "fieldConfig": { "defaults": { "unit": "ops", "custom": { "fillOpacity": 15 } }, "overrides": [] }, "targets": [{ "expr": "sum by (request_type) (rate(argocd_git_request_total[$__rate_interval]))", "refId": "A", "legendFormat": "{{request_type}}" }], "options": { "legend": { "displayMode": "list", "placement": "bottom" } } },
-
-    { "collapsed": false, "gridPos": { "h": 1, "w": 24, "x": 0, "y": 32 }, "title": "Resources", "type": "row" },
-    { "title": "CPU by Component", "type": "timeseries", "gridPos": { "h": 7, "w": 12, "x": 0, "y": 33 }, "datasource": { "uid": "prometheus", "type": "prometheus" }, "fieldConfig": { "defaults": { "unit": "short", "custom": { "fillOpacity": 15 } }, "overrides": [] }, "targets": [{ "expr": "rate(process_cpu_seconds_total{namespace=\"argocd\"}[$__rate_interval])", "refId": "A", "legendFormat": "{{instance}}" }], "options": { "legend": { "displayMode": "table", "placement": "right", "sortBy": "Last *", "sortDesc": true } } },
-    { "title": "Memory (RSS) by Component", "type": "timeseries", "gridPos": { "h": 7, "w": 12, "x": 12, "y": 33 }, "datasource": { "uid": "prometheus", "type": "prometheus" }, "fieldConfig": { "defaults": { "unit": "bytes", "custom": { "fillOpacity": 15 } }, "overrides": [] }, "targets": [{ "expr": "process_resident_memory_bytes{namespace=\"argocd\"}", "refId": "A", "legendFormat": "{{instance}}" }], "options": { "legend": { "displayMode": "table", "placement": "right", "sortBy": "Last *", "sortDesc": true } } },
-
-    { "collapsed": false, "gridPos": { "h": 1, "w": 24, "x": 0, "y": 40 }, "title": "Application List", "type": "row" },
-    { "title": "Applications", "type": "table", "gridPos": { "h": 7, "w": 24, "x": 0, "y": 41 }, "datasource": { "uid": "prometheus", "type": "prometheus" }, "targets": [{ "expr": "argocd_app_info", "refId": "A", "format": "table", "range": true }], "options": { "showHeader": true }, "fieldConfig": { "defaults": {}, "overrides": [] }, "transformations": [{ "id": "organize", "options": { "excludeByName": { "Time": true, "Value": true, "__name__": true, "job": true, "instance": true }, "renameByName": { "name": "App", "health_status": "Health", "sync_status": "Sync", "namespace": "Namespace", "project": "Project", "dest_namespace": "Dest NS", "dest_server": "Dest Server" } } }] }
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 4
+      },
+      "title": "Overview",
+      "type": "row"
+    },
+    {
+      "title": "Applications",
+      "type": "stat",
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 0,
+        "y": 5
+      },
+      "datasource": {
+        "uid": "prometheus",
+        "type": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "blue"
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "count(argocd_app_info)",
+          "refId": "A",
+          "range": true
+        }
+      ]
+    },
+    {
+      "title": "Healthy",
+      "type": "stat",
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 4,
+        "y": 5
+      },
+      "datasource": {
+        "uid": "prometheus",
+        "type": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "green"
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "count(argocd_app_info{health_status=\"Healthy\"})",
+          "refId": "A",
+          "range": true
+        }
+      ]
+    },
+    {
+      "title": "Degraded",
+      "type": "stat",
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 8,
+        "y": 5
+      },
+      "datasource": {
+        "uid": "prometheus",
+        "type": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "green"
+              },
+              {
+                "value": 1,
+                "color": "red"
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "count(argocd_app_info{health_status=\"Degraded\"}) or vector(0)",
+          "refId": "A",
+          "range": true
+        }
+      ]
+    },
+    {
+      "title": "Synced",
+      "type": "stat",
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 12,
+        "y": 5
+      },
+      "datasource": {
+        "uid": "prometheus",
+        "type": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "green"
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "count(argocd_app_info{sync_status=\"Synced\"})",
+          "refId": "A",
+          "range": true
+        }
+      ]
+    },
+    {
+      "title": "OutOfSync",
+      "type": "stat",
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 16,
+        "y": 5
+      },
+      "datasource": {
+        "uid": "prometheus",
+        "type": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "green"
+              },
+              {
+                "value": 1,
+                "color": "yellow"
+              },
+              {
+                "value": 3,
+                "color": "red"
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "count(argocd_app_info{sync_status=\"OutOfSync\"}) or vector(0)",
+          "refId": "A",
+          "range": true
+        }
+      ]
+    },
+    {
+      "title": "Clusters",
+      "type": "stat",
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 20,
+        "y": 5
+      },
+      "datasource": {
+        "uid": "prometheus",
+        "type": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "purple"
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "count(argocd_cluster_info)",
+          "refId": "A",
+          "range": true
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 8
+      },
+      "title": "Health & Sync",
+      "type": "row"
+    },
+    {
+      "title": "Health Status",
+      "type": "timeseries",
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 0,
+        "y": 9
+      },
+      "datasource": {
+        "uid": "prometheus",
+        "type": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "fillOpacity": 15,
+            "stacking": {
+              "mode": "normal"
+            }
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Healthy"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Degraded"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Progressing"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Missing"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "orange",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Unknown"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "yellow",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Suspended"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "purple",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "targets": [
+        {
+          "expr": "count by (health_status) (argocd_app_info)",
+          "refId": "A",
+          "legendFormat": "{{health_status}}"
+        }
+      ],
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "right"
+        }
+      }
+    },
+    {
+      "title": "Sync Status",
+      "type": "timeseries",
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 12,
+        "y": 9
+      },
+      "datasource": {
+        "uid": "prometheus",
+        "type": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "fillOpacity": 15,
+            "stacking": {
+              "mode": "normal"
+            }
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Synced"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "OutOfSync"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "orange",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Unknown"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "yellow",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "targets": [
+        {
+          "expr": "count by (sync_status) (argocd_app_info)",
+          "refId": "A",
+          "legendFormat": "{{sync_status}}"
+        }
+      ],
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "right"
+        }
+      }
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 16
+      },
+      "title": "Reconciliation & Sync",
+      "type": "row"
+    },
+    {
+      "title": "Reconciliation Rate",
+      "type": "timeseries",
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 0,
+        "y": 17
+      },
+      "datasource": {
+        "uid": "prometheus",
+        "type": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops",
+          "custom": {
+            "fillOpacity": 15
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(argocd_app_reconcile_count[$__rate_interval]))",
+          "refId": "A",
+          "legendFormat": "reconciliations/s"
+        }
+      ],
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        }
+      }
+    },
+    {
+      "title": "Reconciliation P95 Duration",
+      "type": "timeseries",
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 8,
+        "y": 17
+      },
+      "datasource": {
+        "uid": "prometheus",
+        "type": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "custom": {
+            "fillOpacity": 10
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(argocd_app_reconcile_bucket[$__rate_interval])) by (le))",
+          "refId": "A",
+          "legendFormat": "p95"
+        },
+        {
+          "expr": "histogram_quantile(0.50, sum(rate(argocd_app_reconcile_bucket[$__rate_interval])) by (le))",
+          "refId": "B",
+          "legendFormat": "p50"
+        }
+      ],
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        }
+      }
+    },
+    {
+      "title": "Syncs by Phase",
+      "type": "timeseries",
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 16,
+        "y": 17
+      },
+      "datasource": {
+        "uid": "prometheus",
+        "type": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "fillOpacity": 15
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "sum by (phase) (rate(argocd_app_sync_total[$__rate_interval]))",
+          "refId": "A",
+          "legendFormat": "{{phase}}"
+        }
+      ],
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        }
+      }
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 24
+      },
+      "title": "Redis & Git",
+      "type": "row"
+    },
+    {
+      "title": "Redis Requests (rate/s)",
+      "type": "timeseries",
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 0,
+        "y": 25
+      },
+      "datasource": {
+        "uid": "prometheus",
+        "type": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops",
+          "custom": {
+            "fillOpacity": 15
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(argocd_redis_request_total[$__rate_interval]))",
+          "refId": "A",
+          "legendFormat": "requests/s"
+        }
+      ],
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        }
+      }
+    },
+    {
+      "title": "Redis P95 Latency",
+      "type": "timeseries",
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 8,
+        "y": 25
+      },
+      "datasource": {
+        "uid": "prometheus",
+        "type": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "custom": {
+            "fillOpacity": 10
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(argocd_redis_request_duration_seconds_bucket[$__rate_interval])) by (le))",
+          "refId": "A",
+          "legendFormat": "p95"
+        },
+        {
+          "expr": "histogram_quantile(0.50, sum(rate(argocd_redis_request_duration_seconds_bucket[$__rate_interval])) by (le))",
+          "refId": "B",
+          "legendFormat": "p50"
+        }
+      ],
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        }
+      }
+    },
+    {
+      "title": "Git Requests (rate/s)",
+      "type": "timeseries",
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 16,
+        "y": 25
+      },
+      "datasource": {
+        "uid": "prometheus",
+        "type": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops",
+          "custom": {
+            "fillOpacity": 15
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "sum by (request_type) (rate(argocd_git_request_total[$__rate_interval]))",
+          "refId": "A",
+          "legendFormat": "{{request_type}}"
+        }
+      ],
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        }
+      }
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 32
+      },
+      "title": "Resources",
+      "type": "row"
+    },
+    {
+      "title": "CPU by Component",
+      "type": "timeseries",
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 0,
+        "y": 33
+      },
+      "datasource": {
+        "uid": "prometheus",
+        "type": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "fillOpacity": 15
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "rate(process_cpu_seconds_total{namespace=\"argocd\"}[$__rate_interval])",
+          "refId": "A",
+          "legendFormat": "{{instance}}"
+        }
+      ],
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "sortBy": "Last *",
+          "sortDesc": true
+        }
+      }
+    },
+    {
+      "title": "Memory (RSS) by Component",
+      "type": "timeseries",
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 12,
+        "y": 33
+      },
+      "datasource": {
+        "uid": "prometheus",
+        "type": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes",
+          "custom": {
+            "fillOpacity": 15
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "process_resident_memory_bytes{namespace=\"argocd\"}",
+          "refId": "A",
+          "legendFormat": "{{instance}}"
+        }
+      ],
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "sortBy": "Last *",
+          "sortDesc": true
+        }
+      }
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 40
+      },
+      "title": "Application List",
+      "type": "row"
+    },
+    {
+      "title": "Applications",
+      "type": "briangann-datatable-panel",
+      "gridPos": {
+        "h": 7,
+        "w": 24,
+        "x": 0,
+        "y": 41
+      },
+      "datasource": {
+        "uid": "prometheus",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "argocd_app_info",
+          "refId": "A",
+          "instant": true,
+          "format": "table"
+        }
+      ],
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true,
+              "Value": true,
+              "__name__": true,
+              "job": true,
+              "instance": true
+            },
+            "renameByName": {
+              "name": "App",
+              "health_status": "Health",
+              "sync_status": "Sync",
+              "namespace": "Namespace",
+              "project": "Project",
+              "dest_namespace": "Dest NS",
+              "dest_server": "Dest Server"
+            }
+          }
+        }
+      ],
+      "options": {
+        "searchEnabled": true,
+        "searchHighlightingEnabled": true,
+        "searchPosition": "top-right",
+        "rowNumbersEnabled": true,
+        "scrollingEnabled": true
+      }
+    }
   ],
   "schemaVersion": 39,
-  "tags": ["argocd", "gitops"],
-  "templating": { "list": [] },
-  "time": { "from": "now-1h", "to": "now" },
+  "tags": [
+    "argocd",
+    "gitops"
+  ],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
   "title": "ArgoCD",
   "uid": "argocd"
 }
