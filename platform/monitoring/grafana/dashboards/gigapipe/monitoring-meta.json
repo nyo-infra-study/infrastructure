@@ -2214,7 +2214,7 @@
       },
       "targets": [
         {
-          "expr": "sum by (processor) (rate(otelcol_processor_incoming_items{service_name=\"otel-collector\"}[]) - rate(otelcol_processor_outgoing_items{service_name=\"otel-collector\"}[])) > 0",
+          "expr": "sum by (processor) (rate(otelcol_processor_incoming_items{service_name=\"otel-collector\"}[$__rate_interval]) - rate(otelcol_processor_outgoing_items{service_name=\"otel-collector\"}[$__rate_interval])) > 0",
           "refId": "A",
           "legendFormat": "{{processor}}"
         }
