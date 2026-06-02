@@ -1010,16 +1010,26 @@
               "Value": true,
               "__name__": true,
               "job": true,
-              "instance": true
+              "instance": true,
+              "exported_namespace": true,
+              "dest_server": true,
+              "namespace": true,
+              "autosync_enabled": true,
+              "repo": true
+            },
+            "indexByName": {
+              "name": 0,
+              "dest_namespace": 1,
+              "health_status": 2,
+              "sync_status": 3,
+              "project": 4
             },
             "renameByName": {
               "name": "App",
+              "dest_namespace": "Namespace",
               "health_status": "Health",
               "sync_status": "Sync",
-              "namespace": "Namespace",
-              "project": "Project",
-              "dest_namespace": "Dest NS",
-              "dest_server": "Dest Server"
+              "project": "Project"
             }
           }
         }
