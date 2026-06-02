@@ -1473,9 +1473,9 @@
       "options": {},
       "targets": [
         {
-          "expr": "count_over_time({compliance_scope=\"pci\"}[$__range])",
+          "expr": "sum(count_over_time({compliance_scope=\"pci\"}[$__range]))",
           "refId": "A",
-          "range": true
+          "instant": true
         }
       ],
       "title": "PCI Log Lines (via selected Loki)",
@@ -1507,9 +1507,9 @@
       "options": {},
       "targets": [
         {
-          "expr": "count_over_time({compliance_scope!=\"pci\",compliance_scope!=\"\"}[$__range])",
+          "expr": "sum(count_over_time({compliance_scope!=\"pci\",compliance_scope!=\"\"}[$__range]))",
           "refId": "A",
-          "range": true
+          "instant": true
         }
       ],
       "title": "Non-PCI Log Lines",
@@ -1558,9 +1558,9 @@
       "options": {},
       "targets": [
         {
-          "expr": "count_over_time({compliance_scope=\"pci\"}[$__range])",
+          "expr": "sum(count_over_time({compliance_scope=\"pci\"}[$__range]))",
           "refId": "A",
-          "range": true
+          "instant": true
         }
       ],
       "title": "PCI Filter Status",
