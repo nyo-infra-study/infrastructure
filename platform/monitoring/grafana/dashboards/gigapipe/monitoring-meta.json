@@ -4816,9 +4816,15 @@
       },
       "targets": [
         {
-          "rawSql": "SELECT\n    event_time,\n    if(query_kind = 'Insert', 'INSERT', 'SELECT') AS type,\n    query_duration_ms,\n    read_rows,\n    splitByChar('\\n', exception)[1] AS error,\n    substring(query, 1, 120) AS query_preview\nFROM system.query_log\nWHERE type = 'ExceptionWhileProcessing'\n    AND event_time >= now() - INTERVAL 1 HOUR\nORDER BY event_time DESC\nLIMIT 20",
+          "rawSql": "SELECT\n    event_time,\n    if(query_kind = 'Insert', 'INSERT', 'SELECT') AS query_type,\n    query_duration_ms,\n    read_rows,\n    splitByChar('\\n', exception)[1] AS error,\n    substring(query, 1, 120) AS query_preview\nFROM system.query_log\nWHERE type = 'ExceptionWhileProcessing'\n    AND event_time >= now() - INTERVAL 1 HOUR\nORDER BY event_time DESC\nLIMIT 20",
           "refId": "A",
-          "format": "table"
+          "format": "table",
+          "meta": {
+            "builderOptions": {
+              "mode": "sql"
+            }
+          },
+          "queryType": "sql"
         }
       ],
       "options": {
@@ -4842,7 +4848,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "type"
+              "options": "query_type"
             },
             "properties": [
               {
