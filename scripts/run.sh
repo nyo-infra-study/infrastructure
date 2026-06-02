@@ -108,12 +108,12 @@ fi
 
 log_step "Recreating k3d Cluster"
 run "k3d cluster delete dev || true"
-sleep 10
+sleep 15
 run "k3d cluster create dev --port '80:80@loadbalancer' --k3s-arg '--disable=traefik@server:0'"
 printf "${C_DIM}  Waiting for API server to stabilize...${C_RESET}\n"
-sleep 20
-run "kubectl wait --for=condition=Ready nodes --all --timeout=60s"
-run "kubectl wait --for=jsonpath='{.metadata.name}'=default serviceaccount/default --timeout=60s"
+sleep 60
+run "kubectl wait --for=condition=Ready nodes --all --timeout=300s"
+run "kubectl wait --for=jsonpath='{.metadata.name}'=default serviceaccount/default --timeout=300s"
 
 log_step "Installing Gateway API CRDs"
 run "kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.5.1/experimental-install.yaml --server-side"
@@ -216,7 +216,7 @@ PATCH
 run "kubectl patch configmap local-path-config -n kube-system --type merge --patch-file '$PATCH_FILE'"
 rm -f "$PATCH_FILE"
 run "kubectl rollout restart deployment/local-path-provisioner -n kube-system"
-run "kubectl rollout status deployment/local-path-provisioner -n kube-system --timeout=60s"
+run "kubectl rollout status deployment/local-path-provisioner -n kube-system --timeout=300s"
 
 log_step "Installing ArgoCD"
 run "helm repo add argo https://argoproj.github.io/argo-helm"
@@ -233,7 +233,7 @@ run "helm install traefik traefik/traefik \
 
 log_step "Deploying Gateway & Routes"
 printf "${C_DIM}  Waiting for Gateway to be accepted...${C_RESET}\n"
-sleep 10
+sleep 15
 run "kubectl apply -f '$REPO_ROOT/platform/gateway/traefik-dashboard-route.yaml'"
 
 ARGOCD_CHART_VERSION=$(grep 'targetRevision:' "$REPO_ROOT/apps/dev/0-platform/argocd.yaml" | head -1 | awk '{print $2}')
@@ -246,7 +246,7 @@ run "helm install argocd argo/argo-cd \
   -f '$REPO_ROOT/platform/argocd/values.yaml'"
 
 log_step "Waiting for ArgoCD"
-run "kubectl wait --for=condition=available deployment/argocd-server -n argocd --timeout=300s"
+run "kubectl wait --for=condition=available deployment/argocd-server -n argocd --timeout=900s"
 run "kubectl -n argocd rollout status deployment argocd-server"
 
 log_step "Exposing ArgoCD via Gateway API"
@@ -273,14 +273,14 @@ if [ "$VERBOSE" = true ]; then
     run "kubectl delete secret argocd-initial-admin-secret -n argocd"
     run "kubectl rollout restart deployment argocd-server -n argocd"
     printf "${C_DIM}  Waiting 30s for restart...${C_RESET}\n"
-    sleep 30
+    sleep 60
     ARGOCD_PW=$(kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath="{.data.password}" | base64 --decode)
     printf "${C_GREEN}  Password: %s${C_RESET}\n" "$ARGOCD_PW"
 else
     kubectl patch secret argocd-secret -p '{"data": {"admin.password": null, "admin.passwordMtime": null}}' -n argocd >/dev/null 2>&1
     kubectl delete secret argocd-initial-admin-secret -n argocd >/dev/null 2>&1
     kubectl rollout restart deployment argocd-server -n argocd >/dev/null 2>&1
-    sleep 30
+    sleep 60
     ARGOCD_PW=$(kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath="{.data.password}" 2>/dev/null | base64 --decode 2>/dev/null || echo "unavailable")
 fi
 
@@ -288,9 +288,9 @@ log_step "Deploying App of Apps"
 run "kubectl apply -f '$REPO_ROOT/bootstrap/dev.yaml'"
 
 log_step "Waiting for ArgoCD to be fully ready"
-run "kubectl wait --for=condition=available deployment/argocd-server -n argocd --timeout=120s"
-run "kubectl wait --for=condition=available deployment/argocd-repo-server -n argocd --timeout=120s"
-run "kubectl wait --for=condition=ready pod -l app.kubernetes.io/component=application-controller -n argocd --timeout=120s"
+run "kubectl wait --for=condition=available deployment/argocd-server -n argocd --timeout=600s"
+run "kubectl wait --for=condition=available deployment/argocd-repo-server -n argocd --timeout=600s"
+run "kubectl wait --for=condition=ready pod -l app.kubernetes.io/component=application-controller -n argocd --timeout=600s"
 
 log_step "Done! Cluster is ready."
 echo ""
