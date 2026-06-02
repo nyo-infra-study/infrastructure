@@ -3225,7 +3225,7 @@
       },
       "targets": [
         {
-          "expr": "avg(rate(container_cpu_usage_seconds_total{namespace=\"monitoring\",pod=~\".*otel.*\",container!=\"\"}[]))",
+          "expr": "avg(rate(container_cpu_usage_seconds_total{namespace=\"monitoring\",pod=~\".*otel.*\",container!=\"\"}[$__rate_interval]))",
           "refId": "A",
           "legendFormat": "usage"
         },
@@ -3323,7 +3323,7 @@
       },
       "targets": [
         {
-          "expr": "avg(rate(container_cpu_usage_seconds_total{namespace=\"monitoring\",pod=~\".*gigapipe-writer.*\",container!=\"\"}[]))",
+          "expr": "avg(rate(container_cpu_usage_seconds_total{namespace=\"monitoring\",pod=~\".*gigapipe-writer.*\",container!=\"\"}[$__rate_interval]))",
           "refId": "A",
           "legendFormat": "usage"
         },
@@ -3421,7 +3421,7 @@
       },
       "targets": [
         {
-          "expr": "avg(rate(container_cpu_usage_seconds_total{namespace=\"monitoring\",pod=~\".*gigapipe-reader.*\",container!=\"\"}[]))",
+          "expr": "avg(rate(container_cpu_usage_seconds_total{namespace=\"monitoring\",pod=~\".*gigapipe-reader.*\",container!=\"\"}[$__rate_interval]))",
           "refId": "A",
           "legendFormat": "usage"
         },
@@ -3519,7 +3519,7 @@
       },
       "targets": [
         {
-          "expr": "avg(rate(container_cpu_usage_seconds_total{namespace=\"monitoring\",pod=~\".*clickhouse-0.*\",container!=\"\"}[]))",
+          "expr": "avg(rate(container_cpu_usage_seconds_total{namespace=\"monitoring\",pod=~\".*clickhouse-0.*\",container!=\"\"}[$__rate_interval]))",
           "refId": "A",
           "legendFormat": "usage"
         },
@@ -3617,7 +3617,7 @@
       },
       "targets": [
         {
-          "expr": "avg(rate(container_cpu_usage_seconds_total{namespace=\"monitoring\",pod=~\".*grafana.*\",container!=\"\"}[]))",
+          "expr": "avg(rate(container_cpu_usage_seconds_total{namespace=\"monitoring\",pod=~\".*grafana.*\",container!=\"\"}[$__rate_interval]))",
           "refId": "A",
           "legendFormat": "usage"
         },
