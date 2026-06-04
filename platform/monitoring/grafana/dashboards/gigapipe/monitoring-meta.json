@@ -4909,9 +4909,7 @@
       },
       "description": "Distribution of log lines by compliance_scope.",
       "fieldConfig": {
-        "defaults": {
-          "displayName": "${__series.name}"
-        },
+        "defaults": {},
         "overrides": []
       },
       "gridPos": {
@@ -4934,9 +4932,19 @@
       "targets": [
         {
           "expr": "sum by (compliance_scope) (count_over_time({compliance_scope!=\"\"}[$__range]))",
-          "instant": true,
+          "instant": false,
+          "range": true,
           "legendFormat": "{{compliance_scope}}",
           "refId": "A"
+        }
+      ],
+      "transformations": [
+        {
+          "id": "reduce",
+          "options": {
+            "reducers": ["sum"],
+            "includeTimeField": false
+          }
         }
       ],
       "title": "Logs by compliance_scope",
