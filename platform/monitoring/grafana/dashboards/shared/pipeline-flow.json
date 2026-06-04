@@ -109,17 +109,10 @@
       },
       "targets": [
         {
-          "expr": "sum(rate(otelcol_exporter_sent_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval]))",
+          "expr": "label_replace(sum(rate(otelcol_exporter_sent_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval])), \"outcome\", \"→ gigapipe\", \"\", \"\") or label_replace(sum(rate(otelcol_processor_incoming_items_total{service_name=\"otel-collector\"}[$__rate_interval])) - sum(rate(otelcol_exporter_sent_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval])), \"outcome\", \"→ discarded\", \"\", \"\")",
           "refId": "A",
           "range": true,
-          "legendFormat": "→ gigapipe",
-          "format": "table"
-        },
-        {
-          "expr": "sum(rate(otelcol_processor_incoming_items_total{service_name=\"otel-collector\"}[$__rate_interval])) - sum(rate(otelcol_exporter_sent_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval]))",
-          "refId": "B",
-          "range": true,
-          "legendFormat": "→ discarded",
+          "legendFormat": "",
           "format": "table"
         }
       ],
@@ -166,15 +159,32 @@
       "options": {
         "orientation": "horizontal",
         "showValue": "always",
+        "xField": "outcome",
         "stacking": "none",
         "barWidth": 0.5
       },
       "transformations": [
         {
-          "id": "reduce",
+          "id": "groupBy",
           "options": {
-            "reducers": ["lastNotNull"],
-            "includeTimeField": false
+            "fields": {
+              "outcome": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Value": {
+                "aggregations": ["lastNotNull"],
+                "operation": "aggregate"
+              }
+            }
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "renameByName": {
+              "Value (lastNotNull)": "pts/s"
+            }
           }
         }
       ]
@@ -315,83 +325,8 @@
         "x": 0,
         "y": 19
       },
-      "title": "Volume by Receiver (Metrics)",
+      "title": "Filter Details",
       "type": "row"
-    },
-    {
-      "title": "Metrics Received by Source",
-      "description": "Metric points accepted per receiver. Shows which scrape targets produce the most data.",
-      "type": "barchart",
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 20
-      },
-      "datasource": {
-        "uid": "prometheus",
-        "type": "prometheus"
-      },
-      "targets": [
-        {
-          "expr": "sum by (receiver) (rate(otelcol_receiver_accepted_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval]))",
-          "refId": "A",
-          "range": true,
-          "legendFormat": "{{receiver}}",
-          "format": "table"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "color": {
-            "mode": "palette-classic"
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "orientation": "horizontal",
-        "showValue": "always",
-        "xField": "receiver",
-        "stacking": "none"
-      },
-      "transformations": [
-        {
-          "id": "groupBy",
-          "options": {
-            "fields": {
-              "receiver": {
-                "aggregations": [],
-                "operation": "groupby"
-              },
-              "Value": {
-                "aggregations": ["lastNotNull"],
-                "operation": "aggregate"
-              }
-            }
-          }
-        },
-        {
-          "id": "organize",
-          "options": {
-            "renameByName": {
-              "Value (lastNotNull)": "Value"
-            }
-          }
-        },
-        {
-          "id": "sortBy",
-          "options": {
-            "sort": [
-              {
-                "field": "Value",
-                "desc": true
-              }
-            ]
-          }
-        }
-      ]
     },
     {
       "title": "Data Dropped by Filter (rate/s)",
@@ -399,8 +334,8 @@
       "type": "barchart",
       "gridPos": {
         "h": 8,
-        "w": 12,
-        "x": 12,
+        "w": 24,
+        "x": 0,
         "y": 20
       },
       "datasource": {
