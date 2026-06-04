@@ -32,22 +32,8 @@
       },
       "targets": [
         {
-          "expr": "label_replace(label_replace(sum by (receiver) (rate(otelcol_receiver_accepted_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval])), \"source\", \"$1\", \"receiver\", \"(.*)\"), \"target\", \"filter\", \"\", \"\")",
+          "expr": "label_replace(label_replace(sum by (receiver) (rate(otelcol_receiver_accepted_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval])), \"source\", \"$1\", \"receiver\", \"(.*)\"), \"target\", \"filter\", \"\", \"\") or label_replace(label_replace(sum(rate(otelcol_exporter_sent_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval])), \"source\", \"filter\", \"\", \"\"), \"target\", \"gigapipe\", \"\", \"\") or label_replace(label_replace(sum(rate(otelcol_processor_incoming_items_total{service_name=\"otel-collector\"}[$__rate_interval])) - sum(rate(otelcol_exporter_sent_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval])), \"source\", \"filter\", \"\", \"\"), \"target\", \"discarded\", \"\", \"\")",
           "refId": "A",
-          "range": true,
-          "legendFormat": "",
-          "format": "table"
-        },
-        {
-          "expr": "label_replace(label_replace(sum(rate(otelcol_processor_outgoing_items_total{service_name=\"otel-collector\"}[$__rate_interval])), \"source\", \"filter\", \"\", \"\"), \"target\", \"gigapipe\", \"\", \"\")",
-          "refId": "B",
-          "range": true,
-          "legendFormat": "",
-          "format": "table"
-        },
-        {
-          "expr": "label_replace(label_replace(sum(rate(otelcol_processor_incoming_items_total{service_name=\"otel-collector\"}[$__rate_interval])) - sum(rate(otelcol_processor_outgoing_items_total{service_name=\"otel-collector\"}[$__rate_interval])), \"source\", \"filter\", \"\", \"\"), \"target\", \"discarded\", \"\", \"\")",
-          "refId": "C",
           "range": true,
           "legendFormat": "",
           "format": "table"
@@ -60,12 +46,6 @@
         "overrides": []
       },
       "transformations": [
-        {
-          "id": "concatenate",
-          "options": {
-            "frameNameMode": "drop"
-          }
-        },
         {
           "id": "groupBy",
           "options": {
@@ -81,18 +61,6 @@
               "Value": {
                 "aggregations": ["lastNotNull"],
                 "operation": "aggregate"
-              },
-              "Value #A": {
-                "aggregations": ["lastNotNull"],
-                "operation": "aggregate"
-              },
-              "Value #B": {
-                "aggregations": ["lastNotNull"],
-                "operation": "aggregate"
-              },
-              "Value #C": {
-                "aggregations": ["lastNotNull"],
-                "operation": "aggregate"
               }
             }
           }
@@ -102,10 +70,7 @@
           "options": {
             "excludeByName": {},
             "renameByName": {
-              "Value (lastNotNull)": "value",
-              "Value #A (lastNotNull)": "value",
-              "Value #B (lastNotNull)": "value",
-              "Value #C (lastNotNull)": "value"
+              "Value (lastNotNull)": "value"
             }
           }
         }
@@ -133,7 +98,7 @@
       },
       "targets": [
         {
-          "expr": "1 - (sum(rate(otelcol_processor_outgoing_items_total{service_name=\"otel-collector\"}[$__rate_interval])) / sum(rate(otelcol_processor_incoming_items_total{service_name=\"otel-collector\"}[$__rate_interval])))",
+          "expr": "1 - (sum(rate(otelcol_exporter_sent_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval])) / sum(rate(otelcol_processor_incoming_items_total{service_name=\"otel-collector\"}[$__rate_interval])))",
           "refId": "A",
           "legendFormat": "drop rate",
           "range": true

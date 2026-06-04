@@ -55,14 +55,21 @@ resources:
 
 ### Pipeline Flow (`shared/pipeline-flow.json`)
 
-Visualizes the OTel Collector pipeline: Receivers → Filter/Processor → Exporters.
+Visualizes the OTel Collector pipeline: Receivers → Filter → Gigapipe + Discarded.
 
-Uses the `netsage-sankey-panel` plugin for a Sankey flow diagram. The Sankey panel
-requires a single data frame with columns `source`, `target`, `value`.
+Uses the `netsage-sankey-panel` plugin for a Sankey flow diagram showing scrape volume,
+filter pass-through, and discard volume.
 
-**Important**: The Sankey query uses `range: true` (not instant) combined with a
-`groupBy` transformation. Instant queries break the Sankey panel because PromQL `or`
-unions with mixed label sets produce malformed table frames that the plugin can't
-parse. See [full analysis](../../docs/monitoring/gigapipe/PIPELINE-FLOW-DASHBOARD.md)
-for details.
+**Critical: Never use `instant: true` with `format: table` in this dashboard.**
+
+Instant queries break ALL panel types (Sankey, bar chart, stat, gauge) because
+Prometheus instant vectors with mixed label sets produce sparse tables that Grafana
+panels can't parse. Use `range: true` with `groupBy` transformations or `reduceOptions`
+instead.
+
+See [full analysis](../../docs/monitoring/gigapipe/PIPELINE-FLOW-DASHBOARD.md) for:
+- Root cause: how Grafana serializes instant vectors with heterogeneous labels
+- Per-panel-type symptoms and failure modes
+- The fix pattern for each panel type
+- Correct filter efficiency metrics (`processor_incoming` vs `processor_outgoing`)
 
