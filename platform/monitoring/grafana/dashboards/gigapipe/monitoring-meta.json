@@ -18,7 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
-  "id": 7,
+  "id": 8,
   "links": [],
   "panels": [
     {
@@ -1849,6 +1849,71 @@
         "type": "prometheus",
         "uid": "prometheus"
       },
+      "description": "How much Prometheus metric_relabel_configs drops at scrape time. Compares raw scraped vs what OTel receives.",
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "max": 1,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": 0
+              },
+              {
+                "color": "yellow",
+                "value": 0.5
+              },
+              {
+                "color": "green",
+                "value": 0.8
+              }
+            ]
+          },
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 3,
+        "x": 4,
+        "y": 20
+      },
+      "id": 7,
+      "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto"
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "expr": "1 - (sum(rate(otelcol_receiver_accepted_metric_points_total{service_name=\"otel-collector\"}[5m])) / sum(scrape_samples_scraped{job=~\"$job\"}))",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Scrape Filter",
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
       "description": "Metric points exported by OTel Collector to Gigapipe per second. AFTER filtering.",
       "fieldConfig": {
         "defaults": {
@@ -1877,7 +1942,7 @@
       "gridPos": {
         "h": 4,
         "w": 4,
-        "x": 4,
+        "x": 7,
         "y": 20
       },
       "id": 5,
@@ -1914,6 +1979,71 @@
         "type": "prometheus",
         "uid": "prometheus"
       },
+      "description": "How much OTel processor filters drop. Compares what enters processors vs what gets exported.",
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "max": 1,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": 0
+              },
+              {
+                "color": "yellow",
+                "value": 0.5
+              },
+              {
+                "color": "green",
+                "value": 0.8
+              }
+            ]
+          },
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 3,
+        "x": 11,
+        "y": 20
+      },
+      "id": 77,
+      "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto"
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "expr": "1 - (sum(rate(otelcol_exporter_sent_metric_points_total{service_name=\"otel-collector\"}[5m])) / sum(rate(otelcol_processor_incoming_items_total{service_name=\"otel-collector\"}[5m])))",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Processor Filter",
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
       "description": "ClickHouse SELECT queries per second.",
       "fieldConfig": {
         "defaults": {
@@ -1942,7 +2072,7 @@
       "gridPos": {
         "h": 4,
         "w": 4,
-        "x": 8,
+        "x": 14,
         "y": 20
       },
       "id": 6,
@@ -1979,136 +2109,6 @@
         "type": "prometheus",
         "uid": "prometheus"
       },
-      "description": "How much Prometheus metric_relabel_configs drops at scrape time. Compares raw scraped vs what OTel receives.",
-      "fieldConfig": {
-        "defaults": {
-          "mappings": [],
-          "max": 1,
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "red",
-                "value": 0
-              },
-              {
-                "color": "yellow",
-                "value": 0.5
-              },
-              {
-                "color": "green",
-                "value": 0.8
-              }
-            ]
-          },
-          "unit": "percentunit"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 2,
-        "x": 12,
-        "y": 20
-      },
-      "id": 7,
-      "options": {
-        "minVizHeight": 75,
-        "minVizWidth": 75,
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showThresholdLabels": false,
-        "showThresholdMarkers": true,
-        "sizing": "auto"
-      },
-      "pluginVersion": "12.3.1",
-      "targets": [
-        {
-          "expr": "1 - (sum(rate(otelcol_receiver_accepted_metric_points_total{service_name=\"otel-collector\"}[5m])) / sum(scrape_samples_scraped{job=~\"$job\"}))",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "Scrape Filter",
-      "type": "gauge"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "description": "How much OTel processor filters drop. Compares what enters processors vs what gets exported.",
-      "fieldConfig": {
-        "defaults": {
-          "mappings": [],
-          "max": 1,
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "red",
-                "value": 0
-              },
-              {
-                "color": "yellow",
-                "value": 0.5
-              },
-              {
-                "color": "green",
-                "value": 0.8
-              }
-            ]
-          },
-          "unit": "percentunit"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 2,
-        "x": 14,
-        "y": 20
-      },
-      "id": 77,
-      "options": {
-        "minVizHeight": 75,
-        "minVizWidth": 75,
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showThresholdLabels": false,
-        "showThresholdMarkers": true,
-        "sizing": "auto"
-      },
-      "pluginVersion": "12.3.1",
-      "targets": [
-        {
-          "expr": "1 - (sum(rate(otelcol_exporter_sent_metric_points_total{service_name=\"otel-collector\"}[5m])) / sum(rate(otelcol_processor_incoming_items_total{service_name=\"otel-collector\"}[5m])))",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "Processor Filter",
-      "type": "gauge"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
       "description": "ClickHouse active parts count. High = merge pressure.",
       "fieldConfig": {
         "defaults": {
@@ -2136,8 +2136,8 @@
       },
       "gridPos": {
         "h": 4,
-        "w": 4,
-        "x": 16,
+        "w": 3,
+        "x": 18,
         "y": 20
       },
       "id": 8,
@@ -2201,8 +2201,8 @@
       },
       "gridPos": {
         "h": 4,
-        "w": 4,
-        "x": 20,
+        "w": 3,
+        "x": 21,
         "y": 20
       },
       "id": 9,
@@ -2266,7 +2266,7 @@
             "barAlignment": 0,
             "barWidthFactor": 0.6,
             "drawStyle": "line",
-            "fillOpacity": 0,
+            "fillOpacity": 100,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
@@ -2275,7 +2275,10 @@
             },
             "insertNulls": false,
             "lineInterpolation": "linear",
-            "lineWidth": 1,
+            "lineStyle": {
+              "fill": "solid"
+            },
+            "lineWidth": 0,
             "pointSize": 5,
             "scaleDistribution": {
               "type": "linear"
@@ -2285,7 +2288,7 @@
             "spanNulls": false,
             "stacking": {
               "group": "A",
-              "mode": "none"
+              "mode": "percent"
             },
             "thresholdsStyle": {
               "mode": "off"
@@ -2369,7 +2372,7 @@
             "barAlignment": 0,
             "barWidthFactor": 0.6,
             "drawStyle": "line",
-            "fillOpacity": 0,
+            "fillOpacity": 100,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
@@ -2378,7 +2381,7 @@
             },
             "insertNulls": false,
             "lineInterpolation": "linear",
-            "lineWidth": 1,
+            "lineWidth": 0,
             "pointSize": 5,
             "scaleDistribution": {
               "type": "linear"
@@ -2388,7 +2391,7 @@
             "spanNulls": false,
             "stacking": {
               "group": "A",
-              "mode": "none"
+              "mode": "normal"
             },
             "thresholdsStyle": {
               "mode": "off"
@@ -2632,7 +2635,7 @@
             "barAlignment": 0,
             "barWidthFactor": 0.6,
             "drawStyle": "line",
-            "fillOpacity": 15,
+            "fillOpacity": 100,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
@@ -2641,7 +2644,7 @@
             },
             "insertNulls": false,
             "lineInterpolation": "linear",
-            "lineWidth": 1,
+            "lineWidth": 0,
             "pointSize": 5,
             "scaleDistribution": {
               "type": "linear"
@@ -3048,7 +3051,7 @@
             "barAlignment": 0,
             "barWidthFactor": 0.6,
             "drawStyle": "line",
-            "fillOpacity": 0,
+            "fillOpacity": 100,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
@@ -3057,7 +3060,7 @@
             },
             "insertNulls": false,
             "lineInterpolation": "linear",
-            "lineWidth": 1,
+            "lineWidth": 0,
             "pointSize": 5,
             "scaleDistribution": {
               "type": "linear"
@@ -3067,7 +3070,7 @@
             "spanNulls": false,
             "stacking": {
               "group": "A",
-              "mode": "none"
+              "mode": "normal"
             },
             "thresholdsStyle": {
               "mode": "off"
@@ -3140,7 +3143,7 @@
             "barAlignment": 0,
             "barWidthFactor": 0.6,
             "drawStyle": "line",
-            "fillOpacity": 0,
+            "fillOpacity": 100,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
@@ -3149,7 +3152,7 @@
             },
             "insertNulls": false,
             "lineInterpolation": "linear",
-            "lineWidth": 1,
+            "lineWidth": 0,
             "pointSize": 5,
             "scaleDistribution": {
               "type": "linear"
@@ -3159,7 +3162,7 @@
             "spanNulls": false,
             "stacking": {
               "group": "A",
-              "mode": "none"
+              "mode": "normal"
             },
             "thresholdsStyle": {
               "mode": "off"
@@ -4589,17 +4592,90 @@
       "targets": [
         {
           "expr": "rate(ClickHouseProfileEvents_FailedSelectQuery_total[$__rate_interval])",
-          "refId": "A",
-          "legendFormat": "failed selects/s"
+          "legendFormat": "failed selects/s",
+          "refId": "A"
         },
         {
           "expr": "rate(ClickHouseProfileEvents_FailedInsertQuery_total[$__rate_interval])",
-          "refId": "B",
-          "legendFormat": "failed inserts/s"
+          "legendFormat": "failed inserts/s",
+          "refId": "B"
         }
       ],
       "title": "CH \u2014 Failed Queries/s",
       "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "grafana-clickhouse-datasource",
+        "uid": "$ds_clickhouse"
+      },
+      "description": "Last 20 failed queries from system.query_log, categorized by INSERT/SELECT.",
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "query_duration_ms"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "ms"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "query_type"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 80
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "error"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 400
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 82
+      },
+      "id": 74,
+      "options": {
+        "showHeader": true
+      },
+      "targets": [
+        {
+          "format": "table",
+          "meta": {
+            "builderOptions": {
+              "mode": "sql"
+            }
+          },
+          "queryType": "sql",
+          "rawSql": "SELECT\n    event_time,\n    if(query_kind = 'Insert', 'INSERT', 'SELECT') AS query_type,\n    query_duration_ms,\n    read_rows,\n    splitByChar('\\n', exception)[1] AS error,\n    substring(query, 1, 120) AS query_preview\nFROM system.query_log\nWHERE type = 'ExceptionWhileProcessing'\n    AND event_time >= now() - INTERVAL 1 HOUR\nORDER BY event_time DESC\nLIMIT 20",
+          "refId": "A"
+        }
+      ],
+      "title": "CH \u2014 Recent Failed Queries",
+      "type": "table"
     },
     {
       "datasource": {
@@ -4619,7 +4695,7 @@
         "h": 6,
         "w": 12,
         "x": 0,
-        "y": 98
+        "y": 90
       },
       "id": 47,
       "options": {
@@ -4656,7 +4732,7 @@
         "h": 6,
         "w": 12,
         "x": 12,
-        "y": 98
+        "y": 90
       },
       "id": 48,
       "options": {
@@ -4681,7 +4757,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 104
+        "y": 96
       },
       "id": 28,
       "panels": [],
@@ -4727,7 +4803,7 @@
         "h": 6,
         "w": 6,
         "x": 0,
-        "y": 105
+        "y": 97
       },
       "id": 29,
       "options": {},
@@ -4761,7 +4837,7 @@
         "h": 6,
         "w": 6,
         "x": 6,
-        "y": 105
+        "y": 97
       },
       "id": 30,
       "options": {},
@@ -4812,7 +4888,7 @@
         "h": 6,
         "w": 6,
         "x": 12,
-        "y": 105
+        "y": 97
       },
       "id": 31,
       "options": {},
@@ -4833,14 +4909,16 @@
       },
       "description": "Distribution of log lines by compliance_scope.",
       "fieldConfig": {
-        "defaults": {},
+        "defaults": {
+          "displayName": "${__series.name}"
+        },
         "overrides": []
       },
       "gridPos": {
         "h": 6,
         "w": 6,
         "x": 18,
-        "y": 105
+        "y": 97
       },
       "id": 32,
       "options": {
@@ -4863,79 +4941,6 @@
       ],
       "title": "Logs by compliance_scope",
       "type": "piechart"
-    },
-    {
-      "title": "CH \u2014 Recent Failed Queries",
-      "description": "Last 20 failed queries from system.query_log, categorized by INSERT/SELECT.",
-      "type": "table",
-      "id": 74,
-      "gridPos": {
-        "h": 8,
-        "w": 24,
-        "x": 0,
-        "y": 82
-      },
-      "datasource": {
-        "type": "grafana-clickhouse-datasource",
-        "uid": "$ds_clickhouse"
-      },
-      "targets": [
-        {
-          "rawSql": "SELECT\n    event_time,\n    if(query_kind = 'Insert', 'INSERT', 'SELECT') AS query_type,\n    query_duration_ms,\n    read_rows,\n    splitByChar('\\n', exception)[1] AS error,\n    substring(query, 1, 120) AS query_preview\nFROM system.query_log\nWHERE type = 'ExceptionWhileProcessing'\n    AND event_time >= now() - INTERVAL 1 HOUR\nORDER BY event_time DESC\nLIMIT 20",
-          "refId": "A",
-          "format": "table",
-          "meta": {
-            "builderOptions": {
-              "mode": "sql"
-            }
-          },
-          "queryType": "sql"
-        }
-      ],
-      "options": {
-        "showHeader": true
-      },
-      "fieldConfig": {
-        "defaults": {},
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "query_duration_ms"
-            },
-            "properties": [
-              {
-                "id": "unit",
-                "value": "ms"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "query_type"
-            },
-            "properties": [
-              {
-                "id": "custom.width",
-                "value": 80
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "error"
-            },
-            "properties": [
-              {
-                "id": "custom.width",
-                "value": 400
-              }
-            ]
-          }
-        ]
-      }
     }
   ],
   "preload": false,
@@ -5011,14 +5016,16 @@
         "type": "datasource"
       },
       {
-        "name": "ds_clickhouse",
-        "type": "datasource",
-        "query": "grafana-clickhouse-datasource",
         "current": {
           "text": "ClickHouse (PCI)",
           "value": "clickhouse-pci"
         },
-        "label": "ClickHouse"
+        "label": "ClickHouse",
+        "name": "ds_clickhouse",
+        "options": [],
+        "query": "grafana-clickhouse-datasource",
+        "refresh": 1,
+        "type": "datasource"
       }
     ]
   },
@@ -5030,5 +5037,5 @@
   "timezone": "",
   "title": "Monitoring Stack",
   "uid": "monitoring-meta",
-  "version": 4
+  "version": 2
 }
