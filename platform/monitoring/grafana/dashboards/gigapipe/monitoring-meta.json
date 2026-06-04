@@ -1979,7 +1979,7 @@
         "type": "prometheus",
         "uid": "prometheus"
       },
-      "description": "Percentage of scraped data dropped by filters. Higher = more aggressive filtering.",
+      "description": "How much Prometheus metric_relabel_configs drops at scrape time. Compares raw scraped vs what OTel receives.",
       "fieldConfig": {
         "defaults": {
           "mappings": [],
@@ -2008,11 +2008,76 @@
       },
       "gridPos": {
         "h": 4,
-        "w": 4,
+        "w": 2,
         "x": 12,
         "y": 20
       },
       "id": 7,
+      "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto"
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "expr": "1 - (sum(rate(otelcol_receiver_accepted_metric_points_total{service_name=\"otel-collector\"}[5m])) / sum(scrape_samples_scraped{job=~\"$job\"}))",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Scrape Filter",
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "description": "How much OTel processor filters drop. Compares what enters processors vs what gets exported.",
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "max": 1,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": 0
+              },
+              {
+                "color": "yellow",
+                "value": 0.5
+              },
+              {
+                "color": "green",
+                "value": 0.8
+              }
+            ]
+          },
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 2,
+        "x": 14,
+        "y": 20
+      },
+      "id": 77,
       "options": {
         "minVizHeight": 75,
         "minVizWidth": 75,
@@ -2036,7 +2101,7 @@
           "refId": "A"
         }
       ],
-      "title": "Filter Efficiency",
+      "title": "Processor Filter",
       "type": "gauge"
     },
     {
