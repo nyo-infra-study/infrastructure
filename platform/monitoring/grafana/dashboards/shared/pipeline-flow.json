@@ -17,12 +17,12 @@
       "type": "row"
     },
     {
-      "title": "Scraped vs Exported by Receiver",
-      "description": "Side-by-side comparison: how much each receiver scrapes (yellow) vs how much ultimately gets exported (green). The gap = what was filtered out.",
+      "title": "① Scraped by Receiver (pts/s)",
+      "description": "Metric points accepted per receiver BEFORE filtering. Shows which scrape targets produce the most data.",
       "type": "barchart",
       "gridPos": {
         "h": 12,
-        "w": 24,
+        "w": 12,
         "x": 0,
         "y": 1
       },
@@ -35,7 +35,7 @@
           "expr": "sum by (receiver) (rate(otelcol_receiver_accepted_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval]))",
           "refId": "A",
           "range": true,
-          "legendFormat": "scraped: {{receiver}}",
+          "legendFormat": "{{receiver}}",
           "format": "table"
         }
       ],
@@ -54,8 +54,7 @@
         "showValue": "always",
         "xField": "receiver",
         "stacking": "none",
-        "barWidth": 0.7,
-        "groupWidth": 0.8
+        "barWidth": 0.7
       },
       "transformations": [
         {
@@ -77,7 +76,7 @@
           "id": "organize",
           "options": {
             "renameByName": {
-              "Value (lastNotNull)": "scraped (pts/s)"
+              "Value (lastNotNull)": "pts/s"
             }
           }
         },
@@ -86,10 +85,96 @@
           "options": {
             "sort": [
               {
-                "field": "scraped (pts/s)",
+                "field": "pts/s",
                 "desc": true
               }
             ]
+          }
+        }
+      ]
+    },
+    {
+      "title": "② After Filter (pts/s)",
+      "description": "What comes out of the filter processor: passed to Gigapipe vs discarded. Shows the filter's impact.",
+      "type": "barchart",
+      "gridPos": {
+        "h": 12,
+        "w": 12,
+        "x": 12,
+        "y": 1
+      },
+      "datasource": {
+        "uid": "prometheus",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(otelcol_exporter_sent_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval]))",
+          "refId": "A",
+          "range": true,
+          "legendFormat": "→ gigapipe",
+          "format": "table"
+        },
+        {
+          "expr": "sum(rate(otelcol_processor_incoming_items_total{service_name=\"otel-collector\"}[$__rate_interval])) - sum(rate(otelcol_exporter_sent_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval]))",
+          "refId": "B",
+          "range": true,
+          "legendFormat": "→ discarded",
+          "format": "table"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "palette-classic"
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "→ gigapipe"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "→ discarded"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "orientation": "horizontal",
+        "showValue": "always",
+        "stacking": "none",
+        "barWidth": 0.5
+      },
+      "transformations": [
+        {
+          "id": "reduce",
+          "options": {
+            "reducers": ["lastNotNull"],
+            "includeTimeField": false
           }
         }
       ]
