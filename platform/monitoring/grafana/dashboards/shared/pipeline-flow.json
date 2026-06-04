@@ -34,7 +34,7 @@
         {
           "expr": "label_replace(label_replace(sum by (receiver) (rate(otelcol_receiver_accepted_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval])), \"source\", \"$1\", \"receiver\", \"(.*)\"), \"target\", \"filter/processor\", \"\", \"\") or label_replace(label_replace(sum by (exporter) (rate(otelcol_exporter_sent_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval])), \"source\", \"filter/processor\", \"\", \"\"), \"target\", \"$1\", \"exporter\", \"(.*)\")",
           "refId": "A",
-          "instant": true,
+          "range": true,
           "legendFormat": "",
           "format": "table"
         }
@@ -47,15 +47,30 @@
       },
       "transformations": [
         {
+          "id": "groupBy",
+          "options": {
+            "fields": {
+              "source": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "target": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Value": {
+                "aggregations": ["lastNotNull"],
+                "operation": "aggregate"
+              }
+            }
+          }
+        },
+        {
           "id": "organize",
           "options": {
-            "excludeByName": {
-              "Time": true,
-              "receiver": true,
-              "exporter": true
-            },
+            "excludeByName": {},
             "renameByName": {
-              "Value": "value"
+              "Value (lastNotNull)": "value"
             }
           }
         }
