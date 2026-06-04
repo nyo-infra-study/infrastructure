@@ -4938,15 +4938,6 @@
           "refId": "A"
         }
       ],
-      "transformations": [
-        {
-          "id": "reduce",
-          "options": {
-            "reducers": ["sum"],
-            "includeTimeField": false
-          }
-        }
-      ],
       "title": "Logs by compliance_scope",
       "type": "piechart"
     }
