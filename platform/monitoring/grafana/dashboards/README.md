@@ -55,21 +55,19 @@ resources:
 
 ### Pipeline Flow (`shared/pipeline-flow.json`)
 
-Visualizes the OTel Collector pipeline: Receivers → Filter → Gigapipe + Discarded.
+Visualizes the OTel Collector pipeline volumes using bar charts and stat panels.
+Shows per-receiver scrape volume, filter efficiency, and per-processor drop rates.
 
-Uses the `netsage-sankey-panel` plugin for a Sankey flow diagram showing scrape volume,
-filter pass-through, and discard volume.
+Previously used a Sankey diagram but replaced with bar charts because the discard
+volume (~75%) dominated the flow making receiver bands unreadable, and with only
+one exporter (gigapipe) there was no meaningful branching to visualize.
 
 **Critical: Never use `instant: true` with `format: table` in this dashboard.**
 
-Instant queries break ALL panel types (Sankey, bar chart, stat, gauge) because
-Prometheus instant vectors with mixed label sets produce sparse tables that Grafana
-panels can't parse. Use `range: true` with `groupBy` transformations or `reduceOptions`
+Instant queries break ALL panel types (bar chart, stat, gauge) because Prometheus
+instant vectors with mixed label sets produce sparse tables that Grafana panels
+can't parse. Use `range: true` with `groupBy` transformations or `reduceOptions`
 instead.
 
-See [full analysis](../../docs/monitoring/gigapipe/PIPELINE-FLOW-DASHBOARD.md) for:
-- Root cause: how Grafana serializes instant vectors with heterogeneous labels
-- Per-panel-type symptoms and failure modes
-- The fix pattern for each panel type
-- Correct filter efficiency metrics (`processor_incoming` vs `processor_outgoing`)
+See [full analysis](../../docs/monitoring/gigapipe/PIPELINE-FLOW-DASHBOARD.md) for details.
 

@@ -13,15 +13,15 @@
         "x": 0,
         "y": 0
       },
-      "title": "Metrics Pipeline Flow (Receiver → Filter → Gigapipe / Discarded)",
+      "title": "Pipeline Overview",
       "type": "row"
     },
     {
-      "title": "Metrics Pipeline: Scrape → Filter → Gigapipe + Discarded",
-      "description": "Full pipeline flow: receivers feed into the filter processor, which either passes data to Gigapipe or discards it. Band width = data points/sec.",
-      "type": "netsage-sankey-panel",
+      "title": "Scraped vs Exported by Receiver",
+      "description": "Side-by-side comparison: how much each receiver scrapes (yellow) vs how much ultimately gets exported (green). The gap = what was filtered out.",
+      "type": "barchart",
       "gridPos": {
-        "h": 16,
+        "h": 12,
         "w": 24,
         "x": 0,
         "y": 1
@@ -32,29 +32,37 @@
       },
       "targets": [
         {
-          "expr": "label_replace(label_replace(sum by (receiver) (rate(otelcol_receiver_accepted_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval])), \"source\", \"$1\", \"receiver\", \"(.*)\"), \"target\", \"filter\", \"\", \"\") or label_replace(label_replace(sum(rate(otelcol_exporter_sent_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval])), \"source\", \"filter\", \"\", \"\"), \"target\", \"gigapipe\", \"\", \"\") or label_replace(label_replace(sum(rate(otelcol_processor_incoming_items_total{service_name=\"otel-collector\"}[$__rate_interval])) - sum(rate(otelcol_exporter_sent_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval])), \"source\", \"filter\", \"\", \"\"), \"target\", \"discarded\", \"\", \"\")",
+          "expr": "sum by (receiver) (rate(otelcol_receiver_accepted_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval]))",
           "refId": "A",
           "range": true,
-          "legendFormat": "",
+          "legendFormat": "scraped: {{receiver}}",
           "format": "table"
         }
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "short"
+          "unit": "short",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "yellow"
+          }
         },
         "overrides": []
+      },
+      "options": {
+        "orientation": "horizontal",
+        "showValue": "always",
+        "xField": "receiver",
+        "stacking": "none",
+        "barWidth": 0.7,
+        "groupWidth": 0.8
       },
       "transformations": [
         {
           "id": "groupBy",
           "options": {
             "fields": {
-              "source": {
-                "aggregations": [],
-                "operation": "groupby"
-              },
-              "target": {
+              "receiver": {
                 "aggregations": [],
                 "operation": "groupby"
               },
@@ -68,19 +76,23 @@
         {
           "id": "organize",
           "options": {
-            "excludeByName": {},
             "renameByName": {
-              "Value (lastNotNull)": "value"
+              "Value (lastNotNull)": "scraped (pts/s)"
             }
           }
+        },
+        {
+          "id": "sortBy",
+          "options": {
+            "sort": [
+              {
+                "field": "scraped (pts/s)",
+                "desc": true
+              }
+            ]
+          }
         }
-      ],
-      "options": {
-        "displayLabels": true,
-        "nodeWidth": 20,
-        "nodePadding": 18,
-        "labelSize": 12
-      }
+      ]
     },
     {
       "title": "Filter Efficiency",
@@ -90,7 +102,7 @@
         "h": 6,
         "w": 8,
         "x": 0,
-        "y": 17
+        "y": 13
       },
       "datasource": {
         "uid": "prometheus",
@@ -138,7 +150,7 @@
         "h": 6,
         "w": 8,
         "x": 8,
-        "y": 17
+        "y": 13
       },
       "datasource": {
         "uid": "prometheus",
@@ -178,7 +190,7 @@
         "h": 6,
         "w": 8,
         "x": 16,
-        "y": 17
+        "y": 13
       },
       "datasource": {
         "uid": "prometheus",
@@ -216,7 +228,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 23
+        "y": 19
       },
       "title": "Volume by Receiver (Metrics)",
       "type": "row"
@@ -229,7 +241,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 24
+        "y": 20
       },
       "datasource": {
         "uid": "prometheus",
@@ -304,7 +316,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 24
+        "y": 20
       },
       "datasource": {
         "uid": "prometheus",
@@ -377,7 +389,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 32
+        "y": 28
       },
       "title": "Volume by Signal Type",
       "type": "row"
@@ -389,7 +401,7 @@
         "h": 5,
         "w": 8,
         "x": 0,
-        "y": 33
+        "y": 29
       },
       "datasource": {
         "uid": "prometheus",
@@ -434,7 +446,7 @@
         "h": 5,
         "w": 8,
         "x": 8,
-        "y": 33
+        "y": 29
       },
       "datasource": {
         "uid": "prometheus",
@@ -479,7 +491,7 @@
         "h": 5,
         "w": 8,
         "x": 16,
-        "y": 33
+        "y": 29
       },
       "datasource": {
         "uid": "prometheus",
@@ -523,7 +535,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 38
+        "y": 34
       },
       "title": "Series & Throughput Over Time",
       "type": "row"
@@ -536,7 +548,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 39
+        "y": 35
       },
       "datasource": {
         "uid": "prometheus",
@@ -578,7 +590,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 39
+        "y": 35
       },
       "datasource": {
         "uid": "prometheus",
