@@ -13,12 +13,12 @@
         "x": 0,
         "y": 0
       },
-      "title": "Metrics Pipeline Flow (Receiver → Filter → Exporter)",
+      "title": "Metrics Pipeline Flow (Receiver → Filter → Gigapipe / Discarded)",
       "type": "row"
     },
     {
-      "title": "Metrics Pipeline: Scrape → Filter → Export",
-      "description": "Full pipeline flow showing how many metric points are scraped per receiver, how many pass through the filter processor, and how many are exported. Band width = data points/sec.",
+      "title": "Metrics Pipeline: Scrape → Filter → Gigapipe + Discarded",
+      "description": "Full pipeline flow: receivers feed into the filter processor, which either passes data to Gigapipe or discards it. Band width = data points/sec.",
       "type": "netsage-sankey-panel",
       "gridPos": {
         "h": 16,
@@ -32,8 +32,22 @@
       },
       "targets": [
         {
-          "expr": "label_replace(label_replace(sum by (receiver) (rate(otelcol_receiver_accepted_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval])), \"source\", \"$1\", \"receiver\", \"(.*)\"), \"target\", \"filter/processor\", \"\", \"\") or label_replace(label_replace(sum by (exporter) (rate(otelcol_exporter_sent_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval])), \"source\", \"filter/processor\", \"\", \"\"), \"target\", \"$1\", \"exporter\", \"(.*)\")",
+          "expr": "label_replace(label_replace(sum by (receiver) (rate(otelcol_receiver_accepted_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval])), \"source\", \"$1\", \"receiver\", \"(.*)\"), \"target\", \"filter\", \"\", \"\")",
           "refId": "A",
+          "range": true,
+          "legendFormat": "",
+          "format": "table"
+        },
+        {
+          "expr": "label_replace(label_replace(sum(rate(otelcol_processor_outgoing_items_total{service_name=\"otel-collector\"}[$__rate_interval])), \"source\", \"filter\", \"\", \"\"), \"target\", \"gigapipe\", \"\", \"\")",
+          "refId": "B",
+          "range": true,
+          "legendFormat": "",
+          "format": "table"
+        },
+        {
+          "expr": "label_replace(label_replace(sum(rate(otelcol_processor_incoming_items_total{service_name=\"otel-collector\"}[$__rate_interval])) - sum(rate(otelcol_processor_outgoing_items_total{service_name=\"otel-collector\"}[$__rate_interval])), \"source\", \"filter\", \"\", \"\"), \"target\", \"discarded\", \"\", \"\")",
+          "refId": "C",
           "range": true,
           "legendFormat": "",
           "format": "table"
@@ -46,6 +60,12 @@
         "overrides": []
       },
       "transformations": [
+        {
+          "id": "concatenate",
+          "options": {
+            "frameNameMode": "drop"
+          }
+        },
         {
           "id": "groupBy",
           "options": {
@@ -61,6 +81,18 @@
               "Value": {
                 "aggregations": ["lastNotNull"],
                 "operation": "aggregate"
+              },
+              "Value #A": {
+                "aggregations": ["lastNotNull"],
+                "operation": "aggregate"
+              },
+              "Value #B": {
+                "aggregations": ["lastNotNull"],
+                "operation": "aggregate"
+              },
+              "Value #C": {
+                "aggregations": ["lastNotNull"],
+                "operation": "aggregate"
               }
             }
           }
@@ -70,7 +102,10 @@
           "options": {
             "excludeByName": {},
             "renameByName": {
-              "Value (lastNotNull)": "value"
+              "Value (lastNotNull)": "value",
+              "Value #A (lastNotNull)": "value",
+              "Value #B (lastNotNull)": "value",
+              "Value #C (lastNotNull)": "value"
             }
           }
         }
@@ -78,13 +113,13 @@
       "options": {
         "displayLabels": true,
         "nodeWidth": 20,
-        "nodePadding": 20,
+        "nodePadding": 18,
         "labelSize": 12
       }
     },
     {
-      "title": "Filter Drop Rate",
-      "description": "Percentage of metric points dropped by the filter processor. Higher = more aggressive filtering.",
+      "title": "Filter Efficiency",
+      "description": "Percentage of data dropped by filters. Uses processor incoming vs outgoing items.",
       "type": "gauge",
       "gridPos": {
         "h": 6,
@@ -98,7 +133,7 @@
       },
       "targets": [
         {
-          "expr": "1 - (sum(rate(otelcol_exporter_sent_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval])) / sum(rate(otelcol_receiver_accepted_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval])))",
+          "expr": "1 - (sum(rate(otelcol_processor_outgoing_items_total{service_name=\"otel-collector\"}[$__rate_interval])) / sum(rate(otelcol_processor_incoming_items_total{service_name=\"otel-collector\"}[$__rate_interval])))",
           "refId": "A",
           "legendFormat": "drop rate",
           "range": true
@@ -132,7 +167,7 @@
     },
     {
       "title": "Total Scraped (pts/s)",
-      "description": "Sum of all metric points accepted across all receivers.",
+      "description": "Sum of all metric points accepted across all receivers. BEFORE filtering.",
       "type": "stat",
       "gridPos": {
         "h": 6,
@@ -157,7 +192,7 @@
           "unit": "short",
           "color": {
             "mode": "fixed",
-            "fixedColor": "blue"
+            "fixedColor": "yellow"
           }
         },
         "overrides": []
@@ -166,12 +201,13 @@
         "reduceOptions": {
           "calcs": ["lastNotNull"]
         },
-        "colorMode": "value"
+        "colorMode": "value",
+        "graphMode": "area"
       }
     },
     {
       "title": "Total Exported (pts/s)",
-      "description": "Sum of all metric points sent to exporters after filtering.",
+      "description": "Sum of all metric points that passed through filters and were exported to Gigapipe.",
       "type": "stat",
       "gridPos": {
         "h": 6,
@@ -205,7 +241,8 @@
         "reduceOptions": {
           "calcs": ["lastNotNull"]
         },
-        "colorMode": "value"
+        "colorMode": "value",
+        "graphMode": "area"
       }
     },
     {
@@ -214,20 +251,20 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 21
+        "y": 23
       },
       "title": "Volume by Receiver (Metrics)",
       "type": "row"
     },
     {
       "title": "Metrics Received by Source",
-      "description": "Total metric points accepted per receiver. Shows which scrape targets produce the most data.",
+      "description": "Metric points accepted per receiver. Shows which scrape targets produce the most data.",
       "type": "barchart",
       "gridPos": {
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 22
+        "y": 24
       },
       "datasource": {
         "uid": "prometheus",
@@ -237,7 +274,7 @@
         {
           "expr": "sum by (receiver) (rate(otelcol_receiver_accepted_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval]))",
           "refId": "A",
-          "instant": true,
+          "range": true,
           "legendFormat": "{{receiver}}",
           "format": "table"
         }
@@ -259,12 +296,26 @@
       },
       "transformations": [
         {
+          "id": "groupBy",
+          "options": {
+            "fields": {
+              "receiver": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Value": {
+                "aggregations": ["lastNotNull"],
+                "operation": "aggregate"
+              }
+            }
+          }
+        },
+        {
           "id": "organize",
           "options": {
-            "excludeByName": {
-              "Time": true
-            },
-            "renameByName": {}
+            "renameByName": {
+              "Value (lastNotNull)": "Value"
+            }
           }
         },
         {
@@ -281,14 +332,14 @@
       ]
     },
     {
-      "title": "Metrics Exported by Destination",
-      "description": "Total metric points sent per exporter. Shows where data goes after filtering.",
+      "title": "Data Dropped by Filter (rate/s)",
+      "description": "Shows how many data points each filter drops per second. Only filters that actively remove data appear.",
       "type": "barchart",
       "gridPos": {
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 22
+        "y": 24
       },
       "datasource": {
         "uid": "prometheus",
@@ -296,10 +347,10 @@
       },
       "targets": [
         {
-          "expr": "sum by (exporter) (rate(otelcol_exporter_sent_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval]))",
+          "expr": "sum by (processor) (rate(otelcol_processor_incoming_items_total{service_name=\"otel-collector\"}[$__rate_interval]) - rate(otelcol_processor_outgoing_items_total{service_name=\"otel-collector\"}[$__rate_interval])) > 0",
           "refId": "A",
-          "instant": true,
-          "legendFormat": "{{exporter}}",
+          "range": true,
+          "legendFormat": "{{processor}}",
           "format": "table"
         }
       ],
@@ -315,17 +366,31 @@
       "options": {
         "orientation": "horizontal",
         "showValue": "always",
-        "xField": "exporter",
+        "xField": "processor",
         "stacking": "none"
       },
       "transformations": [
         {
+          "id": "groupBy",
+          "options": {
+            "fields": {
+              "processor": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Value": {
+                "aggregations": ["lastNotNull"],
+                "operation": "aggregate"
+              }
+            }
+          }
+        },
+        {
           "id": "organize",
           "options": {
-            "excludeByName": {
-              "Time": true
-            },
-            "renameByName": {}
+            "renameByName": {
+              "Value (lastNotNull)": "Value"
+            }
           }
         },
         {
@@ -347,7 +412,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 30
+        "y": 32
       },
       "title": "Volume by Signal Type",
       "type": "row"
@@ -359,7 +424,7 @@
         "h": 5,
         "w": 8,
         "x": 0,
-        "y": 31
+        "y": 33
       },
       "datasource": {
         "uid": "prometheus",
@@ -388,7 +453,14 @@
           "legendFormat": "exported/s",
           "range": true
         }
-      ]
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": ["lastNotNull"]
+        },
+        "colorMode": "value",
+        "graphMode": "area"
+      }
     },
     {
       "title": "Metrics Received vs Exported",
@@ -397,7 +469,7 @@
         "h": 5,
         "w": 8,
         "x": 8,
-        "y": 31
+        "y": 33
       },
       "datasource": {
         "uid": "prometheus",
@@ -426,7 +498,14 @@
           "legendFormat": "exported/s",
           "range": true
         }
-      ]
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": ["lastNotNull"]
+        },
+        "colorMode": "value",
+        "graphMode": "area"
+      }
     },
     {
       "title": "Traces Received vs Exported",
@@ -435,7 +514,7 @@
         "h": 5,
         "w": 8,
         "x": 16,
-        "y": 31
+        "y": 33
       },
       "datasource": {
         "uid": "prometheus",
@@ -464,7 +543,14 @@
           "legendFormat": "exported/s",
           "range": true
         }
-      ]
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": ["lastNotNull"]
+        },
+        "colorMode": "value",
+        "graphMode": "area"
+      }
     },
     {
       "collapsed": false,
@@ -472,20 +558,20 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 36
+        "y": 38
       },
       "title": "Series & Throughput Over Time",
       "type": "row"
     },
     {
-      "title": "Active Series by Receiver",
+      "title": "Intake by Receiver Over Time",
       "description": "Rate of metric points per receiver over time. Shows how scrape volume changes.",
       "type": "timeseries",
       "gridPos": {
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 37
+        "y": 39
       },
       "datasource": {
         "uid": "prometheus",
@@ -520,14 +606,14 @@
       }
     },
     {
-      "title": "Export Throughput by Exporter",
-      "description": "Rate of metric points exported per exporter over time.",
+      "title": "Filter Drop Over Time",
+      "description": "Rate of metric points dropped by each processor over time.",
       "type": "timeseries",
       "gridPos": {
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 37
+        "y": 39
       },
       "datasource": {
         "uid": "prometheus",
@@ -535,9 +621,9 @@
       },
       "targets": [
         {
-          "expr": "sum by (exporter) (rate(otelcol_exporter_sent_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval]))",
+          "expr": "sum by (processor) (rate(otelcol_processor_incoming_items_total{service_name=\"otel-collector\"}[$__rate_interval]) - rate(otelcol_processor_outgoing_items_total{service_name=\"otel-collector\"}[$__rate_interval])) > 0",
           "refId": "A",
-          "legendFormat": "{{exporter}}",
+          "legendFormat": "{{processor}}",
           "range": true
         }
       ],
