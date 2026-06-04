@@ -1,9 +1,25 @@
 {
   "annotations": {
-    "list": []
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
   },
   "editable": true,
+  "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
+  "id": 9,
+  "links": [],
   "panels": [
     {
       "collapsed": false,
@@ -13,100 +29,192 @@
         "x": 0,
         "y": 0
       },
+      "id": 1,
+      "panels": [],
       "title": "Pipeline Overview: Raw Scrape → Scrape Filter → Processor Filter → Gigapipe",
       "type": "row"
     },
     {
-      "type": "text",
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
       "gridPos": {
-        "h": 3,
+        "h": 4,
         "w": 8,
         "x": 0,
         "y": 1
       },
+      "id": 2,
       "options": {
-        "mode": "markdown",
-        "content": "#### ① Raw Scrape\n\nTotal samples each Prometheus job exposes **before** any `metric_relabel_configs`.\n\n🟠 Higher = more raw series from target."
-      }
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "#### ① Raw Scrape\n\nTotal samples each Prometheus job exposes **before** any `metric_relabel_configs`.\n\n🟠 Higher = more raw series from target.",
+        "mode": "markdown"
+      },
+      "pluginVersion": "12.3.1",
+      "title": "",
+      "type": "text"
     },
     {
-      "type": "text",
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
       "gridPos": {
-        "h": 3,
+        "h": 4,
         "w": 8,
         "x": 8,
         "y": 1
       },
+      "id": 3,
       "options": {
-        "mode": "markdown",
-        "content": "#### ② After Scrape Filter\n\nWhat OTel Collector actually receives per receiver. Scrape-level `metric_relabel_configs` already applied.\n\n🟡 Gap vs ① = scrape filter drops."
-      }
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "#### ② After Scrape Filter\n\nWhat OTel Collector actually receives per receiver. Scrape-level `metric_relabel_configs` already applied.\n\n🟡 Gap vs ① = scrape filter drops.",
+        "mode": "markdown"
+      },
+      "pluginVersion": "12.3.1",
+      "title": "",
+      "type": "text"
     },
     {
-      "type": "text",
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
       "gridPos": {
-        "h": 3,
+        "h": 4,
         "w": 8,
         "x": 16,
         "y": 1
       },
+      "id": 4,
       "options": {
-        "mode": "markdown",
-        "content": "#### ③ After Processor Filter\n\nFinal OTel processor output: what reaches Gigapipe vs what gets discarded.\n\n🟢 gigapipe  🔴 discarded"
-      }
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "#### ③ After Processor Filter\n\nFinal OTel processor output: what reaches Gigapipe vs what gets discarded.\n\n🟢 gigapipe  🔴 discarded",
+        "mode": "markdown"
+      },
+      "pluginVersion": "12.3.1",
+      "title": "",
+      "type": "text"
     },
     {
-      "title": "① Raw Scraped by Job (samples/s)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
       "description": "Total samples scraped from each job BEFORE scrape-level metric_relabel_configs. This is the raw volume from targets.",
-      "type": "barchart",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "orange",
+            "mode": "fixed"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
       "gridPos": {
         "h": 11,
         "w": 8,
         "x": 0,
-        "y": 4
+        "y": 5
       },
-      "datasource": {
-        "uid": "prometheus",
-        "type": "prometheus"
+      "id": 5,
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.7,
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "orientation": "horizontal",
+        "showValue": "always",
+        "stacking": "none",
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        },
+        "xField": "job",
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
       },
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "expr": "sum by (job) (scrape_samples_scraped)",
-          "refId": "A",
-          "range": true,
+          "format": "table",
           "legendFormat": "{{job}}",
-          "format": "table"
+          "range": true,
+          "refId": "A"
         }
       ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "color": {
-            "mode": "fixed",
-            "fixedColor": "orange"
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "orientation": "horizontal",
-        "showValue": "always",
-        "xField": "job",
-        "stacking": "none",
-        "barWidth": 0.7
-      },
+      "title": "① Raw Scraped by Job (samples/s)",
       "transformations": [
         {
           "id": "groupBy",
           "options": {
             "fields": {
+              "Value": {
+                "aggregations": [
+                  "lastNotNull"
+                ],
+                "operation": "aggregate"
+              },
               "job": {
                 "aggregations": [],
                 "operation": "groupby"
-              },
-              "Value": {
-                "aggregations": ["lastNotNull"],
-                "operation": "aggregate"
               }
             }
           }
@@ -124,66 +232,121 @@
           "options": {
             "sort": [
               {
-                "field": "samples/s",
-                "desc": true
+                "desc": true,
+                "field": "samples/s"
               }
             ]
           }
         }
-      ]
+      ],
+      "type": "barchart"
     },
     {
-      "title": "② After Scrape Filter by Receiver (pts/s)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
       "description": "Metric points accepted by OTel Collector per receiver. This is AFTER Prometheus metric_relabel_configs but BEFORE OTel processor filters.",
-      "type": "barchart",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "yellow",
+            "mode": "fixed"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
       "gridPos": {
         "h": 11,
         "w": 8,
         "x": 8,
-        "y": 4
+        "y": 5
       },
-      "datasource": {
-        "uid": "prometheus",
-        "type": "prometheus"
+      "id": 6,
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.7,
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "orientation": "horizontal",
+        "showValue": "always",
+        "stacking": "none",
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        },
+        "xField": "receiver",
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
       },
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "expr": "sum by (receiver) (rate(otelcol_receiver_accepted_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval]))",
-          "refId": "A",
-          "range": true,
+          "format": "table",
           "legendFormat": "{{receiver}}",
-          "format": "table"
+          "range": true,
+          "refId": "A"
         }
       ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "color": {
-            "mode": "fixed",
-            "fixedColor": "yellow"
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "orientation": "horizontal",
-        "showValue": "always",
-        "xField": "receiver",
-        "stacking": "none",
-        "barWidth": 0.7
-      },
+      "title": "② After Scrape Filter by Receiver (pts/s)",
       "transformations": [
         {
           "id": "groupBy",
           "options": {
             "fields": {
+              "Value": {
+                "aggregations": [
+                  "lastNotNull"
+                ],
+                "operation": "aggregate"
+              },
               "receiver": {
                 "aggregations": [],
                 "operation": "groupby"
-              },
-              "Value": {
-                "aggregations": ["lastNotNull"],
-                "operation": "aggregate"
               }
             }
           }
@@ -201,43 +364,62 @@
           "options": {
             "sort": [
               {
-                "field": "pts/s",
-                "desc": true
+                "desc": true,
+                "field": "pts/s"
               }
             ]
           }
         }
-      ]
+      ],
+      "type": "barchart"
     },
     {
-      "title": "③ After Processor Filter (pts/s)",
-      "description": "Final output of OTel processor filters: what reaches Gigapipe vs what gets discarded.",
-      "type": "barchart",
-      "gridPos": {
-        "h": 11,
-        "w": 8,
-        "x": 16,
-        "y": 4
-      },
       "datasource": {
-        "uid": "prometheus",
-        "type": "prometheus"
+        "type": "prometheus",
+        "uid": "prometheus"
       },
-      "targets": [
-        {
-          "expr": "label_replace(sum(rate(otelcol_exporter_sent_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval])), \"outcome\", \"→ gigapipe\", \"\", \"\") or label_replace(sum(rate(otelcol_processor_incoming_items_total{service_name=\"otel-collector\"}[$__rate_interval])) - sum(rate(otelcol_exporter_sent_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval])), \"outcome\", \"→ discarded\", \"\", \"\")",
-          "refId": "A",
-          "range": true,
-          "legendFormat": "",
-          "format": "table"
-        }
-      ],
+      "description": "Final output of OTel processor filters: what reaches Gigapipe vs what gets discarded.",
       "fieldConfig": {
         "defaults": {
-          "unit": "short",
           "color": {
             "mode": "palette-classic"
-          }
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
         },
         "overrides": [
           {
@@ -272,25 +454,61 @@
           }
         ]
       },
+      "gridPos": {
+        "h": 11,
+        "w": 8,
+        "x": 16,
+        "y": 5
+      },
+      "id": 7,
       "options": {
+        "barRadius": 0,
+        "barWidth": 0.5,
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
         "orientation": "horizontal",
         "showValue": "always",
-        "xField": "outcome",
         "stacking": "none",
-        "barWidth": 0.5
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        },
+        "xField": "outcome",
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
       },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "expr": "label_replace(sum(rate(otelcol_exporter_sent_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval])), \"outcome\", \"→ gigapipe\", \"\", \"\") or label_replace(sum(rate(otelcol_processor_incoming_items_total{service_name=\"otel-collector\"}[$__rate_interval])) - sum(rate(otelcol_exporter_sent_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval])), \"outcome\", \"→ discarded\", \"\", \"\")",
+          "format": "table",
+          "legendFormat": "",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "③ After Processor Filter (pts/s)",
       "transformations": [
         {
           "id": "groupBy",
           "options": {
             "fields": {
+              "Value": {
+                "aggregations": [
+                  "lastNotNull"
+                ],
+                "operation": "aggregate"
+              },
               "outcome": {
                 "aggregations": [],
                 "operation": "groupby"
-              },
-              "Value": {
-                "aggregations": ["lastNotNull"],
-                "operation": "aggregate"
               }
             }
           }
@@ -303,7 +521,8 @@
             }
           }
         }
-      ]
+      ],
+      "type": "barchart"
     },
     {
       "collapsed": false,
@@ -311,472 +530,607 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 15
+        "y": 16
       },
+      "id": 8,
+      "panels": [],
       "title": "Filter Efficiency",
       "type": "row"
     },
     {
-      "type": "text",
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
       "gridPos": {
         "h": 2,
-        "w": 12,
+        "w": 24,
         "x": 0,
-        "y": 16
+        "y": 17
       },
+      "id": 9,
       "options": {
-        "mode": "markdown",
-        "content": "**Scrape Filter** = `metric_relabel_configs` drops at Prometheus scrape time (① → ②)  \n**Processor Filter** = OTel `filter` processor drops inside the pipeline (② → ③)"
-      }
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "**Scrape Filter** = `metric_relabel_configs` drops at Prometheus scrape time (① → ②)  \n**Processor Filter** = OTel `filter` processor drops inside the pipeline (② → ③)",
+        "mode": "markdown"
+      },
+      "pluginVersion": "12.3.1",
+      "title": "",
+      "type": "text"
     },
     {
-      "title": "Scrape Filter Efficiency",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
       "description": "How much Prometheus metric_relabel_configs drops at scrape time. Compares raw scraped samples vs what OTel receives.",
-      "type": "gauge",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "max": 1,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "yellow",
+                "value": 0.3
+              },
+              {
+                "color": "orange",
+                "value": 0.5
+              },
+              {
+                "color": "red",
+                "value": 0.8
+              }
+            ]
+          },
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
       "gridPos": {
         "h": 6,
         "w": 6,
         "x": 0,
-        "y": 18
+        "y": 19
       },
-      "datasource": {
-        "uid": "prometheus",
-        "type": "prometheus"
+      "id": 10,
+      "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto"
       },
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "expr": "1 - (sum(rate(otelcol_receiver_accepted_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval])) / sum(scrape_samples_scraped))",
-          "refId": "A",
           "legendFormat": "scrape filter",
-          "range": true
+          "range": true,
+          "refId": "A"
         }
       ],
+      "title": "Scrape Filter Efficiency",
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "description": "How much OTel processor filters drop. Compares what enters processors vs what gets exported.",
       "fieldConfig": {
         "defaults": {
-          "unit": "percentunit",
-          "min": 0,
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
           "max": 1,
+          "min": 0,
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "green", "value": null },
-              { "color": "yellow", "value": 0.3 },
-              { "color": "orange", "value": 0.5 },
-              { "color": "red", "value": 0.8 }
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "yellow",
+                "value": 0.3
+              },
+              {
+                "color": "orange",
+                "value": 0.5
+              },
+              {
+                "color": "red",
+                "value": 0.8
+              }
             ]
           },
-          "color": {
-            "mode": "thresholds"
-          }
+          "unit": "percentunit"
         },
         "overrides": []
       },
-      "options": {
-        "reduceOptions": {
-          "calcs": ["lastNotNull"]
-        }
-      }
-    },
-    {
-      "title": "Processor Filter Efficiency",
-      "description": "How much OTel processor filters drop. Compares what enters processors vs what gets exported.",
-      "type": "gauge",
       "gridPos": {
         "h": 6,
         "w": 6,
         "x": 6,
-        "y": 18
+        "y": 19
       },
-      "datasource": {
-        "uid": "prometheus",
-        "type": "prometheus"
+      "id": 11,
+      "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto"
       },
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "expr": "1 - (sum(rate(otelcol_exporter_sent_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval])) / sum(rate(otelcol_processor_incoming_items_total{service_name=\"otel-collector\"}[$__rate_interval])))",
-          "refId": "A",
           "legendFormat": "processor filter",
-          "range": true
+          "range": true,
+          "refId": "A"
         }
       ],
+      "title": "Processor Filter Efficiency",
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "description": "Sum of all raw samples scraped from all targets (before any filtering).",
       "fieldConfig": {
         "defaults": {
-          "unit": "percentunit",
-          "min": 0,
-          "max": 1,
+          "color": {
+            "fixedColor": "orange",
+            "mode": "fixed"
+          },
+          "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "green", "value": null },
-              { "color": "yellow", "value": 0.3 },
-              { "color": "orange", "value": 0.5 },
-              { "color": "red", "value": 0.8 }
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
             ]
           },
-          "color": {
-            "mode": "thresholds"
-          }
+          "unit": "short"
         },
         "overrides": []
       },
-      "options": {
-        "reduceOptions": {
-          "calcs": ["lastNotNull"]
-        }
-      }
-    },
-    {
-      "title": "Total Raw Scraped",
-      "description": "Sum of all raw samples scraped from all targets (before any filtering).",
-      "type": "stat",
       "gridPos": {
         "h": 6,
         "w": 4,
         "x": 12,
-        "y": 18
+        "y": 19
       },
-      "datasource": {
-        "uid": "prometheus",
-        "type": "prometheus"
+      "id": 12,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
       },
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "expr": "sum(scrape_samples_scraped)",
-          "refId": "A",
           "legendFormat": "raw",
-          "range": true
+          "range": true,
+          "refId": "A"
         }
       ],
+      "title": "Total Raw Scraped",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "description": "Metric points accepted by OTel Collector (after scrape filter).",
       "fieldConfig": {
         "defaults": {
-          "unit": "short",
           "color": {
-            "mode": "fixed",
-            "fixedColor": "orange"
-          }
+            "fixedColor": "yellow",
+            "mode": "fixed"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
         },
         "overrides": []
       },
-      "options": {
-        "reduceOptions": {
-          "calcs": ["lastNotNull"]
-        },
-        "colorMode": "value",
-        "graphMode": "area"
-      }
-    },
-    {
-      "title": "Into OTel (pts/s)",
-      "description": "Metric points accepted by OTel Collector (after scrape filter).",
-      "type": "stat",
       "gridPos": {
         "h": 6,
         "w": 4,
         "x": 16,
-        "y": 18
+        "y": 19
       },
-      "datasource": {
-        "uid": "prometheus",
-        "type": "prometheus"
+      "id": 13,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
       },
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "expr": "sum(rate(otelcol_receiver_accepted_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval]))",
-          "refId": "A",
           "legendFormat": "into otel",
-          "range": true
+          "range": true,
+          "refId": "A"
         }
       ],
+      "title": "Into OTel (pts/s)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "description": "Metric points exported to Gigapipe (after processor filter).",
       "fieldConfig": {
         "defaults": {
-          "unit": "short",
           "color": {
-            "mode": "fixed",
-            "fixedColor": "yellow"
-          }
+            "fixedColor": "green",
+            "mode": "fixed"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
         },
         "overrides": []
       },
-      "options": {
-        "reduceOptions": {
-          "calcs": ["lastNotNull"]
-        },
-        "colorMode": "value",
-        "graphMode": "area"
-      }
-    },
-    {
-      "title": "Exported (pts/s)",
-      "description": "Metric points exported to Gigapipe (after processor filter).",
-      "type": "stat",
       "gridPos": {
         "h": 6,
         "w": 4,
         "x": 20,
-        "y": 18
+        "y": 19
       },
-      "datasource": {
-        "uid": "prometheus",
-        "type": "prometheus"
+      "id": 14,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
       },
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "expr": "sum(rate(otelcol_exporter_sent_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval]))",
-          "refId": "A",
           "legendFormat": "exported",
-          "range": true
+          "range": true,
+          "refId": "A"
         }
       ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "color": {
-            "mode": "fixed",
-            "fixedColor": "green"
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "reduceOptions": {
-          "calcs": ["lastNotNull"]
-        },
-        "colorMode": "value",
-        "graphMode": "area"
-      }
+      "title": "Exported (pts/s)",
+      "type": "stat"
     },
     {
       "collapsed": false,
       "gridPos": {
         "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 24
-      },
-      "title": "Filter Details (per processor)",
-      "type": "row"
-    },
-    {
-      "title": "Data Dropped by Processor (rate/s)",
-      "description": "How many data points each OTel processor drops per second. Only processors that actively remove data appear.",
-      "type": "barchart",
-      "gridPos": {
-        "h": 7,
         "w": 24,
         "x": 0,
         "y": 25
       },
-      "datasource": {
-        "uid": "prometheus",
-        "type": "prometheus"
-      },
-      "targets": [
-        {
-          "expr": "sum by (processor) (rate(otelcol_processor_incoming_items_total{service_name=\"otel-collector\"}[$__rate_interval]) - rate(otelcol_processor_outgoing_items_total{service_name=\"otel-collector\"}[$__rate_interval])) > 0",
-          "refId": "A",
-          "range": true,
-          "legendFormat": "{{processor}}",
-          "format": "table"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "color": {
-            "mode": "fixed",
-            "fixedColor": "red"
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "orientation": "horizontal",
-        "showValue": "always",
-        "xField": "processor",
-        "stacking": "none"
-      },
-      "transformations": [
-        {
-          "id": "groupBy",
-          "options": {
-            "fields": {
-              "processor": {
-                "aggregations": [],
-                "operation": "groupby"
-              },
-              "Value": {
-                "aggregations": ["lastNotNull"],
-                "operation": "aggregate"
-              }
-            }
-          }
-        },
-        {
-          "id": "organize",
-          "options": {
-            "renameByName": {
-              "Value (lastNotNull)": "dropped/s"
-            }
-          }
-        },
-        {
-          "id": "sortBy",
-          "options": {
-            "sort": [
-              {
-                "field": "dropped/s",
-                "desc": true
-              }
-            ]
-          }
-        }
-      ]
-    },
-    {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 32
-      },
+      "id": 17,
+      "panels": [],
       "title": "Volume by Signal Type",
       "type": "row"
     },
     {
-      "title": "Logs Received vs Exported",
-      "type": "stat",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "blue",
+            "mode": "fixed"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
       "gridPos": {
         "h": 5,
         "w": 8,
         "x": 0,
-        "y": 33
+        "y": 26
       },
-      "datasource": {
-        "uid": "prometheus",
-        "type": "prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "color": {
-            "mode": "fixed",
-            "fixedColor": "blue"
-          }
+      "id": 18,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
         },
-        "overrides": []
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
       },
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "expr": "sum(rate(otelcol_receiver_accepted_log_records_total{service_name=\"otel-collector\"}[$__rate_interval]))",
-          "refId": "A",
           "legendFormat": "received/s",
-          "range": true
+          "range": true,
+          "refId": "A"
         },
         {
           "expr": "sum(rate(otelcol_exporter_sent_log_records_total{service_name=\"otel-collector\"}[$__rate_interval]))",
-          "refId": "B",
           "legendFormat": "exported/s",
-          "range": true
+          "range": true,
+          "refId": "B"
         }
       ],
-      "options": {
-        "reduceOptions": {
-          "calcs": ["lastNotNull"]
-        },
-        "colorMode": "value",
-        "graphMode": "area"
-      }
+      "title": "Logs Received vs Exported",
+      "type": "stat"
     },
     {
-      "title": "Metrics Received vs Exported",
-      "type": "stat",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "green",
+            "mode": "fixed"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
       "gridPos": {
         "h": 5,
         "w": 8,
         "x": 8,
-        "y": 33
+        "y": 26
       },
-      "datasource": {
-        "uid": "prometheus",
-        "type": "prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "color": {
-            "mode": "fixed",
-            "fixedColor": "green"
-          }
+      "id": 19,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
         },
-        "overrides": []
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
       },
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "expr": "sum(rate(otelcol_receiver_accepted_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval]))",
-          "refId": "A",
           "legendFormat": "received/s",
-          "range": true
+          "range": true,
+          "refId": "A"
         },
         {
           "expr": "sum(rate(otelcol_exporter_sent_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval]))",
-          "refId": "B",
           "legendFormat": "exported/s",
-          "range": true
+          "range": true,
+          "refId": "B"
         }
       ],
-      "options": {
-        "reduceOptions": {
-          "calcs": ["lastNotNull"]
-        },
-        "colorMode": "value",
-        "graphMode": "area"
-      }
+      "title": "Metrics Received vs Exported",
+      "type": "stat"
     },
     {
-      "title": "Traces Received vs Exported",
-      "type": "stat",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "purple",
+            "mode": "fixed"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
       "gridPos": {
         "h": 5,
         "w": 8,
         "x": 16,
-        "y": 33
+        "y": 26
       },
-      "datasource": {
-        "uid": "prometheus",
-        "type": "prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "color": {
-            "mode": "fixed",
-            "fixedColor": "purple"
-          }
+      "id": 20,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
         },
-        "overrides": []
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
       },
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "expr": "sum(rate(otelcol_receiver_accepted_spans_total{service_name=\"otel-collector\"}[$__rate_interval]))",
-          "refId": "A",
           "legendFormat": "received/s",
-          "range": true
+          "range": true,
+          "refId": "A"
         },
         {
           "expr": "sum(rate(otelcol_exporter_sent_spans_total{service_name=\"otel-collector\"}[$__rate_interval]))",
-          "refId": "B",
           "legendFormat": "exported/s",
-          "range": true
+          "range": true,
+          "refId": "B"
         }
       ],
-      "options": {
-        "reduceOptions": {
-          "calcs": ["lastNotNull"]
-        },
-        "colorMode": "value",
-        "graphMode": "area"
-      }
+      "title": "Traces Received vs Exported",
+      "type": "stat"
     },
     {
       "collapsed": false,
@@ -784,97 +1138,213 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 38
+        "y": 31
       },
+      "id": 21,
+      "panels": [],
       "title": "Throughput Over Time",
       "type": "row"
     },
     {
-      "title": "Intake by Receiver Over Time",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
       "description": "Rate of metric points per receiver over time.",
-      "type": "timeseries",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "percent"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
       "gridPos": {
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 39
+        "y": 32
       },
-      "datasource": {
-        "uid": "prometheus",
-        "type": "prometheus"
+      "id": 22,
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "lastNotNull"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
       },
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "expr": "sum by (receiver) (rate(otelcol_receiver_accepted_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval]))",
-          "refId": "A",
           "legendFormat": "{{receiver}}",
-          "range": true
+          "range": true,
+          "refId": "A"
         }
       ],
+      "title": "Intake by Receiver Over Time",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "description": "Rate of metric points dropped by each processor over time.",
       "fieldConfig": {
         "defaults": {
-          "unit": "short",
+          "color": {
+            "mode": "palette-classic"
+          },
           "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
-            "lineWidth": 1,
             "fillOpacity": 10,
-            "stacking": { "mode": "normal" }
-          }
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "percent"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
         },
         "overrides": []
       },
-      "options": {
-        "legend": {
-          "displayMode": "table",
-          "placement": "bottom",
-          "calcs": ["mean", "lastNotNull"]
-        }
-      }
-    },
-    {
-      "title": "Filter Drop Over Time",
-      "description": "Rate of metric points dropped by each processor over time.",
-      "type": "timeseries",
       "gridPos": {
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 39
+        "y": 32
       },
-      "datasource": {
-        "uid": "prometheus",
-        "type": "prometheus"
+      "id": 23,
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "lastNotNull"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
       },
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "expr": "sum by (processor) (rate(otelcol_processor_incoming_items_total{service_name=\"otel-collector\"}[$__rate_interval]) - rate(otelcol_processor_outgoing_items_total{service_name=\"otel-collector\"}[$__rate_interval])) > 0",
-          "refId": "A",
           "legendFormat": "{{processor}}",
-          "range": true
+          "range": true,
+          "refId": "A"
         }
       ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "custom": {
-            "drawStyle": "line",
-            "lineWidth": 1,
-            "fillOpacity": 10,
-            "stacking": { "mode": "normal" }
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "legend": {
-          "displayMode": "table",
-          "placement": "bottom",
-          "calcs": ["mean", "lastNotNull"]
-        }
-      }
+      "title": "Filter Drop Over Time",
+      "type": "timeseries"
     }
   ],
-  "schemaVersion": 39,
+  "preload": false,
+  "refresh": "10s",
+  "schemaVersion": 42,
   "tags": [
     "otel",
     "pipeline",
@@ -887,7 +1357,9 @@
     "from": "now-1h",
     "to": "now"
   },
+  "timepicker": {},
+  "timezone": "",
   "title": "Pipeline Flow",
   "uid": "pipeline-flow",
-  "refresh": "10s"
+  "version": 12
 }
