@@ -32,15 +32,8 @@
       },
       "targets": [
         {
-          "expr": "label_replace(label_replace(sum by (receiver) (rate(otelcol_receiver_accepted_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval])), \"source\", \"$1\", \"receiver\", \"(.*)\"), \"target\", \"filter/processor\", \"\", \"\")",
+          "expr": "label_replace(label_replace(sum by (receiver) (rate(otelcol_receiver_accepted_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval])), \"source\", \"$1\", \"receiver\", \"(.*)\"), \"target\", \"filter/processor\", \"\", \"\") or label_replace(label_replace(sum by (exporter) (rate(otelcol_exporter_sent_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval])), \"source\", \"filter/processor\", \"\", \"\"), \"target\", \"$1\", \"exporter\", \"(.*)\")",
           "refId": "A",
-          "instant": true,
-          "legendFormat": "",
-          "format": "table"
-        },
-        {
-          "expr": "label_replace(label_replace(sum by (exporter) (rate(otelcol_exporter_sent_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval])), \"source\", \"filter/processor\", \"\", \"\"), \"target\", \"$1\", \"exporter\", \"(.*)\")",
-          "refId": "B",
           "instant": true,
           "legendFormat": "",
           "format": "table"
@@ -54,10 +47,6 @@
       },
       "transformations": [
         {
-          "id": "merge",
-          "options": {}
-        },
-        {
           "id": "organize",
           "options": {
             "excludeByName": {
@@ -66,9 +55,7 @@
               "exporter": true
             },
             "renameByName": {
-              "Value": "value",
-              "Value #A": "value",
-              "Value #B": "value"
+              "Value": "value"
             }
           }
         }
