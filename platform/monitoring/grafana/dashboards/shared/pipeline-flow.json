@@ -21,7 +21,7 @@
       "description": "Full pipeline flow showing how many metric points are scraped per receiver, how many pass through the filter processor, and how many are exported. Band width = data points/sec.",
       "type": "netsage-sankey-panel",
       "gridPos": {
-        "h": 14,
+        "h": 16,
         "w": 24,
         "x": 0,
         "y": 1
@@ -76,7 +76,10 @@
         }
       ],
       "options": {
-        "displayLabels": true
+        "displayLabels": true,
+        "nodeWidth": 20,
+        "nodePadding": 20,
+        "labelSize": 12
       }
     },
     {
@@ -87,7 +90,7 @@
         "h": 6,
         "w": 8,
         "x": 0,
-        "y": 15
+        "y": 17
       },
       "datasource": {
         "uid": "prometheus",
@@ -98,7 +101,7 @@
           "expr": "1 - (sum(rate(otelcol_exporter_sent_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval])) / sum(rate(otelcol_receiver_accepted_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval])))",
           "refId": "A",
           "legendFormat": "drop rate",
-          "instant": true
+          "range": true
         }
       ],
       "fieldConfig": {
@@ -135,7 +138,7 @@
         "h": 6,
         "w": 8,
         "x": 8,
-        "y": 15
+        "y": 17
       },
       "datasource": {
         "uid": "prometheus",
@@ -146,7 +149,7 @@
           "expr": "sum(rate(otelcol_receiver_accepted_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval]))",
           "refId": "A",
           "legendFormat": "scraped",
-          "instant": true
+          "range": true
         }
       ],
       "fieldConfig": {
@@ -174,7 +177,7 @@
         "h": 6,
         "w": 8,
         "x": 16,
-        "y": 15
+        "y": 17
       },
       "datasource": {
         "uid": "prometheus",
@@ -185,7 +188,7 @@
           "expr": "sum(rate(otelcol_exporter_sent_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval]))",
           "refId": "A",
           "legendFormat": "exported",
-          "instant": true
+          "range": true
         }
       ],
       "fieldConfig": {
