@@ -13,17 +13,94 @@
         "x": 0,
         "y": 0
       },
-      "title": "Pipeline Overview",
+      "title": "Pipeline Overview: Raw Scrape → Scrape Filter → Processor Filter → Gigapipe",
       "type": "row"
     },
     {
-      "title": "① Scraped by Receiver (pts/s)",
-      "description": "Metric points accepted per receiver BEFORE filtering. Shows which scrape targets produce the most data.",
+      "title": "① Raw Scraped by Job (samples/s)",
+      "description": "Total samples scraped from each job BEFORE scrape-level metric_relabel_configs. This is the raw volume from targets.",
       "type": "barchart",
       "gridPos": {
         "h": 12,
-        "w": 12,
+        "w": 8,
         "x": 0,
+        "y": 1
+      },
+      "datasource": {
+        "uid": "prometheus",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "sum by (job) (scrape_samples_scraped)",
+          "refId": "A",
+          "range": true,
+          "legendFormat": "{{job}}",
+          "format": "table"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "orange"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "orientation": "horizontal",
+        "showValue": "always",
+        "xField": "job",
+        "stacking": "none",
+        "barWidth": 0.7
+      },
+      "transformations": [
+        {
+          "id": "groupBy",
+          "options": {
+            "fields": {
+              "job": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Value": {
+                "aggregations": ["lastNotNull"],
+                "operation": "aggregate"
+              }
+            }
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "renameByName": {
+              "Value (lastNotNull)": "samples/s"
+            }
+          }
+        },
+        {
+          "id": "sortBy",
+          "options": {
+            "sort": [
+              {
+                "field": "samples/s",
+                "desc": true
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "title": "② After Scrape Filter by Receiver (pts/s)",
+      "description": "Metric points accepted by OTel Collector per receiver. This is AFTER Prometheus metric_relabel_configs but BEFORE OTel processor filters.",
+      "type": "barchart",
+      "gridPos": {
+        "h": 12,
+        "w": 8,
+        "x": 8,
         "y": 1
       },
       "datasource": {
@@ -94,13 +171,13 @@
       ]
     },
     {
-      "title": "② After Filter (pts/s)",
-      "description": "What comes out of the filter processor: passed to Gigapipe vs discarded. Shows the filter's impact.",
+      "title": "③ After Processor Filter (pts/s)",
+      "description": "Final output of OTel processor filters: what reaches Gigapipe vs what gets discarded.",
       "type": "barchart",
       "gridPos": {
         "h": 12,
-        "w": 12,
-        "x": 12,
+        "w": 8,
+        "x": 16,
         "y": 1
       },
       "datasource": {
@@ -190,14 +267,25 @@
       ]
     },
     {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 13
+      },
       "title": "Filter Efficiency",
-      "description": "Percentage of data dropped by filters. Uses processor incoming vs outgoing items.",
+      "type": "row"
+    },
+    {
+      "title": "Scrape Filter Efficiency",
+      "description": "How much Prometheus metric_relabel_configs drops at scrape time. Compares raw scraped samples vs what OTel receives.",
       "type": "gauge",
       "gridPos": {
         "h": 6,
-        "w": 8,
+        "w": 6,
         "x": 0,
-        "y": 13
+        "y": 14
       },
       "datasource": {
         "uid": "prometheus",
@@ -205,9 +293,9 @@
       },
       "targets": [
         {
-          "expr": "1 - (sum(rate(otelcol_exporter_sent_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval])) / sum(rate(otelcol_processor_incoming_items_total{service_name=\"otel-collector\"}[$__rate_interval])))",
+          "expr": "1 - (sum(rate(otelcol_receiver_accepted_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval])) / sum(scrape_samples_scraped))",
           "refId": "A",
-          "legendFormat": "drop rate",
+          "legendFormat": "scrape filter",
           "range": true
         }
       ],
@@ -238,14 +326,102 @@
       }
     },
     {
-      "title": "Total Scraped (pts/s)",
-      "description": "Sum of all metric points accepted across all receivers. BEFORE filtering.",
+      "title": "Processor Filter Efficiency",
+      "description": "How much OTel processor filters drop. Compares what enters processors vs what gets exported.",
+      "type": "gauge",
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 6,
+        "y": 14
+      },
+      "datasource": {
+        "uid": "prometheus",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "1 - (sum(rate(otelcol_exporter_sent_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval])) / sum(rate(otelcol_processor_incoming_items_total{service_name=\"otel-collector\"}[$__rate_interval])))",
+          "refId": "A",
+          "legendFormat": "processor filter",
+          "range": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "min": 0,
+          "max": 1,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 0.3 },
+              { "color": "orange", "value": 0.5 },
+              { "color": "red", "value": 0.8 }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": ["lastNotNull"]
+        }
+      }
+    },
+    {
+      "title": "Total Raw Scraped",
+      "description": "Sum of all raw samples scraped from all targets (before any filtering).",
       "type": "stat",
       "gridPos": {
         "h": 6,
-        "w": 8,
-        "x": 8,
-        "y": 13
+        "w": 4,
+        "x": 12,
+        "y": 14
+      },
+      "datasource": {
+        "uid": "prometheus",
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "sum(scrape_samples_scraped)",
+          "refId": "A",
+          "legendFormat": "raw",
+          "range": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "orange"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": ["lastNotNull"]
+        },
+        "colorMode": "value",
+        "graphMode": "area"
+      }
+    },
+    {
+      "title": "Into OTel (pts/s)",
+      "description": "Metric points accepted by OTel Collector (after scrape filter).",
+      "type": "stat",
+      "gridPos": {
+        "h": 6,
+        "w": 4,
+        "x": 16,
+        "y": 14
       },
       "datasource": {
         "uid": "prometheus",
@@ -255,7 +431,7 @@
         {
           "expr": "sum(rate(otelcol_receiver_accepted_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval]))",
           "refId": "A",
-          "legendFormat": "scraped",
+          "legendFormat": "into otel",
           "range": true
         }
       ],
@@ -278,14 +454,14 @@
       }
     },
     {
-      "title": "Total Exported (pts/s)",
-      "description": "Sum of all metric points that passed through filters and were exported to Gigapipe.",
+      "title": "Exported (pts/s)",
+      "description": "Metric points exported to Gigapipe (after processor filter).",
       "type": "stat",
       "gridPos": {
         "h": 6,
-        "w": 8,
-        "x": 16,
-        "y": 13
+        "w": 4,
+        "x": 20,
+        "y": 14
       },
       "datasource": {
         "uid": "prometheus",
@@ -323,20 +499,20 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 19
+        "y": 20
       },
-      "title": "Filter Details",
+      "title": "Filter Details (per processor)",
       "type": "row"
     },
     {
-      "title": "Data Dropped by Filter (rate/s)",
-      "description": "Shows how many data points each filter drops per second. Only filters that actively remove data appear.",
+      "title": "Data Dropped by Processor (rate/s)",
+      "description": "How many data points each OTel processor drops per second. Only processors that actively remove data appear.",
       "type": "barchart",
       "gridPos": {
-        "h": 8,
+        "h": 7,
         "w": 24,
         "x": 0,
-        "y": 20
+        "y": 21
       },
       "datasource": {
         "uid": "prometheus",
@@ -355,7 +531,8 @@
         "defaults": {
           "unit": "short",
           "color": {
-            "mode": "palette-classic"
+            "mode": "fixed",
+            "fixedColor": "red"
           }
         },
         "overrides": []
@@ -386,7 +563,7 @@
           "id": "organize",
           "options": {
             "renameByName": {
-              "Value (lastNotNull)": "Value"
+              "Value (lastNotNull)": "dropped/s"
             }
           }
         },
@@ -395,7 +572,7 @@
           "options": {
             "sort": [
               {
-                "field": "Value",
+                "field": "dropped/s",
                 "desc": true
               }
             ]
@@ -557,12 +734,12 @@
         "x": 0,
         "y": 34
       },
-      "title": "Series & Throughput Over Time",
+      "title": "Throughput Over Time",
       "type": "row"
     },
     {
       "title": "Intake by Receiver Over Time",
-      "description": "Rate of metric points per receiver over time. Shows how scrape volume changes.",
+      "description": "Rate of metric points per receiver over time.",
       "type": "timeseries",
       "gridPos": {
         "h": 8,
