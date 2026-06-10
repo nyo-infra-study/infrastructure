@@ -37,10 +37,10 @@ readerPci:
     db: "otel"
   resources:
     requests:
-      cpu: 50m
-      memory: 128Mi
+      cpu: 20m
+      memory: 32Mi
     limits:
-      memory: 512Mi
+      memory: 256Mi
   ingress:
     enabled: true
     host: "gigapipe-pci.localhost"
@@ -58,10 +58,10 @@ readerNonpci:
     db: "otel"
   resources:
     requests:
-      cpu: 50m
-      memory: 128Mi
+      cpu: 20m
+      memory: 32Mi
     limits:
-      memory: 512Mi
+      memory: 256Mi
   ingress:
     enabled: true
     host: "gigapipe-nonpci.localhost"

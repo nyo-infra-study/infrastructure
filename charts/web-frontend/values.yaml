@@ -65,7 +65,7 @@ resources:
     memory: 64Mi
   requests:
     cpu: 5m
-    memory: 16Mi
+    memory: 32Mi
 
 # Pod security context
 podSecurityContext:

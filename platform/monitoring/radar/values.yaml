@@ -30,10 +30,10 @@ ingress:
 # --- Resources (lightweight for local dev) ---
 resources:
   requests:
-    cpu: 50m
-    memory: 128Mi
+    cpu: 25m
+    memory: 64Mi
   limits:
-    memory: 512Mi
+    memory: 128Mi
 
 # --- RBAC ---
 rbac:
