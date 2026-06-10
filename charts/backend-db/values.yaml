@@ -36,7 +36,6 @@ postgresql:
         cpu: 50m
         memory: 128Mi
       limits:
-        cpu: 300m
         memory: 256Mi
 
     # Initialize database with schema
@@ -61,7 +60,6 @@ postgresql:
         cpu: 50m
         memory: 128Mi
       limits:
-        cpu: 300m
         memory: 256Mi
     service:
       type: ClusterIP
