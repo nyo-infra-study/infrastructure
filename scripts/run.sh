@@ -249,6 +249,11 @@ log_step "Waiting for ArgoCD"
 run "kubectl wait --for=condition=available deployment/argocd-server -n argocd --timeout=900s"
 run "kubectl -n argocd rollout status deployment argocd-server"
 
+log_step "Removing ArgoCD repo-server CPU limit"
+# Helm SSA conflict prevents chart-level fix — patch directly post-install
+run "kubectl patch deployment argocd-repo-server -n argocd --type=json \
+  -p '[{\"op\":\"remove\",\"path\":\"/spec/template/spec/containers/0/resources/limits/cpu\"}]'"
+
 log_step "Exposing ArgoCD via Gateway API"
 run "kubectl apply -f '$REPO_ROOT/platform/gateway/argocd-route.yaml'"
 
