@@ -39,6 +39,12 @@ providers:
   kubernetesIngress:
     enabled: true  # Keep enabled for backward compat with existing Ingress resources
 
+# --- Gateway API CRDs ---
+# We install these ourselves (run.sh: kubectl apply -f .../standard-install.yaml)
+# Disable chart-bundled CRDs to suppress deprecation warning.
+gatewayAPI:
+  installCRDs: false
+
 # --- Gateway ---
 # Let the Traefik Helm chart create and manage the Gateway resource
 gateway:
