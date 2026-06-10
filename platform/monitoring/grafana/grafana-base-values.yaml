@@ -27,7 +27,6 @@ resources:
     cpu: 50m
     memory: 256Mi
   limits:
-    cpu: 500m
     memory: 512Mi
 
 ingress:
@@ -64,5 +63,4 @@ sidecar:
       cpu: 5m
       memory: 32Mi
     limits:
-      cpu: 100m
       memory: 128Mi

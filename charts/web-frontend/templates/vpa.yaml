@@ -14,6 +14,7 @@ spec:
   resourcePolicy:
     containerPolicies:
       - containerName: {{ .Release.Name }}
+        controlledValues: RequestsOnly
         minAllowed:
           cpu: 1m
           memory: 8Mi

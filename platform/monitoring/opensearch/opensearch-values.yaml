@@ -24,7 +24,6 @@ resources:
     cpu: 100m
     memory: 1Gi
   limits:
-    cpu: 1000m
     memory: 2Gi
 
 # JVM heap (half of memory limit)

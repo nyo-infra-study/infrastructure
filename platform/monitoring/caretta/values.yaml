@@ -25,7 +25,6 @@ resources:
     cpu: 10m
     memory: 128Mi
   limits:
-    cpu: 150m
     memory: 512Mi
 
 # Disable PodSecurityPolicy (removed in K8s 1.25+)

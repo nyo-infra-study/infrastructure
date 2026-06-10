@@ -56,18 +56,12 @@ resources:
 ### Pipeline Flow (`shared/pipeline-flow.json`)
 
 Visualizes the OTel Collector pipeline volumes using bar charts and stat panels.
-Shows per-receiver scrape volume, filter efficiency, and per-processor drop rates.
+Shows per-receiver scrape volume, filter efficiency (both scrape and processor),
+and per-processor drop rates.
 
-Previously used a Sankey diagram but replaced with bar charts because the discard
-volume (~75%) dominated the flow making receiver bands unreadable, and with only
-one exporter (gigapipe) there was no meaningful branching to visualize.
+**Critical: Never use `instant: true` with `format: table` in any dashboard panel.**
 
-**Critical: Never use `instant: true` with `format: table` in this dashboard.**
-
-Instant queries break ALL panel types (bar chart, stat, gauge) because Prometheus
-instant vectors with mixed label sets produce sparse tables that Grafana panels
-can't parse. Use `range: true` with `groupBy` transformations or `reduceOptions`
-instead.
-
-See [full analysis](../../docs/monitoring/gigapipe/PIPELINE-FLOW-DASHBOARD.md) for details.
+See documentation:
+- [Pipeline Flow Dashboard](../../docs/monitoring/gigapipe/PIPELINE-FLOW-DASHBOARD.md) — panel layout, metrics, filter stages
+- [Grafana Instant Query Pitfalls](../../docs/monitoring/gigapipe/GRAFANA-INSTANT-QUERY-PITFALLS.md) — why instant breaks and fix patterns
 

@@ -62,7 +62,6 @@ httpRoute:
 # VPA manages these — initial values are starting points only
 resources:
   limits:
-    cpu: 50m
     memory: 64Mi
   requests:
     cpu: 5m

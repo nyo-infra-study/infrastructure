@@ -14,7 +14,6 @@ singleBinary:
       cpu: 17m
       memory: 229Mi
     limits:
-      cpu: 200m
       memory: 512Mi
 
 # Minimal storage (filesystem, no S3/MinIO needed for dev)

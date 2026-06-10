@@ -41,7 +41,6 @@ app:
       cpu: 500m
       memory: 1024Mi
     limits:
-      cpu: 3000m
       memory: 3072Mi
 
 # --- Nginx / Ingress Gateway ---
@@ -53,7 +52,6 @@ nginx:
       cpu: 100m
       memory: 512Mi
     limits:
-      cpu: 1500m
       memory: 1536Mi
   service:
     type: ClusterIP
@@ -71,7 +69,6 @@ probes:
         cpu: 150m
         memory: 384Mi
       limits:
-        cpu: 1000m
         memory: 1280Mi
 
 # --- PostgreSQL (built-in) ---
@@ -99,7 +96,6 @@ postgresql:
         cpu: 50m
         memory: 64Mi
       limits:
-        cpu: 500m
         memory: 512Mi
 
 # --- Redis (built-in) ---
@@ -123,7 +119,6 @@ redis:
         cpu: 11m
         memory: 31Mi
       limits:
-        cpu: 200m
         memory: 128Mi
   commonConfiguration: |-
     appendonly no
@@ -154,7 +149,6 @@ clickhouse:
       cpu: 100m
       memory: 676Mi
     limits:
-      cpu: 1000m
       memory: 1280Mi
 
 # --- Global ---

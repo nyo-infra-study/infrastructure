@@ -16,6 +16,7 @@ spec:
   resourcePolicy:
     containerPolicies:
       - containerName: gigapipe
+        controlledValues: RequestsOnly
         minAllowed:
           cpu: 100m
           memory: 256Mi
@@ -42,6 +43,7 @@ spec:
   resourcePolicy:
     containerPolicies:
       - containerName: gigapipe
+        controlledValues: RequestsOnly
         minAllowed:
           cpu: 50m
           memory: 128Mi
@@ -68,6 +70,7 @@ spec:
   resourcePolicy:
     containerPolicies:
       - containerName: gigapipe
+        controlledValues: RequestsOnly
         minAllowed:
           cpu: 50m
           memory: 128Mi

@@ -18,7 +18,6 @@ admissionController:
       cpu: 25m
       memory: 64Mi
     limits:
-      cpu: 200m
       memory: 256Mi
 
 # Recommender: computes resource recommendations from metrics
@@ -29,7 +28,6 @@ recommender:
       cpu: 25m
       memory: 64Mi
     limits:
-      cpu: 500m
       memory: 512Mi
 
 # Updater: evicts pods to apply new recommendations
@@ -40,5 +38,4 @@ updater:
       cpu: 25m
       memory: 64Mi
     limits:
-      cpu: 200m
       memory: 256Mi

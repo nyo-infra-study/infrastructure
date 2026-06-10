@@ -15,6 +15,7 @@ spec:
   resourcePolicy:
     containerPolicies:
       - containerName: clickhouse
+        controlledValues: RequestsOnly
         minAllowed:
           cpu: 50m
           memory: 256Mi

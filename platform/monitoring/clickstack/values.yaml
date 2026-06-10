@@ -32,7 +32,6 @@ hyperdx:
         cpu: 200m
         memory: 512Mi
       limits:
-        cpu: "1"
         memory: 1Gi
 
   ingress:
@@ -84,5 +83,4 @@ otel-collector:
       cpu: 50m
       memory: 128Mi
     limits:
-      cpu: 300m
       memory: 256Mi

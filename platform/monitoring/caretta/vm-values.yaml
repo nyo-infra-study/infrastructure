@@ -15,7 +15,6 @@ server:
       cpu: 5m
       memory: 50Mi
     limits:
-      cpu: 200m
       memory: 256Mi
   persistentVolume:
     enabled: false

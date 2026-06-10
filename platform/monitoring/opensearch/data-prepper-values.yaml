@@ -18,7 +18,6 @@ resources:
     cpu: 200m
     memory: 1Gi
   limits:
-    cpu: 1500m
     memory: 2Gi
 
 # Note: Chart has hardcoded probes (delay=2s, failure=2).
