@@ -19,7 +19,6 @@ writer:
       cpu: 50m
       memory: 128Mi
     limits:
-      cpu: 500m
       memory: 512Mi
   ingress:
     enabled: true
@@ -41,7 +40,6 @@ readerPci:
       cpu: 50m
       memory: 128Mi
     limits:
-      cpu: 500m
       memory: 512Mi
   ingress:
     enabled: true
@@ -63,7 +61,6 @@ readerNonpci:
       cpu: 50m
       memory: 128Mi
     limits:
-      cpu: 500m
       memory: 512Mi
   ingress:
     enabled: true
