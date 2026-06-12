@@ -2031,7 +2031,7 @@
       "pluginVersion": "12.3.1",
       "targets": [
         {
-          "expr": "1 - (sum(rate(otelcol_exporter_sent_metric_points_total{service_name=\"otel-collector\"}[5m])) / sum(rate(otelcol_processor_incoming_items_total{service_name=\"otel-collector\"}[5m])))",
+          "expr": "clamp_min(1 - (sum(rate(otelcol_exporter_sent_metric_points_total{service_name=\"otel-collector\"}[5m])) / sum(rate(otelcol_receiver_accepted_metric_points_total{service_name=\"otel-collector\"}[5m]))), 0)",
           "range": true,
           "refId": "A"
         }
