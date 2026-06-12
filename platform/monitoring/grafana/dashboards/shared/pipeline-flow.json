@@ -31,7 +31,7 @@
       },
       "id": 1,
       "panels": [],
-      "title": "Metrics Pipeline: Raw Scrape → Scrape Filter → Processor Filter → Gigapipe",
+      "title": "Metrics Pipeline: Raw Scrape \u2192 Scrape Filter \u2192 Processor Filter \u2192 Gigapipe",
       "type": "row"
     },
     {
@@ -52,7 +52,7 @@
           "showLineNumbers": false,
           "showMiniMap": false
         },
-        "content": "#### ① Raw Scrape (Metrics)\n\nTotal metric samples each Prometheus job exposes **before** any `metric_relabel_configs`.\n\n🟠 Higher = more raw series from target.",
+        "content": "#### \u2460 Raw Scrape (Metrics)\n\nTotal metric samples each Prometheus job exposes **before** any `metric_relabel_configs`.\n\n\ud83d\udfe0 Higher = more raw series from target.",
         "mode": "markdown"
       },
       "pluginVersion": "12.3.1",
@@ -77,7 +77,7 @@
           "showLineNumbers": false,
           "showMiniMap": false
         },
-        "content": "#### ② After Scrape Filter (Metrics)\n\nMetric points OTel Collector receives per receiver. Scrape-level `metric_relabel_configs` already applied.\n\n🟡 Gap vs ① = scrape filter drops.",
+        "content": "#### \u2461 After Scrape Filter (Metrics)\n\nMetric points OTel Collector receives per receiver. Scrape-level `metric_relabel_configs` already applied.\n\n\ud83d\udfe1 Gap vs \u2460 = scrape filter drops.",
         "mode": "markdown"
       },
       "pluginVersion": "12.3.1",
@@ -102,7 +102,7 @@
           "showLineNumbers": false,
           "showMiniMap": false
         },
-        "content": "#### ③ After Processor Filter (Metrics)\n\nFinal OTel processor output: metric points reaching Gigapipe vs discarded.\n\n🟢 gigapipe  🔴 discarded",
+        "content": "#### \u2462 After Processor Filter (Metrics)\n\nFinal OTel processor output: metric points reaching Gigapipe vs discarded.\n\n\ud83d\udfe2 gigapipe  \ud83d\udd34 discarded",
         "mode": "markdown"
       },
       "pluginVersion": "12.3.1",
@@ -112,7 +112,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus"
+        "uid": "${datasource}"
       },
       "description": "Total samples scraped from each job BEFORE scrape-level metric_relabel_configs. This is the raw volume from targets.",
       "fieldConfig": {
@@ -200,7 +200,7 @@
           "refId": "A"
         }
       ],
-      "title": "① Raw Scraped by Job (samples/s)",
+      "title": "\u2460 Raw Scraped by Job (samples/s)",
       "transformations": [
         {
           "id": "groupBy",
@@ -244,7 +244,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus"
+        "uid": "${datasource}"
       },
       "description": "Metric points accepted by OTel Collector per receiver. This is AFTER Prometheus metric_relabel_configs but BEFORE OTel processor filters.",
       "fieldConfig": {
@@ -332,7 +332,7 @@
           "refId": "A"
         }
       ],
-      "title": "② After Scrape Filter by Receiver (pts/s)",
+      "title": "\u2461 After Scrape Filter by Receiver (pts/s)",
       "transformations": [
         {
           "id": "groupBy",
@@ -376,7 +376,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus"
+        "uid": "${datasource}"
       },
       "description": "Final output of OTel processor filters: what reaches Gigapipe vs what gets discarded.",
       "fieldConfig": {
@@ -425,7 +425,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "→ gigapipe"
+              "options": "\u2192 gigapipe"
             },
             "properties": [
               {
@@ -440,7 +440,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "→ discarded"
+              "options": "\u2192 discarded"
             },
             "properties": [
               {
@@ -487,14 +487,14 @@
       "pluginVersion": "12.3.1",
       "targets": [
         {
-          "expr": "label_replace(sum(rate(otelcol_exporter_sent_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval])), \"outcome\", \"→ gigapipe\", \"\", \"\") or label_replace(clamp_min(sum(rate(otelcol_receiver_accepted_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval])) - sum(rate(otelcol_exporter_sent_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval])), 0), \"outcome\", \"→ discarded\", \"\", \"\")",
+          "expr": "label_replace(sum(rate(otelcol_exporter_sent_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval])), \"outcome\", \"\u2192 gigapipe\", \"\", \"\") or label_replace(clamp_min(sum(rate(otelcol_receiver_accepted_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval])) - sum(rate(otelcol_exporter_sent_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval])), 0), \"outcome\", \"\u2192 discarded\", \"\", \"\")",
           "format": "table",
           "legendFormat": "",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "③ After Processor Filter (pts/s)",
+      "title": "\u2462 After Processor Filter (pts/s)",
       "transformations": [
         {
           "id": "groupBy",
@@ -555,7 +555,7 @@
           "showLineNumbers": false,
           "showMiniMap": false
         },
-        "content": "**Scrape Filter** = `metric_relabel_configs` drops at Prometheus scrape time (① → ②)  \n**Processor Filter** = OTel `filter` processor drops inside the metrics pipeline (② → ③)",
+        "content": "**Scrape Filter** = `metric_relabel_configs` drops at Prometheus scrape time (\u2460 \u2192 \u2461)  \n**Processor Filter** = OTel `filter` processor drops inside the metrics pipeline (\u2461 \u2192 \u2462)",
         "mode": "markdown"
       },
       "pluginVersion": "12.3.1",
@@ -565,7 +565,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus"
+        "uid": "${datasource}"
       },
       "description": "How much Prometheus metric_relabel_configs drops at scrape time. Compares raw scraped samples vs what OTel receives.",
       "fieldConfig": {
@@ -638,7 +638,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus"
+        "uid": "${datasource}"
       },
       "description": "How much OTel processor filters drop. Compares what enters processors vs what gets exported.",
       "fieldConfig": {
@@ -711,7 +711,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus"
+        "uid": "${datasource}"
       },
       "description": "Sum of all raw samples scraped from all targets (before any filtering).",
       "fieldConfig": {
@@ -777,7 +777,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus"
+        "uid": "${datasource}"
       },
       "description": "Metric points accepted by OTel Collector (after scrape filter).",
       "fieldConfig": {
@@ -843,7 +843,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus"
+        "uid": "${datasource}"
       },
       "description": "Metric points exported to Gigapipe (after processor filter).",
       "fieldConfig": {
@@ -922,7 +922,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus"
+        "uid": "${datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -993,7 +993,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus"
+        "uid": "${datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1064,7 +1064,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus"
+        "uid": "${datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1135,7 +1135,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus"
+        "uid": "${datasource}"
       },
       "description": "Logs bytes not available from gigapipe-writer metrics",
       "fieldConfig": {
@@ -1197,7 +1197,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus"
+        "uid": "${datasource}"
       },
       "description": "Bytes sent to ClickHouse for metric samples and time series metadata",
       "fieldConfig": {
@@ -1259,7 +1259,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus"
+        "uid": "${datasource}"
       },
       "description": "Bytes sent to ClickHouse for traces and trace tags",
       "fieldConfig": {
@@ -1334,7 +1334,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus"
+        "uid": "${datasource}"
       },
       "description": "Rate of metric points per receiver over time.",
       "fieldConfig": {
@@ -1432,7 +1432,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus"
+        "uid": "${datasource}"
       },
       "description": "Rate of metric points dropped by each processor over time.",
       "fieldConfig": {
@@ -1537,7 +1537,27 @@
     "flow"
   ],
   "templating": {
-    "list": []
+    "list": [
+      {
+        "current": {
+          "selected": false,
+          "text": "default",
+          "value": "default"
+        },
+        "hide": 0,
+        "includeAll": false,
+        "label": "Datasource",
+        "multi": false,
+        "name": "datasource",
+        "options": [],
+        "query": "prometheus",
+        "queryValue": "",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "type": "datasource"
+      }
+    ]
   },
   "time": {
     "from": "now-1h",
