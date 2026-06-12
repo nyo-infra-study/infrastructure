@@ -27,7 +27,7 @@
         "y": 1
       },
       "datasource": {
-        "uid": "prometheus",
+        "uid": "${datasource}",
         "type": "prometheus"
       },
       "fieldConfig": {
@@ -60,7 +60,7 @@
         "y": 1
       },
       "datasource": {
-        "uid": "prometheus",
+        "uid": "${datasource}",
         "type": "prometheus"
       },
       "fieldConfig": {
@@ -93,7 +93,7 @@
         "y": 1
       },
       "datasource": {
-        "uid": "prometheus",
+        "uid": "${datasource}",
         "type": "prometheus"
       },
       "fieldConfig": {
@@ -126,7 +126,7 @@
         "y": 1
       },
       "datasource": {
-        "uid": "prometheus",
+        "uid": "${datasource}",
         "type": "prometheus"
       },
       "fieldConfig": {
@@ -170,7 +170,7 @@
         "y": 6
       },
       "datasource": {
-        "uid": "prometheus",
+        "uid": "${datasource}",
         "type": "prometheus"
       },
       "fieldConfig": {
@@ -202,7 +202,7 @@
         "y": 6
       },
       "datasource": {
-        "uid": "prometheus",
+        "uid": "${datasource}",
         "type": "prometheus"
       },
       "targets": [
@@ -234,7 +234,7 @@
         "y": 14
       },
       "datasource": {
-        "uid": "prometheus",
+        "uid": "${datasource}",
         "type": "prometheus"
       },
       "targets": [
@@ -265,7 +265,7 @@
         "y": 14
       },
       "datasource": {
-        "uid": "prometheus",
+        "uid": "${datasource}",
         "type": "prometheus"
       },
       "fieldConfig": {
@@ -305,7 +305,7 @@
         "y": 14
       },
       "datasource": {
-        "uid": "prometheus",
+        "uid": "${datasource}",
         "type": "prometheus"
       },
       "fieldConfig": {
@@ -360,7 +360,7 @@
         "y": 22
       },
       "datasource": {
-        "uid": "prometheus",
+        "uid": "${datasource}",
         "type": "prometheus"
       },
       "targets": [
@@ -381,7 +381,7 @@
         "y": 22
       },
       "datasource": {
-        "uid": "prometheus",
+        "uid": "${datasource}",
         "type": "prometheus"
       },
       "fieldConfig": {
@@ -419,7 +419,7 @@
         "y": 30
       },
       "datasource": {
-        "uid": "prometheus",
+        "uid": "${datasource}",
         "type": "prometheus"
       },
       "targets": [
@@ -440,7 +440,7 @@
         "y": 30
       },
       "datasource": {
-        "uid": "prometheus",
+        "uid": "${datasource}",
         "type": "prometheus"
       },
       "targets": [
@@ -461,7 +461,7 @@
         "y": 30
       },
       "datasource": {
-        "uid": "prometheus",
+        "uid": "${datasource}",
         "type": "prometheus"
       },
       "fieldConfig": {
@@ -499,7 +499,7 @@
         "y": 38
       },
       "datasource": {
-        "uid": "prometheus",
+        "uid": "${datasource}",
         "type": "prometheus"
       },
       "targets": [
@@ -525,7 +525,7 @@
         "y": 38
       },
       "datasource": {
-        "uid": "prometheus",
+        "uid": "${datasource}",
         "type": "prometheus"
       },
       "fieldConfig": {
@@ -552,7 +552,7 @@
         "y": 38
       },
       "datasource": {
-        "uid": "prometheus",
+        "uid": "${datasource}",
         "type": "prometheus"
       },
       "fieldConfig": {
@@ -595,7 +595,7 @@
         "y": 46
       },
       "datasource": {
-        "uid": "prometheus",
+        "uid": "${datasource}",
         "type": "prometheus"
       },
       "targets": [
@@ -621,7 +621,7 @@
         "y": 46
       },
       "datasource": {
-        "uid": "prometheus",
+        "uid": "${datasource}",
         "type": "prometheus"
       },
       "fieldConfig": {
@@ -660,7 +660,7 @@
         "y": 54
       },
       "datasource": {
-        "uid": "prometheus",
+        "uid": "${datasource}",
         "type": "prometheus"
       },
       "targets": [
@@ -735,7 +735,27 @@
     "observability"
   ],
   "templating": {
-    "list": []
+    "list": [
+      {
+        "current": {
+          "selected": false,
+          "text": "default",
+          "value": "default"
+        },
+        "hide": 0,
+        "includeAll": false,
+        "label": "Datasource",
+        "multi": false,
+        "name": "datasource",
+        "options": [],
+        "query": "prometheus",
+        "queryValue": "",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "type": "datasource"
+      }
+    ]
   },
   "time": {
     "from": "now-1h",
