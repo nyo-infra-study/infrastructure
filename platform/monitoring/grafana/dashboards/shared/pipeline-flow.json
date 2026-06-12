@@ -31,7 +31,7 @@
       },
       "id": 1,
       "panels": [],
-      "title": "Metrics Pipeline: Raw Scrape \u2192 Scrape Filter \u2192 Processor Filter \u2192 Gigapipe",
+      "title": "Metrics Pipeline: Raw Scrape → Scrape Filter → Processor Filter → Gigapipe",
       "type": "row"
     },
     {
@@ -52,7 +52,7 @@
           "showLineNumbers": false,
           "showMiniMap": false
         },
-        "content": "#### \u2460 Raw Scrape (Metrics)\n\nTotal metric samples each Prometheus job exposes **before** any `metric_relabel_configs`.\n\n\ud83d\udfe0 Higher = more raw series from target.",
+        "content": "#### ① Raw Scrape (Metrics)\n\nTotal metric samples each Prometheus job exposes **before** any `metric_relabel_configs`.\n\n🟠 Higher = more raw series from target.",
         "mode": "markdown"
       },
       "pluginVersion": "12.3.1",
@@ -77,7 +77,7 @@
           "showLineNumbers": false,
           "showMiniMap": false
         },
-        "content": "#### \u2461 After Scrape Filter (Metrics)\n\nMetric points OTel Collector receives per receiver. Scrape-level `metric_relabel_configs` already applied.\n\n\ud83d\udfe1 Gap vs \u2460 = scrape filter drops.",
+        "content": "#### ② After Scrape Filter (Metrics)\n\nMetric points OTel Collector receives per receiver. Scrape-level `metric_relabel_configs` already applied.\n\n🟡 Gap vs ① = scrape filter drops.",
         "mode": "markdown"
       },
       "pluginVersion": "12.3.1",
@@ -102,7 +102,7 @@
           "showLineNumbers": false,
           "showMiniMap": false
         },
-        "content": "#### \u2462 After Processor Filter (Metrics)\n\nFinal OTel processor output: metric points reaching Gigapipe vs discarded.\n\n\ud83d\udfe2 gigapipe  \ud83d\udd34 discarded",
+        "content": "#### ③ After Processor Filter (Metrics)\n\nFinal OTel processor output: metric points reaching Gigapipe vs discarded.\n\n🟢 gigapipe  🔴 discarded",
         "mode": "markdown"
       },
       "pluginVersion": "12.3.1",
@@ -200,7 +200,7 @@
           "refId": "A"
         }
       ],
-      "title": "\u2460 Raw Scraped by Job (samples/s)",
+      "title": "① Raw Scraped by Job (samples/s)",
       "transformations": [
         {
           "id": "groupBy",
@@ -332,7 +332,7 @@
           "refId": "A"
         }
       ],
-      "title": "\u2461 After Scrape Filter by Receiver (pts/s)",
+      "title": "② After Scrape Filter by Receiver (pts/s)",
       "transformations": [
         {
           "id": "groupBy",
@@ -425,7 +425,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "\u2192 gigapipe"
+              "options": "→ gigapipe"
             },
             "properties": [
               {
@@ -440,7 +440,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "\u2192 discarded"
+              "options": "→ discarded"
             },
             "properties": [
               {
@@ -487,14 +487,14 @@
       "pluginVersion": "12.3.1",
       "targets": [
         {
-          "expr": "label_replace(sum(rate(otelcol_exporter_sent_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval])), \"outcome\", \"\u2192 gigapipe\", \"\", \"\") or label_replace(clamp_min(sum(rate(otelcol_receiver_accepted_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval])) - sum(rate(otelcol_exporter_sent_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval])), 0), \"outcome\", \"\u2192 discarded\", \"\", \"\")",
+          "expr": "label_replace(sum(rate(otelcol_exporter_sent_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval])), \"outcome\", \"→ gigapipe\", \"\", \"\") or label_replace(clamp_min(sum(rate(otelcol_receiver_accepted_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval])) - sum(rate(otelcol_exporter_sent_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval])), 0), \"outcome\", \"→ discarded\", \"\", \"\")",
           "format": "table",
           "legendFormat": "",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "\u2462 After Processor Filter (pts/s)",
+      "title": "③ After Processor Filter (pts/s)",
       "transformations": [
         {
           "id": "groupBy",
@@ -555,7 +555,7 @@
           "showLineNumbers": false,
           "showMiniMap": false
         },
-        "content": "**Scrape Filter** = `metric_relabel_configs` drops at Prometheus scrape time (\u2460 \u2192 \u2461)  \n**Processor Filter** = OTel `filter` processor drops inside the metrics pipeline (\u2461 \u2192 \u2462)",
+        "content": "**Scrape Filter** = `metric_relabel_configs` drops at Prometheus scrape time (① → ②)  \n**Processor Filter** = OTel `filter` processor drops inside the metrics pipeline (② → ③)",
         "mode": "markdown"
       },
       "pluginVersion": "12.3.1",
@@ -1319,19 +1319,6 @@
       "type": "stat"
     },
     {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 36
-      },
-      "id": 21,
-      "panels": [],
-      "title": "Throughput Over Time",
-      "type": "row"
-    },
-    {
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
@@ -1398,9 +1385,9 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 32
+        "y": 36
       },
-      "id": 22,
+      "id": 25,
       "options": {
         "legend": {
           "calcs": [
@@ -1496,9 +1483,9 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 32
+        "y": 36
       },
-      "id": 23,
+      "id": 26,
       "options": {
         "legend": {
           "calcs": [
@@ -1540,21 +1527,16 @@
     "list": [
       {
         "current": {
-          "selected": false,
           "text": "default",
           "value": "default"
         },
-        "hide": 0,
         "includeAll": false,
         "label": "Datasource",
-        "multi": false,
         "name": "datasource",
         "options": [],
         "query": "prometheus",
-        "queryValue": "",
         "refresh": 1,
         "regex": "",
-        "skipUrlSync": false,
         "type": "datasource"
       }
     ]
@@ -1567,5 +1549,5 @@
   "timezone": "",
   "title": "Pipeline Flow",
   "uid": "pipeline-flow",
-  "version": 12
+  "version": 2
 }
