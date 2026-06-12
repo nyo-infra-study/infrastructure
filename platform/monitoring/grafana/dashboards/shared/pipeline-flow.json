@@ -31,7 +31,7 @@
       },
       "id": 1,
       "panels": [],
-      "title": "Pipeline Overview: Raw Scrape → Scrape Filter → Processor Filter → Gigapipe",
+      "title": "Metrics Pipeline: Raw Scrape → Scrape Filter → Processor Filter → Gigapipe",
       "type": "row"
     },
     {
@@ -52,7 +52,7 @@
           "showLineNumbers": false,
           "showMiniMap": false
         },
-        "content": "#### ① Raw Scrape\n\nTotal samples each Prometheus job exposes **before** any `metric_relabel_configs`.\n\n🟠 Higher = more raw series from target.",
+        "content": "#### ① Raw Scrape (Metrics)\n\nTotal metric samples each Prometheus job exposes **before** any `metric_relabel_configs`.\n\n🟠 Higher = more raw series from target.",
         "mode": "markdown"
       },
       "pluginVersion": "12.3.1",
@@ -77,7 +77,7 @@
           "showLineNumbers": false,
           "showMiniMap": false
         },
-        "content": "#### ② After Scrape Filter\n\nWhat OTel Collector actually receives per receiver. Scrape-level `metric_relabel_configs` already applied.\n\n🟡 Gap vs ① = scrape filter drops.",
+        "content": "#### ② After Scrape Filter (Metrics)\n\nMetric points OTel Collector receives per receiver. Scrape-level `metric_relabel_configs` already applied.\n\n🟡 Gap vs ① = scrape filter drops.",
         "mode": "markdown"
       },
       "pluginVersion": "12.3.1",
@@ -102,7 +102,7 @@
           "showLineNumbers": false,
           "showMiniMap": false
         },
-        "content": "#### ③ After Processor Filter\n\nFinal OTel processor output: what reaches Gigapipe vs what gets discarded.\n\n🟢 gigapipe  🔴 discarded",
+        "content": "#### ③ After Processor Filter (Metrics)\n\nFinal OTel processor output: metric points reaching Gigapipe vs discarded.\n\n🟢 gigapipe  🔴 discarded",
         "mode": "markdown"
       },
       "pluginVersion": "12.3.1",
@@ -555,7 +555,7 @@
           "showLineNumbers": false,
           "showMiniMap": false
         },
-        "content": "**Scrape Filter** = `metric_relabel_configs` drops at Prometheus scrape time (① → ②)  \n**Processor Filter** = OTel `filter` processor drops inside the pipeline (② → ③)",
+        "content": "**Scrape Filter** = `metric_relabel_configs` drops at Prometheus scrape time (① → ②)  \n**Processor Filter** = OTel `filter` processor drops inside the metrics pipeline (② → ③)",
         "mode": "markdown"
       },
       "pluginVersion": "12.3.1",
@@ -632,7 +632,7 @@
           "refId": "A"
         }
       ],
-      "title": "Scrape Filter Efficiency",
+      "title": "Scrape Filter Efficiency (Metrics)",
       "type": "gauge"
     },
     {
@@ -705,7 +705,7 @@
           "refId": "A"
         }
       ],
-      "title": "Processor Filter Efficiency",
+      "title": "Processor Filter Efficiency (Metrics)",
       "type": "gauge"
     },
     {
@@ -771,7 +771,7 @@
           "refId": "A"
         }
       ],
-      "title": "Total Raw Scraped",
+      "title": "Total Raw Scraped (Metrics)",
       "type": "stat"
     },
     {
@@ -837,7 +837,7 @@
           "refId": "A"
         }
       ],
-      "title": "Into OTel (pts/s)",
+      "title": "Into OTel (Metrics pts/s)",
       "type": "stat"
     },
     {
@@ -903,7 +903,7 @@
           "refId": "A"
         }
       ],
-      "title": "Exported (pts/s)",
+      "title": "Exported (Metrics pts/s)",
       "type": "stat"
     },
     {
