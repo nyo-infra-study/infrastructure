@@ -161,7 +161,8 @@ def main():
         print("-" * 60)
         for w in data["widgets"]:
             prefix = "📁" if w["type"] == "row" else "📊"
-            print(f"{prefix} [{w['id']:>3}] {w['title']} ({w['type']})")
+            wid = w.get('id') or '?'
+            print(f"{prefix} [{wid:>3}] {w['title']} ({w['type']})")
     elif args and args[0].isdigit():
         # Single widget mode
         widget_id = int(args[0])
