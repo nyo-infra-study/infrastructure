@@ -1784,7 +1784,6 @@
         "type": "prometheus",
         "uid": "${datasource}"
       },
-      "description": "Total samples scraped from all targets per second. BEFORE filtering.",
       "fieldConfig": {
         "defaults": {
           "color": {
