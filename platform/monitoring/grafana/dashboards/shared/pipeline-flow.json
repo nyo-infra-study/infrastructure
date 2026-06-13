@@ -920,6 +920,31 @@
       "type": "row"
     },
     {
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 2,
+        "w": 24,
+        "x": 0,
+        "y": 26
+      },
+      "id": 27,
+      "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "💡 **Why exported > received?** The OTel Collector emits its own internal metrics (RED metrics for pipeline health). These `otelcol_*` metrics are added to the export stream, so the exporter count includes both app signals AND collector self-monitoring.",
+        "mode": "markdown"
+      },
+      "pluginVersion": "12.3.1",
+      "title": "",
+      "type": "text"
+    },
+    {
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
@@ -952,7 +977,7 @@
         "h": 5,
         "w": 8,
         "x": 0,
-        "y": 26
+        "y": 28
       },
       "id": 18,
       "options": {
@@ -1023,7 +1048,7 @@
         "h": 5,
         "w": 8,
         "x": 8,
-        "y": 26
+        "y": 28
       },
       "id": 19,
       "options": {
@@ -1094,7 +1119,7 @@
         "h": 5,
         "w": 8,
         "x": 16,
-        "y": 26
+        "y": 28
       },
       "id": 20,
       "options": {
@@ -1162,7 +1187,7 @@
         "h": 5,
         "w": 8,
         "x": 0,
-        "y": 31
+        "y": 33
       },
       "id": 22,
       "options": {
@@ -1224,7 +1249,7 @@
         "h": 5,
         "w": 8,
         "x": 8,
-        "y": 31
+        "y": 33
       },
       "id": 23,
       "options": {
@@ -1286,7 +1311,7 @@
         "h": 5,
         "w": 8,
         "x": 16,
-        "y": 31
+        "y": 33
       },
       "id": 24,
       "options": {
@@ -1385,7 +1410,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 36
+        "y": 38
       },
       "id": 25,
       "options": {
@@ -1483,7 +1508,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 36
+        "y": 38
       },
       "id": 26,
       "options": {
