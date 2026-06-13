@@ -1,0 +1,424 @@
+dashboard:
+  title: Networking Stack
+  uid: networking-stack
+  tags:
+  - networking
+  - traefik
+  - coredns
+  - infrastructure
+  refresh: 10s
+  time:
+    from: now-1h
+    to: now
+variables:
+- name: ds_prometheus
+  type: datasource
+  label: Prometheus
+  query: prometheus
+- name: ds_tempo
+  type: datasource
+  label: Tempo
+  query: tempo
+- name: ds_loki
+  type: datasource
+  label: Loki
+  query: loki
+- name: entrypoint
+  type: query
+  label: ''
+  query: label_values(traefik_entrypoint_requests_total, entrypoint)
+widgets:
+- id: null
+  title: Traefik — Ingress Overview
+  type: row
+  collapsed: false
+- id: null
+  title: Request Rate
+  type: stat
+  description: ''
+  datasource:
+    type: prometheus
+    uid: $ds_prometheus
+  queries:
+  - refId: A
+    expr: sum(rate(traefik_entrypoint_requests_total{entrypoint=~"$entrypoint"}[$__rate_interval]))
+    legendFormat: ''
+    format: time_series
+    instant: false
+    range: true
+    interval: ''
+    intervalFactor: null
+- id: null
+  title: Error Rate (4xx+5xx)
+  type: stat
+  description: ''
+  datasource:
+    type: prometheus
+    uid: $ds_prometheus
+  queries:
+  - refId: A
+    expr: sum(rate(traefik_entrypoint_requests_total{entrypoint=~"$entrypoint",code=~"4..|5.."}[$__rate_interval]))
+    legendFormat: ''
+    format: time_series
+    instant: false
+    range: true
+    interval: ''
+    intervalFactor: null
+- id: null
+  title: P50 Latency
+  type: stat
+  description: ''
+  datasource:
+    type: prometheus
+    uid: $ds_prometheus
+  queries:
+  - refId: A
+    expr: histogram_quantile(0.50, sum(rate(traefik_entrypoint_request_duration_seconds_bucket{entrypoint=~"$entrypoint"}[$__rate_interval]))
+      by (le))
+    legendFormat: ''
+    format: time_series
+    instant: false
+    range: true
+    interval: ''
+    intervalFactor: null
+- id: null
+  title: P95 Latency
+  type: stat
+  description: ''
+  datasource:
+    type: prometheus
+    uid: $ds_prometheus
+  queries:
+  - refId: A
+    expr: histogram_quantile(0.95, sum(rate(traefik_entrypoint_request_duration_seconds_bucket{entrypoint=~"$entrypoint"}[$__rate_interval]))
+      by (le))
+    legendFormat: ''
+    format: time_series
+    instant: false
+    range: true
+    interval: ''
+    intervalFactor: null
+- id: null
+  title: P99 Latency
+  type: stat
+  description: ''
+  datasource:
+    type: prometheus
+    uid: $ds_prometheus
+  queries:
+  - refId: A
+    expr: histogram_quantile(0.99, sum(rate(traefik_entrypoint_request_duration_seconds_bucket{entrypoint=~"$entrypoint"}[$__rate_interval]))
+      by (le))
+    legendFormat: ''
+    format: time_series
+    instant: false
+    range: true
+    interval: ''
+    intervalFactor: null
+- id: null
+  title: Avg Latency
+  type: stat
+  description: ''
+  datasource:
+    type: prometheus
+    uid: $ds_prometheus
+  queries:
+  - refId: A
+    expr: sum(rate(traefik_entrypoint_request_duration_seconds_sum{entrypoint=~"$entrypoint"}[$__rate_interval]))
+      / sum(rate(traefik_entrypoint_request_duration_seconds_count{entrypoint=~"$entrypoint"}[$__rate_interval]))
+    legendFormat: ''
+    format: time_series
+    instant: false
+    range: true
+    interval: ''
+    intervalFactor: null
+- id: null
+  title: Request Rate by Entrypoint
+  type: timeseries
+  description: ''
+  datasource:
+    type: prometheus
+    uid: $ds_prometheus
+  queries:
+  - refId: A
+    expr: sum by (entrypoint, method) (rate(traefik_entrypoint_requests_total{entrypoint=~"$entrypoint"}[$__rate_interval]))
+    legendFormat: '{{entrypoint}} {{method}}'
+    format: time_series
+    instant: false
+    range: true
+    interval: ''
+    intervalFactor: null
+- id: null
+  title: Latency Heatmap (Entrypoint)
+  type: heatmap
+  description: ''
+  datasource:
+    type: prometheus
+    uid: $ds_prometheus
+  queries:
+  - refId: A
+    expr: sum(increase(traefik_entrypoint_request_duration_seconds_bucket{entrypoint=~"$entrypoint"}[$__rate_interval]))
+      by (le)
+    legendFormat: '{{le}}'
+    format: heatmap
+    instant: false
+    range: true
+    interval: ''
+    intervalFactor: null
+- id: null
+  title: Traefik — Services (Backend)
+  type: row
+  collapsed: false
+- id: null
+  title: Request Rate by Service
+  type: timeseries
+  description: ''
+  datasource:
+    type: prometheus
+    uid: $ds_prometheus
+  queries:
+  - refId: A
+    expr: sum by (service) (rate(traefik_service_requests_total[$__rate_interval]))
+    legendFormat: '{{service}}'
+    format: time_series
+    instant: false
+    range: true
+    interval: ''
+    intervalFactor: null
+- id: null
+  title: Service Error Rate (4xx+5xx)
+  type: timeseries
+  description: ''
+  datasource:
+    type: prometheus
+    uid: $ds_prometheus
+  queries:
+  - refId: A
+    expr: sum by (service) (rate(traefik_service_requests_total{code=~"4.."}[$__rate_interval]))
+    legendFormat: '{{service}} 4xx'
+    format: time_series
+    instant: false
+    range: true
+    interval: ''
+    intervalFactor: null
+  - refId: B
+    expr: sum by (service) (rate(traefik_service_requests_total{code=~"5.."}[$__rate_interval]))
+    legendFormat: '{{service}} 5xx'
+    format: time_series
+    instant: false
+    range: true
+    interval: ''
+    intervalFactor: null
+- id: null
+  title: Service P95 Latency
+  type: timeseries
+  description: ''
+  datasource:
+    type: prometheus
+    uid: $ds_prometheus
+  queries:
+  - refId: A
+    expr: histogram_quantile(0.95, sum by (service, le) (rate(traefik_service_request_duration_seconds_bucket[$__rate_interval])))
+    legendFormat: '{{service}}'
+    format: time_series
+    instant: false
+    range: true
+    interval: ''
+    intervalFactor: null
+- id: null
+  title: Service Avg Latency
+  type: timeseries
+  description: ''
+  datasource:
+    type: prometheus
+    uid: $ds_prometheus
+  queries:
+  - refId: A
+    expr: sum by (service) (rate(traefik_service_request_duration_seconds_sum[$__rate_interval]))
+      / sum by (service) (rate(traefik_service_request_duration_seconds_count[$__rate_interval]))
+    legendFormat: '{{service}}'
+    format: time_series
+    instant: false
+    range: true
+    interval: ''
+    intervalFactor: null
+- id: null
+  title: Slow Traces (> 500ms)
+  type: row
+  collapsed: false
+- id: null
+  title: Slow Traces
+  type: table
+  description: ''
+  datasource:
+    type: tempo
+    uid: $ds_tempo
+  queries:
+  - refId: A
+    expr: ''
+    legendFormat: ''
+    format: time_series
+    instant: false
+    range: true
+    interval: ''
+    intervalFactor: null
+- id: null
+  title: Traefik Access Logs
+  type: row
+  collapsed: false
+- id: null
+  title: Access Logs (Traefik)
+  type: logs
+  description: ''
+  datasource:
+    type: loki
+    uid: $ds_loki
+  queries:
+  - refId: A
+    expr: '{k8s_namespace_name="traefik"} | json'
+    legendFormat: ''
+    format: time_series
+    instant: false
+    range: true
+    interval: ''
+    intervalFactor: null
+- id: null
+  title: CoreDNS
+  type: row
+  collapsed: false
+- id: null
+  title: DNS Request Rate
+  type: timeseries
+  description: ''
+  datasource:
+    type: prometheus
+    uid: $ds_prometheus
+  queries:
+  - refId: A
+    expr: sum by (type) (rate(coredns_dns_requests_total[$__rate_interval]))
+    legendFormat: '{{type}}'
+    format: time_series
+    instant: false
+    range: true
+    interval: ''
+    intervalFactor: null
+- id: null
+  title: DNS Response Codes
+  type: timeseries
+  description: ''
+  datasource:
+    type: prometheus
+    uid: $ds_prometheus
+  queries:
+  - refId: A
+    expr: sum by (rcode) (rate(coredns_dns_responses_total[$__rate_interval]))
+    legendFormat: '{{rcode}}'
+    format: time_series
+    instant: false
+    range: true
+    interval: ''
+    intervalFactor: null
+- id: null
+  title: DNS Latency (P50 / P95 / P99)
+  type: timeseries
+  description: ''
+  datasource:
+    type: prometheus
+    uid: $ds_prometheus
+  queries:
+  - refId: A
+    expr: histogram_quantile(0.50, sum(rate(coredns_dns_request_duration_seconds_bucket[$__rate_interval]))
+      by (le))
+    legendFormat: p50
+    format: time_series
+    instant: false
+    range: true
+    interval: ''
+    intervalFactor: null
+  - refId: B
+    expr: histogram_quantile(0.95, sum(rate(coredns_dns_request_duration_seconds_bucket[$__rate_interval]))
+      by (le))
+    legendFormat: p95
+    format: time_series
+    instant: false
+    range: true
+    interval: ''
+    intervalFactor: null
+  - refId: C
+    expr: histogram_quantile(0.99, sum(rate(coredns_dns_request_duration_seconds_bucket[$__rate_interval]))
+      by (le))
+    legendFormat: p99
+    format: time_series
+    instant: false
+    range: true
+    interval: ''
+    intervalFactor: null
+- id: null
+  title: DNS Cache Hit Rate
+  type: timeseries
+  description: ''
+  datasource:
+    type: prometheus
+    uid: $ds_prometheus
+  queries:
+  - refId: A
+    expr: sum(rate(coredns_cache_hits_total[$__rate_interval])) / (sum(rate(coredns_cache_hits_total[$__rate_interval]))
+      + sum(rate(coredns_cache_misses_total[$__rate_interval])))
+    legendFormat: cache hit rate
+    format: time_series
+    instant: false
+    range: true
+    interval: ''
+    intervalFactor: null
+- id: null
+  title: Node Network I/O
+  type: row
+  collapsed: false
+- id: null
+  title: Network Throughput (Receive / Transmit)
+  type: timeseries
+  description: ''
+  datasource:
+    type: prometheus
+    uid: $ds_prometheus
+  queries:
+  - refId: A
+    expr: sum(rate(node_network_receive_bytes_total{device!~"lo|veth.*|cali.*|flannel.*"}[$__rate_interval]))
+    legendFormat: receive
+    format: time_series
+    instant: false
+    range: true
+    interval: ''
+    intervalFactor: null
+  - refId: B
+    expr: sum(rate(node_network_transmit_bytes_total{device!~"lo|veth.*|cali.*|flannel.*"}[$__rate_interval]))
+    legendFormat: transmit
+    format: time_series
+    instant: false
+    range: true
+    interval: ''
+    intervalFactor: null
+- id: null
+  title: Network Errors
+  type: timeseries
+  description: ''
+  datasource:
+    type: prometheus
+    uid: $ds_prometheus
+  queries:
+  - refId: A
+    expr: sum(rate(node_network_receive_errs_total{device!~"lo|veth.*|cali.*|flannel.*"}[$__rate_interval]))
+    legendFormat: rx errors
+    format: time_series
+    instant: false
+    range: true
+    interval: ''
+    intervalFactor: null
+  - refId: B
+    expr: sum(rate(node_network_transmit_errs_total{device!~"lo|veth.*|cali.*|flannel.*"}[$__rate_interval]))
+    legendFormat: tx errors
+    format: time_series
+    instant: false
+    range: true
+    interval: ''
+    intervalFactor: null
