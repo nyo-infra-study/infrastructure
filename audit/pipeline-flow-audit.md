@@ -2,7 +2,8 @@
 
 **Dashboard:** Pipeline Flow (`pipeline-flow`)  
 **Audit Date:** 2025-06-13  
-**Validated Against:** Local Grafana MCP
+**Validated Against:** Local Grafana MCP  
+**Status:** ✅ All issues resolved
 
 ---
 
@@ -11,35 +12,9 @@
 | Category | Count |
 |----------|-------|
 | Total Panels with Queries | 15 |
-| ✅ Correct | 11 |
-| ⚠️ Minor Issues | 4 |
+| ✅ Correct | 15 |
+| ⚠️ Minor Issues | 0 |
 | ❌ Incorrect | 0 |
-
----
-
-## Issues Found
-
-### Panel 5: ① Raw Scraped by Job (samples/s)
-- **Issue:** Title says "samples/s" but query returns samples per scrape (gauge), not per second (rate)
-- **Query:** `sum by (job) (scrape_samples_scraped)`
-- **Fix:** Either rename to "Raw Scraped by Job (samples/scrape)" or note it's a gauge
-
-### Panel 6: ② After Scrape Filter by Receiver (pts/s)  
-- **Issue:** Description says "AFTER Prometheus metric_relabel_configs" but query includes ALL receivers (OTLP, filelog, etc.)
-- **Query:** `sum by (receiver) (rate(otelcol_receiver_accepted_metric_points_total{service_name="otel-collector"}[$__rate_interval]))`
-- **Impact:** Description is misleading — shows all OTel receivers, not just Prometheus
-- **Fix:** Update description to clarify it shows all receiver types
-
-### Panel 13: Into OTel (Metrics pts/s)
-- **Issue:** Description says "after scrape filter" but includes all receivers (OTLP, filelog, etc.)
-- **Query:** `sum(rate(otelcol_receiver_accepted_metric_points_total{service_name="otel-collector"}[$__rate_interval]))`
-- **Fix:** Update description to "Metric points accepted by all OTel receivers"
-
-### Panel 26: Filter Drop Over Time
-- **Issue:** Title says "metric points" but query uses generic `_items_total` (all signal types)
-- **Query:** Uses `otelcol_processor_incoming_items_total` / `otelcol_processor_outgoing_items_total`
-- **Impact:** Shows logs, traces, and metrics combined, not just metrics
-- **Fix:** Either rename to "Items Dropped by Processor" or use signal-specific metrics
 
 ---
 
@@ -47,27 +22,25 @@
 
 ### Section: Metrics Pipeline Flow
 
-#### Panel 5: ① Raw Scraped by Job (samples/s)
+#### Panel 5: ① Raw Scraped by Job (samples)
 - **Type:** barchart
 - **Description:** Total samples scraped from each job BEFORE scrape-level metric_relabel_configs. This is the raw volume from targets.
 - **Expression:** `sum by (job) (scrape_samples_scraped)`
 - **Metric Used:** `scrape_samples_scraped` (gauge - samples per scrape)
-- **Audit:** ⚠️ **MINOR ISSUE**
-  - Query is correct but title says "samples/s" which implies a rate
-  - `scrape_samples_scraped` is a gauge showing samples per scrape, not per second
-  - **Recommendation:** Rename to "Raw Scraped by Job (samples/scrape)"
+- **Audit:** ✅ **CORRECT**
+  - Title correctly says "samples" (not "samples/s")
+  - `scrape_samples_scraped` is a gauge showing samples per scrape
 
 ---
 
 #### Panel 6: ② After Scrape Filter by Receiver (pts/s)
 - **Type:** barchart
-- **Description:** Metric points accepted by OTel Collector per receiver. This is AFTER Prometheus metric_relabel_configs but BEFORE OTel processor filters.
-- **Expression:** `sum by (receiver) (rate(otelcol_receiver_accepted_metric_points_total{service_name="otel-collector"}[$__rate_interval]))`
+- **Description:** Metric points accepted by OTel Prometheus receivers (after Prometheus metric_relabel_configs, before OTel processor filters).
+- **Expression:** `sum by (receiver) (rate(otelcol_receiver_accepted_metric_points_total{service_name="otel-collector", receiver=~"prometheus.*"}[$__rate_interval]))`
 - **Metric Used:** `otelcol_receiver_accepted_metric_points_total`
-- **Audit:** ⚠️ **MINOR ISSUE**
-  - Query is correct and works
-  - **Issue:** Description says "AFTER Prometheus metric_relabel_configs" but shows ALL receivers (OTLP, filelog, prometheus/*)
-  - **Recommendation:** Update description to "Metric points accepted by all OTel receivers (Prometheus, OTLP, etc.)"
+- **Audit:** ✅ **CORRECT**
+  - Query filters to `receiver=~"prometheus.*"` only
+  - Correctly compares with Panel 5 (Prometheus scrape → Prometheus receivers)
 
 ---
 
@@ -84,9 +57,9 @@
   - `otelcol_exporter_sent_metric_points_total` (exported to Gigapipe)
   - `otelcol_receiver_accepted_metric_points_total` (received by OTel)
 - **Audit:** ✅ **CORRECT**
-  - Gigapipe = exporter sent metric points (what actually gets exported)
-  - Discarded = received - sent (difference is what processors filtered out)
-  - `clamp_min(..., 0)` handles edge cases where timing might show negative
+  - Gigapipe = exporter sent metric points
+  - Discarded = received - sent
+  - `clamp_min(..., 0)` handles timing edge cases
 
 ---
 
@@ -97,9 +70,9 @@
 - **Description:** How much Prometheus metric_relabel_configs drops at scrape time. Compares raw scraped samples vs samples after relabeling.
 - **Expression:** `clamp_min(1 - (sum(scrape_samples_post_metric_relabeling) / sum(scrape_samples_scraped)), 0)`
 - **Metrics Used:**
-  - `scrape_samples_scraped` (raw samples per scrape - gauge)
-  - `scrape_samples_post_metric_relabeling` (samples after relabeling - gauge)
-- **Audit:** ✅ **CORRECT** (fixed)
+  - `scrape_samples_scraped` (raw samples - gauge)
+  - `scrape_samples_post_metric_relabeling` (after relabeling - gauge)
+- **Audit:** ✅ **CORRECT**
   - Both metrics are gauges from the same scrape cycle
   - Directly comparable: `1 - (after/before)` = drop percentage
 
@@ -115,7 +88,6 @@
 - **Audit:** ✅ **CORRECT**
   - `1 - (exported/received)` = processor drop percentage
   - Both use `rate()` consistently
-  - `clamp_min(..., 0)` prevents negative values
 
 ---
 
@@ -125,19 +97,16 @@
 - **Expression:** `sum(scrape_samples_scraped)`
 - **Metric Used:** `scrape_samples_scraped`
 - **Audit:** ✅ **CORRECT**
-  - Shows total raw samples as described
 
 ---
 
 #### Panel 13: Into OTel (Metrics pts/s)
 - **Type:** stat
-- **Description:** Metric points accepted by OTel Collector (after scrape filter).
+- **Description:** Metric points accepted by all OTel receivers (Prometheus, OTLP, etc.).
 - **Expression:** `sum(rate(otelcol_receiver_accepted_metric_points_total{...}[$__rate_interval]))`
 - **Metric Used:** `otelcol_receiver_accepted_metric_points_total`
-- **Audit:** ⚠️ **MINOR ISSUE**
-  - Query works correctly
-  - **Issue:** Description says "after scrape filter" but includes ALL receivers (OTLP, filelog, etc.)
-  - **Recommendation:** Update description to "Metric points accepted by all OTel receivers"
+- **Audit:** ✅ **CORRECT**
+  - Description accurately reflects all receivers
 
 ---
 
@@ -147,7 +116,6 @@
 - **Expression:** `sum(rate(otelcol_exporter_sent_metric_points_total{...}[$__rate_interval]))`
 - **Metric Used:** `otelcol_exporter_sent_metric_points_total`
 - **Audit:** ✅ **CORRECT**
-  - Exporter sent = final output to Gigapipe
 
 ---
 
@@ -158,11 +126,7 @@
 - **Expressions:**
   - A: `sum(rate(otelcol_receiver_accepted_log_records_total{...}[$__rate_interval]))`
   - B: `sum(rate(otelcol_exporter_sent_log_records_total{...}[$__rate_interval]))`
-- **Metrics Used:**
-  - `otelcol_receiver_accepted_log_records_total`
-  - `otelcol_exporter_sent_log_records_total`
 - **Audit:** ✅ **CORRECT**
-  - Standard OTel metrics for log records
 
 ---
 
@@ -171,11 +135,7 @@
 - **Expressions:**
   - A: `sum(rate(otelcol_receiver_accepted_metric_points_total{...}[$__rate_interval]))`
   - B: `sum(rate(otelcol_exporter_sent_metric_points_total{...}[$__rate_interval]))`
-- **Metrics Used:**
-  - `otelcol_receiver_accepted_metric_points_total`
-  - `otelcol_exporter_sent_metric_points_total`
 - **Audit:** ✅ **CORRECT**
-  - Standard OTel metrics for metric points
 
 ---
 
@@ -184,11 +144,7 @@
 - **Expressions:**
   - A: `sum(rate(otelcol_receiver_accepted_spans_total{...}[$__rate_interval]))`
   - B: `sum(rate(otelcol_exporter_sent_spans_total{...}[$__rate_interval]))`
-- **Metrics Used:**
-  - `otelcol_receiver_accepted_spans_total`
-  - `otelcol_exporter_sent_spans_total`
 - **Audit:** ✅ **CORRECT**
-  - Standard OTel metrics for trace spans
 
 ---
 
@@ -196,8 +152,7 @@
 - **Type:** stat
 - **Description:** Logs bytes not available from gigapipe-writer metrics
 - **Expression:** `vector(0)`
-- **Audit:** ✅ **CORRECT (placeholder)**
-  - Intentionally shows 0 as metric doesn't exist yet
+- **Audit:** ✅ **CORRECT** (placeholder)
 
 ---
 
@@ -205,11 +160,7 @@
 - **Type:** stat
 - **Description:** Bytes sent to ClickHouse for metric samples and time series metadata
 - **Expression:** `sum(rate(sent_bytes_total{job="gigapipe-writer", service=~"samples|time_series"}[$__rate_interval]))`
-- **Metric Used:** `sent_bytes_total`
-- **Labels:** `job="gigapipe-writer"`, `service=~"samples|time_series"`
 - **Audit:** ✅ **CORRECT**
-  - `sent_bytes_total` from gigapipe-writer tracks bytes to ClickHouse
-  - Filters for `samples` and `time_series` services (metrics data)
 
 ---
 
@@ -217,10 +168,7 @@
 - **Type:** stat
 - **Description:** Bytes sent to ClickHouse for traces and trace tags
 - **Expression:** `sum(rate(sent_bytes_total{job="gigapipe-writer", service=~"traces|traces_tags"}[$__rate_interval]))`
-- **Metric Used:** `sent_bytes_total`
-- **Labels:** `job="gigapipe-writer"`, `service=~"traces|traces_tags"`
 - **Audit:** ✅ **CORRECT**
-  - Same metric, filtered for trace services
 
 ---
 
@@ -228,24 +176,17 @@
 - **Type:** timeseries
 - **Description:** Rate of metric points per receiver over time.
 - **Expression:** `sum by (receiver) (rate(otelcol_receiver_accepted_metric_points_total{...}[$__rate_interval]))`
-- **Metric Used:** `otelcol_receiver_accepted_metric_points_total`
 - **Audit:** ✅ **CORRECT**
-  - Time series of receiver intake, grouped by receiver
 
 ---
 
-#### Panel 26: Filter Drop Over Time
+#### Panel 26: Processor Drop Over Time (All Signals)
 - **Type:** timeseries
-- **Description:** Rate of metric points dropped by each processor over time.
+- **Description:** Items (metrics, logs, traces) dropped by each processor over time.
 - **Expression:** `sum by (processor) (rate(otelcol_processor_incoming_items_total{...}[$__rate_interval]) - rate(otelcol_processor_outgoing_items_total{...}[$__rate_interval])) > 0`
-- **Metrics Used:**
-  - `otelcol_processor_incoming_items_total`
-  - `otelcol_processor_outgoing_items_total`
-- **Audit:** ⚠️ **MINOR ISSUE**
-  - Logic is correct: `incoming - outgoing` = dropped items
-  - **Issue:** Uses generic `_items_total` metrics instead of signal-specific ones
-  - **Note:** This is acceptable if you want to see all signal types combined, but the title says "metric points" which is slightly misleading
-  - The `> 0` filter hides processors that aren't dropping anything
+- **Audit:** ✅ **CORRECT**
+  - Title and description clarify it covers all signal types
+  - Uses `_items_total` which includes metrics, logs, and traces
 
 ---
 
@@ -254,6 +195,7 @@
 | Metric | Source | Description |
 |--------|--------|-------------|
 | `scrape_samples_scraped` | Prometheus | Raw samples exposed by target before `metric_relabel_configs` |
+| `scrape_samples_post_metric_relabeling` | Prometheus | Samples after `metric_relabel_configs` applied |
 | `otelcol_receiver_accepted_metric_points_total` | OTel Collector | Metric points accepted by receivers |
 | `otelcol_receiver_accepted_log_records_total` | OTel Collector | Log records accepted by receivers |
 | `otelcol_receiver_accepted_spans_total` | OTel Collector | Trace spans accepted by receivers |
@@ -263,15 +205,3 @@
 | `otelcol_exporter_sent_log_records_total` | OTel Collector | Log records successfully exported |
 | `otelcol_exporter_sent_spans_total` | OTel Collector | Trace spans successfully exported |
 | `sent_bytes_total` | gigapipe-writer | Bytes written to ClickHouse |
-
----
-
-## Recommendations
-
-1. **Panel 5:** Rename title from "samples/s" to "samples/scrape" since `scrape_samples_scraped` is a gauge, not a rate.
-
-2. **Panel 6:** Update description to clarify it shows all OTel receivers, not just Prometheus scrapes.
-
-3. **Panel 13:** Update description from "after scrape filter" to "from all receivers" since it includes OTLP, filelog, etc.
-
-4. **Panel 26:** Rename to "Items Dropped by Processor" since it uses generic `_items_total` metrics covering all signal types.
