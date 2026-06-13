@@ -1841,7 +1841,8 @@
           "refId": "A"
         }
       ],
-      "title": "\u2460 Scraped (raw/s)",
+      "title": "\u2460 Scraped (samples)",
+      "description": "Total samples scraped per scrape from selected jobs. This is a gauge showing samples per scrape, not a rate.",
       "type": "stat"
     },
     {
@@ -1849,7 +1850,7 @@
         "type": "prometheus",
         "uid": "${datasource}"
       },
-      "description": "How much Prometheus metric_relabel_configs drops at scrape time. Compares raw scraped vs what OTel receives.",
+      "description": "How much Prometheus metric_relabel_configs drops at scrape time. Compares raw scraped samples vs samples after relabeling.",
       "fieldConfig": {
         "defaults": {
           "mappings": [],
@@ -1901,7 +1902,7 @@
       "pluginVersion": "12.3.1",
       "targets": [
         {
-          "expr": "1 - (sum(rate(otelcol_receiver_accepted_metric_points_total{service_name=\"otel-collector\"}[5m])) / sum(scrape_samples_scraped{job=~\"$job\"}))",
+          "expr": "clamp_min(1 - (sum(scrape_samples_post_metric_relabeling{job=~\"$job\"}) / sum(scrape_samples_scraped{job=~\"$job\"})), 0)",
           "range": true,
           "refId": "A"
         }
@@ -1966,7 +1967,7 @@
       "pluginVersion": "12.3.1",
       "targets": [
         {
-          "expr": "sum(rate(otelcol_exporter_sent_metric_points_total{service_name=\"otel-collector\"}[5m]))",
+          "expr": "sum(rate(otelcol_exporter_sent_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval]))",
           "range": true,
           "refId": "A"
         }
@@ -2031,7 +2032,7 @@
       "pluginVersion": "12.3.1",
       "targets": [
         {
-          "expr": "clamp_min(1 - (sum(rate(otelcol_exporter_sent_metric_points_total{service_name=\"otel-collector\"}[5m])) / sum(rate(otelcol_receiver_accepted_metric_points_total{service_name=\"otel-collector\"}[5m]))), 0)",
+          "expr": "clamp_min(1 - (sum(rate(otelcol_exporter_sent_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval])) / sum(rate(otelcol_receiver_accepted_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval]))), 0)",
           "range": true,
           "refId": "A"
         }
@@ -2096,7 +2097,7 @@
       "pluginVersion": "12.3.1",
       "targets": [
         {
-          "expr": "rate(ClickHouseProfileEvents_SelectQuery_total{service_name=\"clickhouse\"}[5m])",
+          "expr": "rate(ClickHouseProfileEvents_SelectQuery_total{service_name=\"clickhouse\"}[$__rate_interval])",
           "range": true,
           "refId": "A"
         }
@@ -4211,12 +4212,12 @@
       "pluginVersion": "12.3.1",
       "targets": [
         {
-          "expr": "rate(ClickHouseProfileEvents_SelectQuery_total{job=\"clickhouse\"}[5m])",
+          "expr": "rate(ClickHouseProfileEvents_SelectQuery_total{job=\"clickhouse\"}[$__rate_interval])",
           "legendFormat": "selects/s",
           "refId": "A"
         },
         {
-          "expr": "rate(ClickHouseProfileEvents_InsertQuery_total{job=\"clickhouse\"}[5m])",
+          "expr": "rate(ClickHouseProfileEvents_InsertQuery_total{job=\"clickhouse\"}[$__rate_interval])",
           "legendFormat": "inserts/s",
           "refId": "B"
         }
@@ -4308,7 +4309,7 @@
       "pluginVersion": "12.3.1",
       "targets": [
         {
-          "expr": "rate(ClickHouseProfileEvents_InsertedRows_total{job=\"clickhouse\"}[5m])",
+          "expr": "rate(ClickHouseProfileEvents_InsertedRows_total{job=\"clickhouse\"}[$__rate_interval])",
           "legendFormat": "rows/s",
           "refId": "A"
         }
