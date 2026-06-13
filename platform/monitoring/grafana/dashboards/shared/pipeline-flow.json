@@ -567,7 +567,7 @@
         "type": "prometheus",
         "uid": "${datasource}"
       },
-      "description": "How much Prometheus metric_relabel_configs drops at scrape time. Compares raw scraped samples vs what OTel receives.",
+      "description": "How much Prometheus metric_relabel_configs drops at scrape time. Compares raw scraped samples vs what OTel Prometheus receivers accept (excludes OTLP/other receivers).",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -626,7 +626,7 @@
       "pluginVersion": "12.3.1",
       "targets": [
         {
-          "expr": "1 - (sum(rate(otelcol_receiver_accepted_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval])) / sum(scrape_samples_scraped))",
+          "expr": "1 - (sum(rate(otelcol_receiver_accepted_metric_points_total{service_name=\"otel-collector\", receiver=~\"prometheus.*\"}[$__rate_interval])) / sum(rate(scrape_samples_scraped[$__rate_interval])))",
           "legendFormat": "scrape filter",
           "range": true,
           "refId": "A"

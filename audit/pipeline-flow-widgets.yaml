@@ -1,0 +1,434 @@
+dashboard:
+  title: Pipeline Flow
+  uid: pipeline-flow
+  tags:
+  - otel
+  - pipeline
+  - flow
+  refresh: 10s
+  time:
+    from: now-1h
+    to: now
+variables:
+- name: datasource
+  type: datasource
+  label: Datasource
+  query: prometheus
+widgets:
+- id: 1
+  title: 'Metrics Pipeline: Raw Scrape → Scrape Filter → Processor Filter → Gigapipe'
+  type: row
+  collapsed: false
+- id: 2
+  title: ''
+  type: text
+  description: ''
+  datasource:
+    type: ''
+    uid: ''
+  queries: []
+  content: '#### ① Raw Scrape (Metrics)
+
+
+    Total metric samples each Prometheus job exposes **before** any `metric_relabel_configs`.
+
+
+    🟠 Higher = more raw series from target.'
+- id: 3
+  title: ''
+  type: text
+  description: ''
+  datasource:
+    type: ''
+    uid: ''
+  queries: []
+  content: '#### ② After Scrape Filter (Metrics)
+
+
+    Metric points OTel Collector receives per receiver. Scrape-level `metric_relabel_configs`
+    already applied.
+
+
+    🟡 Gap vs ① = scrape filter drops.'
+- id: 4
+  title: ''
+  type: text
+  description: ''
+  datasource:
+    type: ''
+    uid: ''
+  queries: []
+  content: '#### ③ After Processor Filter (Metrics)
+
+
+    Final OTel processor output: metric points reaching Gigapipe vs discarded.
+
+
+    🟢 gigapipe  🔴 discarded'
+- id: 5
+  title: ① Raw Scraped by Job (samples/s)
+  type: barchart
+  description: Total samples scraped from each job BEFORE scrape-level metric_relabel_configs.
+    This is the raw volume from targets.
+  datasource:
+    type: prometheus
+    uid: ${datasource}
+  queries:
+  - refId: A
+    expr: sum by (job) (scrape_samples_scraped)
+    legendFormat: '{{job}}'
+    format: table
+    instant: false
+    range: true
+    interval: ''
+    intervalFactor: null
+  transformations:
+  - id: groupBy
+    options:
+      fields:
+        Value:
+          aggregations:
+          - lastNotNull
+          operation: aggregate
+        job:
+          aggregations: []
+          operation: groupby
+  - id: organize
+    options:
+      renameByName:
+        Value (lastNotNull): samples/s
+  - id: sortBy
+    options:
+      sort:
+      - desc: true
+        field: samples/s
+- id: 6
+  title: ② After Scrape Filter by Receiver (pts/s)
+  type: barchart
+  description: Metric points accepted by OTel Collector per receiver. This is AFTER
+    Prometheus metric_relabel_configs but BEFORE OTel processor filters.
+  datasource:
+    type: prometheus
+    uid: ${datasource}
+  queries:
+  - refId: A
+    expr: sum by (receiver) (rate(otelcol_receiver_accepted_metric_points_total{service_name="otel-collector"}[$__rate_interval]))
+    legendFormat: '{{receiver}}'
+    format: table
+    instant: false
+    range: true
+    interval: ''
+    intervalFactor: null
+  transformations:
+  - id: groupBy
+    options:
+      fields:
+        Value:
+          aggregations:
+          - lastNotNull
+          operation: aggregate
+        receiver:
+          aggregations: []
+          operation: groupby
+  - id: organize
+    options:
+      renameByName:
+        Value (lastNotNull): pts/s
+  - id: sortBy
+    options:
+      sort:
+      - desc: true
+        field: pts/s
+- id: 7
+  title: ③ After Processor Filter (pts/s)
+  type: barchart
+  description: 'Final output of OTel processor filters: what reaches Gigapipe vs what
+    gets discarded.'
+  datasource:
+    type: prometheus
+    uid: ${datasource}
+  queries:
+  - refId: A
+    expr: label_replace(sum(rate(otelcol_exporter_sent_metric_points_total{service_name="otel-collector"}[$__rate_interval])),
+      "outcome", "→ gigapipe", "", "") or label_replace(clamp_min(sum(rate(otelcol_receiver_accepted_metric_points_total{service_name="otel-collector"}[$__rate_interval]))
+      - sum(rate(otelcol_exporter_sent_metric_points_total{service_name="otel-collector"}[$__rate_interval])),
+      0), "outcome", "→ discarded", "", "")
+    legendFormat: ''
+    format: table
+    instant: false
+    range: true
+    interval: ''
+    intervalFactor: null
+  transformations:
+  - id: groupBy
+    options:
+      fields:
+        Value:
+          aggregations:
+          - lastNotNull
+          operation: aggregate
+        outcome:
+          aggregations: []
+          operation: groupby
+  - id: organize
+    options:
+      renameByName:
+        Value (lastNotNull): pts/s
+- id: 8
+  title: Filter Efficiency
+  type: row
+  collapsed: false
+- id: 9
+  title: ''
+  type: text
+  description: ''
+  datasource:
+    type: ''
+    uid: ''
+  queries: []
+  content: "**Scrape Filter** = `metric_relabel_configs` drops at Prometheus scrape\
+    \ time (① → ②)  \n**Processor Filter** = OTel `filter` processor drops inside\
+    \ the metrics pipeline (② → ③)"
+- id: 10
+  title: Scrape Filter Efficiency (Metrics)
+  type: gauge
+  description: How much Prometheus metric_relabel_configs drops at scrape time. Compares
+    raw scraped samples vs what OTel receives.
+  datasource:
+    type: prometheus
+    uid: ${datasource}
+  queries:
+  - refId: A
+    expr: 1 - (sum(rate(otelcol_receiver_accepted_metric_points_total{service_name="otel-collector",
+      receiver=~"prometheus.*"}[$__rate_interval])) / sum(rate(scrape_samples_scraped[$__rate_interval])))
+    legendFormat: scrape filter
+    format: time_series
+    instant: false
+    range: true
+    interval: ''
+    intervalFactor: null
+- id: 11
+  title: Processor Filter Efficiency (Metrics)
+  type: gauge
+  description: How much OTel processor filters drop. Compares what enters processors
+    vs what gets exported.
+  datasource:
+    type: prometheus
+    uid: ${datasource}
+  queries:
+  - refId: A
+    expr: clamp_min(1 - (sum(rate(otelcol_exporter_sent_metric_points_total{service_name="otel-collector"}[$__rate_interval]))
+      / sum(rate(otelcol_receiver_accepted_metric_points_total{service_name="otel-collector"}[$__rate_interval]))),
+      0)
+    legendFormat: processor filter
+    format: time_series
+    instant: false
+    range: true
+    interval: ''
+    intervalFactor: null
+- id: 12
+  title: Total Raw Scraped (Metrics)
+  type: stat
+  description: Sum of all raw samples scraped from all targets (before any filtering).
+  datasource:
+    type: prometheus
+    uid: ${datasource}
+  queries:
+  - refId: A
+    expr: sum(scrape_samples_scraped)
+    legendFormat: raw
+    format: time_series
+    instant: false
+    range: true
+    interval: ''
+    intervalFactor: null
+- id: 13
+  title: Into OTel (Metrics pts/s)
+  type: stat
+  description: Metric points accepted by OTel Collector (after scrape filter).
+  datasource:
+    type: prometheus
+    uid: ${datasource}
+  queries:
+  - refId: A
+    expr: sum(rate(otelcol_receiver_accepted_metric_points_total{service_name="otel-collector"}[$__rate_interval]))
+    legendFormat: into otel
+    format: time_series
+    instant: false
+    range: true
+    interval: ''
+    intervalFactor: null
+- id: 14
+  title: Exported (Metrics pts/s)
+  type: stat
+  description: Metric points exported to Gigapipe (after processor filter).
+  datasource:
+    type: prometheus
+    uid: ${datasource}
+  queries:
+  - refId: A
+    expr: sum(rate(otelcol_exporter_sent_metric_points_total{service_name="otel-collector"}[$__rate_interval]))
+    legendFormat: exported
+    format: time_series
+    instant: false
+    range: true
+    interval: ''
+    intervalFactor: null
+- id: 17
+  title: Volume by Signal Type
+  type: row
+  collapsed: false
+- id: 18
+  title: Logs Received vs Exported (count/s)
+  type: stat
+  description: ''
+  datasource:
+    type: prometheus
+    uid: ${datasource}
+  queries:
+  - refId: A
+    expr: sum(rate(otelcol_receiver_accepted_log_records_total{service_name="otel-collector"}[$__rate_interval]))
+    legendFormat: received/s
+    format: time_series
+    instant: false
+    range: true
+    interval: ''
+    intervalFactor: null
+  - refId: B
+    expr: sum(rate(otelcol_exporter_sent_log_records_total{service_name="otel-collector"}[$__rate_interval]))
+    legendFormat: exported/s
+    format: time_series
+    instant: false
+    range: true
+    interval: ''
+    intervalFactor: null
+- id: 19
+  title: Metrics Received vs Exported (count/s)
+  type: stat
+  description: ''
+  datasource:
+    type: prometheus
+    uid: ${datasource}
+  queries:
+  - refId: A
+    expr: sum(rate(otelcol_receiver_accepted_metric_points_total{service_name="otel-collector"}[$__rate_interval]))
+    legendFormat: received/s
+    format: time_series
+    instant: false
+    range: true
+    interval: ''
+    intervalFactor: null
+  - refId: B
+    expr: sum(rate(otelcol_exporter_sent_metric_points_total{service_name="otel-collector"}[$__rate_interval]))
+    legendFormat: exported/s
+    format: time_series
+    instant: false
+    range: true
+    interval: ''
+    intervalFactor: null
+- id: 20
+  title: Traces Received vs Exported (count/s)
+  type: stat
+  description: ''
+  datasource:
+    type: prometheus
+    uid: ${datasource}
+  queries:
+  - refId: A
+    expr: sum(rate(otelcol_receiver_accepted_spans_total{service_name="otel-collector"}[$__rate_interval]))
+    legendFormat: received/s
+    format: time_series
+    instant: false
+    range: true
+    interval: ''
+    intervalFactor: null
+  - refId: B
+    expr: sum(rate(otelcol_exporter_sent_spans_total{service_name="otel-collector"}[$__rate_interval]))
+    legendFormat: exported/s
+    format: time_series
+    instant: false
+    range: true
+    interval: ''
+    intervalFactor: null
+- id: 22
+  title: Logs Bytes (N/A)
+  type: stat
+  description: Logs bytes not available from gigapipe-writer metrics
+  datasource:
+    type: prometheus
+    uid: ${datasource}
+  queries:
+  - refId: A
+    expr: vector(0)
+    legendFormat: N/A
+    format: time_series
+    instant: false
+    range: true
+    interval: ''
+    intervalFactor: null
+- id: 23
+  title: Metrics Bytes Exported
+  type: stat
+  description: Bytes sent to ClickHouse for metric samples and time series metadata
+  datasource:
+    type: prometheus
+    uid: ${datasource}
+  queries:
+  - refId: A
+    expr: sum(rate(sent_bytes_total{job="gigapipe-writer", service=~"samples|time_series"}[$__rate_interval]))
+    legendFormat: bytes/s
+    format: time_series
+    instant: false
+    range: true
+    interval: ''
+    intervalFactor: null
+- id: 24
+  title: Traces Bytes Exported
+  type: stat
+  description: Bytes sent to ClickHouse for traces and trace tags
+  datasource:
+    type: prometheus
+    uid: ${datasource}
+  queries:
+  - refId: A
+    expr: sum(rate(sent_bytes_total{job="gigapipe-writer", service=~"traces|traces_tags"}[$__rate_interval]))
+    legendFormat: bytes/s
+    format: time_series
+    instant: false
+    range: true
+    interval: ''
+    intervalFactor: null
+- id: 25
+  title: Intake by Receiver Over Time
+  type: timeseries
+  description: Rate of metric points per receiver over time.
+  datasource:
+    type: prometheus
+    uid: ${datasource}
+  queries:
+  - refId: A
+    expr: sum by (receiver) (rate(otelcol_receiver_accepted_metric_points_total{service_name="otel-collector"}[$__rate_interval]))
+    legendFormat: '{{receiver}}'
+    format: time_series
+    instant: false
+    range: true
+    interval: ''
+    intervalFactor: null
+- id: 26
+  title: Filter Drop Over Time
+  type: timeseries
+  description: Rate of metric points dropped by each processor over time.
+  datasource:
+    type: prometheus
+    uid: ${datasource}
+  queries:
+  - refId: A
+    expr: sum by (processor) (rate(otelcol_processor_incoming_items_total{service_name="otel-collector"}[$__rate_interval])
+      - rate(otelcol_processor_outgoing_items_total{service_name="otel-collector"}[$__rate_interval]))
+      > 0
+    legendFormat: '{{processor}}'
+    format: time_series
+    instant: false
+    range: true
+    interval: ''
+    intervalFactor: null
