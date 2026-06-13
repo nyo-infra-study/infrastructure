@@ -1,0 +1,444 @@
+dashboard:
+  title: ClickHouse
+  uid: clickhouse
+  tags:
+  - clickhouse
+  - storage
+  - observability
+  refresh: 10s
+  time:
+    from: now-1h
+    to: now
+variables:
+- name: datasource
+  type: datasource
+  label: Datasource
+  query: prometheus
+widgets:
+- id: null
+  title: Storage
+  type: row
+  collapsed: false
+- id: null
+  title: Total Data Size
+  type: stat
+  description: Actual compressed data stored in all MergeTree tables (user data, not
+    filesystem).
+  datasource:
+    type: prometheus
+    uid: ${datasource}
+  queries:
+  - refId: A
+    expr: ClickHouseAsyncMetrics_TotalBytesOfMergeTreeTables{job="clickhouse"} - ClickHouseAsyncMetrics_TotalBytesOfMergeTreeTablesSystem{job="clickhouse"}
+    legendFormat: data size
+    format: time_series
+    instant: false
+    range: true
+    interval: ''
+    intervalFactor: null
+- id: null
+  title: Total Parts
+  type: stat
+  description: Number of active data parts. High count may indicate merge pressure.
+  datasource:
+    type: prometheus
+    uid: ${datasource}
+  queries:
+  - refId: A
+    expr: ClickHouseMetrics_PartsActive{job="clickhouse"}
+    legendFormat: active parts
+    format: time_series
+    instant: false
+    range: true
+    interval: ''
+    intervalFactor: null
+- id: null
+  title: Total Rows
+  type: stat
+  description: Total rows stored across all tables.
+  datasource:
+    type: prometheus
+    uid: ${datasource}
+  queries:
+  - refId: A
+    expr: ClickHouseAsyncMetrics_TotalRowsOfMergeTreeTables{job="clickhouse"}
+    legendFormat: rows
+    format: time_series
+    instant: false
+    range: true
+    interval: ''
+    intervalFactor: null
+- id: null
+  title: Memory Tracking
+  type: stat
+  description: Current memory used by ClickHouse server.
+  datasource:
+    type: prometheus
+    uid: ${datasource}
+  queries:
+  - refId: A
+    expr: ClickHouseMetrics_MemoryTracking{job="clickhouse"}
+    legendFormat: memory
+    format: time_series
+    instant: false
+    range: true
+    interval: ''
+    intervalFactor: null
+- id: null
+  title: Data Size Over Time
+  type: timeseries
+  description: User data vs system data size over time.
+  datasource:
+    type: prometheus
+    uid: ${datasource}
+  queries:
+  - refId: A
+    expr: ClickHouseAsyncMetrics_TotalBytesOfMergeTreeTables{job="clickhouse"} - ClickHouseAsyncMetrics_TotalBytesOfMergeTreeTablesSystem{job="clickhouse"}
+    legendFormat: user data
+    format: time_series
+    instant: false
+    range: true
+    interval: ''
+    intervalFactor: null
+  - refId: B
+    expr: ClickHouseAsyncMetrics_TotalBytesOfMergeTreeTablesSystem{job="clickhouse"}
+    legendFormat: system data
+    format: time_series
+    instant: false
+    range: true
+    interval: ''
+    intervalFactor: null
+- id: null
+  title: Active Parts Over Time
+  type: timeseries
+  description: Number of active data parts over time. Spikes indicate insert activity,
+    drops indicate merge completion.
+  datasource:
+    type: prometheus
+    uid: ${datasource}
+  queries:
+  - refId: A
+    expr: ClickHouseMetrics_PartsActive{job="clickhouse"}
+    legendFormat: active parts
+    format: time_series
+    instant: false
+    range: true
+    interval: ''
+    intervalFactor: null
+- id: null
+  title: Queries
+  type: row
+  collapsed: false
+- id: null
+  title: Queries/s
+  type: timeseries
+  description: 'Query throughput: selects, inserts, and total (sum of both).'
+  datasource:
+    type: prometheus
+    uid: ${datasource}
+  queries:
+  - refId: A
+    expr: rate(ClickHouseProfileEvents_SelectQuery_total{job="clickhouse"}[$__rate_interval])
+      + rate(ClickHouseProfileEvents_InsertQuery_total{job="clickhouse"}[$__rate_interval])
+    legendFormat: all queries/s
+    format: time_series
+    instant: false
+    range: true
+    interval: ''
+    intervalFactor: null
+  - refId: B
+    expr: rate(ClickHouseProfileEvents_SelectQuery_total{job="clickhouse"}[$__rate_interval])
+    legendFormat: selects/s
+    format: time_series
+    instant: false
+    range: true
+    interval: ''
+    intervalFactor: null
+  - refId: C
+    expr: rate(ClickHouseProfileEvents_InsertQuery_total{job="clickhouse"}[$__rate_interval])
+    legendFormat: inserts/s
+    format: time_series
+    instant: false
+    range: true
+    interval: ''
+    intervalFactor: null
+- id: null
+  title: Failed Queries/s
+  type: timeseries
+  description: Rate of failed queries. Spikes indicate query errors or resource issues.
+  datasource:
+    type: prometheus
+    uid: ${datasource}
+  queries:
+  - refId: A
+    expr: rate(ClickHouseProfileEvents_FailedQuery_total{job="clickhouse"}[$__rate_interval])
+    legendFormat: failed queries/s
+    format: time_series
+    instant: false
+    range: true
+    interval: ''
+    intervalFactor: null
+  - refId: B
+    expr: rate(ClickHouseProfileEvents_FailedSelectQuery_total{job="clickhouse"}[$__rate_interval])
+    legendFormat: failed selects/s
+    format: time_series
+    instant: false
+    range: true
+    interval: ''
+    intervalFactor: null
+  - refId: C
+    expr: rate(ClickHouseProfileEvents_FailedInsertQuery_total{job="clickhouse"}[$__rate_interval])
+    legendFormat: failed inserts/s
+    format: time_series
+    instant: false
+    range: true
+    interval: ''
+    intervalFactor: null
+- id: null
+  title: Current Running Queries
+  type: stat
+  description: Number of queries currently being executed.
+  datasource:
+    type: prometheus
+    uid: ${datasource}
+  queries:
+  - refId: A
+    expr: ClickHouseMetrics_Query{job="clickhouse"}
+    legendFormat: running
+    format: time_series
+    instant: false
+    range: true
+    interval: ''
+    intervalFactor: null
+- id: null
+  title: Inserts
+  type: row
+  collapsed: false
+- id: null
+  title: Inserted Rows/s
+  type: timeseries
+  description: Rate of rows inserted into ClickHouse tables.
+  datasource:
+    type: prometheus
+    uid: ${datasource}
+  queries:
+  - refId: A
+    expr: rate(ClickHouseProfileEvents_InsertedRows_total{job="clickhouse"}[$__rate_interval])
+    legendFormat: rows/s
+    format: time_series
+    instant: false
+    range: true
+    interval: ''
+    intervalFactor: null
+- id: null
+  title: Inserted Bytes/s
+  type: timeseries
+  description: Rate of bytes inserted into ClickHouse tables.
+  datasource:
+    type: prometheus
+    uid: ${datasource}
+  queries:
+  - refId: A
+    expr: rate(ClickHouseProfileEvents_InsertedBytes_total{job="clickhouse"}[$__rate_interval])
+    legendFormat: bytes/s
+    format: time_series
+    instant: false
+    range: true
+    interval: ''
+    intervalFactor: null
+- id: null
+  title: Merges & Background
+  type: row
+  collapsed: false
+- id: null
+  title: Background Merges Running
+  type: timeseries
+  description: Number of concurrent merge operations. High count indicates merge backlog.
+  datasource:
+    type: prometheus
+    uid: ${datasource}
+  queries:
+  - refId: A
+    expr: ClickHouseMetrics_Merge{job="clickhouse"}
+    legendFormat: merges
+    format: time_series
+    instant: false
+    range: true
+    interval: ''
+    intervalFactor: null
+- id: null
+  title: Merged Rows/s
+  type: timeseries
+  description: Rate of rows processed by background merge operations.
+  datasource:
+    type: prometheus
+    uid: ${datasource}
+  queries:
+  - refId: A
+    expr: rate(ClickHouseProfileEvents_MergedRows_total{job="clickhouse"}[$__rate_interval])
+    legendFormat: merged rows/s
+    format: time_series
+    instant: false
+    range: true
+    interval: ''
+    intervalFactor: null
+- id: null
+  title: Merged Bytes/s
+  type: timeseries
+  description: Rate of uncompressed bytes processed by background merge operations.
+  datasource:
+    type: prometheus
+    uid: ${datasource}
+  queries:
+  - refId: A
+    expr: rate(ClickHouseProfileEvents_MergedUncompressedBytes_total{job="clickhouse"}[$__rate_interval])
+    legendFormat: merged bytes/s
+    format: time_series
+    instant: false
+    range: true
+    interval: ''
+    intervalFactor: null
+- id: null
+  title: Connections & Resources
+  type: row
+  collapsed: false
+- id: null
+  title: TCP Connections
+  type: timeseries
+  description: Current active TCP and HTTP connections to ClickHouse.
+  datasource:
+    type: prometheus
+    uid: ${datasource}
+  queries:
+  - refId: A
+    expr: ClickHouseMetrics_TCPConnection{job="clickhouse"}
+    legendFormat: TCP connections
+    format: time_series
+    instant: false
+    range: true
+    interval: ''
+    intervalFactor: null
+  - refId: B
+    expr: ClickHouseMetrics_HTTPConnection{job="clickhouse"}
+    legendFormat: HTTP connections
+    format: time_series
+    instant: false
+    range: true
+    interval: ''
+    intervalFactor: null
+- id: null
+  title: Memory Over Time
+  type: timeseries
+  description: ClickHouse memory usage tracked by the server.
+  datasource:
+    type: prometheus
+    uid: ${datasource}
+  queries:
+  - refId: A
+    expr: ClickHouseMetrics_MemoryTracking{job="clickhouse"}
+    legendFormat: memory tracking
+    format: time_series
+    instant: false
+    range: true
+    interval: ''
+    intervalFactor: null
+- id: null
+  title: Read/Write Bytes/s (Disk I/O)
+  type: timeseries
+  description: Disk I/O throughput from file descriptor read/write operations.
+  datasource:
+    type: prometheus
+    uid: ${datasource}
+  queries:
+  - refId: A
+    expr: rate(ClickHouseProfileEvents_ReadBufferFromFileDescriptorReadBytes_total{job="clickhouse"}[$__rate_interval])
+    legendFormat: read bytes/s
+    format: time_series
+    instant: false
+    range: true
+    interval: ''
+    intervalFactor: null
+  - refId: B
+    expr: rate(ClickHouseProfileEvents_WriteBufferFromFileDescriptorWriteBytes_total{job="clickhouse"}[$__rate_interval])
+    legendFormat: write bytes/s
+    format: time_series
+    instant: false
+    range: true
+    interval: ''
+    intervalFactor: null
+- id: null
+  title: ZooKeeper / Keeper
+  type: row
+  collapsed: false
+- id: null
+  title: ZooKeeper Requests/s
+  type: timeseries
+  description: Rate of ZooKeeper operations performed by ClickHouse.
+  datasource:
+    type: prometheus
+    uid: ${datasource}
+  queries:
+  - refId: A
+    expr: rate(ClickHouseProfileEvents_ZooKeeperTransactions_total{job="clickhouse"}[$__rate_interval])
+    legendFormat: transactions/s
+    format: time_series
+    instant: false
+    range: true
+    interval: ''
+    intervalFactor: null
+  - refId: B
+    expr: rate(ClickHouseProfileEvents_ZooKeeperGet_total{job="clickhouse"}[$__rate_interval])
+    legendFormat: gets/s
+    format: time_series
+    instant: false
+    range: true
+    interval: ''
+    intervalFactor: null
+- id: null
+  title: ZooKeeper Wait Time
+  type: timeseries
+  description: Total ZooKeeper wait time accumulated per second. Higher values indicate
+    ZK latency impacting ClickHouse.
+  datasource:
+    type: prometheus
+    uid: ${datasource}
+  queries:
+  - refId: A
+    expr: rate(ClickHouseProfileEvents_ZooKeeperWaitMicroseconds_total{job="clickhouse"}[$__rate_interval])
+    legendFormat: wait time rate
+    format: time_series
+    instant: false
+    range: true
+    interval: ''
+    intervalFactor: null
+- id: null
+  title: Active Queries (searchable)
+  type: row
+  collapsed: false
+- id: null
+  title: ClickHouse Metrics Overview
+  type: briangann-datatable-panel
+  description: All ClickHouse metrics with current values. Use the search box to find
+    a specific metric.
+  datasource:
+    type: prometheus
+    uid: ${datasource}
+  queries:
+  - refId: A
+    expr: '{__name__=~"ClickHouseMetrics_.+",job="clickhouse"} > 0'
+    legendFormat: ''
+    format: table
+    instant: true
+    range: true
+    interval: ''
+    intervalFactor: null
+  transformations:
+  - id: organize
+    options:
+      excludeByName:
+        Time: true
+        job: true
+        instance: true
+      renameByName:
+        __name__: Metric
+        Value: Value

@@ -162,6 +162,7 @@
     },
     {
       "title": "Data Size Over Time",
+      "description": "User data vs system data size over time.",
       "type": "timeseries",
       "gridPos": {
         "h": 7,
@@ -194,6 +195,7 @@
     },
     {
       "title": "Active Parts Over Time",
+      "description": "Number of active data parts over time. Spikes indicate insert activity, drops indicate merge completion.",
       "type": "timeseries",
       "gridPos": {
         "h": 7,
@@ -226,6 +228,7 @@
     },
     {
       "title": "Queries/s",
+      "description": "Query throughput: selects, inserts, and total (sum of both).",
       "type": "timeseries",
       "gridPos": {
         "h": 7,
@@ -239,17 +242,17 @@
       },
       "targets": [
         {
-          "expr": "rate(ClickHouseProfileEvents_Query_total{job=\"clickhouse\"}[5m])",
+          "expr": "rate(ClickHouseProfileEvents_SelectQuery_total{job=\"clickhouse\"}[$__rate_interval]) + rate(ClickHouseProfileEvents_InsertQuery_total{job=\"clickhouse\"}[$__rate_interval])",
           "refId": "A",
           "legendFormat": "all queries/s"
         },
         {
-          "expr": "rate(ClickHouseProfileEvents_SelectQuery_total{job=\"clickhouse\"}[5m])",
+          "expr": "rate(ClickHouseProfileEvents_SelectQuery_total{job=\"clickhouse\"}[$__rate_interval])",
           "refId": "B",
           "legendFormat": "selects/s"
         },
         {
-          "expr": "rate(ClickHouseProfileEvents_InsertQuery_total{job=\"clickhouse\"}[5m])",
+          "expr": "rate(ClickHouseProfileEvents_InsertQuery_total{job=\"clickhouse\"}[$__rate_interval])",
           "refId": "C",
           "legendFormat": "inserts/s"
         }
@@ -257,6 +260,7 @@
     },
     {
       "title": "Failed Queries/s",
+      "description": "Rate of failed queries. Spikes indicate query errors or resource issues.",
       "type": "timeseries",
       "gridPos": {
         "h": 7,
@@ -279,17 +283,17 @@
       },
       "targets": [
         {
-          "expr": "rate(ClickHouseProfileEvents_FailedQuery_total{job=\"clickhouse\"}[5m])",
+          "expr": "rate(ClickHouseProfileEvents_FailedQuery_total{job=\"clickhouse\"}[$__rate_interval])",
           "refId": "A",
           "legendFormat": "failed queries/s"
         },
         {
-          "expr": "rate(ClickHouseProfileEvents_FailedSelectQuery_total{job=\"clickhouse\"}[5m])",
+          "expr": "rate(ClickHouseProfileEvents_FailedSelectQuery_total{job=\"clickhouse\"}[$__rate_interval])",
           "refId": "B",
           "legendFormat": "failed selects/s"
         },
         {
-          "expr": "rate(ClickHouseProfileEvents_FailedInsertQuery_total{job=\"clickhouse\"}[5m])",
+          "expr": "rate(ClickHouseProfileEvents_FailedInsertQuery_total{job=\"clickhouse\"}[$__rate_interval])",
           "refId": "C",
           "legendFormat": "failed inserts/s"
         }
@@ -297,6 +301,7 @@
     },
     {
       "title": "Current Running Queries",
+      "description": "Number of queries currently being executed.",
       "type": "stat",
       "gridPos": {
         "h": 7,
@@ -352,6 +357,7 @@
     },
     {
       "title": "Inserted Rows/s",
+      "description": "Rate of rows inserted into ClickHouse tables.",
       "type": "timeseries",
       "gridPos": {
         "h": 7,
@@ -365,7 +371,7 @@
       },
       "targets": [
         {
-          "expr": "rate(ClickHouseProfileEvents_InsertedRows_total{job=\"clickhouse\"}[5m])",
+          "expr": "rate(ClickHouseProfileEvents_InsertedRows_total{job=\"clickhouse\"}[$__rate_interval])",
           "refId": "A",
           "legendFormat": "rows/s"
         }
@@ -373,6 +379,7 @@
     },
     {
       "title": "Inserted Bytes/s",
+      "description": "Rate of bytes inserted into ClickHouse tables.",
       "type": "timeseries",
       "gridPos": {
         "h": 7,
@@ -392,7 +399,7 @@
       },
       "targets": [
         {
-          "expr": "rate(ClickHouseProfileEvents_InsertedBytes_total{job=\"clickhouse\"}[5m])",
+          "expr": "rate(ClickHouseProfileEvents_InsertedBytes_total{job=\"clickhouse\"}[$__rate_interval])",
           "refId": "A",
           "legendFormat": "bytes/s"
         }
@@ -411,6 +418,7 @@
     },
     {
       "title": "Background Merges Running",
+      "description": "Number of concurrent merge operations. High count indicates merge backlog.",
       "type": "timeseries",
       "gridPos": {
         "h": 7,
@@ -432,6 +440,7 @@
     },
     {
       "title": "Merged Rows/s",
+      "description": "Rate of rows processed by background merge operations.",
       "type": "timeseries",
       "gridPos": {
         "h": 7,
@@ -445,7 +454,7 @@
       },
       "targets": [
         {
-          "expr": "rate(ClickHouseProfileEvents_MergedRows_total{job=\"clickhouse\"}[5m])",
+          "expr": "rate(ClickHouseProfileEvents_MergedRows_total{job=\"clickhouse\"}[$__rate_interval])",
           "refId": "A",
           "legendFormat": "merged rows/s"
         }
@@ -453,6 +462,7 @@
     },
     {
       "title": "Merged Bytes/s",
+      "description": "Rate of uncompressed bytes processed by background merge operations.",
       "type": "timeseries",
       "gridPos": {
         "h": 7,
@@ -472,7 +482,7 @@
       },
       "targets": [
         {
-          "expr": "rate(ClickHouseProfileEvents_MergedUncompressedBytes_total{job=\"clickhouse\"}[5m])",
+          "expr": "rate(ClickHouseProfileEvents_MergedUncompressedBytes_total{job=\"clickhouse\"}[$__rate_interval])",
           "refId": "A",
           "legendFormat": "merged bytes/s"
         }
@@ -491,6 +501,7 @@
     },
     {
       "title": "TCP Connections",
+      "description": "Current active TCP and HTTP connections to ClickHouse.",
       "type": "timeseries",
       "gridPos": {
         "h": 7,
@@ -517,6 +528,7 @@
     },
     {
       "title": "Memory Over Time",
+      "description": "ClickHouse memory usage tracked by the server.",
       "type": "timeseries",
       "gridPos": {
         "h": 7,
@@ -544,6 +556,7 @@
     },
     {
       "title": "Read/Write Bytes/s (Disk I/O)",
+      "description": "Disk I/O throughput from file descriptor read/write operations.",
       "type": "timeseries",
       "gridPos": {
         "h": 7,
@@ -563,12 +576,12 @@
       },
       "targets": [
         {
-          "expr": "rate(ClickHouseProfileEvents_ReadBufferFromFileDescriptorReadBytes_total{job=\"clickhouse\"}[5m])",
+          "expr": "rate(ClickHouseProfileEvents_ReadBufferFromFileDescriptorReadBytes_total{job=\"clickhouse\"}[$__rate_interval])",
           "refId": "A",
           "legendFormat": "read bytes/s"
         },
         {
-          "expr": "rate(ClickHouseProfileEvents_WriteBufferFromFileDescriptorWriteBytes_total{job=\"clickhouse\"}[5m])",
+          "expr": "rate(ClickHouseProfileEvents_WriteBufferFromFileDescriptorWriteBytes_total{job=\"clickhouse\"}[$__rate_interval])",
           "refId": "B",
           "legendFormat": "write bytes/s"
         }
@@ -587,6 +600,7 @@
     },
     {
       "title": "ZooKeeper Requests/s",
+      "description": "Rate of ZooKeeper operations performed by ClickHouse.",
       "type": "timeseries",
       "gridPos": {
         "h": 7,
@@ -600,12 +614,12 @@
       },
       "targets": [
         {
-          "expr": "rate(ClickHouseProfileEvents_ZooKeeperTransactions_total{job=\"clickhouse\"}[5m])",
+          "expr": "rate(ClickHouseProfileEvents_ZooKeeperTransactions_total{job=\"clickhouse\"}[$__rate_interval])",
           "refId": "A",
           "legendFormat": "transactions/s"
         },
         {
-          "expr": "rate(ClickHouseProfileEvents_ZooKeeperGet_total{job=\"clickhouse\"}[5m])",
+          "expr": "rate(ClickHouseProfileEvents_ZooKeeperGet_total{job=\"clickhouse\"}[$__rate_interval])",
           "refId": "B",
           "legendFormat": "gets/s"
         }
@@ -613,6 +627,7 @@
     },
     {
       "title": "ZooKeeper Wait Time",
+      "description": "Total ZooKeeper wait time accumulated per second. Higher values indicate ZK latency impacting ClickHouse.",
       "type": "timeseries",
       "gridPos": {
         "h": 7,
@@ -632,9 +647,9 @@
       },
       "targets": [
         {
-          "expr": "rate(ClickHouseProfileEvents_ZooKeeperWaitMicroseconds_total{job=\"clickhouse\"}[5m])",
+          "expr": "rate(ClickHouseProfileEvents_ZooKeeperWaitMicroseconds_total{job=\"clickhouse\"}[$__rate_interval])",
           "refId": "A",
-          "legendFormat": "wait \u00b5s/s"
+          "legendFormat": "wait time rate"
         }
       ]
     },
