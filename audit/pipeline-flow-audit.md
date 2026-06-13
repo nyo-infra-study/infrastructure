@@ -67,13 +67,14 @@
 
 #### Panel 10: Scrape Filter Efficiency (Metrics)
 - **Type:** gauge
-- **Description:** How much Prometheus metric_relabel_configs drops at scrape time. Compares raw scraped samples vs what OTel receives.
-- **Expression:** `1 - (sum(rate(otelcol_receiver_accepted_metric_points_total{...}[...])) / sum(rate(scrape_samples_scraped[$__rate_interval])))`
+- **Description:** How much Prometheus metric_relabel_configs drops at scrape time. Compares raw scraped samples vs samples after relabeling.
+- **Expression:** `clamp_min(1 - (sum(scrape_samples_post_metric_relabeling) / sum(scrape_samples_scraped)), 0)`
 - **Metrics Used:**
-  - `scrape_samples_scraped` (raw)
-  - `otelcol_receiver_accepted_metric_points_total` (after scrape filter)
+  - `scrape_samples_scraped` (raw samples per scrape - gauge)
+  - `scrape_samples_post_metric_relabeling` (samples after relabeling - gauge)
 - **Audit:** ✅ **CORRECT** (fixed)
-  - Both sides now use `rate()` for consistent comparison
+  - Both metrics are gauges from the same scrape cycle
+  - Directly comparable: `1 - (after/before)` = drop percentage
 
 ---
 

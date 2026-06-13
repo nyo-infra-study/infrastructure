@@ -193,14 +193,14 @@ widgets:
   title: Scrape Filter Efficiency (Metrics)
   type: gauge
   description: How much Prometheus metric_relabel_configs drops at scrape time. Compares
-    raw scraped samples vs what OTel receives.
+    raw scraped samples vs samples after relabeling.
   datasource:
     type: prometheus
     uid: ${datasource}
   queries:
   - refId: A
-    expr: 1 - (sum(rate(otelcol_receiver_accepted_metric_points_total{service_name="otel-collector",
-      receiver=~"prometheus.*"}[$__rate_interval])) / sum(rate(scrape_samples_scraped[$__rate_interval])))
+    expr: clamp_min(1 - (sum(scrape_samples_post_metric_relabeling) / sum(scrape_samples_scraped)),
+      0)
     legendFormat: scrape filter
     format: time_series
     instant: false
