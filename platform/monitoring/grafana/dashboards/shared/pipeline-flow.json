@@ -200,7 +200,7 @@
           "refId": "A"
         }
       ],
-      "title": "① Raw Scraped by Job (samples/s)",
+      "title": "① Raw Scraped by Job (samples)",
       "transformations": [
         {
           "id": "groupBy",
@@ -246,7 +246,7 @@
         "type": "prometheus",
         "uid": "${datasource}"
       },
-      "description": "Metric points accepted by OTel Collector per receiver. This is AFTER Prometheus metric_relabel_configs but BEFORE OTel processor filters.",
+      "description": "Metric points accepted by OTel Prometheus receivers (after Prometheus metric_relabel_configs, before OTel processor filters).",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -325,7 +325,7 @@
       "pluginVersion": "12.3.1",
       "targets": [
         {
-          "expr": "sum by (receiver) (rate(otelcol_receiver_accepted_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval]))",
+          "expr": "sum by (receiver) (rate(otelcol_receiver_accepted_metric_points_total{service_name=\"otel-collector\", receiver=~\"prometheus.*\"}[$__rate_interval]))",
           "format": "table",
           "legendFormat": "{{receiver}}",
           "range": true,
@@ -779,7 +779,7 @@
         "type": "prometheus",
         "uid": "${datasource}"
       },
-      "description": "Metric points accepted by OTel Collector (after scrape filter).",
+      "description": "Metric points accepted by all OTel receivers (Prometheus, OTLP, etc.).",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1421,7 +1421,7 @@
         "type": "prometheus",
         "uid": "${datasource}"
       },
-      "description": "Rate of metric points dropped by each processor over time.",
+      "description": "Items (metrics, logs, traces) dropped by each processor over time.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1511,7 +1511,7 @@
           "refId": "A"
         }
       ],
-      "title": "Filter Drop Over Time",
+      "title": "Processor Drop Over Time (All Signals)",
       "type": "timeseries"
     }
   ],

@@ -66,7 +66,7 @@ widgets:
 
     🟢 gigapipe  🔴 discarded'
 - id: 5
-  title: ① Raw Scraped by Job (samples/s)
+  title: ① Raw Scraped by Job (samples)
   type: barchart
   description: Total samples scraped from each job BEFORE scrape-level metric_relabel_configs.
     This is the raw volume from targets.
@@ -105,14 +105,15 @@ widgets:
 - id: 6
   title: ② After Scrape Filter by Receiver (pts/s)
   type: barchart
-  description: Metric points accepted by OTel Collector per receiver. This is AFTER
-    Prometheus metric_relabel_configs but BEFORE OTel processor filters.
+  description: Metric points accepted by OTel Prometheus receivers (after Prometheus
+    metric_relabel_configs, before OTel processor filters).
   datasource:
     type: prometheus
     uid: ${datasource}
   queries:
   - refId: A
-    expr: sum by (receiver) (rate(otelcol_receiver_accepted_metric_points_total{service_name="otel-collector"}[$__rate_interval]))
+    expr: sum by (receiver) (rate(otelcol_receiver_accepted_metric_points_total{service_name="otel-collector",
+      receiver=~"prometheus.*"}[$__rate_interval]))
     legendFormat: '{{receiver}}'
     format: table
     instant: false
@@ -245,7 +246,7 @@ widgets:
 - id: 13
   title: Into OTel (Metrics pts/s)
   type: stat
-  description: Metric points accepted by OTel Collector (after scrape filter).
+  description: Metric points accepted by all OTel receivers (Prometheus, OTLP, etc.).
   datasource:
     type: prometheus
     uid: ${datasource}
@@ -415,9 +416,9 @@ widgets:
     interval: ''
     intervalFactor: null
 - id: 26
-  title: Filter Drop Over Time
+  title: Processor Drop Over Time (All Signals)
   type: timeseries
-  description: Rate of metric points dropped by each processor over time.
+  description: Items (metrics, logs, traces) dropped by each processor over time.
   datasource:
     type: prometheus
     uid: ${datasource}

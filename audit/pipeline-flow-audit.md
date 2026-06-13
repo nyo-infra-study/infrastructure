@@ -1,7 +1,8 @@
 # Pipeline Flow Dashboard - Metrics Audit
 
 **Dashboard:** Pipeline Flow (`pipeline-flow`)  
-**Audit Date:** 2025-06-13
+**Audit Date:** 2025-06-13  
+**Validated Against:** Local Grafana MCP
 
 ---
 
@@ -10,9 +11,35 @@
 | Category | Count |
 |----------|-------|
 | Total Panels with Queries | 15 |
-| ✅ Correct | 14 |
-| ⚠️ Minor Issues | 1 |
+| ✅ Correct | 11 |
+| ⚠️ Minor Issues | 4 |
 | ❌ Incorrect | 0 |
+
+---
+
+## Issues Found
+
+### Panel 5: ① Raw Scraped by Job (samples/s)
+- **Issue:** Title says "samples/s" but query returns samples per scrape (gauge), not per second (rate)
+- **Query:** `sum by (job) (scrape_samples_scraped)`
+- **Fix:** Either rename to "Raw Scraped by Job (samples/scrape)" or note it's a gauge
+
+### Panel 6: ② After Scrape Filter by Receiver (pts/s)  
+- **Issue:** Description says "AFTER Prometheus metric_relabel_configs" but query includes ALL receivers (OTLP, filelog, etc.)
+- **Query:** `sum by (receiver) (rate(otelcol_receiver_accepted_metric_points_total{service_name="otel-collector"}[$__rate_interval]))`
+- **Impact:** Description is misleading — shows all OTel receivers, not just Prometheus
+- **Fix:** Update description to clarify it shows all receiver types
+
+### Panel 13: Into OTel (Metrics pts/s)
+- **Issue:** Description says "after scrape filter" but includes all receivers (OTLP, filelog, etc.)
+- **Query:** `sum(rate(otelcol_receiver_accepted_metric_points_total{service_name="otel-collector"}[$__rate_interval]))`
+- **Fix:** Update description to "Metric points accepted by all OTel receivers"
+
+### Panel 26: Filter Drop Over Time
+- **Issue:** Title says "metric points" but query uses generic `_items_total` (all signal types)
+- **Query:** Uses `otelcol_processor_incoming_items_total` / `otelcol_processor_outgoing_items_total`
+- **Impact:** Shows logs, traces, and metrics combined, not just metrics
+- **Fix:** Either rename to "Items Dropped by Processor" or use signal-specific metrics
 
 ---
 
@@ -24,11 +51,11 @@
 - **Type:** barchart
 - **Description:** Total samples scraped from each job BEFORE scrape-level metric_relabel_configs. This is the raw volume from targets.
 - **Expression:** `sum by (job) (scrape_samples_scraped)`
-- **Metric Used:** `scrape_samples_scraped`
-- **Audit:** ✅ **CORRECT**
-  - `scrape_samples_scraped` is the standard Prometheus metric for samples scraped per target
-  - Grouped by `job` as described
-  - Shows raw volume before any filtering
+- **Metric Used:** `scrape_samples_scraped` (gauge - samples per scrape)
+- **Audit:** ⚠️ **MINOR ISSUE**
+  - Query is correct but title says "samples/s" which implies a rate
+  - `scrape_samples_scraped` is a gauge showing samples per scrape, not per second
+  - **Recommendation:** Rename to "Raw Scraped by Job (samples/scrape)"
 
 ---
 
@@ -37,10 +64,10 @@
 - **Description:** Metric points accepted by OTel Collector per receiver. This is AFTER Prometheus metric_relabel_configs but BEFORE OTel processor filters.
 - **Expression:** `sum by (receiver) (rate(otelcol_receiver_accepted_metric_points_total{service_name="otel-collector"}[$__rate_interval]))`
 - **Metric Used:** `otelcol_receiver_accepted_metric_points_total`
-- **Audit:** ✅ **CORRECT**
-  - `otelcol_receiver_accepted_metric_points_total` counts points accepted by OTel receivers
-  - This is indeed after Prometheus scrape filtering but before OTel processors
-  - Rate calculation gives pts/s as described
+- **Audit:** ⚠️ **MINOR ISSUE**
+  - Query is correct and works
+  - **Issue:** Description says "AFTER Prometheus metric_relabel_configs" but shows ALL receivers (OTLP, filelog, prometheus/*)
+  - **Recommendation:** Update description to "Metric points accepted by all OTel receivers (Prometheus, OTLP, etc.)"
 
 ---
 
@@ -107,8 +134,10 @@
 - **Description:** Metric points accepted by OTel Collector (after scrape filter).
 - **Expression:** `sum(rate(otelcol_receiver_accepted_metric_points_total{...}[$__rate_interval]))`
 - **Metric Used:** `otelcol_receiver_accepted_metric_points_total`
-- **Audit:** ✅ **CORRECT**
-  - Points accepted by receiver = after scrape-level filtering
+- **Audit:** ⚠️ **MINOR ISSUE**
+  - Query works correctly
+  - **Issue:** Description says "after scrape filter" but includes ALL receivers (OTLP, filelog, etc.)
+  - **Recommendation:** Update description to "Metric points accepted by all OTel receivers"
 
 ---
 
@@ -239,4 +268,10 @@
 
 ## Recommendations
 
-1. **Panel 26 (Filter Drop Over Time):** Consider renaming to "Items Dropped by Processor" or using signal-specific metrics (`otelcol_processor_dropped_metric_points`, etc.) if available.
+1. **Panel 5:** Rename title from "samples/s" to "samples/scrape" since `scrape_samples_scraped` is a gauge, not a rate.
+
+2. **Panel 6:** Update description to clarify it shows all OTel receivers, not just Prometheus scrapes.
+
+3. **Panel 13:** Update description from "after scrape filter" to "from all receivers" since it includes OTLP, filelog, etc.
+
+4. **Panel 26:** Rename to "Items Dropped by Processor" since it uses generic `_items_total` metrics covering all signal types.
