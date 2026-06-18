@@ -31,7 +31,7 @@
       },
       "id": 1,
       "panels": [],
-      "title": "Metrics Pipeline: Raw Scrape → Scrape Filter → Processor Filter → Gigapipe",
+      "title": "Metrics Pipeline: Raw Scrape \u2192 Scrape Filter \u2192 Processor Filter \u2192 Gigapipe",
       "type": "row"
     },
     {
@@ -52,7 +52,7 @@
           "showLineNumbers": false,
           "showMiniMap": false
         },
-        "content": "#### ① Raw Scrape (Metrics)\n\nTotal metric samples each Prometheus job exposes **before** any `metric_relabel_configs`.\n\n🟠 Higher = more raw series from target.",
+        "content": "#### \u2460 Raw Scrape (Metrics)\n\nTotal metric samples each Prometheus job exposes **before** any `metric_relabel_configs`.\n\n\ud83d\udfe0 Higher = more raw series from target.",
         "mode": "markdown"
       },
       "pluginVersion": "12.3.1",
@@ -77,7 +77,7 @@
           "showLineNumbers": false,
           "showMiniMap": false
         },
-        "content": "#### ② After Scrape Filter (Metrics)\n\nMetric points OTel Collector receives per receiver. Scrape-level `metric_relabel_configs` already applied.\n\n🟡 Gap vs ① = scrape filter drops.",
+        "content": "#### \u2461 After Scrape Filter (Metrics)\n\nMetric points OTel Collector receives per receiver. Scrape-level `metric_relabel_configs` already applied.\n\n\ud83d\udfe1 Gap vs \u2460 = scrape filter drops.",
         "mode": "markdown"
       },
       "pluginVersion": "12.3.1",
@@ -102,7 +102,7 @@
           "showLineNumbers": false,
           "showMiniMap": false
         },
-        "content": "#### ③ After Processor Filter (Metrics)\n\nFinal OTel processor output: metric points reaching Gigapipe vs discarded.\n\n🟢 gigapipe  🔴 discarded",
+        "content": "#### \u2462 After Processor Filter (Metrics)\n\nFinal OTel processor output: metric points reaching Gigapipe vs discarded.\n\n\ud83d\udfe2 gigapipe  \ud83d\udd34 discarded",
         "mode": "markdown"
       },
       "pluginVersion": "12.3.1",
@@ -200,7 +200,7 @@
           "refId": "A"
         }
       ],
-      "title": "① Raw Scraped by Job (samples)",
+      "title": "\u2460 Raw Scraped by Job (samples)",
       "transformations": [
         {
           "id": "groupBy",
@@ -325,14 +325,14 @@
       "pluginVersion": "12.3.1",
       "targets": [
         {
-          "expr": "sum by (receiver) (rate(otelcol_receiver_accepted_metric_points_total{service_name=\"otel-collector\", receiver=~\"prometheus.*\"}[$__rate_interval]))",
+          "expr": "sum by (receiver) (rate(otelcol_receiver_accepted_metric_points_total{service_name=~\"$service_name\", receiver=~\"prometheus.*\"}[$__rate_interval]))",
           "format": "table",
           "legendFormat": "{{receiver}}",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "② After Scrape Filter by Receiver (pts/s)",
+      "title": "\u2461 After Scrape Filter by Receiver (pts/s)",
       "transformations": [
         {
           "id": "groupBy",
@@ -425,7 +425,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "→ gigapipe"
+              "options": "\u2192 gigapipe"
             },
             "properties": [
               {
@@ -440,7 +440,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "→ discarded"
+              "options": "\u2192 discarded"
             },
             "properties": [
               {
@@ -487,14 +487,14 @@
       "pluginVersion": "12.3.1",
       "targets": [
         {
-          "expr": "label_replace(sum(rate(otelcol_exporter_sent_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval])), \"outcome\", \"→ gigapipe\", \"\", \"\") or label_replace(clamp_min(sum(rate(otelcol_receiver_accepted_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval])) - sum(rate(otelcol_exporter_sent_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval])), 0), \"outcome\", \"→ discarded\", \"\", \"\")",
+          "expr": "label_replace(sum(rate(otelcol_exporter_sent_metric_points_total{service_name=~\"$service_name\"}[$__rate_interval])), \"outcome\", \"\u2192 gigapipe\", \"\", \"\") or label_replace(clamp_min(sum(rate(otelcol_receiver_accepted_metric_points_total{service_name=~\"$service_name\"}[$__rate_interval])) - sum(rate(otelcol_exporter_sent_metric_points_total{service_name=~\"$service_name\"}[$__rate_interval])), 0), \"outcome\", \"\u2192 discarded\", \"\", \"\")",
           "format": "table",
           "legendFormat": "",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "③ After Processor Filter (pts/s)",
+      "title": "\u2462 After Processor Filter (pts/s)",
       "transformations": [
         {
           "id": "groupBy",
@@ -555,7 +555,7 @@
           "showLineNumbers": false,
           "showMiniMap": false
         },
-        "content": "**Scrape Filter** = `metric_relabel_configs` drops at Prometheus scrape time (① → ②)  \n**Processor Filter** = OTel `filter` processor drops inside the metrics pipeline (② → ③)",
+        "content": "**Scrape Filter** = `metric_relabel_configs` drops at Prometheus scrape time (\u2460 \u2192 \u2461)  \n**Processor Filter** = OTel `filter` processor drops inside the metrics pipeline (\u2461 \u2192 \u2462)",
         "mode": "markdown"
       },
       "pluginVersion": "12.3.1",
@@ -699,7 +699,7 @@
       "pluginVersion": "12.3.1",
       "targets": [
         {
-          "expr": "clamp_min(1 - (sum(rate(otelcol_exporter_sent_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval])) / sum(rate(otelcol_receiver_accepted_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval]))), 0)",
+          "expr": "clamp_min(1 - (sum(rate(otelcol_exporter_sent_metric_points_total{service_name=~\"$service_name\"}[$__rate_interval])) / sum(rate(otelcol_receiver_accepted_metric_points_total{service_name=~\"$service_name\"}[$__rate_interval]))), 0)",
           "legendFormat": "processor filter",
           "range": true,
           "refId": "A"
@@ -831,7 +831,7 @@
       "pluginVersion": "12.3.1",
       "targets": [
         {
-          "expr": "sum(rate(otelcol_receiver_accepted_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval]))",
+          "expr": "sum(rate(otelcol_receiver_accepted_metric_points_total{service_name=~\"$service_name\"}[$__rate_interval]))",
           "legendFormat": "into otel",
           "range": true,
           "refId": "A"
@@ -897,7 +897,7 @@
       "pluginVersion": "12.3.1",
       "targets": [
         {
-          "expr": "sum(rate(otelcol_exporter_sent_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval]))",
+          "expr": "sum(rate(otelcol_exporter_sent_metric_points_total{service_name=~\"$service_name\"}[$__rate_interval]))",
           "legendFormat": "exported",
           "range": true,
           "refId": "A"
@@ -937,7 +937,7 @@
           "showLineNumbers": false,
           "showMiniMap": false
         },
-        "content": "💡 **Why exported > received?** The OTel Collector emits its own internal metrics (RED metrics for pipeline health). These `otelcol_*` metrics are added to the export stream, so the exporter count includes both app signals AND collector self-monitoring.",
+        "content": "\ud83d\udca1 **Why exported > received?** The OTel Collector emits its own internal metrics (RED metrics for pipeline health). These `otelcol_*` metrics are added to the export stream, so the exporter count includes both app signals AND collector self-monitoring.",
         "mode": "markdown"
       },
       "pluginVersion": "12.3.1",
@@ -1000,13 +1000,13 @@
       "pluginVersion": "12.3.1",
       "targets": [
         {
-          "expr": "sum(rate(otelcol_receiver_accepted_log_records_total{service_name=\"otel-collector\"}[$__rate_interval]))",
+          "expr": "sum(rate(otelcol_receiver_accepted_log_records_total{service_name=~\"$service_name\"}[$__rate_interval]))",
           "legendFormat": "received/s",
           "range": true,
           "refId": "A"
         },
         {
-          "expr": "sum(rate(otelcol_exporter_sent_log_records_total{service_name=\"otel-collector\"}[$__rate_interval]))",
+          "expr": "sum(rate(otelcol_exporter_sent_log_records_total{service_name=~\"$service_name\"}[$__rate_interval]))",
           "legendFormat": "exported/s",
           "range": true,
           "refId": "B"
@@ -1071,13 +1071,13 @@
       "pluginVersion": "12.3.1",
       "targets": [
         {
-          "expr": "sum(rate(otelcol_receiver_accepted_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval]))",
+          "expr": "sum(rate(otelcol_receiver_accepted_metric_points_total{service_name=~\"$service_name\"}[$__rate_interval]))",
           "legendFormat": "received/s",
           "range": true,
           "refId": "A"
         },
         {
-          "expr": "sum(rate(otelcol_exporter_sent_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval]))",
+          "expr": "sum(rate(otelcol_exporter_sent_metric_points_total{service_name=~\"$service_name\"}[$__rate_interval]))",
           "legendFormat": "exported/s",
           "range": true,
           "refId": "B"
@@ -1142,13 +1142,13 @@
       "pluginVersion": "12.3.1",
       "targets": [
         {
-          "expr": "sum(rate(otelcol_receiver_accepted_spans_total{service_name=\"otel-collector\"}[$__rate_interval]))",
+          "expr": "sum(rate(otelcol_receiver_accepted_spans_total{service_name=~\"$service_name\"}[$__rate_interval]))",
           "legendFormat": "received/s",
           "range": true,
           "refId": "A"
         },
         {
-          "expr": "sum(rate(otelcol_exporter_sent_spans_total{service_name=\"otel-collector\"}[$__rate_interval]))",
+          "expr": "sum(rate(otelcol_exporter_sent_spans_total{service_name=~\"$service_name\"}[$__rate_interval]))",
           "legendFormat": "exported/s",
           "range": true,
           "refId": "B"
@@ -1272,7 +1272,7 @@
       "pluginVersion": "12.3.1",
       "targets": [
         {
-          "expr": "sum(rate(sent_bytes_total{job=\"gigapipe-writer\", service=~\"samples|time_series\"}[$__rate_interval]))",
+          "expr": "sum(rate(sent_bytes_total{job=~\"$writer_job\", service=~\"samples|time_series\"}[$__rate_interval]))",
           "legendFormat": "bytes/s",
           "range": true,
           "refId": "A"
@@ -1334,7 +1334,7 @@
       "pluginVersion": "12.3.1",
       "targets": [
         {
-          "expr": "sum(rate(sent_bytes_total{job=\"gigapipe-writer\", service=~\"traces|traces_tags\"}[$__rate_interval]))",
+          "expr": "sum(rate(sent_bytes_total{job=~\"$writer_job\", service=~\"traces|traces_tags\"}[$__rate_interval]))",
           "legendFormat": "bytes/s",
           "range": true,
           "refId": "A"
@@ -1432,7 +1432,7 @@
       "pluginVersion": "12.3.1",
       "targets": [
         {
-          "expr": "sum by (receiver) (rate(otelcol_receiver_accepted_metric_points_total{service_name=\"otel-collector\"}[$__rate_interval]))",
+          "expr": "sum by (receiver) (rate(otelcol_receiver_accepted_metric_points_total{service_name=~\"$service_name\"}[$__rate_interval]))",
           "legendFormat": "{{receiver}}",
           "range": true,
           "refId": "A"
@@ -1530,7 +1530,7 @@
       "pluginVersion": "12.3.1",
       "targets": [
         {
-          "expr": "sum by (processor) (rate(otelcol_processor_incoming_items_total{service_name=\"otel-collector\"}[$__rate_interval]) - rate(otelcol_processor_outgoing_items_total{service_name=\"otel-collector\"}[$__rate_interval])) > 0",
+          "expr": "sum by (processor) (rate(otelcol_processor_incoming_items_total{service_name=~\"$service_name\"}[$__rate_interval]) - rate(otelcol_processor_outgoing_items_total{service_name=~\"$service_name\"}[$__rate_interval])) > 0",
           "legendFormat": "{{processor}}",
           "range": true,
           "refId": "A"
@@ -1563,6 +1563,54 @@
         "refresh": 1,
         "regex": "",
         "type": "datasource"
+      },
+      {
+        "current": {
+          "selected": true,
+          "text": "otel-collector",
+          "value": "otel-collector"
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${datasource}"
+        },
+        "definition": "label_values(otelcol_receiver_accepted_metric_points_total, service_name)",
+        "includeAll": false,
+        "label": "Service",
+        "name": "service_name",
+        "options": [],
+        "query": {
+          "qryType": 1,
+          "query": "label_values(otelcol_receiver_accepted_metric_points_total, service_name)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "type": "query"
+      },
+      {
+        "current": {
+          "selected": true,
+          "text": "gigapipe-writer",
+          "value": "gigapipe-writer"
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${datasource}"
+        },
+        "definition": "label_values(sent_bytes_total, job)",
+        "includeAll": false,
+        "label": "Writer Job",
+        "name": "writer_job",
+        "options": [],
+        "query": {
+          "qryType": 1,
+          "query": "label_values(sent_bytes_total, job)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "type": "query"
       }
     ]
   },
