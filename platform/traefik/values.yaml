@@ -69,17 +69,18 @@ resources:
     memory: 256Mi
 
 # --- Logs ---
-logs:
-  general:
-    level: INFO
-  access:
-    enabled: true
-    format: json
-    fields:
-      headers:
-        defaultMode: drop
-        names:
-          Host: keep
+# Changed from 'logs' to 'log' + 'accessLog' for chart v41.x compatibility
+log:
+  level: INFO
+
+accessLog:
+  enabled: true
+  format: json
+  fields:
+    headers:
+      defaultMode: drop
+      names:
+        Host: keep
 
 # --- Metrics (for OTel scraping) ---
 metrics:

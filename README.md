@@ -101,7 +101,7 @@ k3d cluster create dev --port "80:80@loadbalancer" --k3s-arg "--disable=traefik@
 # 2. Install Gateway API CRDs + Traefik
 kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.2.1/standard-install.yaml
 helm repo add traefik https://traefik.github.io/charts
-helm install traefik traefik/traefik -n traefik --create-namespace -f platform/traefik/values.yaml --wait
+helm install traefik traefik/traefik -n traefik --create-namespace --version 41.0.0 -f platform/traefik/values.yaml --wait
 
 # 3. Deploy the Gateway
 kubectl apply -f platform/gateway/gateway.yaml

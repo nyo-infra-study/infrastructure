@@ -228,6 +228,7 @@ log_step "Installing Traefik (Gateway API-enabled)"
 run "helm install traefik traefik/traefik \
   --namespace traefik \
   --create-namespace \
+  --version 41.0.0 \
   -f '$REPO_ROOT/platform/traefik/values.yaml' \
   --wait"
 
